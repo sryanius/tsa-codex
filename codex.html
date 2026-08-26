@@ -188,6 +188,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <select id="kind" aria-label="종류"><option value="">모든 종류</option></select>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
     <label class="toggle"><input type="checkbox" id="sponly"> 특수능력만</label>
+    <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
     <span class="count" id="count"></span>
   </div>
   <div class="abils" id="abils" hidden>
@@ -210,16 +211,31 @@ window.__TSA_BOOT=function(D){
 "use strict";
 
 var el=function(id){return document.getElementById(id)};
-var state={view:"place",q:"",reg:"",kind:"",only:false,sponly:false,aband:false,abils:{}};
+// 칼레바스 고원은 아직 출시 전이라 기본으로 감춘다. 출시되면 토글만 켜면 된다.
+var LOCKED_REGION="칼레바스 고원", LKEY2="tsa.showlocked.v1";
+var state={view:"place",q:"",reg:"",kind:"",only:false,sponly:false,aband:false,abils:{},showLocked:false};
+try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
+function okPlace(p){ return state.showLocked || p.r!==LOCKED_REGION; }
+function visPlaces(){ return D.places.filter(okPlace); }
+function monPlaces(m){ return (m.places||[]).filter(okPlace); }
 
-el("s-p").textContent=D.places.length;
+el("s-p").textContent=visPlaces().length;
 el("s-m").textContent=D.monsters.length;
 el("s-i").textContent=D.items.length;
 el("s-d").textContent=D.items.filter(function(x){return x.drop&&x.drop.length}).length;
 
-var regs=[];
-D.places.forEach(function(p){ if(p.r&&regs.indexOf(p.r)<0) regs.push(p.r); });
-regs.forEach(function(r){ var o=document.createElement("option"); o.value=r; o.textContent=r; el("reg").appendChild(o); });
+function fillRegs(){
+  el("reg").innerHTML='<option value="">모든 지역</option>';
+  var seen=[];
+  D.places.forEach(function(p){
+    if(!p.r||seen.indexOf(p.r)>=0) return;
+    if(!state.showLocked && p.r===LOCKED_REGION) return;
+    seen.push(p.r);
+    var o=document.createElement("option"); o.value=p.r; o.textContent=p.r; el("reg").appendChild(o);
+  });
+  el("reg").value=state.reg;
+}
+fillRegs();
 
 // 무기/방어구 종류
 var kinds=[];
@@ -318,7 +334,8 @@ function monDetail(m){
       return '<li><button type="button" class="jump" data-go="i:'+esc(d.n)+'">'+esc(d.n)+'</button>'
         +'<span class="meta"> — '+esc(d.cat)+' · 가중치 '+(d.f||0)+' · 제작등급 '+(d.cl||0)+'</span></li>';
     }).join("")+'</ul></div>' : "";
-  var pl=m.places.length? '<div class="blk"><h4>출현지 ('+m.places.length+')</h4><ul>'+m.places.map(function(p){
+  var mp=monPlaces(m);
+  var pl=mp.length? '<div class="blk"><h4>출현지 ('+mp.length+')</h4><ul>'+mp.map(function(p){
       return '<li><button type="button" class="jump" data-go="p:'+esc(p.n)+'">'+esc(p.n)+'</button>'
         +'<span class="meta"> — '+esc(p.r)+' · Lv'+(p.lv||0)+'</span></li>'; }).join("")+'</ul></div>' : "";
   var sk=m.skills.length? '<div class="blk"><h4>스킬</h4><ul>'+m.skills.map(function(s){
@@ -403,6 +420,7 @@ function render(){
   if(state.view==="place"){
     var byR={};
     D.places.forEach(function(p){
+      if(!okPlace(p)) return;
       if(state.reg && p.r!==state.reg) return;
       var mons=[]; p.g.forEach(function(g){g.m.forEach(function(m){mons.push(m.n)})});
       if(!hit(p.n+" "+p.i+" "+p.d+" "+p.r+" "+mons.join(" "))) return;
@@ -416,7 +434,8 @@ function render(){
   } else if(state.view==="mon"){
     var rows=D.monsters.filter(function(m){
       if(state.only && !m.drops.length) return false;
-      if(state.reg && !m.places.some(function(p){return p.r===state.reg})) return false;
+      if(state.reg && !monPlaces(m).some(function(p){return p.r===state.reg})) return false;
+      if(!state.showLocked && (m.places||[]).length && !monPlaces(m).length) return false;
       return hit(m.n+" "+m.i+" "+m.d+" "+m.skills.join(" ")
         +" "+m.drops.map(function(d){return d.n}).join(" "));
     });
@@ -439,6 +458,7 @@ function render(){
       html+=block(cat, rows.length+"종", rows.map(itemRow), "var(--c-item)");
     });
   }
+  el("s-p").textContent=visPlaces().length;
   el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   // 아이템 전용 필터는 아이템 탭에서만 보인다
@@ -495,6 +515,13 @@ el("reg").addEventListener("change",function(e){ state.reg=e.target.value; rende
 el("kind").addEventListener("change",function(e){ state.kind=e.target.value; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
 el("sponly").addEventListener("change",function(e){ state.sponly=e.target.checked; render(); });
+el("showlocked").checked=state.showLocked;
+el("showlocked").addEventListener("change",function(e){
+  state.showLocked=e.target.checked;
+  try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
+  if(!state.showLocked && state.reg===LOCKED_REGION) state.reg="";
+  fillRegs(); render();
+});
 ["place","mon","item"].forEach(function(v){
   el("v-"+v).onclick=function(){
     state.view=v;

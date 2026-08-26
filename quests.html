@@ -272,6 +272,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <input type="search" id="q" placeholder="퀘스트명 · 내용 · 장소 검색" aria-label="검색">
       <select id="town" aria-label="도시 선택"><option value="">모든 도시</option></select>
       <label class="toggle"><input type="checkbox" id="undone"> 안 깬 것만</label>
+      <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
       <span class="count" id="count"></span>
     </div>
     <div class="bar-row" id="chips"></div>
@@ -317,7 +318,10 @@ try{ lv=JSON.parse(localStorage.getItem(LKEY)||"{}")||{}; }catch(e){ lv={}; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(done)); }catch(e){} }
 function saveLv(){ try{ localStorage.setItem(LKEY,JSON.stringify(lv)); }catch(e){} }
 
-var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{}};
+var LKEY2="tsa.showlocked.v1";
+var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{},
+           showLocked:false};
+try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function el(id){ return document.getElementById(id); }
 // 세이브에서 읽은 clearCount(cc) 가 진실. 체크박스는 수동 보정용.
 function isDone(x){
@@ -409,10 +413,16 @@ FORD.concat([JOB]).forEach(function(f){
   chipBox.appendChild(b);
 });
 var tsel=el("town");
-D.towns.forEach(function(t){
-  var o=document.createElement("option"); o.value=t.n;
-  o.textContent=t.n+" — "+t.r+(LOCKED[t.n]?" (미출시)":""); tsel.appendChild(o);
-});
+function fillTowns(){
+  tsel.innerHTML='<option value="">모든 도시</option>';
+  D.towns.forEach(function(t){
+    if(!state.showLocked && LOCKED[t.n]) return;
+    var o=document.createElement("option"); o.value=t.n;
+    o.textContent=t.n+" — "+t.r+(LOCKED[t.n]?" (미출시)":""); tsel.appendChild(o);
+  });
+  tsel.value=state.town;
+}
+fillTowns();
 
 var lvBox=el("levels");
 FORD.forEach(function(f){
@@ -430,10 +440,11 @@ FORD.forEach(function(f){
   lvBox.appendChild(w);
 });
 
-el("s-q").textContent=D.quests.length;
-el("s-t").textContent=D.towns.length;
-el("s-f").textContent=D.quests.filter(function(x){return x.g;}).length;
-el("s-u").textContent=D.quests.filter(function(x){return x.u;}).length;
+function visQuests(){ return D.quests.filter(function(x){ return state.showLocked || !LOCKED[x.t]; }); }
+el("s-q").textContent=visQuests().length;
+el("s-t").textContent=D.towns.filter(function(t){ return state.showLocked || !LOCKED[t.n]; }).length;
+el("s-f").textContent=visQuests().filter(function(x){return x.g;}).length;
+el("s-u").textContent=visQuests().filter(function(x){return x.u;}).length;
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 function anyFac(){ return FORD.concat(["__job"]).some(function(f){ return state.facs[f]; }); }
@@ -447,6 +458,7 @@ function members(m){
 }
 
 function match(x){
+  if(!state.showLocked && LOCKED[x.t]) return false;
   if(state.town && x.t!==state.town) return false;
   if(state.undone && isDone(x)) return false;
   if(state.neg && x.rep>=0) return false;
@@ -579,7 +591,11 @@ function remainBox(town){
 
 function render(){
   var rows=D.quests.filter(match);
-  el("count").textContent=rows.length+" / "+D.quests.length+" 건";
+  el("s-q").textContent=visQuests().length;
+  el("s-t").textContent=D.towns.filter(function(t){ return state.showLocked || !LOCKED[t.n]; }).length;
+  el("s-f").textContent=visQuests().filter(function(x){return x.g;}).length;
+  el("s-u").textContent=visQuests().filter(function(x){return x.u;}).length;
+  el("count").textContent=rows.length+" / "+visQuests().length+" 건";
   el("s-d").textContent=Object.keys(done).filter(function(k){ return done[k]; }).length;
   if(!rows.length){ el("out").innerHTML='<p class="empty">조건에 맞는 퀘스트가 없습니다. 필터를 줄여 보세요.</p>'; return; }
   var html="";
@@ -591,7 +607,9 @@ function render(){
                  .sort(function(a,b){ return key(a)-key(b)||a.lv-b.lv; });
       var all=D.quests.filter(function(x){ return x.g===f; }).length, open=openCount(f);
       var base=BASE[f]||0, cap=open+base, full=all+base;
-      var sub=(NOTE[f]?NOTE[f]+" · ":"")+"전체 "+full+"단계 · 지금 올릴 수 있는 건 "+cap+"단계";
+      var sub=(NOTE[f]?NOTE[f]+" · ":"")
+        + (state.showLocked ? "전체 "+full+"단계 · 지금 올릴 수 있는 건 "+cap+"단계"
+                            : "전체 "+cap+"단계");
       if(lv[f]!=null){
         var left=cap-lv[f];
         sub+=" · 내 레벨 "+lv[f]+" → "+(left>0?"남은 "+left+"개":(left===0?"현재 만렙":"레벨이 더 높음(확인 필요)"));
@@ -605,7 +623,8 @@ function render(){
     var uAll=D.quests.filter(function(x){ return x.u; });
     var uLock=uAll.filter(function(x){ return LOCKED[x.t]; }).length;
     html+=groupBlock("직업 훈련소 해금",
-      "전체 "+uAll.length+"곳 · 지금 해금 가능 "+(uAll.length-uLock)+"곳 · 미출시 "+uLock+"곳 · 요구 평판 높은 순",
+      (state.showLocked ? "전체 "+uAll.length+"곳 · 지금 해금 가능 "+(uAll.length-uLock)+"곳 · 미출시 "+uLock+"곳"
+                        : "전체 "+(uAll.length-uLock)+"곳")+" · 요구 평판 높은 순",
       un, "var(--f-train)");
     var rest=rows.filter(function(x){ return !x.g && !x.u; });
     if(rest.length) html+=groupBlock("시설과 무관한 퀘스트", rest.length+"건", rest, null);
@@ -689,6 +708,13 @@ el("slots").addEventListener("input",function(e){
 try{ el("slots").value=slots; }catch(e){}
 el("town").addEventListener("change",function(e){ state.town=e.target.value; render(); });
 el("undone").addEventListener("change",function(e){ state.undone=e.target.checked; render(); });
+el("showlocked").checked=state.showLocked;
+el("showlocked").addEventListener("change",function(e){
+  state.showLocked=e.target.checked;
+  try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
+  if(!state.showLocked && LOCKED[state.town]) state.town="";
+  fillTowns(); render();
+});
 el("v-fac").onclick=function(){ state.view="fac"; el("v-fac").setAttribute("aria-pressed","true"); el("v-town").setAttribute("aria-pressed","false"); render(); };
 el("v-town").onclick=function(){ state.view="town"; el("v-town").setAttribute("aria-pressed","true"); el("v-fac").setAttribute("aria-pressed","false"); render(); };
 

@@ -75,38 +75,38 @@ footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
 .repbar output{font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:500;
   color:var(--ink);min-width:2.5ch;font-variant-numeric:tabular-nums}
 </style>
-<link rel="manifest" href="app.webmanifest">
+<link rel="manifest" href="/app.webmanifest">
 <meta name="theme-color" content="#2F5D8C">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="/icon.svg">
 </head>
 <body>
 <div class="wrap">
   <nav class="topnav">
-    <a class="here" href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a>
+    <a class="here" href="/">자료실</a><a href="/quests.html">퀘스트 색인</a><a href="/codex.html">도감</a>
   </nav>
   <header>
     <p class="eyebrow">The Silent Archivist &middot; 로컬 자료실</p>
     <h1>침묵의 기록자 자료실</h1>
-    <p class="lede">설치된 APK의 Addressables 번들에서 직접 추출한 데이터입니다. 게임이 화면에 띄워주지 않는 조건·확률·연결 관계를 펼쳐 놓았습니다.</p>
+    <p class="lede">설치된 APK의 Addressables 번들에서 직접 추출한 데이터입니다. 게임이 화면에 띄워주지 않는 조건·확률·연결 관계를 펼쳐 놓았습니다.<br><b>아직 출시되지 않은 칼레바스 고원은 기본으로 감춰 뒀습니다</b> — 각 페이지의 «미출시 지역 보기» 를 켜면 나옵니다.</p>
   </header>
 
   <div class="cards">
-    <a class="card" href="guide.html"><h2 style="color:var(--accent)">집에서 쓰는 법</h2><p>회사 PC 없이 집 컴퓨터와 폰으로 보고, 세이브 진행도를 갱신하는 절차.</p><div class="figs"><span class="fig"><b>adb</b><span>준비물은 이것뿐</span></span></div></a>
-    <a class="card" href="quests.html">
+    <a class="card" href="/guide.html"><h2 style="color:var(--accent)">집에서 쓰는 법</h2><p>회사 PC 없이 집 컴퓨터와 폰으로 보고, 세이브 진행도를 갱신하는 절차.</p><div class="figs"><span class="fig"><b>adb</b><span>준비물은 이것뿐</span></span></div></a>
+    <a class="card" href="/quests.html">
       <h2 style="color:var(--c-quest)">퀘스트 색인</h2>
       <p>요구 평판과 선행 체인, 1회성 여부, 시설 업그레이드 진행도, 보물금고 등장 시각까지.</p>
       <div class="figs">
-        <span class="fig"><b>1,364</b><span>퀘스트</span></span>
-        <span class="fig"><b>16</b><span>도시</span></span>
-        <span class="fig"><b>1,140</b><span>보물금고</span></span>
+        <span class="fig"><b>1,184</b><span>퀘스트</span></span>
+        <span class="fig"><b>14</b><span>도시</span></span>
+        <span class="fig"><b>1,049</b><span>보물금고</span></span>
       </div>
     </a>
-    <a class="card" href="codex.html">
+    <a class="card" href="/codex.html">
       <h2 style="color:var(--c-codex)">도감</h2>
       <p>탐색지에 나오는 몬스터 그룹과 출현 가중치, 몬스터가 떨구는 아이템, 아이템의 드랍처 역인덱스.</p>
       <div class="figs">
-        <span class="fig"><b>329</b><span>탐색지</span></span>
-        <span class="fig"><b>368</b><span>몬스터</span></span>
+        <span class="fig"><b>283</b><span>탐색지</span></span>
+        <span class="fig"><b>323</b><span>몬스터</span></span>
         <span class="fig"><b>757</b><span>아이템</span></span>
       </div>
     </a>
@@ -124,6 +124,7 @@ footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
 if (평판상한 &ge; 현재평판) 현재평판 += master.reputation             // 최대 99</pre>
 
     <div class="repbar">
+      <label style="font-size:12.5px"><input type="checkbox" id="showlocked"> 미출시 지역(칼레바스 고원) 포함</label>
       <label>내 평판 <input type="range" id="rep" min="0" max="99" value="20"></label>
       <output id="repout">20</output>
       <span class="note" style="margin:0">슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다.</span>
@@ -139,10 +140,13 @@ if (평판상한 &ge; 현재평판) 현재평판 += master.reputation           
   </section>
   <script>
   var CAPS=[{"n":"윈달리온 마을","m":0,"inst":15,"cap":80,"d":{"1":14,"0":7,"2":32,"3":23,"4":20,"5":11,"6":5},"dm":{"10":2,"0":7,"1":10,"11":3,"4":7,"5":24,"2":7,"12":6,"6":11,"7":11,"14":2,"3":8,"13":5,"8":5,"15":2,"9":2}},{"n":"브란샤르","m":1,"inst":11,"cap":55,"d":{"2":3,"3":7,"4":24,"5":25,"6":28,"7":7,"8":4},"dm":{"2":1,"5":7,"6":11,"7":25,"4":4,"8":22,"9":19,"10":8,"11":1}},{"n":"실바드 타운","m":2,"inst":13,"cap":60,"d":{"2":2,"3":3,"4":8,"5":12,"6":19,"7":23,"8":14,"9":6,"10":3},"dm":{"2":2,"3":1,"6":2,"7":10,"8":15,"9":19,"10":20,"11":13,"5":1,"12":4,"13":3}},{"n":"사하리오","m":3,"inst":13,"cap":55,"d":{"4":4,"5":7,"6":8,"7":11,"8":16,"9":9,"10":3},"dm":{"7":5,"8":6,"9":8,"10":14,"11":17,"12":4,"6":1,"13":3}},{"n":"루페리아 그로브","m":4,"inst":13,"cap":50,"d":{"4":4,"5":4,"8":9,"7":11,"6":6,"9":12,"10":5},"dm":{"7":5,"8":4,"11":11,"10":9,"9":7,"12":14,"13":1}},{"n":"밀레아 마을","m":5,"inst":18,"cap":70,"d":{"5":1,"7":8,"9":13,"10":18,"8":10,"6":1,"11":14,"13":9,"12":6,"14":4,"15":1,"16":1},"dm":{"8":3,"10":8,"12":14,"13":18,"11":11,"9":1,"14":13,"15":8,"16":6,"17":3,"18":1}},{"n":"군벨 마을","m":6,"inst":17,"cap":60,"d":{"7":2,"8":2,"9":9,"10":17,"11":17,"12":15,"14":7,"13":11,"15":1},"dm":{"9":1,"11":6,"12":11,"13":17,"14":15,"15":16,"17":6,"10":2,"16":7}},{"n":"세라피오스","m":12,"inst":28,"cap":85,"d":{"10":2,"11":1,"12":5,"13":11,"14":12,"15":11,"16":16,"17":14,"18":8,"20":1,"9":1,"19":7,"26":1,"22":1},"dm":{"10":1,"14":3,"15":7,"16":12,"19":14,"17":14,"20":12,"21":6,"22":7,"11":1,"13":1,"18":11,"28":1,"25":1}},{"n":"풋워커의 마을","m":12,"inst":26,"cap":75,"d":{"13":4,"14":7,"17":16,"18":16,"19":11,"12":1,"15":10,"16":12,"20":5,"21":1,"23":3},"dm":{"16":3,"17":11,"20":13,"21":18,"15":2,"18":10,"19":11,"22":12,"23":3,"26":3}},{"n":"국경을 넘는 숙소","m":19,"inst":28,"cap":50,"d":{"16":2,"19":8,"22":13,"23":13,"20":10,"21":20,"24":8,"18":1,"27":1,"25":2,"26":2},"dm":{"19":2,"21":3,"22":8,"24":17,"25":13,"26":11,"23":17,"27":7,"28":2}},{"n":"드라이레이크 헤이븐","m":20,"inst":28,"cap":45,"d":{"20":4,"21":7,"22":13,"23":17,"25":9,"24":5,"26":3,"27":1},"dm":{"23":6,"24":9,"25":14,"26":13,"27":7,"22":1,"28":9}},{"n":"리스티아","m":20,"inst":28,"cap":45,"d":{"18":1,"21":4,"22":4,"23":11,"25":16,"26":12,"24":15,"27":2},"dm":{"21":2,"23":1,"24":3,"26":20,"27":17,"25":5,"28":17}},{"n":"용광로 마을","m":22,"inst":33,"cap":60,"d":{"27":19,"28":27,"26":6,"30":11,"25":3,"29":25,"31":10,"33":2},"dm":{"27":6,"28":6,"29":33,"30":28,"26":1,"31":19,"32":5,"33":5}},{"n":"트레반의 마을","m":25,"inst":33,"cap":45,"d":{"29":20,"27":7,"31":19,"26":1,"32":15,"28":9,"30":18,"33":7},"dm":{"29":6,"27":1,"30":14,"31":23,"32":28,"33":24}},{"n":"자르간트 마을","m":29,"inst":39,"cap":55,"d":{"29":2,"30":3,"31":18,"33":24,"32":11,"34":13,"35":17,"36":4},"dm":{"32":2,"33":3,"34":18,"36":24,"35":11,"37":13,"38":17,"39":4}},{"n":"노르그레이 마을","m":31,"inst":39,"cap":45,"d":{"31":14,"32":14,"33":19,"35":13,"34":24,"36":4},"dm":{"34":14,"35":14,"36":19,"38":13,"37":24,"39":4}}];
+
+  var LOCKED_TOWNS={"자르간트 마을":1,"노르그레이 마을":1}, LKEY2="tsa.showlocked.v1";
+  var showLocked=false; try{ showLocked=localStorage.getItem(LKEY2)==="1"; }catch(e){}
   var rep=document.getElementById("rep"), out=document.getElementById("repout"), tb=document.getElementById("reptable");
   function draw(){
     var R=+rep.value; out.textContent=R;
-    tb.innerHTML=CAPS.map(function(c){
+    tb.innerHTML=CAPS.filter(function(c){ return showLocked || !LOCKED_TOWNS[c.n]; }).map(function(c){
       var need=c.m-1+Math.ceil(R/5);
       var dead=need>c.inst;
       var n=0, nm=0;
@@ -155,6 +159,11 @@ if (평판상한 &ge; 현재평판) 현재평판 += master.reputation           
         +"<td class='mono'"+(R>=c.cap?" style='color:var(--c-codex);font-weight:600'":"")+">"+c.cap+"</td></tr>";
     }).join("");
   }
+  var sl=document.getElementById("showlocked");
+  if(sl){ sl.checked=showLocked;
+    sl.addEventListener("change",function(){ showLocked=sl.checked;
+      try{ localStorage.setItem(LKEY2, showLocked?"1":"0"); }catch(e){}
+      draw(); }); }
   rep.addEventListener("input",draw); draw();
   </script>
 
@@ -181,5 +190,6 @@ if (평판상한 &ge; 현재평판) 현재평판 += master.reputation           
   </footer>
 </div>
 
+<script>if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});</script>
 </body>
 </html>

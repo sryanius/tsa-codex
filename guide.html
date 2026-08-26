@@ -85,45 +85,10 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
 <header>
   <p class="eyebrow">The Silent Archivist &middot; 핸드오프</p>
   <h1>집에서 쓰는 법</h1>
-  <p class="lede">회사 PC 없이, 집 컴퓨터와 폰만으로 자료실을 보고 세이브 진행도를 갱신하는 방법입니다. 파이썬도 서버도 필요 없습니다 &mdash; <b>세이브를 꺼낼 때만 adb 가 필요합니다.</b></p>
+  <p class="lede">회사 PC 없이, 집 컴퓨터와 폰만으로 자료실을 보고 세이브 진행도를 갱신하는 방법입니다. 파이썬도 서버도 필요 없습니다 &mdash; <b>adb 하나면 됩니다.</b></p>
 </header>
 
-
-<h2><span class="n">0</span> 클라우드 자료실 (설정하면 이게 제일 편합니다)</h2>
-<p><b><a href="https://sryanius.github.io/tsa-codex/">https://sryanius.github.io/tsa-codex/</a></b> &mdash; 어디서든 열리고, 세이브를 넣으면 다른 기기에도 자동으로 반영됩니다.</p>
-<p>껍데기는 GitHub Pages 에 공개돼 있지만 <b>게임 데이터는 들어 있지 않습니다.</b> 퀘스트·도감 데이터는 비공개 Supabase Storage 에 있고, 본인 구글 계정으로 로그인해야 받습니다. 남이 주소를 알아도 로그인 화면에서 멈춥니다.</p>
-
-<div class="box ok">
-  <b>설정은 끝났습니다.</b> 아래 셋 다 적용돼 있어서 지금 바로 주소를 열고 로그인만 하면 됩니다.
-  <ul style="margin:8px 0 0">
-    <li><code>tsa_progress</code> 테이블 + <code>tsa-data</code> 비공개 버킷 생성 완료 (RLS 켜짐)</li>
-    <li>데이터 업로드 완료 &mdash; <code>data.json</code> 1.6MB · <code>codex.json</code> 1.0MB</li>
-    <li>로그인 리다이렉트 주소 등록 완료</li>
-  </ul>
-  로그인 없이 데이터 주소를 직접 열면 <code>Object not found</code> 가 뜨는 것까지 확인했습니다.
-</div>
-
-<h3>다시 설정해야 할 때</h3>
-<ol>
-  <li><b>SQL</b> &mdash; Supabase → SQL Editor 에 <code>cloud/001_tsa.sql</code> 붙여넣고 Run</li>
-  <li><b>데이터</b> &mdash; Storage → <code>tsa-data</code> → Upload 로 <code>full/data.json</code> · <code>full/codex.json</code></li>
-  <li><b>로그인 주소</b> &mdash; Authentication → URL Configuration → Redirect URLs 에 <code>https://sryanius.github.io/tsa-codex/**</code>
-      <br><span style="color:var(--muted);font-size:13px">구글 클라우드 콘솔이 아니라 <b>Supabase</b> 쪽입니다. 구글에는 Supabase 콜백 주소만 있으면 됩니다.</span></li>
-</ol>
-<p style="font-size:13px;color:var(--muted)">게임 데이터를 새로 뽑았을 때는 2번만 다시 하면 됩니다 (덮어쓰기).</p>
-
-<h3>쓰는 법</h3>
-<ol>
-  <li>주소를 열고 <b>구글로 로그인</b> (한 번 하면 유지됩니다)</li>
-  <li>데이터가 내려오면 그때부터는 <b>오프라인에서도</b> 열립니다 (기기에 캐시됩니다)</li>
-  <li>세이브를 갱신하려면 3번 절차대로 <code>Town</code> 폴더를 받아 «세이브 폴더 열기» &mdash; 넣는 순간 클라우드에 올라가고, 폰에서 열면 그 진행도가 그대로 보입니다</li>
-</ol>
-<div class="box ok">
-  <b>세이브 파일 자체는 서버로 안 갑니다.</b> 브라우저가 복호화하고, 거기서 뽑은
-  «퀘스트별 클리어 횟수»만 본인 계정으로 저장됩니다.
-</div>
-
-<h2><span class="n">1</span> 다른 방법 &mdash; 보기만 할 때는 아무것도 필요 없습니다</h2>
+<h2><span class="n">1</span> 보기만 할 때는 아무것도 필요 없습니다</h2>
 <p>세 페이지 모두 인터넷 주소로 열립니다. 폰이든 집 PC든 그냥 열면 됩니다. 회사 PC의 <code>localhost:6101</code> 은 필요 없습니다.</p>
 <div class="cards">
   <a class="card" href="https://claude.ai/code/artifact/cac740f9-0c0b-4ea6-b7c1-449da4f20905">
