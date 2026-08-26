@@ -213,7 +213,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
     <select id="kind" aria-label="종류"><option value="">모든 종류</option></select>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
-    <label class="toggle"><input type="checkbox" id="sponly"> 특수능력만</label>
     <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
     <span class="count" id="count"></span>
   </div>
@@ -222,6 +221,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <label class="toggle" style="font-size:11.5px"><input type="checkbox" id="mtand"> 모두 만족(AND)</label>
       <button type="button" id="mtclear" class="mini">전체 해제</button></div>
     <div class="abils-box" id="mtbox"></div>
+  </div>
+  <div class="abils" id="itemtags" hidden>
+    <div class="abils-head"><b>아이템 태그로 걸러보기</b>
+      <label class="toggle" style="font-size:11.5px"><input type="checkbox" id="itand"> 모두 만족(AND)</label>
+      <button type="button" id="itclear" class="mini">전체 해제</button></div>
+    <div class="abils-box" id="itbox"></div>
   </div>
   <div class="abils" id="abils" hidden>
     <div class="abils-head"><b>특수능력으로 걸러보기</b>
@@ -246,7 +251,7 @@ window.__TSA_BOOT=function(D){
 var el=function(id){return document.getElementById(id)};
 // 칼레바스 고원은 아직 출시 전이라 기본으로 감춘다. 출시되면 토글만 켜면 된다.
 var LOCKED_REGION="칼레바스 고원", LKEY2="tsa.showlocked.v1";
-var state={view:"place",q:"",reg:"",kind:"",only:false,sponly:false,aband:false,abils:{},showLocked:false};
+var state={view:"place",q:"",reg:"",kind:"",only:false,aband:false,abils:{},showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || p.r!==LOCKED_REGION; }
 function visPlaces(){ return D.places.filter(okPlace); }
@@ -311,11 +316,53 @@ function abilMatch(x){
 }
 el("aband").addEventListener("change",function(e){ state.aband=e.target.checked; render(); });
 
-/* 몬스터 태그 — 성질(비행/언데드/드랍), 약점 속성, 내성 속성, 스킬.
-   화면에 실제로 존재하는 것만 만든다. 아무도 안 가진 태그는 클릭할 이유가 없다. */
+/* 태그 상자 — 몬스터와 아이템이 같은 것을 쓴다.
+   태그 하나는 {키, 이름, 판정함수} 셋이다. 기본은 OR(하나라도),
+   «모두 만족» 을 켜면 AND. 개수는 미출시 지역 토글에 따라 달라지므로
+   render() 때마다 다시 센다 — 굳혀 두면 «탐색지 51» 이 거짓말이 된다. */
+function makeTagBox(boxId, andId, clearId, tags, source, sel, andRef){
+  var byKey={}; tags.forEach(function(t){ byKey[t.k]=t; });
+  var box=el(boxId), labels=[];
+  tags.forEach(function(t){
+    var lab=document.createElement("label"); lab.className="ab";
+    var cb=document.createElement("input"); cb.type="checkbox";
+    cb.addEventListener("change",function(){
+      if(cb.checked) sel[t.k]=true; else delete sel[t.k];
+      lab.classList.toggle("on",cb.checked); render();
+    });
+    lab.appendChild(cb); lab.appendChild(document.createTextNode(t.l));
+    var i=document.createElement("i"); i.className="n"; lab.appendChild(i);
+    box.appendChild(lab); labels.push({t:t, lab:lab, cb:cb, n:i});
+  });
+  el(clearId).onclick=function(){
+    for(var k in sel) delete sel[k];
+    labels.forEach(function(L){ L.cb.checked=false; L.lab.classList.remove("on"); });
+    render();
+  };
+  el(andId).addEventListener("change",function(e){ andRef.on=e.target.checked; render(); });
+  return {
+    any: function(){ for(var k in sel) return true; return false; },
+    match: function(x){
+      if(andRef.on){ for(var k in sel) if(!byKey[k].t(x)) return false; return true; }
+      for(var k2 in sel) if(byKey[k2].t(x)) return true;
+      return false;
+    },
+    // 개수를 다시 세고, 아무도 안 가진 태그는 숨긴다
+    refresh: function(){
+      var list=source();
+      labels.forEach(function(L){
+        var n=list.filter(L.t.t).length;
+        L.n.textContent=n;
+        L.lab.hidden = !n && !L.cb.checked;
+      });
+    }
+  };
+}
+
+/* 몬스터 태그 — 성질(비행/언데드/드랍), 약점 속성, 내성 속성, 스킬 */
 var MTAG=[];
 (function(){
-  function add(key,label,test){ MTAG.push({k:key,l:label,t:test}); }
+  function add(k,l,t){ MTAG.push({k:k,l:l,t:t}); }
   add("fly","비행",function(m){ return !!m.fly; });
   add("undead","언데드",function(m){ return !!m.undead; });
   add("drop","드랍 있음",function(m){ return m.drops.length>0; });
@@ -332,34 +379,14 @@ var MTAG=[];
   Object.keys(sk).forEach(function(e){
     add("k:"+e,"스킬 "+e,function(m){ return (m.skills||[]).indexOf(e)>=0; }); });
 })();
-var MTBY={}; MTAG.forEach(function(t){ MTBY[t.k]=t; });
-state.mtags={}; state.mtand=false;
-MTAG.forEach(function(t){
-  var n=D.monsters.filter(t.t).length;
-  if(!n) return;
-  var lab=document.createElement("label"); lab.className="ab";
-  var cb=document.createElement("input"); cb.type="checkbox";
-  cb.addEventListener("change",function(){
-    if(cb.checked) state.mtags[t.k]=true; else delete state.mtags[t.k];
-    lab.classList.toggle("on",cb.checked); render();
+state.mtags={};
+function visMons(){
+  return D.monsters.filter(function(m){
+    return state.showLocked || !(m.places||[]).length || monPlaces(m).length;
   });
-  lab.appendChild(cb); lab.appendChild(document.createTextNode(t.l));
-  var i=document.createElement("i"); i.className="n"; i.textContent=n; lab.appendChild(i);
-  el("mtbox").appendChild(lab);
-});
-el("mtclear").onclick=function(){
-  state.mtags={};
-  Array.prototype.forEach.call(el("mtbox").querySelectorAll("input"),function(c){ c.checked=false; });
-  Array.prototype.forEach.call(el("mtbox").querySelectorAll(".ab"),function(l){ l.classList.remove("on"); });
-  render();
-};
-el("mtand").addEventListener("change",function(e){ state.mtand=e.target.checked; render(); });
-function anyMTag(){ for(var k in state.mtags) return true; return false; }
-function mtagMatch(m){
-  if(state.mtand){ for(var k in state.mtags) if(!MTBY[k].t(m)) return false; return true; }
-  for(var k2 in state.mtags) if(MTBY[k2].t(m)) return true;
-  return false;
 }
+var MT=makeTagBox("mtbox","mtand","mtclear",MTAG,
+                  visMons, state.mtags, {on:false});
 
 // 이름으로 찾는 색인. 드랍/그룹에는 이름만 들어 있어서 되짚으려면 필요하다.
 var MONBY={}; D.monsters.forEach(function(m){ MONBY[m.n||m.i]=m; });
@@ -377,6 +404,19 @@ function itemPlaces(x){
   });
   return out;
 }
+/* 아이템 태그 — 행에 붙는 배지와 같은 뜻이다. 배지가 보이면 걸러도 진다. */
+var ITAG=[
+  {k:"drop",  l:"몬스터 드랍", t:function(x){ return x.drop.length>0; }},
+  {k:"place", l:"탐색지",      t:function(x){ return itemPlaces(x).length>0; }},
+  {k:"quest", l:"퀘스트",      t:function(x){ return x.qd.length>0; }},
+  {k:"sp",    l:"특수능력",    t:function(x){ return x.sp.length>0; }},
+  {k:"shop",  l:"상점 판매",   t:function(x){ return !!x.shop; }},
+  {k:"none",  l:"획득처 없음", t:function(x){ return !x.drop.length && !x.qd.length; }}
+];
+state.itags={};
+var IT=makeTagBox("itbox","itand","itclear",ITAG,
+                  function(){ return D.items; }, state.itags, {on:false});
+
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 // 아이템 이름 한 줄 — 눌러서 이동, 올려서 미리보기.
@@ -597,11 +637,11 @@ function render(){
       html+=block(r, rows.length+"곳", rows, "var(--c-place)");
     });
   } else if(state.view==="mon"){
-    var rows=D.monsters.filter(function(m){
+    var rows=visMons().filter(function(m){
       if(state.only && !m.drops.length) return false;
-      if(anyMTag() && !mtagMatch(m)) return false;
+      if(MT.any() && !MT.match(m)) return false;
       if(state.reg && !monPlaces(m).some(function(p){return p.r===state.reg})) return false;
-      if(!state.showLocked && (m.places||[]).length && !monPlaces(m).length) return false;
+      // (미출시 지역 전용 몬스터 제외는 visMons 와 같은 규칙이다)
       return hit(m.n+" "+m.i+" "+m.d+" "+m.skills.join(" ")
         +" "+(m.weak||[]).map(function(e){return "약점 "+e}).join(" ")
         +" "+(m.strong||[]).map(function(e){return "내성 "+e}).join(" ")
@@ -617,9 +657,10 @@ function render(){
         if(x.cat!==cat) return false;
         if(state.kind && x.kind!==state.kind) return false;
         if(state.only && !x.drop.length && !x.qd.length) return false;
-        if(state.sponly && !x.sp.length) return false;
+        if(IT.any() && !IT.match(x)) return false;
         if(anyAbil() && !abilMatch(x)) return false;
         return hit(x.n+" "+x.i+" "+x.d+" "+(x.shop||"")+" "+x.kind
+          +" "+itemPlaces(x).map(function(z){return z.n+" "+z.r}).join(" ")
           +" "+x.sp.map(function(a){return a.k+" "+a.v}).join(" ")
           +" "+x.drop.map(function(d){return d.m}).join(" ")
           +" "+x.qd.map(function(z){return z.q+" "+z.t}).join(" "));
@@ -634,9 +675,10 @@ function render(){
   // 아이템 전용 필터는 아이템 탭에서만 보인다
   var isItem = state.view==="item";
   el("abils").hidden = !isItem;
+  el("itemtags").hidden = !isItem;
   el("montags").hidden = state.view!=="mon";
+  if(isItem) IT.refresh(); else if(state.view==="mon") MT.refresh();
   el("kind").style.display = isItem ? "" : "none";
-  el("sponly").parentNode.style.display = isItem ? "" : "none";
   el("reg").style.display = isItem ? "none" : "";
 }
 
@@ -721,7 +763,6 @@ el("q").addEventListener("input",function(e){
 el("reg").addEventListener("change",function(e){ state.reg=e.target.value; render(); });
 el("kind").addEventListener("change",function(e){ state.kind=e.target.value; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
-el("sponly").addEventListener("change",function(e){ state.sponly=e.target.checked; render(); });
 el("showlocked").checked=state.showLocked;
 el("showlocked").addEventListener("change",function(e){
   state.showLocked=e.target.checked;
