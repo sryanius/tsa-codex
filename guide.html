@@ -93,18 +93,24 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
 <p><b><a href="https://sryanius.github.io/tsa-codex/">https://sryanius.github.io/tsa-codex/</a></b> &mdash; 어디서든 열리고, 세이브를 넣으면 다른 기기에도 자동으로 반영됩니다.</p>
 <p>껍데기는 GitHub Pages 에 공개돼 있지만 <b>게임 데이터는 들어 있지 않습니다.</b> 퀘스트·도감 데이터는 비공개 Supabase Storage 에 있고, 본인 구글 계정으로 로그인해야 받습니다. 남이 주소를 알아도 로그인 화면에서 멈춥니다.</p>
 
-<h3>준비 &mdash; 세 단계, 한 번만</h3>
-<ol>
-  <li><b>SQL 실행</b> &mdash; Supabase 대시보드 → SQL Editor 에 <code>cloud/001_tsa.sql</code> 전체를 붙여넣고 Run.
-      <br><span style="color:var(--muted);font-size:13px">용병단의 <code>saves</code>·<code>scores</code> 는 건드리지 않습니다. <code>tsa_progress</code> 테이블과 <code>tsa-data</code> 버킷만 새로 만듭니다.</span></li>
-  <li><b>데이터 업로드</b> &mdash; Storage → <code>tsa-data</code> 버킷 → Upload 로 두 파일을 넣습니다:
-      <br><code>full/data.json</code> (1.6MB) · <code>full/codex.json</code> (1.1MB) &mdash; 회사 PC 의 <code>C:/claude/app/</code> 밑에 있습니다</li>
-  <li><b>로그인 주소 허용</b> &mdash; Authentication → URL Configuration → Redirect URLs 에 추가:
-      <br><code>https://sryanius.github.io/tsa-codex/**</code></li>
-</ol>
-<div class="box warn">
-  3번을 빼먹으면 구글 로그인 후 «redirect_to is not allowed» 로 튕깁니다. 가장 흔한 실수입니다.
+<div class="box ok">
+  <b>설정은 끝났습니다.</b> 아래 셋 다 적용돼 있어서 지금 바로 주소를 열고 로그인만 하면 됩니다.
+  <ul style="margin:8px 0 0">
+    <li><code>tsa_progress</code> 테이블 + <code>tsa-data</code> 비공개 버킷 생성 완료 (RLS 켜짐)</li>
+    <li>데이터 업로드 완료 &mdash; <code>data.json</code> 1.6MB · <code>codex.json</code> 1.0MB</li>
+    <li>로그인 리다이렉트 주소 등록 완료</li>
+  </ul>
+  로그인 없이 데이터 주소를 직접 열면 <code>Object not found</code> 가 뜨는 것까지 확인했습니다.
 </div>
+
+<h3>다시 설정해야 할 때</h3>
+<ol>
+  <li><b>SQL</b> &mdash; Supabase → SQL Editor 에 <code>cloud/001_tsa.sql</code> 붙여넣고 Run</li>
+  <li><b>데이터</b> &mdash; Storage → <code>tsa-data</code> → Upload 로 <code>full/data.json</code> · <code>full/codex.json</code></li>
+  <li><b>로그인 주소</b> &mdash; Authentication → URL Configuration → Redirect URLs 에 <code>https://sryanius.github.io/tsa-codex/**</code>
+      <br><span style="color:var(--muted);font-size:13px">구글 클라우드 콘솔이 아니라 <b>Supabase</b> 쪽입니다. 구글에는 Supabase 콜백 주소만 있으면 됩니다.</span></li>
+</ol>
+<p style="font-size:13px;color:var(--muted)">게임 데이터를 새로 뽑았을 때는 2번만 다시 하면 됩니다 (덮어쓰기).</p>
 
 <h3>쓰는 법</h3>
 <ol>
