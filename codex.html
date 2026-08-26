@@ -134,6 +134,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .jump{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;
   border-bottom:1px dashed currentColor;padding:0;cursor:pointer}
 .jump:hover{color:var(--ink);border-bottom-style:solid}
+.t-place{color:var(--c-place)}
+/* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
+.drops{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.9}
+.drops .sep{font-style:normal;color:var(--faint);margin:0 5px}
+.gist{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+  color:var(--muted);font-variant-numeric:tabular-nums}
+.gsp{margin-left:7px}
+.gsp i{font-style:normal;display:inline-block;margin:0 3px 0 0;padding:0 5px;
+  border:1px solid var(--good);border-radius:9px;color:var(--good);font-size:10.5px}
+/* 이름에 올렸을 때 뜨는 카드 */
+#pop{position:fixed;z-index:60;max-width:340px;pointer-events:none;opacity:0;
+  transition:opacity .09s ease}
+#pop.on{opacity:1}
+#pop .card{background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:12px 14px;box-shadow:0 8px 26px rgba(0,0,0,.18)}
+#pop .card>b{display:block;font-family:"Gowun Batang",Georgia,serif;font-size:15px;
+  color:var(--ink);margin:0 0 8px}
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin:0}
+.cgrid dt{font-size:10.5px;color:var(--faint);letter-spacing:.04em}
+.cgrid dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--body);
+  font-variant-numeric:tabular-nums}
+.csp{margin:9px 0 0}
+.csp i{font-style:normal;display:inline-block;margin:0 4px 4px 0;padding:1px 7px;
+  border:1px solid var(--good);border-radius:9px;color:var(--good);font-size:11px}
+.cmeta{margin:8px 0 0;font-size:11.5px;color:var(--muted);line-height:1.6}
+.cmeta b{color:var(--faint);font-weight:600;font-size:10.5px;letter-spacing:.04em;margin-right:4px}
 .story{margin:12px 0 0;padding:11px 14px;border-left:2px solid var(--line);
   background:var(--surface);border-radius:0 7px 7px 0;font-size:13.5px;
   color:var(--body);white-space:pre-wrap;max-width:70ch}
@@ -191,6 +217,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
     <span class="count" id="count"></span>
   </div>
+  <div class="abils" id="montags" hidden>
+    <div class="abils-head"><b>몬스터 태그로 걸러보기</b>
+      <label class="toggle" style="font-size:11.5px"><input type="checkbox" id="mtand"> 모두 만족(AND)</label>
+      <button type="button" id="mtclear" class="mini">전체 해제</button></div>
+    <div class="abils-box" id="mtbox"></div>
+  </div>
   <div class="abils" id="abils" hidden>
     <div class="abils-head"><b>특수능력으로 걸러보기</b>
       <label class="toggle" style="font-size:11.5px"><input type="checkbox" id="aband"> 모두 만족(AND)</label>
@@ -199,6 +231,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </div>
 
   <main id="out"></main>
+  <div id="pop" role="tooltip" aria-hidden="true"></div>
 
   <footer class="foot">
     <p>탐색지의 <code>monsterGroups</code> 는 그룹 단위로 뽑히며 <code>frequency</code> 가 가중치입니다. 몬스터의 <code>rewardWeapons</code> / <code>rewardArmors</code> 에도 각각 <code>frequency</code> 와 <code>craftLevel</code> 이 붙어 있어, 드랍은 «확률 가중치»와 «제작 등급»으로 나뉩니다. 절대 확률이 아니라 상대 가중치라는 점에 주의하세요.</p>
@@ -278,8 +311,116 @@ function abilMatch(x){
 }
 el("aband").addEventListener("change",function(e){ state.aband=e.target.checked; render(); });
 
+/* 몬스터 태그 — 성질(비행/언데드/드랍), 약점 속성, 내성 속성, 스킬.
+   화면에 실제로 존재하는 것만 만든다. 아무도 안 가진 태그는 클릭할 이유가 없다. */
+var MTAG=[];
+(function(){
+  function add(key,label,test){ MTAG.push({k:key,l:label,t:test}); }
+  add("fly","비행",function(m){ return !!m.fly; });
+  add("undead","언데드",function(m){ return !!m.undead; });
+  add("drop","드랍 있음",function(m){ return m.drops.length>0; });
+  var w={}, st={}, sk={};
+  D.monsters.forEach(function(m){
+    (m.weak||[]).forEach(function(e){ w[e]=1; });
+    (m.strong||[]).forEach(function(e){ st[e]=1; });
+    (m.skills||[]).forEach(function(e){ if(e) sk[e]=1; });
+  });
+  Object.keys(w).forEach(function(e){
+    add("w:"+e,"약점 "+e,function(m){ return (m.weak||[]).indexOf(e)>=0; }); });
+  Object.keys(st).forEach(function(e){
+    add("s:"+e,"내성 "+e,function(m){ return (m.strong||[]).indexOf(e)>=0; }); });
+  Object.keys(sk).forEach(function(e){
+    add("k:"+e,"스킬 "+e,function(m){ return (m.skills||[]).indexOf(e)>=0; }); });
+})();
+var MTBY={}; MTAG.forEach(function(t){ MTBY[t.k]=t; });
+state.mtags={}; state.mtand=false;
+MTAG.forEach(function(t){
+  var n=D.monsters.filter(t.t).length;
+  if(!n) return;
+  var lab=document.createElement("label"); lab.className="ab";
+  var cb=document.createElement("input"); cb.type="checkbox";
+  cb.addEventListener("change",function(){
+    if(cb.checked) state.mtags[t.k]=true; else delete state.mtags[t.k];
+    lab.classList.toggle("on",cb.checked); render();
+  });
+  lab.appendChild(cb); lab.appendChild(document.createTextNode(t.l));
+  var i=document.createElement("i"); i.className="n"; i.textContent=n; lab.appendChild(i);
+  el("mtbox").appendChild(lab);
+});
+el("mtclear").onclick=function(){
+  state.mtags={};
+  Array.prototype.forEach.call(el("mtbox").querySelectorAll("input"),function(c){ c.checked=false; });
+  Array.prototype.forEach.call(el("mtbox").querySelectorAll(".ab"),function(l){ l.classList.remove("on"); });
+  render();
+};
+el("mtand").addEventListener("change",function(e){ state.mtand=e.target.checked; render(); });
+function anyMTag(){ for(var k in state.mtags) return true; return false; }
+function mtagMatch(m){
+  if(state.mtand){ for(var k in state.mtags) if(!MTBY[k].t(m)) return false; return true; }
+  for(var k2 in state.mtags) if(MTBY[k2].t(m)) return true;
+  return false;
+}
+
+// 이름으로 찾는 색인. 드랍/그룹에는 이름만 들어 있어서 되짚으려면 필요하다.
+var MONBY={}; D.monsters.forEach(function(m){ MONBY[m.n||m.i]=m; });
+var ITEMBY={}; D.items.forEach(function(x){ ITEMBY[x.n||x.i]=x; });
+// 아이템을 «어디서 잡으면 나오는가». 떨구는 몬스터를 거쳐 탐색지까지 간다.
+// showLocked 에 따라 달라지므로 미리 굳혀 두지 않는다.
+function itemPlaces(x){
+  var seen={}, out=[];
+  (x.drop||[]).forEach(function(d){
+    var m=MONBY[d.m]; if(!m) return;
+    monPlaces(m).forEach(function(p){
+      if(seen[p.n]) { seen[p.n].m.push(d.m); return; }
+      seen[p.n]={n:p.n,r:p.r,lv:p.lv,m:[d.m]}; out.push(seen[p.n]);
+    });
+  });
+  return out;
+}
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+// 아이템 이름 한 줄 — 눌러서 이동, 올려서 미리보기.
+function itemLink(name){
+  return '<button type="button" class="jump item" data-go="i:'+esc(name)+'"'
+       + ' data-item="'+esc(name)+'">'+esc(name)+'</button>';
+}
+// 목록에서 굳이 열어 보지 않아도 되게 핵심만 한 줄로.
+function itemGist(name){
+  var x=ITEMBY[name]; if(!x) return "";
+  var bits=[];
+  bits.push("Lv"+(x.lv||0));
+  bits.push(x.cat==="무기" ? ("공격 "+(x.dmg||"-")) : ("방어 "+(x.def||"-")));
+  if(x.pw) bits.push("요구 "+x.pw);
+  if(x.price) bits.push(x.price+"G");
+  var sp=(x.sp||[]).map(function(a){ return a.k+(a.v!=="있음"?" "+a.v:""); });
+  return '<div class="gist">'+esc(bits.join(" · "))
+    +(sp.length?'<span class="gsp">'+sp.map(function(t){return '<i>'+esc(t)+'</i>';}).join("")+'</span>':"")
+    +'</div>';
+}
+// 마우스를 올렸을 때 뜨는 카드
+function itemCard(name){
+  var x=ITEMBY[name];
+  if(!x) return '<div class="card"><b>'+esc(name)+'</b><p class="cmeta">이 도감에 없는 아이템입니다</p></div>';
+  var rows=[["분류", x.cat+" · "+x.kind], ["레벨", String(x.lv||0)]];
+  if(x.cat==="무기") rows.push(["공격력", String(x.dmg||"-")], ["치명타", String(x.crit||0)]);
+  else rows.push(["방어력", String(x.def||"-")], ["마법 방어", String(x.mdef||"-")]);
+  rows.push(["필요 능력", String(x.pw||"-")], ["가격", (x.price||"-")+"G"]);
+  if(x.shop) rows.push(["판매처", x.shop]);
+  var pl=itemPlaces(x);
+  return '<div class="card"><b>'+esc(x.n||x.i)+'</b>'
+    +'<dl class="cgrid">'+rows.map(function(r){
+        return '<div><dt>'+esc(r[0])+'</dt><dd>'+esc(r[1])+'</dd></div>'; }).join("")+'</dl>'
+    +((x.sp&&x.sp.length)?'<p class="csp">'+x.sp.map(function(a){
+        return '<i>'+esc(a.k)+(a.v!=="있음"?" "+esc(a.v):"")+(a.p?" (위력 "+a.p+")":"")+'</i>'; }).join("")+'</p>':"")
+    +((x.drop&&x.drop.length)?'<p class="cmeta"><b>떨구는 몬스터</b> '
+        +esc(x.drop.map(function(d){return d.m}).slice(0,6).join(", "))
+        +(x.drop.length>6?" 외 "+(x.drop.length-6):"")+'</p>':"")
+    +(pl.length?'<p class="cmeta"><b>탐색지</b> '
+        +esc(pl.map(function(z){return z.n}).slice(0,5).join(", "))
+        +(pl.length>5?" 외 "+(pl.length-5):"")+'</p>':"")
+    +((x.qd&&x.qd.length)?'<p class="cmeta"><b>퀘스트</b> '+x.qd.length+'곳에서 나옵니다</p>':"")
+    +'</div>';
+}
 function hhmm(m){var h=Math.floor(m/60);return (h?h+"시간 ":"")+(m%60)+"분";}
 function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
 
@@ -296,10 +437,21 @@ function placeDetail(p){
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;
   var gh=p.g.map(function(g){
     var pct=Math.round((g.f||0)/tot*100);
+    // 이 그룹에서 나오는 드랍을 한데 모은다 — «여기 돌면 뭐가 나오나» 가 궁금한 것이다
+    var dseen={}, dl=[];
+    g.m.forEach(function(mm){
+      var mo=MONBY[mm.n]; if(!mo) return;
+      (mo.drops||[]).forEach(function(d){
+        if(dseen[d.n]) return; dseen[d.n]=1;
+        dl.push(itemLink(d.n)+'<span class="meta"> ('+esc(mm.n)+' · 가중치 '+(d.f||0)+')</span>');
+      });
+    });
     return '<li><b>'+g.m.map(function(m){
       return '<button type="button" class="jump" data-go="m:'+esc(m.n)+'">'+esc(m.n)+'</button>'
         +(m.v?'':'<span class="meta"> (후위)</span>'); }).join(" + ")+'</b>'
-      +'<span class="meta"> — 가중치 '+(g.f||0)+' (약 '+pct+'%)'+(g.q?' · 퀘스트 전용':'')+'</span></li>'; }).join("");
+      +'<span class="meta"> — 가중치 '+(g.f||0)+' (약 '+pct+'%)'+(g.q?' · 퀘스트 전용':'')+'</span>'
+      +(dl.length?'<div class="drops">드랍 '+dl.join('<i class="sep">·</i>')+'</div>':'')
+      +'</li>'; }).join("");
   var th=p.t.length? '<div class="blk"><h4>함정</h4><ul>'+p.t.map(function(t){
       var m=(t.msg||"").replace(/%1/g,"동료").split(/[.。\n]/)[0];
       return '<li><b>'+esc(t.n)+'</b>'
@@ -318,21 +470,24 @@ function placeDetail(p){
 
 /* ---------- 몬스터 ---------- */
 function monRow(m){
+  var mp=monPlaces(m);           // 요약줄도 «출현지 (n)» 과 같은 목록을 써야 한다
   var tags="";
   if(m.drops.length) tags+='<em class="tag t-drop">드랍</em>';
   if(m.fly) tags+='<em class="tag t-fly">비행</em>';
   if(m.undead) tags+='<em class="tag t-und">언데드</em>';
   return '<div class="row" data-k="m" data-i="'+esc(m.i)+'" tabindex="0" role="button">'
     +'<span class="nm"><b>'+tags+esc(m.n||m.i)+'</b><span>'
-    +(m.places.length? esc(m.places.slice(0,3).map(function(p){return p.n}).join(", "))
-      +(m.places.length>3?" 외 "+(m.places.length-3):"") : "출현지 미확인")+'</span></span>'
+    +(mp.length? esc(mp.slice(0,3).map(function(p){return p.n}).join(", "))
+      +(mp.length>3?" 외 "+(mp.length-3):"")
+      : (m.places.length?"출현지는 미출시 지역뿐":"출현지 미확인"))+'</span></span>'
     +'<span class="num">Lv'+(m.lv||0)+'</span>'
     +'<span class="num dim r3">'+(m.exp||0).toLocaleString()+'xp</span></div>';
 }
 function monDetail(m){
   var dr=m.drops.length? '<div class="blk"><h4>드랍</h4><ul>'+m.drops.map(function(d){
-      return '<li><button type="button" class="jump" data-go="i:'+esc(d.n)+'">'+esc(d.n)+'</button>'
-        +'<span class="meta"> — '+esc(d.cat)+' · 가중치 '+(d.f||0)+' · 제작등급 '+(d.cl||0)+'</span></li>';
+      return '<li>'+itemLink(d.n)
+        +'<span class="meta"> — '+esc(d.cat)+' · 가중치 '+(d.f||0)+' · 제작등급 '+(d.cl||0)+'</span>'
+        +itemGist(d.n)+'</li>';
     }).join("")+'</ul></div>' : "";
   var mp=monPlaces(m);
   var pl=mp.length? '<div class="blk"><h4>출현지 ('+mp.length+')</h4><ul>'+mp.map(function(p){
@@ -354,7 +509,9 @@ function monDetail(m){
 
 /* ---------- 아이템 ---------- */
 function itemRow(x){
+  var ip = itemPlaces(x);
   var tags = (x.drop.length? '<em class="tag t-drop">몬스터</em>' : "")
+           + (ip.length? '<em class="tag t-place">탐색지</em>' : "")
            + (x.qd.length? '<em class="tag t-quest">퀘스트</em>' : "")
            + (x.sp.length? '<em class="tag t-sp">특수</em>' : "");
   var s = x.cat==="무기" ? ("공격 "+(x.dmg||"-")) : ("방어 "+(x.def||"-"));
@@ -374,6 +531,14 @@ function itemDetail(x){
       return '<li><button type="button" class="jump" data-go="m:'+esc(d.m)+'">'+esc(d.m)+'</button>'
         +'<span class="meta"> — 가중치 '+(d.f||0)+' · 제작등급 '+(d.cl||0)+'</span></li>';
     }).join("")+'</ul></div>' : "";
+  // 어디를 돌면 되는지. 떨구는 몬스터를 거쳐 탐색지까지 이어 준다.
+  var ipl=itemPlaces(x);
+  var pw=ipl.length? '<div class="blk"><h4>여기서 나옵니다 ('+ipl.length+')</h4><ul>'+ipl
+      .sort(function(a,b){ return (a.lv||0)-(b.lv||0); })
+      .map(function(z){
+        return '<li><button type="button" class="jump" data-go="p:'+esc(z.n)+'">'+esc(z.n)+'</button>'
+          +'<span class="meta"> — '+esc(z.r)+' · Lv'+(z.lv||0)+' · '+esc(z.m.join(", "))+'</span></li>';
+      }).join("")+'</ul></div>' : "";
   // 퀘스트 보물금고/습득물에서 나오는 것
   var qd=x.qd.length? '<div class="blk"><h4>퀘스트에서 획득 ('+x.qd.length+')</h4><ul>'
     + x.qd.map(function(z){
@@ -405,7 +570,7 @@ function itemDetail(x){
     +'<div class="dcell"><dt>가격</dt><dd class="mono">'+esc(x.price||"-")+'G</dd></div>'
     +'<div class="dcell"><dt>판매처</dt><dd>'+(esc(x.shop)||"—")+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
-    +'</dl>'+sp+qd+dr+(x.d?'<div class="story">'+esc(x.d)+'</div>':"")+'</div>';
+    +'</dl>'+sp+qd+dr+pw+(x.d?'<div class="story">'+esc(x.d)+'</div>':"")+'</div>';
 }
 
 function block(title,sub,rows,color){
@@ -434,10 +599,15 @@ function render(){
   } else if(state.view==="mon"){
     var rows=D.monsters.filter(function(m){
       if(state.only && !m.drops.length) return false;
+      if(anyMTag() && !mtagMatch(m)) return false;
       if(state.reg && !monPlaces(m).some(function(p){return p.r===state.reg})) return false;
       if(!state.showLocked && (m.places||[]).length && !monPlaces(m).length) return false;
       return hit(m.n+" "+m.i+" "+m.d+" "+m.skills.join(" ")
-        +" "+m.drops.map(function(d){return d.n}).join(" "));
+        +" "+(m.weak||[]).map(function(e){return "약점 "+e}).join(" ")
+        +" "+(m.strong||[]).map(function(e){return "내성 "+e}).join(" ")
+        +(m.fly?" 비행":"")+(m.undead?" 언데드":"")
+        +" "+m.drops.map(function(d){return d.n}).join(" ")
+        +" "+monPlaces(m).map(function(z){return z.n}).join(" "));
     });
     n=rows.length;
     html+=block("몬스터", n+"종 · 레벨순", rows.map(monRow), "var(--c-mon)");
@@ -464,6 +634,7 @@ function render(){
   // 아이템 전용 필터는 아이템 탭에서만 보인다
   var isItem = state.view==="item";
   el("abils").hidden = !isItem;
+  el("montags").hidden = state.view!=="mon";
   el("kind").style.display = isItem ? "" : "none";
   el("sponly").parentNode.style.display = isItem ? "" : "none";
   el("reg").style.display = isItem ? "none" : "";
@@ -503,6 +674,42 @@ el("out").addEventListener("click",function(e){
   if(j){ e.stopPropagation(); goTo(j.getAttribute("data-go")); return; }
   var row=e.target.closest(".row"); if(row) openRow(row);
 });
+/* 아이템 이름 미리보기. 화면 밖으로 나가지 않게 위치를 접어 넣는다.
+   터치 기기에는 hover 가 없으니 눌러서 여는 길(jump)이 그대로 남아 있어야 한다. */
+(function(){
+  var pop=el("pop"), cur=null, tm=null;
+  function hide(){ clearTimeout(tm); cur=null; pop.className=""; pop.setAttribute("aria-hidden","true"); }
+  function place(t){
+    var r=t.getBoundingClientRect();
+    pop.style.left="0px"; pop.style.top="0px";
+    pop.classList.add("on");
+    var w=pop.offsetWidth, h=pop.offsetHeight, m=10;
+    var x=Math.min(Math.max(m, r.left), innerWidth-w-m);
+    var y=r.bottom+8;
+    if(y+h>innerHeight-m) y=r.top-h-8;          // 아래가 좁으면 위로 뒤집는다
+    y=Math.min(Math.max(m, y), Math.max(m, innerHeight-h-m));
+    pop.style.left=x+"px"; pop.style.top=y+"px";
+  }
+  function show(t){
+    var name=t.getAttribute("data-item"); if(!name || cur===t) return;
+    cur=t; pop.innerHTML=itemCard(name); pop.setAttribute("aria-hidden","false"); place(t);
+  }
+  el("out").addEventListener("mouseover",function(e){
+    var t=e.target.closest("[data-item]");
+    if(!t){ return; }
+    clearTimeout(tm); tm=setTimeout(function(){ show(t); },110);
+  });
+  el("out").addEventListener("mouseout",function(e){
+    var t=e.target.closest("[data-item]");
+    if(t && !t.contains(e.relatedTarget)) hide();
+  });
+  el("out").addEventListener("focusin",function(e){
+    var t=e.target.closest("[data-item]"); if(t) show(t);
+  });
+  el("out").addEventListener("focusout",hide);
+  addEventListener("scroll",hide,true);
+  el("out").addEventListener("click",hide,true);
+})();
 el("out").addEventListener("keydown",function(e){
   if(e.key!=="Enter"&&e.key!==" ") return;
   var row=e.target.closest(".row"); if(!row) return;
