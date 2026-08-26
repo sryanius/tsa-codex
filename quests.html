@@ -259,7 +259,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <div class="stat"><b id="s-t">0</b><span>도시</span></div>
       <div class="stat"><b id="s-f">0</b><span>시설 업그레이드</span></div>
       <div class="stat"><b id="s-u">0</b><span>훈련소 해금</span></div>
-      <div class="stat"><b id="s-d">0</b><span>내 완료</span></div>
+      <div class="stat"><b id="s-d">0</b><span>내가 깬 것</span></div>
+      <div class="stat"><b id="s-r">0</b><span>남은 것</span></div>
+      <div class="stat"><b id="s-lv">–</b><span>시설 합계</span></div>
     </div>
   </header>
 
@@ -293,11 +295,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <button type="button" id="clouddown" class="mini">받기</button>
       <button type="button" id="cloudlogin" class="mini" hidden>로그인</button>
     </div>
-    <div class="bar-row">
-      <span class="lvlabel">게시판 슬롯 수</span>
-      <label class="lvin" style="color:var(--accent)">한 도시에 동시에 뜨는 개수<input type="number" id="slots" min="1" max="40" value="10"></label>
-      <span class="hint">자정마다 전체가 다시 뽑힙니다. 이 값을 실제 게임과 맞추면 등장 확률이 계산됩니다.</span>
-    </div>
   </div>
 
   <main id="out"></main>
@@ -306,7 +303,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p>모든 수치는 설치된 APK의 Addressables 번들에서 직접 추출했습니다 &mdash; 퀘스트 <code>QuestMaster</code>, 시설 <code>BuildingMaster</code>, 도시 <code>TownMaster</code>. <b>필요 평판</b>은 <code>conditionNeedReputation</code>, <b>시설 효과</b>는 <code>upgradeableBuildingKind</code> / <code>unlockedBuildingMaster</code> 값입니다.</p>
     <p><b>요구 평판은 부호에 따라 방향이 다릅니다.</b> 양수는 «그 값 이상»이라야 등장하는 하한이고, 음수는 «그 값 이하»여야 등장하는 상한(마이너스 전용)입니다. 그래서 선행 체인을 하나로 합칠 수 없어 <b>▲ 한 번은 올려야 하는 평판</b>과 <b>▼ 한 번은 내려가야 하는 평판</b>을 따로 계산했습니다.</p>
     <p><b>등장 주기</b>는 <code>questSpawnInterval</code> 입니다. 값 99는 코드 상수 <code>QUEST_SPAWN_INTERVAL_ONLY_ONCE</code> 와 같아 <b>1회성</b>을 뜻하고, 그 외 값은 클리어 뒤 재등장까지의 대기 일수(<code>daysUntilAvailable</code>)로 쓰입니다. 게시판은 <code>TownAverageQuestCount</code> 만큼을 목표로 채워지며, 게시된 퀘스트는 <code>deadline</code> 이 지나면 사라집니다.</p>
-    <p><b>자정 리롤 기대치는 추정입니다.</b> 게시판 슬롯 수와 가중치 추첨을 단순 비례로 계산한 근사치라, 정확한 확률이 아니라 <b>«흔한 편인가, 몇 달 걸릴 만한가»</b> 를 가늠하는 용도로만 보세요. 실제 추첨 알고리즘과 게시판 크기(<code>TownAverageQuestCount</code>)는 서버 설정이라 APK에서 확인할 수 없었습니다. 1회성 퀘스트를 깰수록 경쟁 대상이 줄어 실제 확률은 표시값보다 좋아집니다.</p>
+    <p><b>«한 칸당 몫»은 확률이 아닙니다.</b> 같은 평판대에서 함께 후보가 되는 퀘스트들과 <code>questFrequency</code> 를 나눈 비율입니다 &mdash; 게시판이 한 칸을 뽑을 때 이 퀘스트일 확률이지, 하루에 뜰 확률이 아닙니다. 1회성 퀘스트를 깰수록 경쟁 대상이 줄어 실제로는 표시값보다 좋아집니다.</p>
+    <p><b>하루에 몇 칸이 뽑히는지는 확정하지 못했습니다.</b> 게시판 상한은 <code>GameSettings.TownAverageQuestCount</code> 이고, <code>Town.GetCanAcceptedQuests()</code> 가 목록 길이가 이 값에 닿을 때까지만 채웁니다. 그런데 이 값은 실행 중 어떤 플래그에 따라 <b>100 또는 30</b> 으로 갈립니다(<code>get_TownAverageQuestCount</code> 를 디스어셈블해 확인). 화면에 실제로 보이는 개수와 맞지 않아, 지어낸 «슬롯 수» 입력은 없앴습니다.</p>
     <p>완료 체크는 이 브라우저에만 저장되며 게임과는 무관합니다. 게임이 업데이트되면 이 표는 낡습니다.</p>
   </footer>
 </div>
@@ -350,8 +348,6 @@ window.TSA_QUEST_IDS=D.quests.map(function(x){return x.i;});
 var SAVE=(window.TSA_SAVE&&window.TSA_SAVE.load())||null;
 function sq(x){ return SAVE&&SAVE.q?SAVE.q[x.i]:null; }   // 브라우저에서 읽은 세이브 우선
 var BYTOWN={}; D.quests.forEach(function(x){ (BYTOWN[x.t]=BYTOWN[x.t]||[]).push(x); });
-var slots=10;
-try{ var sv=localStorage.getItem("tsa.slots.v1"); if(sv) slots=parseInt(sv,10)||10; }catch(e){}
 // 자정 리롤 1회에서 이 퀘스트가 뽑힐 확률.
 // 같은 도시에서 "내 평판이 이 퀘스트를 열어줄 만큼 됐을 때" 함께 후보인 것들과
 // questFrequency 가중치를 나눠 갖는다고 본 근사치.
@@ -359,15 +355,16 @@ try{ var sv=localStorage.getItem("tsa.slots.v1"); if(sv) slots=parseInt(sv,10)||
 function eligibleAt(y, myrep){
   return y.rep<0 ? (myrep<=y.rep) : (myrep>=y.pk);
 }
-// 이 퀘스트가 «막 열리는» 평판대에서 같은 도시 후보들과 가중치를 나눈다고 본 근사치.
+// «막 열리는» 평판대에서 같은 도시 후보들과 가중치를 나눈 몫.
+// 게시판이 하루에 몇 칸을 뽑는지는 확정하지 못했으므로(아래 각주) 확률로 바꾸지 않는다.
+// 여기 나오는 건 «한 칸이 뽑힐 때 이 퀘스트일 확률» 이다.
 function odds(x){
   var ref = x.rep<0 ? x.rep : x.pk;
   var pool=(BYTOWN[x.t]||[]).filter(function(y){ return eligibleAt(y,ref); });
   var sum=0;
   for(var i=0;i<pool.length;i++) sum+=(pool[i].fr||1);
   if(!sum) return null;
-  var p=Math.min(1, slots*(x.fr||1)/sum);
-  return {p:p, pool:pool.length, ref:ref, wait:(p>0?1/p:Infinity)};
+  return {share:(x.fr||1)/sum, pool:pool.length, ref:ref};
 }
 function gateText(x){ return x.rep<0 ? "요구 ≤"+x.rep : "요구 "+x.pk; }
 function chainHTML(x,seen,depth){
@@ -448,10 +445,22 @@ FORD.forEach(function(f){
 });
 
 function visQuests(){ return D.quests.filter(function(x){ return state.showLocked || !LOCKED[x.t]; }); }
-el("s-q").textContent=visQuests().length;
-el("s-t").textContent=D.towns.filter(function(t){ return state.showLocked || !LOCKED[t.n]; }).length;
-el("s-f").textContent=visQuests().filter(function(x){return x.g;}).length;
-el("s-u").textContent=visQuests().filter(function(x){return x.u;}).length;
+// 헤더 숫자 — «내가 깬 것» 은 세이브의 clearCount 가 진실이다.
+// 손으로 찍은 체크만 세면 세이브를 넣은 사람에게 늘 0 으로 보인다.
+function paintStats(){
+  var vis=visQuests();
+  var doneN=vis.filter(isDone).length;
+  el("s-q").textContent=vis.length;
+  el("s-t").textContent=D.towns.filter(function(t){ return state.showLocked || !LOCKED[t.n]; }).length;
+  el("s-f").textContent=vis.filter(function(x){return x.g;}).length;
+  el("s-u").textContent=vis.filter(function(x){return x.u;}).length;
+  el("s-d").textContent=doneN;
+  el("s-r").textContent=(vis.length-doneN);
+  var sum=0, got=0;
+  FORD.forEach(function(f){ if(lv[f]!=null){ sum+=lv[f]; got++; } });
+  el("s-lv").textContent = got ? (sum+" / "+(got*30)) : "–";
+}
+paintStats();
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 function anyFac(){ return FORD.concat(["__job"]).some(function(f){ return state.facs[f]; }); }
@@ -533,10 +542,10 @@ function detailHTML(x){
     + '<div class="dcell"><dt>등장 주기 <span class="fld">questSpawnInterval</span></dt><dd class="mono'+(x.si>=99?" warn":"")+'">'+spawnText(x.si)+'</dd></div>'
     + '<div class="dcell"><dt>등장 가중치 <span class="fld">questFrequency</span></dt><dd class="mono">'+x.fr+' / 14</dd></div>'
     + (function(){ var o=odds(x); if(!o) return "";
-        var pct=o.p>=1?"100":(o.p*100<1?(o.p*100).toFixed(2):(o.p*100).toFixed(1));
-        var w=o.wait<1.05?"거의 매일":(o.wait>400?"400일 이상":Math.round(o.wait)+"일에 한 번꼴");
-        return '<div class="dcell"><dt>자정 리롤 기대치 <span class="fld">추정</span></dt>'
-             + '<dd class="mono'+(o.p<0.05?" warn":"")+'">'+pct+'% · '+w
+        var pct=o.share*100;
+        var t=pct<0.5?"드묾":(pct<2?"보통":"흔한 편");
+        return '<div class="dcell"><dt>한 칸당 몫 <span class="fld">가중치 비율</span></dt>'
+             + '<dd class="mono'+(pct<0.5?" warn":"")+'">'+(pct<1?pct.toFixed(2):pct.toFixed(1))+'% · '+t
              + ' <span class="sm">(경쟁 '+o.pool+'개)</span></dd></div>'; })()
     + '<div class="dcell"><dt>게시판 유효기간 <span class="fld">deadline</span></dt><dd class="mono">'+esc(x.dl)+'</dd></div>'
     + '<div class="dcell"><dt>선행 성공 횟수 <span class="fld">successCount</span></dt><dd class="mono">'+x.sc+'</dd></div>'
@@ -598,12 +607,8 @@ function remainBox(town){
 
 function render(){
   var rows=D.quests.filter(match);
-  el("s-q").textContent=visQuests().length;
-  el("s-t").textContent=D.towns.filter(function(t){ return state.showLocked || !LOCKED[t.n]; }).length;
-  el("s-f").textContent=visQuests().filter(function(x){return x.g;}).length;
-  el("s-u").textContent=visQuests().filter(function(x){return x.u;}).length;
+  paintStats();
   el("count").textContent=rows.length+" / "+visQuests().length+" 건";
-  el("s-d").textContent=Object.keys(done).filter(function(k){ return done[k]; }).length;
   if(!rows.length){ el("out").innerHTML='<p class="empty">조건에 맞는 퀘스트가 없습니다. 필터를 줄여 보세요.</p>'; return; }
   var html="";
   if(state.view==="fac"){
@@ -680,7 +685,7 @@ el("out").addEventListener("click",function(e){
     var id=row.getAttribute("data-id");
     if(e.target.checked) done[id]=true; else delete done[id];
     save(); pushSoon(); row.classList.toggle("done",e.target.checked);
-    el("s-d").textContent=Object.keys(done).filter(function(k){ return done[k]; }).length;
+    paintStats();
     if(state.undone) render();
     return;
   }
@@ -720,12 +725,6 @@ function pushSoon(){
   }, 1200);
 }
 window.__TSA_PUSH_SOON=pushSoon;
-el("slots").addEventListener("input",function(e){
-  slots=Math.max(1,parseInt(e.target.value,10)||10);
-  try{ localStorage.setItem("tsa.slots.v1",String(slots)); }catch(err){}
-  pushSoon(); render();
-});
-try{ el("slots").value=slots; }catch(e){}
 el("town").addEventListener("change",function(e){ state.town=e.target.value; render(); });
 el("undone").addEventListener("change",function(e){ state.undone=e.target.checked; render(); });
 el("showlocked").checked=state.showLocked;
@@ -789,7 +788,7 @@ el("saveclear").onclick=function(){ window.TSA_SAVE.clear(); SAVE=null;
 // 기기를 바꿔도 화면이 똑같이 보인다.
 function gatherState(){
   return { q:(SAVE&&SAVE.q)||{}, at:(SAVE&&SAVE.at)||"",
-           levels:lv, remain:remain, slots:slots, done:done };
+           levels:lv, remain:remain, done:done };
 }
 function applyState(p){
   if(!p) return;
@@ -799,8 +798,6 @@ function applyState(p){
     Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,k){
       var name=FORD[k]; if(name!=null) i.value=(lv[name]==null?"":lv[name]); }); }
   if(p.remain){ remain=p.remain; try{ localStorage.setItem(RKEY,JSON.stringify(remain)); }catch(e){} }
-  if(p.slots){ slots=p.slots; try{ localStorage.setItem("tsa.slots.v1",String(slots)); }catch(e){}
-               try{ el("slots").value=slots; }catch(e){} }
   if(p.done){ done=p.done; save(); }
   render();
 }
@@ -965,7 +962,11 @@ render();
   var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };
 
   function extractBuildings(plain, into) {
-    var b = new Uint8Array(plain), dv = new DataView(plain), n = b.length, hit = 0;
+    // decrypt() 는 Uint8Array 를 준다. DataView 는 ArrayBuffer 를 받으므로
+    // 뷰의 버퍼와 오프셋을 그대로 넘긴다 — plain 을 바로 넣으면 던진다.
+    var b = plain instanceof Uint8Array ? plain : new Uint8Array(plain);
+    var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+    var n = b.length, hit = 0;
     for (var i = 0; i + 30 < n; i++) {
       if (b[i] !== 0x0a || b[i + 1] !== 0x0a || b[i + 2] !== 0x0a) continue;
       var j = i + 3;
@@ -1005,8 +1006,10 @@ render();
         try {
           var plain = await decrypt(await f.arrayBuffer());
           extract(plain, valid, into);
-          extractBuildings(plain, blds);     // GameData 파일에서만 걸린다
           ok++;
+          // 시설은 GameData 파일에서만 나온다. 여기서 터져도 퀘스트는 이미 읽었으니
+          // 따로 감싼다 — 한때 이게 없어서 전 파일이 «실패» 로 넘어갔다.
+          try { extractBuildings(plain, blds); } catch (e2) { }
         } catch (e) {
           bad++;
           if (errs.length < 3) errs.push(f.name + ": " + e.message);

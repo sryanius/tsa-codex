@@ -411,7 +411,9 @@ var ITAG=[
   {k:"quest", l:"퀘스트",      t:function(x){ return x.qd.length>0; }},
   {k:"sp",    l:"특수능력",    t:function(x){ return x.sp.length>0; }},
   {k:"shop",  l:"상점 판매",   t:function(x){ return !!x.shop; }},
-  {k:"none",  l:"획득처 없음", t:function(x){ return !x.drop.length && !x.qd.length; }}
+  // 드랍·퀘스트·상점 어디에도 없는 것 = 제작으로만 얻는다.
+  // 예전 «획득처 없음» 은 상점 판매와 145개나 겹쳐 같은 말처럼 보였다.
+  {k:"craft", l:"제작 전용",   t:function(x){ return !x.drop.length && !x.qd.length && !x.shop; }}
 ];
 state.itags={};
 var IT=makeTagBox("itbox","itand","itclear",ITAG,
@@ -591,7 +593,10 @@ function itemDetail(x){
           +'<span class="meta"> — '+esc(z.t)+' · '+esc(bits.join(" · "))+'</span></li>'; }).join("")
     + '</ul></div>' : "";
   if(!x.drop.length && !x.qd.length)
-    qd='<div class="blk"><h4>획득처</h4><ul><li>몬스터 드랍·퀘스트 금고 없음 — 상점/제작 전용</li></ul></div>';
+    qd='<div class="blk"><h4>획득처</h4><ul><li>'
+      + (x.shop ? '사냥·퀘스트로는 안 나옵니다 — '+esc(x.shop)+' 에서 삽니다'
+                : '사냥·퀘스트·상점 어디에도 없습니다 — 제작 전용입니다')
+      + '</li></ul></div>';
   var perf = x.cat==="무기"
     ? '<div class="dcell"><dt>공격력</dt><dd class="mono">'+esc(x.dmg||"-")+'</dd></div>'
       +'<div class="dcell"><dt>치명타</dt><dd class="mono">'+(x.crit||0)+'</dd></div>'
