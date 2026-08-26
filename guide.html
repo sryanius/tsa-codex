@@ -166,14 +166,14 @@ adb devices        <span class="c"># device 라고 뜨면 연결됨</span></pre>
 </div>
 
 <h3>3‑2. 세이브 내려받기</h3>
-<pre>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files/Town</pre>
-<p>현재 폴더에 <code>Town</code> 폴더가 생기고 <code>.data</code> 파일 수십 개가 들어옵니다. <b>퀘스트 진행도는 이 폴더에만 있습니다</b> &mdash; 다른 폴더는 안 받아도 됩니다.</p>
+<pre>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</pre>
+<p>현재 폴더에 <code>files</code> 폴더가 생깁니다. 안에 <code>Town</code>(퀘스트 진행도)과 <code>GameData</code>(시설 레벨)가 들어 있습니다 &mdash; <b>둘 다 필요하니 <code>files</code> 통째로 받으세요.</b> 예전 안내대로 <code>Town</code> 만 받으면 시설 레벨이 안 채워집니다.</p>
 
 <h3>3‑3. 페이지에 넣기</h3>
 <ol>
   <li><a href="quests.html">퀘스트 색인</a> 을 <b>PC 브라우저</b>로 엽니다</li>
-  <li>상단 <b>세이브</b> 줄에서 <b>«세이브 폴더 열기»</b> → 방금 받은 <code>Town</code> 폴더 선택</li>
-  <li>«세이브 반영 완료 — 파일 28개 · 퀘스트 1204건» 이 뜨면 끝</li>
+  <li>상단 <b>세이브</b> 줄에서 <b>«세이브 폴더 열기»</b> → 방금 받은 <code>files</code> 폴더 선택</li>
+  <li>«세이브 반영 완료 — … · 퀘스트 1204건 · 시설 6개» 가 뜨면 끝. 시설 레벨 칸도 저절로 채워집니다.</li>
 </ol>
 <div class="box ok">
   <b>복호화는 브라우저 안에서만 일어납니다.</b> 파일은 어디로도 업로드되지 않고,

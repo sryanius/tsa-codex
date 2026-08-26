@@ -279,7 +279,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <div class="bar-row" id="levels"><span class="lvlabel">내 시설 레벨</span></div>
     <div class="bar-row" id="saverow">
       <span class="lvlabel">세이브</span>
-      <label class="filebtn">세이브 폴더 열기
+      <label class="filebtn" title="adb 로 받은 files 폴더를 통째로 고르세요 — Town(퀘스트)과 GameData(시설 레벨)가 둘 다 필요합니다">세이브 폴더 열기
         <input type="file" id="savein" webkitdirectory directory multiple hidden></label>
       <label class="filebtn alt">파일로 고르기
         <input type="file" id="savein2" multiple accept=".data" hidden></label>
@@ -755,7 +755,15 @@ function bindSave(id){
     try{
       var r=await window.TSA_SAVE.ingest(files,function(i,n){ msg.textContent="읽는 중… ("+i+"/"+n+")"; });
       SAVE=window.TSA_SAVE.load();
-      msg.textContent="세이브 반영 완료 — 파일 "+r.ok+"개 · 퀘스트 "+r.quests+"건"+(r.bad?" (실패 "+r.bad+")":"");
+      // 시설 레벨도 세이브(GameData)에 들어 있다. 손으로 넣던 값을 덮어쓴다.
+      var bn=0;
+      if(r.buildings){ for(var k in r.buildings){ lv[k]=r.buildings[k]; bn++; } }
+      if(bn){ saveLv();
+        Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,ix){
+          var nm=FORD[ix]; if(nm!=null) i.value=(lv[nm]==null?"":lv[nm]); }); }
+      msg.textContent="세이브 반영 완료 — 파일 "+r.ok+"개 · 퀘스트 "+r.quests+"건"
+        +(bn?" · 시설 "+bn+"개":" · 시설 레벨 없음(GameData 폴더까지 골라 주세요)")
+        +(r.bad?" (실패 "+r.bad+")":"");
       // 클라우드가 붙어 있으면 다른 기기에서도 보이게 올린다
       if(window.TSA_CLOUD && window.TSA_CLOUD.signedIn && window.TSA_CLOUD.signedIn()){
         msg.textContent+=" · 올리는 중…";
@@ -945,6 +953,36 @@ render();
     return hit;
   }
 
+  /* GameData 세이브의 시설 레벨.
+     Building 레코드에서 우리가 원하는 «도시에 속하지 않은» 6개는
+     name / townMasterName / buildingMasterName 이 셋 다 null 이라
+     본문이 0a 0a 0a 로 시작한다. 그 뒤가
+
+       [4]level  09+[4]ref  09+[4]ref  01+[4]oid+[4]clsId  [4]kind  [8]lastActionTime
+
+     이다. kind 는 QuestMaster 의 upgradeableBuildingKind 와 같은 열거값이라
+     퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
+  var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };
+
+  function extractBuildings(plain, into) {
+    var b = new Uint8Array(plain), dv = new DataView(plain), n = b.length, hit = 0;
+    for (var i = 0; i + 30 < n; i++) {
+      if (b[i] !== 0x0a || b[i + 1] !== 0x0a || b[i + 2] !== 0x0a) continue;
+      var j = i + 3;
+      var level = dv.getInt32(j, true); j += 4;
+      if (level < 0 || level > 99) continue;
+      if (b[j] !== 0x09) continue; j += 5;              // readCollectInfoMasters
+      if (b[j] !== 0x09) continue; j += 5;              // monsterLibraryEntries
+      if (b[j] !== 0x01) continue; j += 9;              // kind — ClassWithId
+      var kind = dv.getInt32(j, true);
+      var name = BKIND[kind];
+      if (!name) continue;
+      into[name] = level;
+      hit++;
+    }
+    return hit;
+  }
+
   function validSet() {
     var v = {}, ids = window.TSA_QUEST_IDS || [];
     for (var i = 0; i < ids.length; i++) v[ids[i]] = 1;
@@ -958,13 +996,16 @@ render();
     clear: function () { try { localStorage.removeItem(SKEY); } catch (e) { } },
     _decrypt: decrypt,                       // 검증용
     _extract: extract,
+    _buildings: extractBuildings,
     ingest: async function (files, onProgress) {
-      var valid = validSet(), into = {}, ok = 0, bad = 0, errs = [];
+      var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [];
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         if (!/\.data$/i.test(f.name)) continue;
         try {
-          extract(await decrypt(await f.arrayBuffer()), valid, into);
+          var plain = await decrypt(await f.arrayBuffer());
+          extract(plain, valid, into);
+          extractBuildings(plain, blds);     // GameData 파일에서만 걸린다
           ok++;
         } catch (e) {
           bad++;
@@ -977,7 +1018,8 @@ render();
         q: into, files: ok
       };
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
-      return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs, payload: payload };
+      return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
+               payload: payload, buildings: blds };
     }
   };
 })();
