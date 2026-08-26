@@ -197,9 +197,11 @@
      */
     getProgress: async function () {
       var s = await ensureFresh();
-      if (!s) return null;
+      // 조용히 null 을 돌려주면 «저장된 게 없다» 로 읽힌다.
+      // 로그인이 끊긴 것과 아직 올린 적이 없는 것은 다른 사건이므로 갈라 놓는다.
+      if (!s) throw new Error("로그인이 끊겼습니다. 다시 로그인해 주세요.");
       var r = await api("/rest/v1/tsa_progress?select=payload,saved_at&user_id=eq." + s.userId);
-      if (!r.ok) return null;
+      if (!r.ok) throw new Error(r.status + " " + (await r.text().catch(function () { return ""; })).slice(0, 120));
       var rows = await r.json();
       if (!rows.length) return null;
       try {

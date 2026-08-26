@@ -831,7 +831,9 @@ else { el("savemsg").textContent="폴더를 고르면 브라우저에서 바로 
   };
   el("clouddown").onclick=async function(){
     cloudStatus("받는 중…");
-    var p=await C.getProgress();
+    var p;
+    try{ p=await C.getProgress(); }
+    catch(err){ cloudStatus("받기 실패: "+err.message); return; }
     if(!p){ cloudStatus("클라우드에 저장된 것이 없습니다"); return; }
     applyState(p);
     cloudStatus("받음 — 퀘스트 "+Object.keys(p.q||{}).length+"건 · 시설/남은의뢰 포함");
@@ -998,13 +1000,20 @@ render();
   function start(D){
     gate.remove();
     window.__TSA_BOOT(D);
-    // 클라우드 진행도가 있으면 로컬보다 우선한다
+    // 캐시로 떴을 수 있다. 로그인이 끊긴 채로 «올라간 줄 알고» 넘어가는 게
+    // 제일 나쁜 실패라서, 상태 줄에 못을 박아 둔다.
+    if(!C.signedIn()){
+      if(window.__TSA_CLOUD_STATUS)
+        window.__TSA_CLOUD_STATUS("저장된 데이터로 열었습니다 — 로그인해야 동기화됩니다");
+      return;
+    }
+    // 클라우드에 저장된 상태가 있으면 그대로 되살린다
     C.getProgress().then(function(p){
-      if(p && window.TSA_SAVE){
-        try{ localStorage.setItem("tsa.save.v1", JSON.stringify({at:p.at.slice(0,16).replace("T"," "),q:p.q,files:0})); }catch(e){}
-        if(window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
-      }
-    }).catch(function(){});
+      if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
+      else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
+    }).catch(function(e){
+      if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("받기 실패: "+e.message);
+    });
   }
   var r=await C.completeOAuth();
   if(r.error) fail(r.error);
