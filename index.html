@@ -75,14 +75,14 @@ footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
 .repbar output{font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:500;
   color:var(--ink);min-width:2.5ch;font-variant-numeric:tabular-nums}
 </style>
-<link rel="manifest" href="/app.webmanifest">
+<link rel="manifest" href="app.webmanifest">
 <meta name="theme-color" content="#2F5D8C">
-<link rel="apple-touch-icon" href="/icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 </head>
 <body>
 <div class="wrap">
   <nav class="topnav">
-    <a class="here" href="/">자료실</a><a href="/quests.html">퀘스트 색인</a><a href="/codex.html">도감</a>
+    <a class="here" href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a>
   </nav>
   <header>
     <p class="eyebrow">The Silent Archivist &middot; 로컬 자료실</p>
@@ -91,8 +91,8 @@ footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
   </header>
 
   <div class="cards">
-    <a class="card" href="/guide.html"><h2 style="color:var(--accent)">집에서 쓰는 법</h2><p>회사 PC 없이 집 컴퓨터와 폰으로 보고, 세이브 진행도를 갱신하는 절차.</p><div class="figs"><span class="fig"><b>adb</b><span>준비물은 이것뿐</span></span></div></a>
-    <a class="card" href="/quests.html">
+    <a class="card" href="guide.html"><h2 style="color:var(--accent)">집에서 쓰는 법</h2><p>회사 PC 없이 집 컴퓨터와 폰으로 보고, 세이브 진행도를 갱신하는 절차.</p><div class="figs"><span class="fig"><b>adb</b><span>준비물은 이것뿐</span></span></div></a>
+    <a class="card" href="quests.html">
       <h2 style="color:var(--c-quest)">퀘스트 색인</h2>
       <p>요구 평판과 선행 체인, 1회성 여부, 시설 업그레이드 진행도, 보물금고 등장 시각까지.</p>
       <div class="figs">
@@ -101,7 +101,7 @@ footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
         <span class="fig"><b>1,049</b><span>보물금고</span></span>
       </div>
     </a>
-    <a class="card" href="/codex.html">
+    <a class="card" href="codex.html">
       <h2 style="color:var(--c-codex)">도감</h2>
       <p>탐색지에 나오는 몬스터 그룹과 출현 가중치, 몬스터가 떨구는 아이템, 아이템의 드랍처 역인덱스.</p>
       <div class="figs">
@@ -190,6 +190,17 @@ if (평판상한 &ge; 현재평판) 현재평판 += master.reputation           
   </footer>
 </div>
 
-<script>if("serviceWorker" in navigator)window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});</script>
-</body>
+<script>
+(function(){
+  if(location.hostname.indexOf("claude.ai")<0) return;   // 아티팩트 사본에서만
+  var MAP={"/quests.html":"https://claude.ai/code/artifact/064a09ba-6eba-423c-89ce-af066ee2de4f",
+           "/codex.html":"https://claude.ai/code/artifact/058bf4e6-7174-4fd6-9ee1-b3d4383d7b51"};
+  Array.prototype.forEach.call(document.querySelectorAll("a[href]"),function(a){
+    var h=a.getAttribute("href"); if(MAP[h]) a.setAttribute("href",MAP[h]);
+  });
+  var f=document.querySelector("footer");
+  if(f) f.insertAdjacentHTML("afterbegin",
+    "<p><b>지금 보고 계신 건 공유용 사본입니다.</b> 회사 PC의 로컬 서버(<code>http://localhost:6101</code>) 없이도 열리며, 세이브 연동은 «퀘스트 색인» 페이지에서 바로 할 수 있습니다.</p>");
+})();
+</script></body>
 </html>

@@ -286,6 +286,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <span class="hint" id="savemsg"></span>
       <button type="button" id="saveclear" class="mini" hidden>불러온 세이브 지우기</button>
     </div>
+    <div class="bar-row" id="cloudrow" hidden>
+      <span class="lvlabel">클라우드</span>
+      <span class="hint" id="cloudmsg"></span>
+      <button type="button" id="cloudup" class="mini">올리기</button>
+      <button type="button" id="clouddown" class="mini">받기</button>
+      <button type="button" id="cloudlogin" class="mini" hidden>로그인</button>
+    </div>
     <div class="bar-row">
       <span class="lvlabel">게시판 슬롯 수</span>
       <label class="lvin" style="color:var(--accent)">한 도시에 동시에 뜨는 개수<input type="number" id="slots" min="1" max="40" value="10"></label>
@@ -310,7 +317,7 @@ window.__TSA_BOOT=function(D){
 
 var FAC={"숙소":"--f-lodge","창고":"--f-ware","치료소":"--f-heal","금고":"--f-vault","대장간":"--f-forge","모험가 아카이브":"--f-arch"};
 var FORD=["숙소","창고","치료소","금고","대장간","모험가 아카이브"];
-var KEY="tsa.done.v1", LKEY="tsa.levels.v1";
+var KEY="tsa.done.v1", LKEY="tsa.levels.v1", KEY_SAVE="tsa.save.v1";
 var LOCKED={"자르간트 마을":1,"노르그레이 마을":1};   // 칼레바스 고원 — 미출시
 var done={}, lv={};
 try{ done=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ done={}; }
@@ -433,7 +440,7 @@ FORD.forEach(function(f){
   i.addEventListener("input",function(){
     var v=i.value===""?null:Math.max(0,parseInt(i.value,10)||0);
     if(v==null) delete lv[f]; else lv[f]=v;
-    saveLv(); render();
+    saveLv(); pushSoon(); render();
   });
   w.appendChild(document.createTextNode(f));
   w.appendChild(i);
@@ -672,7 +679,7 @@ el("out").addEventListener("click",function(e){
   if(e.target.classList.contains("tick")){
     var id=row.getAttribute("data-id");
     if(e.target.checked) done[id]=true; else delete done[id];
-    save(); row.classList.toggle("done",e.target.checked);
+    save(); pushSoon(); row.classList.toggle("done",e.target.checked);
     el("s-d").textContent=Object.keys(done).filter(function(k){ return done[k]; }).length;
     if(state.undone) render();
     return;
@@ -684,6 +691,7 @@ el("out").addEventListener("input",function(e){
   var t=i.getAttribute("data-town");
   if(i.value==="") delete remain[t]; else remain[t]=Math.max(0,parseInt(i.value,10)||0);
   try{ localStorage.setItem(RKEY,JSON.stringify(remain)); }catch(err){}
+  pushSoon();
   var box=i.closest(".remain"), txt=box && box.nextElementSibling;
   if(txt && txt.classList.contains("ptxt")) txt.outerHTML=progressText(t);
 });
@@ -700,10 +708,22 @@ el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value;
   t=setTimeout(function(){ state.q=v.trim(); render(); },160);
 });
+var pushTimer=null;
+function pushSoon(){
+  var C=window.TSA_CLOUD;
+  if(!C || !C.signedIn()) return;
+  clearTimeout(pushTimer);
+  pushTimer=setTimeout(async function(){
+    cloudStatus("올리는 중…");
+    var r=await C.putProgress(gatherState());
+    cloudStatus(r.ok?"자동 저장됨":"저장 실패: "+r.error);
+  }, 1200);
+}
+window.__TSA_PUSH_SOON=pushSoon;
 el("slots").addEventListener("input",function(e){
   slots=Math.max(1,parseInt(e.target.value,10)||10);
   try{ localStorage.setItem("tsa.slots.v1",String(slots)); }catch(err){}
-  render();
+  pushSoon(); render();
 });
 try{ el("slots").value=slots; }catch(e){}
 el("town").addEventListener("change",function(e){ state.town=e.target.value; render(); });
@@ -739,9 +759,12 @@ function bindSave(id){
       // 클라우드가 붙어 있으면 다른 기기에서도 보이게 올린다
       if(window.TSA_CLOUD && window.TSA_CLOUD.signedIn && window.TSA_CLOUD.signedIn()){
         msg.textContent+=" · 올리는 중…";
-        var up=await window.TSA_CLOUD.putProgress(SAVE);
+        var up=await window.TSA_CLOUD.putProgress(gatherState());
         msg.textContent=msg.textContent.replace(" · 올리는 중…",
           up.ok ? " · 클라우드 저장됨" : " · 클라우드 저장 실패("+up.error+")");
+        cloudStatus(up.ok ? ("올림 — 클리어 "+up.cleared) : ("실패: "+up.error));
+      } else if(window.TSA_CLOUD){
+        cloudStatus("로그인하면 클라우드에 올릴 수 있습니다");
       }
       el("saveclear").hidden=false;
       render();
@@ -753,15 +776,67 @@ bindSave("savein"); bindSave("savein2");
 el("saveclear").onclick=function(){ window.TSA_SAVE.clear(); SAVE=null;
   el("savemsg").textContent="불러온 세이브를 지웠습니다 (내장 스냅샷으로 되돌림)";
   el("saveclear").hidden=true; render(); };
+// 클라우드에 올릴 «화면 상태» 한 덩어리.
+// 세이브에서 뽑은 진행도만이 아니라 손으로 넣은 값도 같이 옮겨야
+// 기기를 바꿔도 화면이 똑같이 보인다.
+function gatherState(){
+  return { q:(SAVE&&SAVE.q)||{}, at:(SAVE&&SAVE.at)||"",
+           levels:lv, remain:remain, slots:slots, done:done };
+}
+function applyState(p){
+  if(!p) return;
+  if(p.q){ try{ localStorage.setItem(KEY_SAVE, JSON.stringify({at:String(p.at||"").slice(0,16).replace("T"," "),q:p.q,files:0})); }catch(e){}
+           SAVE=window.TSA_SAVE.load(); }
+  if(p.levels){ lv=p.levels; saveLv();
+    Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,k){
+      var name=FORD[k]; if(name!=null) i.value=(lv[name]==null?"":lv[name]); }); }
+  if(p.remain){ remain=p.remain; try{ localStorage.setItem(RKEY,JSON.stringify(remain)); }catch(e){} }
+  if(p.slots){ slots=p.slots; try{ localStorage.setItem("tsa.slots.v1",String(slots)); }catch(e){}
+               try{ el("slots").value=slots; }catch(e){} }
+  if(p.done){ done=p.done; save(); }
+  render();
+}
+function cloudStatus(extra){
+  var C=window.TSA_CLOUD;
+  if(!C){ return; }
+  el("cloudrow").hidden=false;
+  var who = C.signedIn() ? ("로그인됨 · "+(C.email()||"계정 확인 중")) : "로그인 안 됨";
+  var loc = SAVE ? ("로컬 "+Object.keys(SAVE.q||{}).length+"건("+SAVE.at+")") : "로컬 없음";
+  el("cloudmsg").textContent = who+" · "+loc+(extra?" · "+extra:"");
+  el("cloudlogin").hidden = C.signedIn();
+  el("cloudup").disabled = !C.signedIn();
+  el("clouddown").disabled = !C.signedIn();
+}
+window.__TSA_CLOUD_STATUS=cloudStatus;
+// 콘솔에서 상태를 들여다보고 되돌릴 수 있게 열어 둔다 (동기화가 어긋났을 때 쓴다)
+window.__TSA_STATE={gather:gatherState, apply:applyState};
 window.__TSA_ON_CLOUD_PROGRESS=function(p){
-  SAVE=window.TSA_SAVE.load();
+  applyState(p);
   var n=0; for(var k in (p.q||{})) n++;
-  el("savemsg").textContent="클라우드 진행도 반영 — "+p.at+" · 퀘스트 "+n+"건";
-  el("saveclear").hidden=false; render();
+  el("savemsg").textContent="클라우드에서 불러옴 — 퀘스트 "+n+"건";
+  el("saveclear").hidden=false; cloudStatus("받음");
 };
 if(SAVE){ el("savemsg").textContent="세이브 반영됨 — "+SAVE.at+" · 파일 "+SAVE.files+"개";
   el("saveclear").hidden=false; }
 else { el("savemsg").textContent="폴더를 고르면 브라우저에서 바로 복호화합니다. 아무 데도 전송되지 않습니다."; }
+
+(function(){
+  var C=window.TSA_CLOUD; if(!C) return;
+  cloudStatus();
+  el("cloudlogin").onclick=function(){ C.signIn(true); };
+  el("cloudup").onclick=async function(){
+    cloudStatus("올리는 중…");
+    var r=await C.putProgress(gatherState());
+    cloudStatus(r.ok ? ("올림 — 클리어 "+r.cleared+" · 시설/남은의뢰 포함") : ("실패: "+r.error));
+  };
+  el("clouddown").onclick=async function(){
+    cloudStatus("받는 중…");
+    var p=await C.getProgress();
+    if(!p){ cloudStatus("클라우드에 저장된 것이 없습니다"); return; }
+    applyState(p);
+    cloudStatus("받음 — 퀘스트 "+Object.keys(p.q||{}).length+"건 · 시설/남은의뢰 포함");
+  };
+})();
 
 render();
 };

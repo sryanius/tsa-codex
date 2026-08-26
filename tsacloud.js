@@ -189,36 +189,58 @@
       } catch (e) { return cached; }
     },
 
-    /** 진행도 받기 */
+    /**
+     * 저장된 상태 받기.
+     * payload 에는 세이브에서 뽑은 진행도(q)뿐 아니라
+     * 손으로 넣은 값(시설 레벨·남은 의뢰·슬롯 수·수동 체크)도 함께 들어 있다.
+     * 기기를 옮겨도 화면이 똑같이 보여야 하므로 한 덩어리로 다룬다.
+     */
     getProgress: async function () {
       var s = await ensureFresh();
       if (!s) return null;
-      var r = await api("/rest/v1/tsa_progress?select=payload,saved_at,cleared,recorded&user_id=eq." + s.userId);
+      var r = await api("/rest/v1/tsa_progress?select=payload,saved_at&user_id=eq." + s.userId);
       if (!r.ok) return null;
       var rows = await r.json();
       if (!rows.length) return null;
-      try { return { at: rows[0].saved_at, q: JSON.parse(rows[0].payload) }; }
-      catch (e) { return null; }
+      try {
+        var p = JSON.parse(rows[0].payload);
+        // 옛 형식(퀘스트 맵만 저장)도 읽어 준다
+        if (p && !p.q && typeof p === "object") p = { q: p };
+        p.at = rows[0].saved_at;
+        return p;
+      } catch (e) { return null; }
     },
 
-    /** 진행도 올리기 (upsert) */
-    putProgress: async function (payload) {
+    /** 상태 올리기 (upsert) */
+    putProgress: async function (state) {
       var s = await ensureFresh();
       if (!s) return { ok: false, error: "로그인이 필요합니다" };
-      var q = payload.q || {};
+      var q = (state && state.q) || {};
       var cleared = 0, recorded = 0;
       for (var k in q) { recorded++; if (q[k].clear > 0) cleared++; }
+      var now = new Date().toISOString();
+      var body = {
+        user_id: s.userId,
+        payload: JSON.stringify({
+          q: q,
+          at: state.at || "",
+          levels: state.levels || {},
+          remain: state.remain || {},
+          slots: state.slots || null,
+          done: state.done || {}
+        }),
+        saved_at: now, cleared: cleared, recorded: recorded, updated_at: now
+      };
       var r = await api("/rest/v1/tsa_progress", {
         method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates" },
-        body: [{
-          user_id: s.userId, payload: JSON.stringify(q),
-          saved_at: new Date().toISOString(),
-          cleared: cleared, recorded: recorded,
-          updated_at: new Date().toISOString()
-        }]
+        headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
+        body: [body]
       });
-      if (!r.ok) return { ok: false, error: "업로드 실패 (" + r.status + ")" };
+      if (!r.ok) {
+        var t = "";
+        try { t = (await r.text()).slice(0, 160); } catch (e) { }
+        return { ok: false, error: r.status + " " + t };
+      }
       return { ok: true, cleared: cleared, recorded: recorded };
     }
   };
