@@ -1,0 +1,200 @@
+<title>집에서 쓰는 법</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --ok:#3F8F63; --warn:#C2762E; --no:#BC4F68;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --ok:#5FB98A; --warn:#E09A54; --no:#E27C92;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --ok:#5FB98A; --warn:#E09A54; --no:#E27C92;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14.5px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:760px;margin:0 auto;padding:0 20px 90px}
+header{padding:48px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+h1{font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(30px,5.4vw,44px);line-height:1.15;color:var(--ink);margin:0 0 12px;letter-spacing:-.01em}
+.lede{margin:0;max-width:58ch;color:var(--muted);font-size:15px}
+h2{font-family:"Gowun Batang",Georgia,serif;font-size:22px;font-weight:700;
+  color:var(--ink);margin:44px 0 4px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:12px}
+h2 .n{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:500;
+  color:var(--on-accent);background:var(--accent);border-radius:99px;
+  min-width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+h3{font-size:15px;font-weight:600;color:var(--ink);margin:26px 0 6px}
+p{margin:10px 0}
+a{color:var(--accent)}
+ol,ul{margin:10px 0;padding-left:22px}
+li{margin:6px 0}
+code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--raised);
+  padding:1px 6px;border-radius:4px;color:var(--ink)}
+pre{font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.7;
+  background:var(--surface);border:1px solid var(--line);border-radius:9px;
+  padding:13px 16px;overflow-x:auto;color:var(--ink);margin:12px 0}
+pre .c{color:var(--faint)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:18px 0 0}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--surface);
+  border:1px solid var(--line);border-radius:11px;padding:16px 18px;box-shadow:var(--shadow)}
+a.card:hover{border-color:var(--accent)}
+a.card b{display:block;font-family:"Gowun Batang",Georgia,serif;font-size:17px;
+  font-weight:700;color:var(--ink);margin-bottom:3px}
+a.card span{font-size:12.5px;color:var(--muted)}
+.box{border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:0 9px 9px 0;
+  background:var(--surface);padding:13px 17px;margin:16px 0}
+.box.warn{border-left-color:var(--warn)}
+.box.no{border-left-color:var(--no)}
+.box.ok{border-left-color:var(--ok)}
+.box b{color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:14px 0;
+  background:var(--surface);border:1px solid var(--line);border-radius:9px;overflow:hidden}
+th,td{text-align:left;padding:9px 13px;border-top:1px solid var(--line-soft);vertical-align:top}
+th{background:var(--raised);color:var(--muted);font-weight:600;font-size:11.5px;
+  letter-spacing:.05em;border-top:0}
+td.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.yes{color:var(--ok);font-weight:600}
+.nope{color:var(--no);font-weight:600}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--faint)}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">The Silent Archivist &middot; 핸드오프</p>
+  <h1>집에서 쓰는 법</h1>
+  <p class="lede">회사 PC 없이, 집 컴퓨터와 폰만으로 자료실을 보고 세이브 진행도를 갱신하는 방법입니다. 파이썬도 서버도 필요 없습니다 &mdash; <b>adb 하나면 됩니다.</b></p>
+</header>
+
+<h2><span class="n">1</span> 보기만 할 때는 아무것도 필요 없습니다</h2>
+<p>세 페이지 모두 인터넷 주소로 열립니다. 폰이든 집 PC든 그냥 열면 됩니다. 회사 PC의 <code>localhost:6101</code> 은 필요 없습니다.</p>
+<div class="cards">
+  <a class="card" href="https://claude.ai/code/artifact/cac740f9-0c0b-4ea6-b7c1-449da4f20905">
+    <b>자료실 표지</b><span>평판 공식 · 보물금고 원리</span></a>
+  <a class="card" href="https://claude.ai/code/artifact/064a09ba-6eba-423c-89ce-af066ee2de4f">
+    <b>퀘스트 색인</b><span>1364건 · 세이브 연동</span></a>
+  <a class="card" href="https://claude.ai/code/artifact/058bf4e6-7174-4fd6-9ee1-b3d4383d7b51">
+    <b>도감</b><span>탐색지 · 몬스터 · 아이템</span></a>
+</div>
+<p>폰 브라우저에서 열고 <b>홈 화면에 추가</b>하면 아이콘이 생겨 앱처럼 씁니다.</p>
+<div class="box">
+  <b>진행도는 어떻게 되나요?</b> 지금 색인에 박혀 있는 «클리어 1102건»은 <b>2026‑08‑26 시점 스냅샷</b>입니다.
+  게임을 더 하면 낡습니다. 최신으로 맞추려면 아래 2·3번을 하시면 됩니다.
+</div>
+
+<h2><span class="n">2</span> 집 PC 준비 &mdash; 딱 한 번</h2>
+<h3>adb 설치</h3>
+<p>Windows 라면 PowerShell 에서:</p>
+<pre>winget install --id Google.PlatformTools -e</pre>
+<p>winget 이 없으면 <code>platform-tools</code> 를 받아 압축만 풀어도 됩니다. 설치 후 <b>터미널을 새로 열어야</b> <code>adb</code> 명령이 잡힙니다.</p>
+<pre>adb version   <span class="c"># 버전이 나오면 성공</span></pre>
+<div class="box warn">
+  <b>파이썬·서버·스크립트는 필요 없습니다.</b> 복호화는 브라우저가 합니다.
+  회사 PC 의 <code>C:\claude\app</code> 폴더를 옮겨올 필요도 없습니다.
+</div>
+
+<h2><span class="n">3</span> 세이브 꺼내서 반영하기 &mdash; 게임하고 나서 반복</h2>
+<h3>3‑1. 폰을 무선으로 연결</h3>
+<ol>
+  <li>폰: <b>설정 → 개발자 옵션 → 무선 디버깅</b> 켜기 (PC와 같은 Wi‑Fi)</li>
+  <li><b>«페어링 코드로 기기 페어링»</b> 을 누르면 <b>6자리 코드</b>와 <b>IP:포트</b>가 뜹니다</li>
+  <li>PC에서 (팝업의 IP·포트·코드를 그대로):</li>
+</ol>
+<pre>adb pair 192.168.0.214:41234 683465</pre>
+<p>성공하면 <b>무선 디버깅 메인 화면</b>의 IP:포트(페어링 팝업의 것과 <b>다릅니다</b>)로 접속합니다:</p>
+<pre>adb connect 192.168.0.214:38099
+adb devices        <span class="c"># device 라고 뜨면 연결됨</span></pre>
+<div class="box warn">
+  폰 IP가 <code>192.168.x.x</code> 가 아니면(예: <code>10.x.x.x</code>) <b>VPN·광고차단 앱이 켜져 있는 것</b>입니다. 끄고 다시 여세요.
+</div>
+
+<h3>3‑2. 세이브 내려받기</h3>
+<pre>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files/Town</pre>
+<p>현재 폴더에 <code>Town</code> 폴더가 생기고 <code>.data</code> 파일 수십 개가 들어옵니다. <b>퀘스트 진행도는 이 폴더에만 있습니다</b> &mdash; 다른 폴더는 안 받아도 됩니다.</p>
+
+<h3>3‑3. 페이지에 넣기</h3>
+<ol>
+  <li><a href="https://claude.ai/code/artifact/064a09ba-6eba-423c-89ce-af066ee2de4f">퀘스트 색인</a> 을 <b>PC 브라우저</b>로 엽니다</li>
+  <li>상단 <b>세이브</b> 줄에서 <b>«세이브 폴더 열기»</b> → 방금 받은 <code>Town</code> 폴더 선택</li>
+  <li>«세이브 반영 완료 — 파일 28개 · 퀘스트 1204건» 이 뜨면 끝</li>
+</ol>
+<div class="box ok">
+  <b>복호화는 브라우저 안에서만 일어납니다.</b> 파일은 어디로도 업로드되지 않고,
+  결과는 그 브라우저의 저장소에만 남습니다. 다른 기기에서 보려면 그 기기에서 다시 넣어야 합니다.
+</div>
+<p>폴더 선택이 안 되는 브라우저면 <b>«파일로 고르기»</b> 로 <code>.data</code> 파일을 전부 선택해도 됩니다.</p>
+
+<h2><span class="n">4</span> 되는 것과 안 되는 것</h2>
+<table>
+  <thead><tr><th>하고 싶은 것</th><th>집에서</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td>퀘스트·도감 보기</td><td class="yes">됨</td><td>주소만 열면 끝. 폰·PC 아무거나</td></tr>
+    <tr><td>세이브 진행도 갱신</td><td class="yes">됨</td><td>집 PC + adb 필요</td></tr>
+    <tr><td>폰만으로 세이브 갱신</td><td class="nope">안 됨</td><td>안드로이드가 다른 앱의 <code>Android/data</code> 접근을 막습니다</td></tr>
+    <tr><td>게임 업데이트 후 데이터 갱신</td><td class="nope">안 됨</td><td>APK 재추출이 필요합니다 &mdash; 회사 PC 로 돌아온 뒤에</td></tr>
+  </tbody>
+</table>
+<div class="box no">
+  <b>게임이 업데이트되면</b> 퀘스트·아이템 데이터가 낡습니다. 세이브 연동은 계속 되지만
+  새로 추가된 퀘스트는 목록에 없습니다. 그건 APK 를 다시 뜯어야 해서 집에서는 못 합니다.
+</div>
+
+<h2><span class="n">5</span> 막혔을 때</h2>
+<table>
+  <thead><tr><th>증상</th><th>원인 · 해결</th></tr></thead>
+  <tbody>
+    <tr><td><code>adb devices</code> 가 비어 있음</td>
+        <td>무선 디버깅이 꺼졌거나 페어링이 만료됨. 폰에서 껐다 켜고 <b>페어링부터</b> 다시</td></tr>
+    <tr><td>페어링은 되는데 connect 실패</td>
+        <td>페어링 팝업의 포트와 <b>메인 화면의 포트가 다릅니다.</b> 접속에는 메인 화면 포트를 쓰세요</td></tr>
+    <tr><td>폰 IP가 <code>10.x.x.x</code></td><td>VPN·광고차단 앱을 끄세요</td></tr>
+    <tr><td>«magic 불일치» 오류</td>
+        <td><code>.data</code> 가 아닌 파일이 섞였거나 게임 저장 포맷이 바뀐 것</td></tr>
+    <tr><td>넣었는데 숫자가 그대로</td>
+        <td><code>Town</code> 폴더가 맞는지 확인. 다른 폴더에는 퀘스트 기록이 없습니다</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="n">6</span> 회사 PC 에 있는 것 (참고)</h2>
+<p><code>C:\claude\app</code> 에 원본과 스크립트가 있습니다. 집에서는 필요 없지만 나중을 위해:</p>
+<table>
+  <thead><tr><th>경로</th><th>내용</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">full/</td><td>split APK 7개, 번들, <code>libil2cpp.so</code></td></tr>
+    <tr><td class="mono">full/build_data.py</td><td>번들 → 퀘스트 데이터</td></tr>
+    <tr><td class="mono">full/build_codex.py</td><td>번들 → 도감 데이터</td></tr>
+    <tr><td class="mono">decrypt_save.py</td><td>세이브 복호화 (파이썬판)</td></tr>
+    <tr><td class="mono">extract_cleared.py</td><td>클리어 기록 추출</td></tr>
+    <tr><td class="mono">update.py</td><td>위 전부를 한 번에</td></tr>
+    <tr><td class="mono">serve.py</td><td>로컬 서버 (포트 6101)</td></tr>
+    <tr><td class="mono">dump/</td><td>Il2CppDumper 산출물</td></tr>
+  </tbody>
+</table>
+<p>세이브 암호는 <code>78nA1_IJKf_ZOUn1I8_KeM0</code>, 형식은 <code>[16]IV [32]salt [16]MD5 [..]AES‑256‑CBC</code>, 키는 <code>PBKDF2‑SHA1(암호, salt, 50회, 32바이트)</code> 입니다. 게임이 업데이트되면 이 값이 바뀔 수 있습니다.</p>
+
+<footer>
+  <p>2026‑08‑26 기준. 데이터는 설치본 APK 에서 추출했고, 평판 공식과 세이브 형식은 게임 바이너리를 역어셈블해 확인한 것입니다.</p>
+</footer>
+</div>

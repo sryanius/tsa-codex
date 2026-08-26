@@ -1,0 +1,15 @@
+{
+  "name": "침묵의 기록자 자료실",
+  "short_name": "기록자 자료실",
+  "description": "퀘스트·몬스터·아이템 색인과 세이브 연동 진행도",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ECEEF1",
+  "theme_color": "#2F5D8C",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

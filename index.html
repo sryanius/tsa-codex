@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>침묵의 기록자 자료실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF; --accent:#2F5D8C;
+  --c-quest:#3B7FA8; --c-codex:#BC4F68;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831; --accent:#7FB0DF;
+  --c-quest:#63A9D2; --c-codex:#E27C92;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 20px 80px}
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:#fff;border-color:var(--accent)}
+header{padding:30px 0 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px}
+h1{font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(30px,5vw,46px);line-height:1.14;color:var(--ink);
+  margin:0 0 12px;letter-spacing:-.01em}
+.lede{margin:0;max-width:60ch;color:var(--muted);font-size:15px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:34px}
+a.card{display:block;text-decoration:none;color:inherit;background:var(--surface);
+  border:1px solid var(--line);border-radius:12px;padding:22px;box-shadow:var(--shadow)}
+a.card:hover{border-color:var(--accent)}
+a.card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card h2{font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  margin:0 0 6px;color:var(--ink)}
+.card p{margin:0 0 14px;font-size:13.5px;color:var(--muted)}
+.figs{display:flex;flex-wrap:wrap;gap:6px 18px}
+.fig{display:flex;flex-direction:column}
+.fig b{font-family:"IBM Plex Mono",monospace;font-size:17px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
+.fig span{font-size:10.5px;letter-spacing:.05em;color:var(--faint)}
+.sec{margin-top:44px}
+.sec h3{font-family:"Gowun Batang",Georgia,serif;font-size:18px;font-weight:700;
+  color:var(--ink);margin:0 0 12px}
+table{width:100%;border-collapse:collapse;font-size:13px;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{text-align:left;padding:8px 12px;border-top:1px solid var(--line-soft)}
+th{background:var(--raised);color:var(--muted);font-weight:600;font-size:11.5px;
+  letter-spacing:.05em;border-top:0}
+td.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.note{margin-top:14px;font-size:12.5px;color:var(--faint);max-width:70ch}
+code{font-family:"IBM Plex Mono",monospace;font-size:12px;background:var(--raised);
+  padding:1px 5px;border-radius:4px;color:var(--muted)}
+footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--faint);max-width:72ch}
+.code{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:12px 15px;overflow-x:auto;color:var(--body);margin:0}
+.repbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.repbar label{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.repbar input[type=range]{width:220px;accent-color:var(--accent)}
+.repbar output{font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:500;
+  color:var(--ink);min-width:2.5ch;font-variant-numeric:tabular-nums}
+</style>
+<link rel="manifest" href="app.webmanifest">
+<meta name="theme-color" content="#2F5D8C">
+<link rel="apple-touch-icon" href="icon.svg">
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+    <a class="here" href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a>
+  </nav>
+  <header>
+    <p class="eyebrow">The Silent Archivist &middot; 로컬 자료실</p>
+    <h1>침묵의 기록자 자료실</h1>
+    <p class="lede">설치된 APK의 Addressables 번들에서 직접 추출한 데이터입니다. 게임이 화면에 띄워주지 않는 조건·확률·연결 관계를 펼쳐 놓았습니다.</p>
+  </header>
+
+  <div class="cards">
+    <a class="card" href="guide.html"><h2 style="color:var(--accent)">집에서 쓰는 법</h2><p>회사 PC 없이 집 컴퓨터와 폰으로 보고, 세이브 진행도를 갱신하는 절차.</p><div class="figs"><span class="fig"><b>adb</b><span>준비물은 이것뿐</span></span></div></a>
+    <a class="card" href="quests.html">
+      <h2 style="color:var(--c-quest)">퀘스트 색인</h2>
+      <p>요구 평판과 선행 체인, 1회성 여부, 시설 업그레이드 진행도, 보물금고 등장 시각까지.</p>
+      <div class="figs">
+        <span class="fig"><b>1,364</b><span>퀘스트</span></span>
+        <span class="fig"><b>16</b><span>도시</span></span>
+        <span class="fig"><b>1,140</b><span>보물금고</span></span>
+      </div>
+    </a>
+    <a class="card" href="codex.html">
+      <h2 style="color:var(--c-codex)">도감</h2>
+      <p>탐색지에 나오는 몬스터 그룹과 출현 가중치, 몬스터가 떨구는 아이템, 아이템의 드랍처 역인덱스.</p>
+      <div class="figs">
+        <span class="fig"><b>329</b><span>탐색지</span></span>
+        <span class="fig"><b>368</b><span>몬스터</span></span>
+        <span class="fig"><b>757</b><span>아이템</span></span>
+      </div>
+    </a>
+  </div>
+
+  <section class="sec">
+    <h3>평판별 최소 퀘스트 레벨</h3>
+    <p class="note" style="margin:0 0 14px">
+      <b>바이너리에서 직접 확인한 규칙입니다</b> &mdash; <code>Town.MaxReputation(Quest)</code> 와
+      <code>Town.ApplyReputationChange(Quest)</code> 를 역어셈블해 얻었습니다.
+      퀘스트마다 «올릴 수 있는 평판 상한»이 있고, 현재 평판이 그 상한을 넘으면 더 이상 오르지 않습니다.
+    </p>
+    <pre class="code">퀘스트레벨 = master.level + Min(addLevel, master.maxAddLevel)
+평판상한   = 5 &times; (퀘스트레벨 &minus; maxReputationLevel + 1)      // 최소 5
+if (평판상한 &ge; 현재평판) 현재평판 += master.reputation             // 최대 99</pre>
+
+    <div class="repbar">
+      <label>내 평판 <input type="range" id="rep" min="0" max="99" value="20"></label>
+      <output id="repout">20</output>
+      <span class="note" style="margin:0">슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다.</span>
+    </div>
+    <div style="overflow-x:auto"><table>
+      <thead><tr><th>도시</th><th class="mono">기준</th><th class="mono">필요 레벨</th>
+        <th class="mono">평판 오르는 퀘스트<br><span style='font-weight:400'>지금 / 최대</span></th><th class="mono">평판 한계</th></tr></thead>
+      <tbody id="reptable"></tbody>
+    </table></div>
+    <p class="note">«필요 레벨»은 그 평판에서 평판을 올려주는 최소 퀘스트 레벨,
+      «평판 오르는 퀘스트»의 <b>앞 숫자는 지금</b>(세이브의 실제 addLevel 기준), <b>뒤 숫자는 최대</b>(연속 클리어로 +maxAddLevel 까지 올렸을 때) 조건을 만족하는 퀘스트 수입니다. 레벨 보너스는 <b>실패하거나 시간이 지나면 리셋</b>되므로 앞 숫자는 스냅샷입니다.
+      <b>&mdash;</b> 는 그 도시에서 더는 평판을 못 올리는 상태입니다.</p>
+  </section>
+  <script>
+  var CAPS=[{"n":"윈달리온 마을","m":0,"inst":15,"cap":80,"d":{"1":14,"0":7,"2":32,"3":23,"4":20,"5":11,"6":5},"dm":{"10":2,"0":7,"1":10,"11":3,"4":7,"5":24,"2":7,"12":6,"6":11,"7":11,"14":2,"3":8,"13":5,"8":5,"15":2,"9":2}},{"n":"브란샤르","m":1,"inst":11,"cap":55,"d":{"2":3,"3":7,"4":24,"5":25,"6":28,"7":7,"8":4},"dm":{"2":1,"5":7,"6":11,"7":25,"4":4,"8":22,"9":19,"10":8,"11":1}},{"n":"실바드 타운","m":2,"inst":13,"cap":60,"d":{"2":2,"3":3,"4":8,"5":12,"6":19,"7":23,"8":14,"9":6,"10":3},"dm":{"2":2,"3":1,"6":2,"7":10,"8":15,"9":19,"10":20,"11":13,"5":1,"12":4,"13":3}},{"n":"사하리오","m":3,"inst":13,"cap":55,"d":{"4":4,"5":7,"6":8,"7":11,"8":16,"9":9,"10":3},"dm":{"7":5,"8":6,"9":8,"10":14,"11":17,"12":4,"6":1,"13":3}},{"n":"루페리아 그로브","m":4,"inst":13,"cap":50,"d":{"4":4,"5":4,"8":9,"7":11,"6":6,"9":12,"10":5},"dm":{"7":5,"8":4,"11":11,"10":9,"9":7,"12":14,"13":1}},{"n":"밀레아 마을","m":5,"inst":18,"cap":70,"d":{"5":1,"7":8,"9":13,"10":18,"8":10,"6":1,"11":14,"13":9,"12":6,"14":4,"15":1,"16":1},"dm":{"8":3,"10":8,"12":14,"13":18,"11":11,"9":1,"14":13,"15":8,"16":6,"17":3,"18":1}},{"n":"군벨 마을","m":6,"inst":17,"cap":60,"d":{"7":2,"8":2,"9":9,"10":17,"11":17,"12":15,"14":7,"13":11,"15":1},"dm":{"9":1,"11":6,"12":11,"13":17,"14":15,"15":16,"17":6,"10":2,"16":7}},{"n":"세라피오스","m":12,"inst":28,"cap":85,"d":{"10":2,"11":1,"12":5,"13":11,"14":12,"15":11,"16":16,"17":14,"18":8,"20":1,"9":1,"19":7,"26":1,"22":1},"dm":{"10":1,"14":3,"15":7,"16":12,"19":14,"17":14,"20":12,"21":6,"22":7,"11":1,"13":1,"18":11,"28":1,"25":1}},{"n":"풋워커의 마을","m":12,"inst":26,"cap":75,"d":{"13":4,"14":7,"17":16,"18":16,"19":11,"12":1,"15":10,"16":12,"20":5,"21":1,"23":3},"dm":{"16":3,"17":11,"20":13,"21":18,"15":2,"18":10,"19":11,"22":12,"23":3,"26":3}},{"n":"국경을 넘는 숙소","m":19,"inst":28,"cap":50,"d":{"16":2,"19":8,"22":13,"23":13,"20":10,"21":20,"24":8,"18":1,"27":1,"25":2,"26":2},"dm":{"19":2,"21":3,"22":8,"24":17,"25":13,"26":11,"23":17,"27":7,"28":2}},{"n":"드라이레이크 헤이븐","m":20,"inst":28,"cap":45,"d":{"20":4,"21":7,"22":13,"23":17,"25":9,"24":5,"26":3,"27":1},"dm":{"23":6,"24":9,"25":14,"26":13,"27":7,"22":1,"28":9}},{"n":"리스티아","m":20,"inst":28,"cap":45,"d":{"18":1,"21":4,"22":4,"23":11,"25":16,"26":12,"24":15,"27":2},"dm":{"21":2,"23":1,"24":3,"26":20,"27":17,"25":5,"28":17}},{"n":"용광로 마을","m":22,"inst":33,"cap":60,"d":{"27":19,"28":27,"26":6,"30":11,"25":3,"29":25,"31":10,"33":2},"dm":{"27":6,"28":6,"29":33,"30":28,"26":1,"31":19,"32":5,"33":5}},{"n":"트레반의 마을","m":25,"inst":33,"cap":45,"d":{"29":20,"27":7,"31":19,"26":1,"32":15,"28":9,"30":18,"33":7},"dm":{"29":6,"27":1,"30":14,"31":23,"32":28,"33":24}},{"n":"자르간트 마을","m":29,"inst":39,"cap":55,"d":{"29":2,"30":3,"31":18,"33":24,"32":11,"34":13,"35":17,"36":4},"dm":{"32":2,"33":3,"34":18,"36":24,"35":11,"37":13,"38":17,"39":4}},{"n":"노르그레이 마을","m":31,"inst":39,"cap":45,"d":{"31":14,"32":14,"33":19,"35":13,"34":24,"36":4},"dm":{"34":14,"35":14,"36":19,"38":13,"37":24,"39":4}}];
+  var rep=document.getElementById("rep"), out=document.getElementById("repout"), tb=document.getElementById("reptable");
+  function draw(){
+    var R=+rep.value; out.textContent=R;
+    tb.innerHTML=CAPS.map(function(c){
+      var need=c.m-1+Math.ceil(R/5);
+      var dead=need>c.inst;
+      var n=0, nm=0;
+      for(var lv in c.d){ if(+lv>=need) n+=c.d[lv]; }     // 지금 레벨 (세이브 addLevel 반영)
+      for(var lv2 in c.dm){ if(+lv2>=need) nm+=c.dm[lv2]; } // 최대(+maxAddLevel)까지 올렸을 때
+      return "<tr><td>"+c.n+"</td><td class='mono'>"+c.m+"</td>"
+        +"<td class='mono'>"+(dead?"<span style='color:var(--faint)'>—</span>":"<b>"+Math.max(need,0)+"</b>")+"</td>"
+        +"<td class='mono'>"+(dead?"<span style='color:var(--faint)'>0</span>"
+        :(n+" <span style='color:var(--faint)'>/ "+nm+"</span>"))+"</td>"
+        +"<td class='mono'"+(R>=c.cap?" style='color:var(--c-codex);font-weight:600'":"")+">"+c.cap+"</td></tr>";
+    }).join("");
+  }
+  rep.addEventListener("input",draw); draw();
+  </script>
+
+  <section class="sec">
+    <h3>보물금고가 열리는 원리</h3>
+    <table>
+      <thead><tr><th>필드</th><th>의미</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">eventTime</td><td>퀘스트 시작 후 등장 시각. 10초 단위라 <b>÷6 하면 분</b> (모든 퀘스트에서 최대값 = 소요시간×6 으로 검증)</td></tr>
+        <tr><td class="mono">isUseInsight</td><td>발견에 <b>통찰력</b> 판정을 쓰는지 여부</td></tr>
+        <tr><td class="mono">foundValue</td><td>발견 판정값</td></tr>
+        <tr><td class="mono">unlockDifficulty</td><td><b>해제 난이도</b> — 도적 계열의 재주와 겨루는 값</td></tr>
+        <tr><td class="mono">weaponMaster / armorMaster / gold</td><td>내용물</td></tr>
+        <tr><td class="mono">craftValue</td><td>제작 등급 보정</td></tr>
+        <tr><td class="mono">trap</td><td>금고에 함정이 걸려 있는지</td></tr>
+      </tbody>
+    </table>
+    <p class="note">코드 쪽 함수는 <code>OpenTreasureBox</code> / <code>UnlockChest</code> / <code>GetFoundChestTalk</code> 이고, 모두 <code>RunQuest</code> 흐름 안에 있습니다. 실제 판정 공식(통찰력·재주와 난이도를 어떻게 비교하는지)은 컴파일된 코드 안이라 확인할 수 없었습니다.</p>
+  </section>
+
+  <footer>
+    <p>로컬 전용입니다 — <code>http://localhost:6101</code>. 원본 데이터는 <code>C:\claude\app\full\</code> 에 있고,
+    <code>build_data.py</code> / <code>build_codex.py</code> 로 다시 생성합니다. 게임이 업데이트되면 APK를 다시 받아 재생성해야 합니다.</p>
+  </footer>
+</div>
+
+</body>
+</html>
