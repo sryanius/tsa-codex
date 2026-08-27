@@ -296,7 +296,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 확
   <p>주점 레벨이 그대로 더해지고, <b>10% 확률로 한 번 더</b> 0~(레벨−1) 만큼 붙습니다. 능력치 자체는 종족의 기준값을 <code>CreateRandomValue</code> 로 흔든 값이라, 범위는 <a href="meta.html">종족 표</a>에 적어 뒀습니다.</p>
   <h3>상점 — 레벨이 곧 파는 물건의 레벨</h3>
   <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운은 Lv0부터, 하스포지는 Lv9부터 시작합니다. <a href="meta.html">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
-  <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · MaxRetireCharacterCount · Character.HealingCost · InviteAdventureDialog.TapInviteButton</p>
+  <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · User.MaxCharacterCount · MaxRetireCharacterCount · Character.HealingCost · InviteAdventureDialog.TapInviteButton</p>
 
   <h2 id="job"><span class="n">7</span>직업이 실제로 하는 일</h2>
   <p>직업 레벨을 코드가 참조하는 곳을 전수로 찾았습니다. <b>특수 분기가 있는 직업은 셋뿐</b>입니다. 나머지 60여 직업은 스탯 보너스·스킬·장착 가능 무기로만 갈립니다.</p>

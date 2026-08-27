@@ -227,8 +227,7 @@
           q: q,
           at: state.at || "",
           levels: state.levels || {},
-          remain: state.remain || {},
-          slots: state.slots || null,
+          fac: state.fac || null,
           done: state.done || {}
         }),
         saved_at: now, cleared: cleared, recorded: recorded, updated_at: now

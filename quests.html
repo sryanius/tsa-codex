@@ -329,7 +329,7 @@ window.__TSA_BOOT=function(D){
 
 var FAC={"숙소":"--f-lodge","창고":"--f-ware","치료소":"--f-heal","금고":"--f-vault","대장간":"--f-forge","모험가 아카이브":"--f-arch"};
 var FORD=["숙소","창고","치료소","금고","대장간","모험가 아카이브"];
-var KEY="tsa.done.v1", LKEY="tsa.levels.v1", KEY_SAVE="tsa.save.v1";
+var KEY="tsa.done.v1", LKEY="tsa.levels.v1", KEY_SAVE="tsa.save.v1", FKEY="tsa.fac.v1";
 var LOCKED={"자르간트 마을":1,"노르그레이 마을":1};   // 칼레바스 고원 — 미출시
 var done={}, lv={};
 try{ done=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ done={}; }
@@ -765,7 +765,15 @@ function bindSave(id){
       SAVE=window.TSA_SAVE.load();
       // 시설 레벨도 세이브(GameData)에 들어 있다. 손으로 넣던 값을 덮어쓴다.
       var bn=0;
-      if(r.buildings){ for(var k in r.buildings){ lv[k]=r.buildings[k]; bn++; } }
+      if(r.buildings){
+        for(var k in r.buildings){
+          if(k==="towns"||k==="halls") continue;
+          lv[k]=r.buildings[k]; bn++;
+        }
+        // 도시 주점·상점과 훈련소는 여기서 안 쓰지만, meta 페이지가 읽어 간다
+        try{ localStorage.setItem(FKEY, JSON.stringify(
+          {towns:r.buildings.towns||{}, halls:r.buildings.halls||{}, at:new Date().toISOString()})); }catch(e){}
+      }
       if(bn){ saveLv();
         Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,ix){
           var nm=FORD[ix]; if(nm!=null) i.value=(lv[nm]==null?"":lv[nm]); }); }
@@ -807,9 +815,10 @@ el("saveclear").onclick=function(){ window.TSA_SAVE.clear(); SAVE=null;
 // 클라우드에 올릴 «화면 상태» 한 덩어리.
 // 세이브에서 뽑은 진행도만이 아니라 손으로 넣은 값도 같이 옮겨야
 // 기기를 바꿔도 화면이 똑같이 보인다.
+function readFac(){ try{ return JSON.parse(localStorage.getItem(FKEY)||"null"); }catch(e){ return null; } }
 function gatherState(){
   return { q:(SAVE&&SAVE.q)||{}, at:(SAVE&&SAVE.at)||"",
-           levels:lv, done:done };
+           levels:lv, done:done, fac:readFac() };
 }
 function applyState(p){
   if(!p) return;
@@ -818,6 +827,7 @@ function applyState(p){
   if(p.levels){ lv=p.levels; saveLv();
     Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,k){
       var name=FORD[k]; if(name!=null) i.value=(lv[name]==null?"":lv[name]); }); }
+  if(p.fac){ try{ localStorage.setItem(FKEY, JSON.stringify(p.fac)); }catch(e){} }
   if(p.done){ done=p.done; save(); }
   render();
 }
@@ -983,8 +993,45 @@ render();
      게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
   var DATA_VERSION = 6061;
 
+  var TKIND = { 1: "주점", 2: "무기상점", 3: "방어구상점" };
   var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };
 
+  /* 도시 건물(주점·상점)과 훈련소는 이름이 채워져 있어 앞이 0a0a0a 가 아니다.
+     세 모양을 다 받는다:
+       0a 0a 0a                    전역 시설(창고·숙소…)
+       0a 06<도시이름> 0a           도시 건물(주점·무기상·방어구상)
+       0a 0a 06<직업이름>           직업 훈련소                         */
+  function readLen(b, i) {                      // NRBF 가변길이
+    var n = 0, sh = 0, c, j = i;
+    do { c = b[j++]; n |= (c & 0x7f) << sh; sh += 7; } while (c & 0x80);
+    return [n, j];
+  }
+  function readStr(b, i) {                      // [06][oid:4][가변길이][utf8]
+    if (b[i] !== 0x06) return null;
+    var r = readLen(b, i + 5), n = r[0], j = r[1];
+    if (n < 1 || n > 64) return null;
+    return { s: TD.decode(b.subarray(j, j + n)), end: j + n };
+  }
+  /* kind 는 열거값이라 ClassWithId(0x01)로 오는데, 그 클래스가 처음 나오는
+     자리에서는 정의째로(0x05) 실린다. 정의를 건너뛰지 않으면 첫 건물 하나를
+     통째로 놓친다 — 실제로 도시마다 주점이 빠져 있었다. */
+  function skipKindHeader(b, dv, j) {
+    if (b[j] === 0x01) return j + 9;
+    if (b[j] !== 0x05) return -1;
+    j += 5;                                     // 태그 + objectId
+    var r = readLen(b, j); j = r[1] + r[0];     // 클래스 이름
+    var cnt = dv.getInt32(j, true); j += 4;
+    if (cnt < 1 || cnt > 8) return -1;
+    for (var k = 0; k < cnt; k++) { r = readLen(b, j); j = r[1] + r[0]; }
+    var types = b.subarray(j, j + cnt); j += cnt;
+    for (var t = 0; t < cnt; t++) {
+      var v = types[t];
+      if (v === 0 || v === 7) j += 1;           // Primitive / PrimitiveArray
+      else if (v === 3) { r = readLen(b, j); j = r[1] + r[0]; }
+      else if (v === 4 || v === 5) { r = readLen(b, j); j = r[1] + r[0] + 4; }
+    }
+    return j + 4;                               // libraryId
+  }
   function extractBuildings(plain, into) {
     // decrypt() 는 Uint8Array 를 준다. DataView 는 ArrayBuffer 를 받으므로
     // 뷰의 버퍼와 오프셋을 그대로 넘긴다 — plain 을 바로 넣으면 던진다.
@@ -992,18 +1039,33 @@ render();
     var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
     var n = b.length, hit = 0;
     for (var i = 0; i + 30 < n; i++) {
-      if (b[i] !== 0x0a || b[i + 1] !== 0x0a || b[i + 2] !== 0x0a) continue;
-      var j = i + 3;
+      if (b[i] !== 0x0a) continue;              // name 은 언제나 null
+      var j = i + 1, town = "", master = "";
+      var r = readStr(b, j);
+      if (r) { town = r.s; j = r.end; }
+      else if (b[j] === 0x0a) j++;
+      else continue;
+      var r2 = readStr(b, j);
+      if (r2) { master = r2.s; j = r2.end; }
+      else if (b[j] === 0x0a) j++;
+      else continue;
+      if (j + 24 > n) continue;
       var level = dv.getInt32(j, true); j += 4;
       if (level < 0 || level > 99) continue;
       if (b[j] !== 0x09) continue; j += 5;              // readCollectInfoMasters
       if (b[j] !== 0x09) continue; j += 5;              // monsterLibraryEntries
-      if (b[j] !== 0x01) continue; j += 9;              // kind — ClassWithId
+      j = skipKindHeader(b, dv, j);                    // kind
+      if (j < 0 || j + 4 > n) continue;
       var kind = dv.getInt32(j, true);
-      var name = BKIND[kind];
-      if (!name) continue;
-      into[name] = level;
-      hit++;
+      if (kind >= 30 && kind <= 35) {                   // 전역 시설
+        if (town || master) continue;
+        into[BKIND[kind]] = level; hit++;
+      } else if (kind >= 1 && kind <= 3 && town) {      // 도시 건물
+        (into.towns = into.towns || {});
+        (into.towns[town] = into.towns[town] || {})[TKIND[kind]] = level; hit++;
+      } else if (kind === 200 && master) {              // 훈련소
+        (into.halls = into.halls || {})[master] = level; hit++;
+      }
     }
     return hit;
   }

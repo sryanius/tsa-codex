@@ -180,7 +180,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   border-bottom:1px solid var(--line-soft);font-family:"IBM Plex Mono",monospace}
 .lvtable td:first-child{text-align:left}
 .empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
-.group{margin:30px 0 0}
+.group{margin:24px 0 0}
+.regname{font-family:"Gowun Batang",Georgia,serif;font-size:15px;font-weight:700;
+  color:var(--faint);margin:34px 0 0;letter-spacing:.02em}
 .ghead{display:flex;align-items:baseline;gap:10px;margin:0 0 9px;flex-wrap:wrap}
 .ghead h2{font-family:"Gowun Batang",Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin:0}
 .ghead .sub{font-size:12px;color:var(--faint)}
@@ -227,6 +229,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
+      <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
       <span class="count" id="count"></span>
     </div>
   </div>
@@ -245,7 +248,28 @@ window.__TSA_BOOT=function(D){
 "use strict";
 
 var el=function(id){return document.getElementById(id)};
-var state={view:"job",q:"",wk:""};
+// 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
+// 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
+var LKEY2="tsa.showlocked.v1";
+var state={view:"job",q:"",wk:"",showLocked:false};
+try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
+function okTown(t){ return state.showLocked || !t.lock; }
+function visTowns(){ return D.towns.filter(okTown); }
+
+/* 퀘스트 색인에서 세이브를 넣으면 도시별 주점·상점 레벨과 훈련소 레벨이
+   여기 저장된다. 있으면 «내 레벨» 과 «지금 살 수 있는 것» 을 같이 보여 준다. */
+var FAC=null;
+try{ FAC=JSON.parse(localStorage.getItem("tsa.fac.v1")||"null"); }catch(e){}
+function myTownLv(townId, kind){
+  if(!FAC||!FAC.towns) return null;
+  var t=FAC.towns[townId]; if(!t) return null;
+  var key = kind==="무기 상점" ? "무기상점" : (kind==="방어구 상점" ? "방어구상점" : kind);
+  var v=t[key];
+  return (typeof v==="number") ? v : null;
+}
+function myHallLv(jobId){
+  return (FAC&&FAC.halls&&typeof FAC.halls[jobId]==="number") ? FAC.halls[jobId] : null;
+}
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
@@ -255,7 +279,7 @@ function mins(n){ var h=Math.floor(n/60); return (h?h+"시간 ":"")+(n%60)+"분"
 el("s-j").textContent=D.jobs.length;
 el("s-r").textContent=D.races.length;
 el("s-s").textContent=D.skills.length;
-el("s-t").textContent=D.towns.length;
+el("s-t").textContent=visTowns().length;
 
 // 무기 필터는 실제로 있는 것만
 var wks=[]; D.jobs.forEach(function(j){ j.w.forEach(function(w){ if(wks.indexOf(w)<0) wks.push(w); }); });
@@ -291,12 +315,13 @@ function soldTxt(r){ return r.min===r.max ? ("Lv"+r.max) : ("Lv"+r.min+"–"+r.m
 
 /* ---------- 클래스 ---------- */
 function jobRow(j){
+  var mh=myHallLv(j.i);
   return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
     +'<span class="nm"><b>'+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
     +'<span>'+esc(j.o||j.d.split("\n")[0])+'</span></span>'
     +'<span class="num dim">'+esc(j.w.join("·"))+'</span>'
-    +'<span class="num">Lv'+j.max+'</span>'
+    +'<span class="num">'+(mh!=null? '<b style="color:var(--accent)">Lv'+mh+'</b> / '+j.max : 'Lv'+j.max)+'</span>'
     +'<span class="num'+(j.exp>=5?"":" dim")+'">×'+(1+(j.exp-1)/4).toFixed(2)+'</span></div>';
 }
 function jobDetail(j){
@@ -306,6 +331,8 @@ function jobDetail(j){
     +'<div class="dcell"><dt>장착 무기</dt><dd>'+(esc(j.w.join(" · "))||"—")+'</dd></div>'
     +'<div class="dcell"><dt>장착 방어구</dt><dd>'+(esc(j.a.join(" · "))||"—")+'</dd></div>'
     +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+j.max+'</dd></div>'
+    +(myHallLv(j.i)!=null?'<div class="dcell"><dt>내 훈련소 레벨</dt><dd class="mono" style="color:var(--accent)">'
+        +myHallLv(j.i)+'</dd></div>':"")
     +'<div class="dcell"><dt>경험치 계수</dt><dd class="mono">×'+(1+(j.exp-1)/4).toFixed(2)+' <span class="meta">(expLevel '+j.exp+')</span></dd></div>'
     +'<div class="dcell"><dt>훈련소</dt><dd>'+(esc(j.hall)||"—")+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(j.i)+'</dd></div>'
@@ -320,12 +347,13 @@ function jobDetail(j){
 /* ---------- 종족 ---------- */
 var STAT=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 function raceRow(r){
+  var tw = state.showLocked ? r.towns : (r.open||r.towns);
   var top=STAT.slice().sort(function(a,b){ return r.ab[b]-r.ab[a]; }).slice(0,3)
             .filter(function(k){ return r.ab[k]>0; });
   return '<div class="row" data-k="r" data-i="'+esc(r.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 170px 58px 52px">'
     +'<span class="nm"><b>'+esc(r.race)+' · '+(r.man?"남":"여")+' <span class="meta">'+esc(r.i)+'</span></b>'
-    +'<span>'+(r.towns.length? "주점: "+esc(r.towns.join(", ")) : "주점 배치 없음")+'</span></span>'
+    +'<span>'+(tw.length? "주점: "+esc(tw.join(", ")) : (r.towns.length?"미출시 지역 주점뿐":"주점 배치 없음"))+'</span></span>'
     +'<span class="num dim">'+esc(top.join("·"))+'</span>'
     +'<span class="num">합 '+r.sum+'</span>'
     +'<span class="num dim">Lv'+r.lv+'</span></div>';
@@ -337,8 +365,10 @@ function raceDetail(r){
          +' <span class="meta">('+lo+"~"+hi+')</span></dd></div>'; }).join("");
   return '<div class="detail"><dl class="dgrid">'+cells+'</dl>'
     +'<div class="blk"><h4>뽑히는 주점</h4><ul>'
-    + (r.towns.length? r.towns.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("")
-                     : '<li>이 판본에는 배치가 없습니다</li>')
+    + (function(){ var tw2 = state.showLocked ? r.towns : (r.open||r.towns);
+        return tw2.length? tw2.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("")
+             : '<li>'+(r.towns.length?"미출시 지역에만 있습니다":"이 판본에는 배치가 없습니다")+'</li>'; })()
+
     + '</ul></div>'
     +'<div class="blk"><h4>가능한 성격</h4><span class="bonus">'
     + r.pers.map(function(p){ return '<i>'+esc(p)+'</i>'; }).join("")+'</span></div>'
@@ -382,13 +412,19 @@ function skillDetail(s){
 /* ---------- 도시 시설 ---------- */
 function townBlock(t){
   var rows=t.b.map(function(b){
+    var my=myTownLv(t.i, b.kind);
+    var cur="–";
+    if(b.kind==="주점"){ cur = my!=null ? ("포인트 +"+my+" · 최대 "+(my*2+3)) : "주점"; }
+    else if(b.shop&&b.shop.length){
+      var rr = my!=null ? b.shop[Math.min(my,b.shop.length)-1] : b.shop[b.shop.length-1];
+      cur = (my!=null?"":"만렙 ") + (rr?soldTxt(rr):"–");
+    } else if(b.lv.length) cur = gold(b.lv[b.lv.length-1].g)+"G";
     return '<div class="row" data-k="b" data-i="'+esc(t.n+"|"+b.n)+'" tabindex="0" role="button" '
       +'style="grid-template-columns:100px minmax(0,1fr) 66px 84px">'
       +'<span class="num dim" style="text-align:left">'+esc(b.kind)+'</span>'
       +'<span class="nm"><b>'+esc(b.n)+'</b></span>'
-      +'<span class="num">Lv'+b.max+'</span>'
-      +'<span class="num dim">'+(b.shop&&b.shop.length? "무기 "+soldTxt(b.shop[b.shop.length-1])
-          : (b.lv.length? gold(b.lv[b.lv.length-1].g)+"G" : "–"))+'</span></div>';
+      +'<span class="num">'+(my!=null? '<b style="color:var(--accent)">Lv'+my+'</b> / '+b.max : 'Lv'+b.max)+'</span>'
+      +'<span class="num dim">'+cur+'</span></div>';
   }).join("");
   return '<section class="group"><div class="ghead"><h2>'+esc(t.n)+'</h2>'
     +'<span class="sub">'+t.b.length+'곳 · 합계 '+t.b.reduce(function(a,b){return a+b.max},0)+'단계</span>'
@@ -401,10 +437,24 @@ function buildDetail(key){
   if(!b) return '<div class="detail">찾을 수 없습니다</div>';
   var tot=b.lv.reduce(function(a,r){return a+r.g},0);
   var time=b.lv.reduce(function(a,r){return a+r.t},0);
+  var my=myTownLv(t.i, b.kind);
+  var nextIdx = my!=null ? my-(b.base-1) : -1;   // levelManagers 에서 «다음 레벨» 자리
+  var mine = my==null ? "" :
+    '<div class="dcell"><dt>내 레벨</dt><dd class="mono" style="color:var(--accent)">'+my+'</dd></div>'
+    + (b.shop&&b.shop.length&&b.shop[my-1] ?
+        '<div class="dcell"><dt>지금 살 수 있는 것</dt><dd class="mono">'+soldTxt(b.shop[my-1])+'</dd></div>' : "")
+    + (b.kind==="주점" ?
+        '<div class="dcell"><dt>초빙 포인트</dt><dd class="mono">+'+my+' · 최대 '+(my*2+3)+'</dd></div>' : "")
+    + '<div class="dcell"><dt>다음 레벨까지</dt><dd class="mono">'
+    + (my>=b.max ? "만렙"
+        : (b.lv[nextIdx] ? b.lv[nextIdx].g.toLocaleString()+"G · "+mins(b.lv[nextIdx].t)
+            + (b.lv[nextIdx].r?" · 평판 "+b.lv[nextIdx].r:"") : "–"))
+    + '</dd></div>';
   var top=b.shop&&b.shop.length? b.shop[b.shop.length-1] : null;
   return '<div class="detail"><dl class="dgrid">'
     +'<div class="dcell"><dt>종류</dt><dd>'+esc(b.kind)+'</dd></div>'
     +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+b.max+'</dd></div>'
+    + mine
     +'<div class="dcell"><dt>만렙까지 골드</dt><dd class="mono">'+tot.toLocaleString()+'</dd></div>'
     +'<div class="dcell"><dt>만렙까지 시간</dt><dd class="mono">'+mins(time)+'</dd></div>'
     +(top?'<div class="dcell"><dt>만렙에서 파는 것</dt><dd class="mono">'+soldTxt(top)+'</dd></div>':"")
@@ -451,11 +501,15 @@ function render(){
     n=ss.length;
     html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
   } else {
-    var ts=D.towns.filter(function(t){
-      return hit(t.n+" "+t.b.map(function(b){return b.n+" "+b.kind}).join(" ")); });
+    var ts=visTowns().filter(function(t){
+      return hit(t.n+" "+t.r+" "+t.b.map(function(b){return b.n+" "+b.kind}).join(" ")); });
     n=ts.reduce(function(a,t){return a+t.b.length},0);
-    html+=ts.map(townBlock).join("");
+    var byR={};
+    ts.forEach(function(t){ (byR[t.r||"기타"]=byR[t.r||"기타"]||[]).push(t); });
+    Object.keys(byR).forEach(function(r){
+      html+='<h2 class="regname">'+esc(r)+'</h2>'+byR[r].map(townBlock).join(""); });
   }
+  el("s-t").textContent=visTowns().length;
   el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   el("wk").style.display = state.view==="job" ? "" : "none";
@@ -490,6 +544,12 @@ var t;
 el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("wk").addEventListener("change",function(e){ state.wk=e.target.value; render(); });
+el("showlocked").checked=state.showLocked;
+el("showlocked").addEventListener("change",function(e){
+  state.showLocked=e.target.checked;
+  try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
+  render();
+});
 ["job","race","skill","town"].forEach(function(v){
   el("v-"+v).onclick=function(){
     state.view=v;
