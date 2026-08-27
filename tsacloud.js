@@ -250,7 +250,8 @@
           at: state.at || "",
           levels: state.levels || {},
           fac: state.fac || null,
-          done: state.done || {}
+          done: state.done || {},
+          crew: state.crew || null
         }),
         saved_at: now, cleared: cleared, recorded: recorded, updated_at: now
       };

@@ -923,17 +923,21 @@ function showVersion(v, dv){
 /* ── 클라우드 ── */
 function gatherState(){
   var S=null; try{ S=window.TSA_SAVE.load(); }catch(e){}
-  var lv={}, fac=null, done={};
+  var lv={}, fac=null, done={}, crew=null;
   try{ lv=JSON.parse(localStorage.getItem("tsa.levels.v1")||"{}")||{}; }catch(e){}
   try{ fac=JSON.parse(localStorage.getItem("tsa.fac.v1")||"null"); }catch(e){}
   try{ done=JSON.parse(localStorage.getItem("tsa.done.v1")||"{}")||{}; }catch(e){}
-  return { q:(S&&S.q)||{}, at:(S&&S.at)||"", levels:lv, fac:fac, done:done };
+  // 용병 목록도 같이 올린다. 안 그러면 다른 기기에서 세이브를 또 넣어야 했다.
+  try{ crew=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){}
+  return { q:(S&&S.q)||{}, at:(S&&S.at)||"", levels:lv, fac:fac, done:done, crew:crew };
 }
 function cloudStatus(extra){
   var C=window.TSA_CLOUD; if(!C){ el("cloudcard").hidden=true; return; }
   var who=C.signedIn()? ("로그인됨 · "+(C.email()||"계정 확인 중")) : "로그인 안 됨";
   var S=null; try{ S=window.TSA_SAVE.load(); }catch(e){}
-  var loc=S? ("로컬 "+Object.keys(S.q||{}).length+"건("+S.at+")") : "로컬 없음";
+  var nc=(CREW&&CREW.chars)? CREW.chars.length : 0;
+  var loc=S? ("로컬 "+Object.keys(S.q||{}).length+"건("+S.at+")"+(nc?" · 용병 "+nc+"명":" · 용병 없음"))
+           : (nc? "로컬 퀘스트 없음 · 용병 "+nc+"명" : "로컬 없음");
   el("cloudmsg").textContent=who+" · "+loc+(extra?" · "+extra:"");
   el("cloudlogin").hidden=C.signedIn();
   el("cloudup").disabled=!C.signedIn();
@@ -943,8 +947,12 @@ async function pushCloud(ok){
   var C=window.TSA_CLOUD;
   if(!C||!C.signedIn()){ cloudStatus("로그인하면 다른 기기와 맞춰집니다"); return; }
   cloudStatus("올리는 중…");
-  var r=await C.putProgress(gatherState());
-  cloudStatus(r.ok? ok : "실패: "+r.error);
+  var st=gatherState();
+  var kb=Math.round(JSON.stringify(st).length/1024);
+  var r=await C.putProgress(st);
+  var nc=(st.crew&&st.crew.chars)? st.crew.chars.length : 0;
+  cloudStatus(r.ok? (ok+" — 퀘스트 "+Object.keys(st.q||{}).length+"건 · 용병 "+nc+"명 · "+kb+"KB")
+                  : "실패: "+r.error);
 }
 (function(){
   var C=window.TSA_CLOUD; if(!C){ el("cloudcard").hidden=true; return; }
@@ -963,8 +971,11 @@ async function pushCloud(ok){
       if(p.levels) localStorage.setItem("tsa.levels.v1", JSON.stringify(p.levels));
       if(p.fac) localStorage.setItem("tsa.fac.v1", JSON.stringify(p.fac));
       if(p.done) localStorage.setItem("tsa.done.v1", JSON.stringify(p.done));
+      if(p.crew){ localStorage.setItem("tsa.crew.v1", JSON.stringify(p.crew)); CREW=p.crew; }
     }catch(e){}
-    cloudStatus("받았습니다 — 용병 목록은 세이브를 다시 넣어야 채워집니다");
+    cloudStatus(p.crew ? "받았습니다 — 용병 "+((p.crew.chars||[]).length)+"명 포함"
+                       : "받았습니다 — 이 계정에는 아직 용병 목록이 없습니다(한 번 다시 올려 주세요)");
+    if(CREW && CREW.ver) showVersion(CREW.ver, window.TSA_SAVE.DATA_VERSION);
     paint();
   };
 })();
