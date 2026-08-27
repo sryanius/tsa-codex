@@ -564,14 +564,24 @@ function block(title,sub,rows){
 }
 
 /* ── 용병 뽑기 계산기 ───────────────────────────────────────────────
-   시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 넷이다.
+   시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 이렇다.
      1) 종족   — 주점의 barCharacters 에서 균등 추출
      2) 성격   — 그 종족의 personalities 목록에서 균등 추출
                  (목록에 중복이 있고 그게 곧 가중치다)
-     3) 능력치 — 종족 기준값을 CreateRandomValue 로 흔든다 (8종 독립)
-     4) 포인트 — Rand(3) + 주점레벨 + 성격보정, 그리고 10% 로 + Rand(주점레벨)
+     3) 능력치 — 두 단계다. Character.CreateParam 을 그대로 옮겼다.
+        (가) 기준값 8종을 각각 CreateRandomValue 로 흔든다
+        (나) 그리고 «남는 포인트» 를 하나씩 더 얹는다
+               pp = Σ ⌊CreateRandomValue(기준값ᵢ) / 2⌋ , 상한은 기준값 합 S
+               한 개씩 Rand(S) 룰렛 — 기준값이 큰 쪽에 잘 붙는다
+             기준값이 0 인 능력치(풋워커의 마나·지능)에는 절대 안 붙는다.
+             마지막에 생명점은 4, 힘은 2 로 바닥이 깔린다.
+        (나) 때문에 능력치끼리 상관이 생긴다. 공을 어디에 몇 개 넣었는지로
+             DP 를 돌려서 8종 조건을 «동시에» 만족할 확률을 정확히 접는다.
+     4) 초빙 포인트 — Rand(3) + 주점레벨 + 성격보정, 10% 로 + Rand(주점레벨)
         성격보정: 무모한 Rand(3) · 이기적 Rand(2) · 신경질적·감정적 Rand(1)=0
-                  사교적·신중한·합리적은 아예 없다                     */
+                  사교적·신중한·합리적은 아예 없다
+        이건 뽑은 뒤 «내가» 나눠 넣는 몫이라 (3) 과 별개다.            */
+var STAT_FLOOR={"생명점":4,"힘":2};   // CreateParam 끝에서 깔리는 바닥
 var PERS_ALL=["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
 var PERS_BONUS={"무모한":3,"이기적":2,"신경질적":1,"감정적":1};
 var calc={bar:"", sex:"", pers:{}, min:{}, pt:0};
@@ -606,22 +616,98 @@ function pointDist(lv, pb){
   for(k in bo) out[k]=(out[k]||0)+bo[k]*0.1;
   return out;
 }
-/* 능력치가 나올 수 있는 폭 — crvDist 지지집합의 양끝.
-   기준값에서 ±(n-1) 만큼 흔들리고 아래로는 0 에서 잘린다. */
-function crvRange(base){
-  if(base<1) return [0,0];
-  var n = base<=8 ? 3 : (base<=30 ? (base*171>>9) : (base<=99 ? (base*205>>11) : (base>>4)));
-  if(n<=0) return [base, base];
-  return [Math.max(0, base-(n-1)), base+(n-1)];
+/* ⌊CreateRandomValue(base)/2⌋ — 나눠 줄 포인트에 보태지는 몫 */
+function halfDist(base){
+  var d=crvDist(base), m={};
+  for(var k in d){ var v=(+k)>>1; m[v]=(m[v]||0)+d[k]; }
+  return m;
 }
-function statRange(k, rs){
-  var lo=null, hi=null;
+function sumAb(ab){ var S=0; STAT.forEach(function(k){ S+=ab[k]||0; }); return S; }
+/* 나눠 줄 포인트의 분포. 상한이 기준값 합이라 거기서 뭉친다. */
+function ppDist(ab){
+  var S=sumAb(ab), d={0:1};
+  STAT.forEach(function(k){ d=conv(d, halfDist(ab[k]||0)); });
+  var m={};
+  for(var k in d){ var v=Math.min(+k, S); m[v]=(m[v]||0)+d[k]; }
+  return m;
+}
+/* r 개를 확률 p 로 골랐을 때 k 개가 걸릴 확률 (k = 0..r) */
+function binomRow(r, p){
+  var out=new Array(r+1), c=1, i;
+  if(p<=0){ for(i=0;i<=r;i++) out[i]=0; out[0]=1; return out; }
+  if(p>=1){ for(i=0;i<=r;i++) out[i]=0; out[r]=1; return out; }
+  for(i=0;i<=r;i++){ out[i]=c*Math.pow(p,i)*Math.pow(1-p,r-i); c=c*(r-i)/(i+1); }
+  return out;
+}
+/* 능력치 하나의 «최종» 분포 — 흔든 값에 공 k 개를 얹고 바닥을 깐 것 */
+function statFinal(ab, st){
+  var S=sumAb(ab), w=(ab[st]||0)/(S||1), fl=STAT_FLOOR[st]||0;
+  var base=crvDist(ab[st]||0), pp=ppDist(ab), out={};
+  for(var P in pp){
+    var row=binomRow(+P, w), pw=pp[P];
+    for(var k=0;k<row.length;k++){
+      if(!row[k]) continue;
+      for(var v in base){
+        var x=Math.max(fl, (+v)+k);
+        out[x]=(out[x]||0)+pw*row[k]*base[v];
+      }
+    }
+  }
+  return out;
+}
+/* 여러 종족을 섞은 뒤 1~99% 구간. 이론상 최대치는 거의 안 나오는 값이라
+   그대로 적으면 오히려 헷갈린다. */
+function statBand(st, rs){
+  if(!rs.length) return null;
+  var mix={};
   rs.forEach(function(r){
-    var x=crvRange(r.ab[k]||0);
-    if(lo===null||x[0]<lo) lo=x[0];
-    if(hi===null||x[1]>hi) hi=x[1];
+    var d=statFinal(r.ab, st);
+    for(var k in d) mix[k]=(mix[k]||0)+d[k]/rs.length;
   });
-  return lo===null ? null : [lo, hi];
+  var keys=Object.keys(mix).map(Number).sort(function(a,b){return a-b;});
+  var acc=0, lo=null, hi=keys[keys.length-1];
+  for(var i=0;i<keys.length;i++){
+    acc+=mix[keys[i]];
+    if(lo===null && acc>=0.01) lo=keys[i];
+    if(acc>=0.99){ hi=keys[i]; break; }
+  }
+  return [lo===null?keys[0]:lo, hi];
+}
+/* 8종 조건을 «동시에» 만족할 확률. 공을 어디에 몇 개 넣었는지로 DP. */
+function statJointProb(ab, need){
+  var any=false; STAT.forEach(function(k){ if((need[k]||0)>0) any=true; });
+  if(!any) return 1;
+  var S=sumAb(ab), pp=ppDist(ab), R=0, P;
+  for(P in pp) if(+P>R) R=+P;
+  // ok[j][k] = j번째 능력치가 공 k 개를 받았을 때 조건을 넘길 확률
+  var ok=STAT.map(function(st){
+    var m=need[st]||0, d=crvDist(ab[st]||0), fl=STAT_FLOOR[st]||0, arr=[], k;
+    for(k=0;k<=R;k++){
+      if(!m){ arr[k]=1; continue; }
+      var q=0;
+      for(var v in d) if(Math.max(fl,(+v)+k) >= m) q+=d[v];
+      arr[k]=q;
+    }
+    return arr;
+  });
+  // 뒤에서부터 남은 무게
+  var W=[], acc=0, j;
+  for(j=STAT.length-1;j>=0;j--){ acc+=ab[STAT[j]]||0; W[j]=acc; }
+  // g[r] = 여기부터 끝까지, 공 r 개가 남았을 때의 확률
+  var g=new Array(R+1).fill(0); g[0]=1;
+  for(j=STAT.length-1;j>=0;j--){
+    var wj=W[j]?(ab[STAT[j]]||0)/W[j]:0, ng=new Array(R+1).fill(0), r, k;
+    for(r=0;r<=R;r++){
+      if(W[j]===0){ ng[r] = (r===0) ? ok[j][0]*g[0] : 0; continue; }
+      var row=binomRow(r, wj), t=0;
+      for(k=0;k<=r;k++) if(row[k] && ok[j][k] && g[r-k]) t+=row[k]*ok[j][k]*g[r-k];
+      ng[r]=t;
+    }
+    g=ng;
+  }
+  var out=0;
+  for(P in pp) out += pp[P]*(g[+P]||0);
+  return out;
 }
 /* 초빙 포인트의 폭. 고른 성격만 본다 — 안 골랐으면 전부. */
 function ptRange(lv){
@@ -660,11 +746,7 @@ function calcRun(){
   var lv=barLvOf(calc.bar), useLv = lv!=null ? lv : 1;
   var total=0, per=[];
   rs.forEach(function(r){
-    var pStat=1;
-    STAT.forEach(function(k){
-      var need=calc.min[k]||0;
-      if(need>0) pStat *= pAtLeast(crvDist(r.ab[k]||0), need);
-    });
+    var pStat=statJointProb(r.ab, calc.min);
     var cnt={}; r.pers.forEach(function(pp){ cnt[pp]=(cnt[pp]||0)+1; });
     var pAll=0;
     // 성격을 하나도 안 고르면 «아무거나» 로 본다 — 0% 를 띄우는 것보다 낫다
@@ -693,7 +775,7 @@ function calcHTML(){
       +(calc.pers[pp]?" checked":"")+'>'+esc(pp)+'</label>'; }).join("");
   var rsel=racesSel();
   var statBox=STAT.map(function(k){
-    var rg=statRange(k, rsel);
+    var rg=statBand(k, rsel);
     return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-s="'+esc(k)+'" value="'
       +(calc.min[k]||"")+'" placeholder="–">'
       +'<i class="rg">'+(rg? rg[0]+"–"+rg[1] : "–")+'</i></label>'; }).join("");
@@ -736,7 +818,7 @@ function calcHTML(){
       +'<span class="meta">'+rsel.length+'종 &mdash; '+(rsel.map(function(r){return esc(r.race)+(calc.sex?"":"·"+(r.man?"남":"여"));}).join(", ")||"없음")+'</span></div>'
     +'<div class="crow"><span class="lvlabel">원하는 성격</span><div class="abils-box">'+persBox+'</div></div>'
     +'<div class="crow"><span class="lvlabel">최소 능력치</span><div class="statbox">'+statBox+'</div>'
-      +'<span class="meta">칸 옆이 이 주점에서 <b>실제로 나올 수 있는 폭</b>입니다</span></div>'
+      +'<span class="meta">칸 옆은 이 주점에서 <b>거의 다(98%) 이 안에 들어오는 폭</b>입니다 &mdash; 기준값을 흔든 뒤 남는 포인트까지 얹은 값</span></div>'
     +'<div class="crow"><span class="lvlabel">최소 포인트</span>'
       +'<label class="lvin"><input type="number" id="c-pt" min="0" max="40" value="'+(calc.pt||"")+'" placeholder="–">'
       +'<i class="rg">'+(ptrg? ptrg[0]+"–"+ptrg[1] : "–")+'</i></label>'
