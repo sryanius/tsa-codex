@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>침묵의 기록자 클래스 · 종족 · 시설</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --f-lodge:#3F8F63; --f-ware:#C2762E; --f-heal:#BC4F68;
+  --f-vault:#B08A16; --f-forge:#3B7FA8; --f-arch:#7160B8; --f-train:#5A6470;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+    --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+  --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px
+}
+.mast h1{
+  font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
+  margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em
+}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
+}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
+
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--ground);
+  padding:14px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px
+}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
+}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type="search"],select{
+  font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink);min-width:0
+}
+input[type="search"]{flex:1 1 240px}
+.chip{
+  font:inherit;font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex:none}
+.chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
+.filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
+.filebtn:hover{border-color:var(--accent)}
+.filebtn.alt{color:var(--muted)}
+.mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
+  border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
+.hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
+.lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+  border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
+.lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lvin input{-moz-appearance:textfield}
+.lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
+.row.locked{opacity:.62}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+
+.group{margin-top:34px}
+.ghead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ghead h2{
+  font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  color:var(--ink);margin:0;letter-spacing:-.01em
+}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
+
+
+.list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.row{display:grid;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line-soft);
+  cursor:pointer;font-size:13.5px}
+.row:first-child{border-top:0}
+.row:hover{background:var(--raised)}
+.row.open{background:var(--raised)}
+.nm{min-width:0}
+.nm b{display:block;color:var(--ink);font-weight:600;font-size:14px}
+.nm span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--body);
+  text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.num.dim{color:var(--faint)}
+.tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
+  border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
+.t-w{color:var(--accent)} .t-m{color:var(--f-arch)} .t-hall{color:var(--f-forge)}
+.detail{padding:14px 16px 18px;background:var(--raised);border-top:1px solid var(--line-soft);font-size:13px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 16px;margin:0 0 4px}
+.dcell dt{font-size:10.5px;color:var(--faint);letter-spacing:.04em}
+.dcell dd{margin:1px 0 0;color:var(--body)}
+.dcell dd.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.blk{margin:14px 0 0;padding:12px 15px;background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;max-width:80ch}
+.blk h4{margin:0 0 8px;font-family:"Gowun Batang",Georgia,serif;font-size:14px;font-weight:700;color:var(--ink)}
+.blk ul{margin:0;padding-left:16px;list-style:none}
+.blk li{position:relative;margin:0 0 5px}
+.blk li::before{content:"·";position:absolute;left:-12px;color:var(--faint)}
+.meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.story{margin:12px 0 0;padding:11px 14px;border-left:2px solid var(--line);background:var(--surface);
+  border-radius:0 7px 7px 0;font-size:13px;color:var(--body);white-space:pre-wrap;max-width:74ch}
+.bonus{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 0}
+.bonus i{font-style:normal;font-size:11px;font-family:"IBM Plex Mono",monospace;
+  border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--body);background:var(--surface)}
+.bonus.sub i{color:var(--muted)}
+.lvtable{max-height:240px;overflow-y:auto;margin:8px 0 0}
+.lvtable table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+.lvtable th{position:sticky;top:0;background:var(--surface);text-align:right;font-size:10.5px;
+  color:var(--faint);font-weight:600;padding:4px 10px 4px 0;border-bottom:1px solid var(--line)}
+.lvtable th:first-child{text-align:left}
+.lvtable td{padding:3px 10px 3px 0;text-align:right;color:var(--body);
+  border-bottom:1px solid var(--line-soft);font-family:"IBM Plex Mono",monospace}
+.lvtable td:first-child{text-align:left}
+.empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
+.group{margin:30px 0 0}
+.ghead{display:flex;align-items:baseline;gap:10px;margin:0 0 9px;flex-wrap:wrap}
+.ghead h2{font-family:"Gowun Batang",Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin:0}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px}
+
+.gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  background:var(--ground);padding:24px}
+.gatebox{max-width:420px;text-align:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:32px 28px;box-shadow:var(--shadow)}
+.gatebox h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
+  color:var(--ink);margin:0 0 10px}
+.gatebox p{margin:0 0 16px;font-size:14px;color:var(--muted)}
+.gatebox button{font:inherit;font-size:14px;font-weight:500;padding:10px 22px;
+  border:1px solid var(--accent);border-radius:99px;background:var(--accent);
+  color:var(--on-accent,#fff);cursor:pointer}
+.gatebox button:hover{filter:brightness(1.08)}
+.gatenote{font-size:12px!important;color:var(--faint)!important;margin:16px 0 0!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="meta.html">클래스·종족·시설</a><a href="notes.html">원리</a>
+  </nav>
+  <header class="mast">
+    <p class="eyebrow">The Silent Archivist &middot; 용병단 운영</p>
+    <h1>클래스 · 종족 · 시설</h1>
+    <p class="lede">어느 클래스가 무엇을 들고 무엇에 능한지, 주직업일 때와 부직업일 때 뭐가 다른지, 어느 종족을 어느 주점에서 뽑는지, 그리고 시설을 올리는 데 얼마가 드는지. <a href="notes.html#job">경험치가 왜 점점 비싸지는지</a>는 원리 페이지에 있습니다.</p>
+    <div class="stats">
+      <div class="stat"><b id="s-j">0</b><span>클래스</span></div>
+      <div class="stat"><b id="s-r">0</b><span>종족</span></div>
+      <div class="stat"><b id="s-s">0</b><span>마법</span></div>
+      <div class="stat"><b id="s-t">0</b><span>도시 시설</span></div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="bar-row">
+      <div class="seg" role="group" aria-label="보기 전환">
+        <button id="v-job" type="button" aria-pressed="true">클래스</button>
+        <button id="v-race" type="button" aria-pressed="false">종족</button>
+        <button id="v-skill" type="button" aria-pressed="false">마법</button>
+        <button id="v-town" type="button" aria-pressed="false">도시 시설</button>
+      </div>
+      <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
+      <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <main id="out"></main>
+
+  <footer class="foot">
+    <p>클래스 설명은 게임의 원문(<code>LCDetail</code>)입니다. 주/부 보너스는 <code>mainJobBonuses*</code> / <code>subJobBonuses*</code>, 훈련소 레벨과 비용은 <code>BuildingMaster.levelManagers</code>, 종족 능력치는 <code>CharacterMaster.ability</code> 에서 뽑았습니다.</p>
+    <p>모든 수치는 <b>클라이언트 판번호 6061</b> 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
+    <p>창고·숙소·치료소·금고·대장간·아카이브 여섯은 골드로 못 올립니다 — 퀘스트로만 오릅니다. 어떤 퀘스트가 무엇을 올려주는지는 <a href="quests.html">퀘스트 색인</a>에 있습니다.</p>
+  </footer>
+</div>
+
+<script>
+window.__TSA_BOOT=function(D){
+"use strict";
+
+var el=function(id){return document.getElementById(id)};
+var state={view:"job",q:"",wk:""};
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
+function gold(n){ return n>=10000 ? (n/1000).toFixed(0)+"K" : n.toLocaleString(); }
+function mins(n){ var h=Math.floor(n/60); return (h?h+"시간 ":"")+(n%60)+"분"; }
+
+el("s-j").textContent=D.jobs.length;
+el("s-r").textContent=D.races.length;
+el("s-s").textContent=D.skills.length;
+el("s-t").textContent=D.towns.length;
+
+// 무기 필터는 실제로 있는 것만
+var wks=[]; D.jobs.forEach(function(j){ j.w.forEach(function(w){ if(wks.indexOf(w)<0) wks.push(w); }); });
+wks.forEach(function(w){ var o=document.createElement("option"); o.value=w; o.textContent=w; el("wk").appendChild(o); });
+
+function bonusHTML(o,cls){
+  var ks=Object.keys(o); if(!ks.length) return '<span class="meta">없음</span>';
+  return '<span class="bonus '+(cls||"")+'">'+ks.map(function(k){
+    return '<i>'+esc(k)+' +'+o[k]+'</i>'; }).join("")+'</span>';
+}
+function lvTable(lv){
+  if(!lv.length) return "";
+  return '<div class="lvtable"><table><thead><tr><th>레벨</th><th>골드</th><th>평판</th><th>시간</th></tr></thead><tbody>'
+    + lv.map(function(r){
+        return '<tr><td>'+r.lv+'</td><td>'+r.g.toLocaleString()+'</td><td>'
+             + (r.r||"–")+'</td><td>'+mins(r.t)+'</td></tr>'; }).join("")
+    + '</tbody></table></div>';
+}
+
+/* ---------- 클래스 ---------- */
+function jobRow(j){
+  return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
+    +'<span class="nm"><b>'+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
+    +'<span>'+esc(j.o||j.d.split("\n")[0])+'</span></span>'
+    +'<span class="num dim">'+esc(j.w.join("·"))+'</span>'
+    +'<span class="num">Lv'+j.max+'</span>'
+    +'<span class="num'+(j.exp>=5?"":" dim")+'">×'+(1+(j.exp-1)/4).toFixed(2)+'</span></div>';
+}
+function jobDetail(j){
+  var sk=j.sk.length? '<div class="blk"><h4>배우는 마법</h4><ul>'+j.sk.map(function(s){
+      return '<li><b>'+esc(s.n)+'</b><span class="meta"> — '+s.lv+'레벨</span></li>'; }).join("")+'</ul></div>' : "";
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>장착 무기</dt><dd>'+(esc(j.w.join(" · "))||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>장착 방어구</dt><dd>'+(esc(j.a.join(" · "))||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+j.max+'</dd></div>'
+    +'<div class="dcell"><dt>경험치 계수</dt><dd class="mono">×'+(1+(j.exp-1)/4).toFixed(2)+' <span class="meta">(expLevel '+j.exp+')</span></dd></div>'
+    +'<div class="dcell"><dt>훈련소</dt><dd>'+(esc(j.hall)||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(j.i)+'</dd></div>'
+    +'</dl>'
+    +'<div class="blk"><h4>주직업일 때</h4>'+bonusHTML(j.main)+'</div>'
+    +'<div class="blk"><h4>부직업일 때</h4>'+bonusHTML(j.sub,"sub")+'</div>'
+    + sk
+    + (j.lv.length?'<div class="blk"><h4>훈련소 올리는 비용</h4>'+lvTable(j.lv)+'</div>':"")
+    + (j.d?'<div class="story">'+esc(j.d)+'</div>':"")+'</div>';
+}
+
+/* ---------- 종족 ---------- */
+var STAT=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
+function raceRow(r){
+  var top=STAT.slice().sort(function(a,b){ return r.ab[b]-r.ab[a]; }).slice(0,3)
+            .filter(function(k){ return r.ab[k]>0; });
+  return '<div class="row" data-k="r" data-i="'+esc(r.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 170px 58px 52px">'
+    +'<span class="nm"><b>'+esc(r.race)+' · '+(r.man?"남":"여")+' <span class="meta">'+esc(r.i)+'</span></b>'
+    +'<span>'+(r.towns.length? "주점: "+esc(r.towns.join(", ")) : "주점 배치 없음")+'</span></span>'
+    +'<span class="num dim">'+esc(top.join("·"))+'</span>'
+    +'<span class="num">합 '+r.sum+'</span>'
+    +'<span class="num dim">Lv'+r.lv+'</span></div>';
+}
+function raceDetail(r){
+  var cells=STAT.map(function(k){
+    var v=r.ab[k], lo=rnd(v)[0], hi=rnd(v)[1];
+    return '<div class="dcell"><dt>'+esc(k)+'</dt><dd class="mono">'+v
+         +' <span class="meta">('+lo+"~"+hi+')</span></dd></div>'; }).join("");
+  return '<div class="detail"><dl class="dgrid">'+cells+'</dl>'
+    +'<div class="blk"><h4>뽑히는 주점</h4><ul>'
+    + (r.towns.length? r.towns.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("")
+                     : '<li>이 판본에는 배치가 없습니다</li>')
+    + '</ul></div>'
+    +'<div class="blk"><h4>가능한 성격</h4><span class="bonus">'
+    + r.pers.map(function(p){ return '<i>'+esc(p)+'</i>'; }).join("")+'</span></div>'
+    + (r.no.length? '<div class="blk"><h4>가질 수 없는 직업</h4><span class="bonus sub">'
+        + r.no.map(function(p){ return '<i>'+esc(p)+'</i>'; }).join("")+'</span></div>' : "")
+    +'<div class="blk"><h4>괄호 안 범위는 무엇인가</h4>'
+    +'<span class="meta">뽑을 때 능력치마다 주사위를 굴립니다 — <code>CreateRandomValue</code>. '
+    +'기준값이 1~8이면 ±0~2, 9~30이면 ±(기준/3), 31~99면 ±(기준/10) 만큼 흔들리고 0 밑으로는 안 내려갑니다. '
+    +'괄호가 그 최소~최대입니다.</span></div></div>';
+}
+// CreateRandomValue 의 흔들림 폭 — 원리 페이지의 그 함수와 같다
+function rnd(v){
+  if(v<1) return [0,0];
+  var n = v<=8 ? 3 : (v<=30 ? (v*171>>9) : (v<=99 ? (v*205>>11) : (v>>4)));
+  var s = n>0 ? n-1 : 0;
+  return [Math.max(0,v-s), v+s];
+}
+
+/* ---------- 마법 ---------- */
+function skillRow(s){
+  return '<div class="row" data-k="s" data-i="'+esc(s.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 130px 60px 52px">'
+    +'<span class="nm"><b>'+esc(s.n||s.i)+'</b><span>'+esc(s.jobs.map(function(j){return j.j+" "+j.lv+"렙"}).join(", "))+'</span></span>'
+    +'<span class="num dim">'+esc(s.rng)+'</span>'
+    +'<span class="num">'+(s.mp>0?"MP "+s.mp:"–")+'</span>'
+    +'<span class="num dim">Lv'+s.lv+'</span></div>';
+}
+function skillDetail(s){
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>범위</dt><dd>'+esc(s.rng)+'</dd></div>'
+    +'<div class="dcell"><dt>MP 소모</dt><dd class="mono">'+(s.mp>0?s.mp:"없음")+'</dd></div>'
+    +'<div class="dcell"><dt>요구 레벨</dt><dd class="mono">'+s.lv+'</dd></div>'
+    +(s.dmg[1]?'<div class="dcell"><dt>피해</dt><dd class="mono">'+s.dmg[0]+' – '+s.dmg[1]+'</dd></div>':"")
+    +(s.heal[1]?'<div class="dcell"><dt>회복</dt><dd class="mono">'+s.heal[0]+' – '+s.heal[1]+'</dd></div>':"")
+    +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(s.i)+'</dd></div>'
+    +'</dl><div class="blk"><h4>배우는 직업</h4><ul>'
+    + s.jobs.map(function(j){ return '<li><b>'+esc(j.j)+'</b><span class="meta"> — '+j.lv+'레벨</span></li>'; }).join("")
+    + '</ul></div>'+(s.d?'<div class="story">'+esc(s.d)+'</div>':"")+'</div>';
+}
+
+/* ---------- 도시 시설 ---------- */
+function townBlock(t){
+  var rows=t.b.map(function(b){
+    return '<div class="row" data-k="b" data-i="'+esc(t.n+"|"+b.n)+'" tabindex="0" role="button" '
+      +'style="grid-template-columns:100px minmax(0,1fr) 66px 84px">'
+      +'<span class="num dim" style="text-align:left">'+esc(b.kind)+'</span>'
+      +'<span class="nm"><b>'+esc(b.n)+'</b></span>'
+      +'<span class="num">Lv'+b.max+'</span>'
+      +'<span class="num dim">'+(b.lv.length? gold(b.lv[b.lv.length-1].g)+"G" : "–")+'</span></div>';
+  }).join("");
+  return '<section class="group"><div class="ghead"><h2>'+esc(t.n)+'</h2>'
+    +'<span class="sub">'+t.b.length+'곳 · 합계 '+t.b.reduce(function(a,b){return a+b.max},0)+'단계</span>'
+    +'<span class="rule"></span></div><div class="list">'+rows+'</div></section>';
+}
+function buildDetail(key){
+  var p=key.split("|"), t=null, b=null;
+  D.towns.forEach(function(x){ if(x.n===p[0]) t=x; });
+  if(t) t.b.forEach(function(x){ if(x.n===p[1]) b=x; });
+  if(!b) return '<div class="detail">찾을 수 없습니다</div>';
+  var tot=b.lv.reduce(function(a,r){return a+r.g},0);
+  var time=b.lv.reduce(function(a,r){return a+r.t},0);
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>종류</dt><dd>'+esc(b.kind)+'</dd></div>'
+    +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+b.max+'</dd></div>'
+    +'<div class="dcell"><dt>만렙까지 골드</dt><dd class="mono">'+tot.toLocaleString()+'</dd></div>'
+    +'<div class="dcell"><dt>만렙까지 시간</dt><dd class="mono">'+mins(time)+'</dd></div>'
+    +'</dl><div class="blk"><h4>레벨별 비용</h4>'+lvTable(b.lv)+'</div></div>';
+}
+
+function block(title,sub,rows){
+  if(!rows.length) return "";
+  return '<section class="group"><div class="ghead"><h2>'+esc(title)+'</h2>'
+    +'<span class="sub">'+esc(sub)+'</span><span class="rule"></span></div>'
+    +'<div class="list">'+rows.join("")+'</div></section>';
+}
+
+function render(){
+  var html="", n=0;
+  if(state.view==="job"){
+    var rows=D.jobs.filter(function(j){
+      if(state.wk && j.w.indexOf(state.wk)<0) return false;
+      return hit(j.n+" "+j.i+" "+j.o+" "+j.d+" "+j.w.join(" ")+" "+j.a.join(" ")+" "+j.hall
+        +" "+j.sk.map(function(s){return s.n}).join(" "));
+    });
+    n=rows.length;
+    html+=block("클래스", n+"종 · 최대 레벨 높은 순", rows.map(jobRow));
+  } else if(state.view==="race"){
+    var rs=D.races.filter(function(r){
+      return hit(r.race+" "+r.i+" "+r.towns.join(" ")+" "+r.pers.join(" ")); });
+    n=rs.length;
+    var by={};
+    rs.forEach(function(r){ (by[r.race]=by[r.race]||[]).push(r); });
+    Object.keys(by).forEach(function(k){
+      html+=block(k, by[k].length+"종", by[k].map(raceRow)); });
+  } else if(state.view==="skill"){
+    var ss=D.skills.filter(function(s){
+      return hit(s.n+" "+s.i+" "+s.d+" "+s.jobs.map(function(j){return j.j}).join(" ")); });
+    n=ss.length;
+    html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
+  } else {
+    var ts=D.towns.filter(function(t){
+      return hit(t.n+" "+t.b.map(function(b){return b.n+" "+b.kind}).join(" ")); });
+    n=ts.reduce(function(a,t){return a+t.b.length},0);
+    html+=ts.map(townBlock).join("");
+  }
+  el("count").textContent=n+" 건";
+  el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
+  el("wk").style.display = state.view==="job" ? "" : "none";
+}
+
+function detailFor(kind,id){
+  if(kind==="j"){ for(var i=0;i<D.jobs.length;i++) if(D.jobs[i].i===id) return jobDetail(D.jobs[i]); }
+  if(kind==="r"){ for(var i=0;i<D.races.length;i++) if(D.races[i].i===id) return raceDetail(D.races[i]); }
+  if(kind==="s"){ for(var i=0;i<D.skills.length;i++) if(D.skills[i].i===id) return skillDetail(D.skills[i]); }
+  if(kind==="b") return buildDetail(id);
+  return "";
+}
+function openRow(row){
+  var nx=row.nextElementSibling;
+  if(nx && nx.classList.contains("detail")){ nx.remove(); row.classList.remove("open"); return; }
+  var cur=row.parentNode.querySelector(".detail");
+  if(cur){ var pr=cur.previousElementSibling; if(pr) pr.classList.remove("open"); cur.remove(); }
+  var h=detailFor(row.getAttribute("data-k"), row.getAttribute("data-i"));
+  if(!h) return;
+  row.insertAdjacentHTML("afterend",h);
+  row.classList.add("open");
+}
+el("out").addEventListener("click",function(e){
+  var row=e.target.closest(".row"); if(row) openRow(row);
+});
+el("out").addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ") return;
+  var row=e.target.closest(".row"); if(!row) return;
+  e.preventDefault(); openRow(row);
+});
+var t;
+el("q").addEventListener("input",function(e){
+  clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
+el("wk").addEventListener("change",function(e){ state.wk=e.target.value; render(); });
+["job","race","skill","town"].forEach(function(v){
+  el("v-"+v).onclick=function(){
+    state.view=v;
+    ["job","race","skill","town"].forEach(function(x){
+      el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
+    render();
+  };
+});
+render();
+};
+</script>
+
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <h2>침묵의 기록자 자료실</h2>
+    <p id="gatemsg">데이터를 받는 중…</p>
+    <button type="button" id="gatebtn" hidden>구글로 로그인</button>
+    <p class="gatenote">데이터는 로그인한 사람만 받을 수 있습니다. 한 번 받으면 이 기기에 저장돼 다음부터는 오프라인에서도 열립니다.</p>
+  </div>
+</div>
+<script src="tsacloud.js"></script>
+<script>
+(async function(){
+  var gate=document.getElementById("gate"), msg=document.getElementById("gatemsg"),
+      btn=document.getElementById("gatebtn"), C=window.TSA_CLOUD;
+  function fail(t){ msg.textContent=t; btn.hidden=false; }
+  function start(D){
+    gate.remove();
+    window.__TSA_BOOT(D);
+    // 캐시로 떴을 수 있다. 로그인이 끊긴 채로 «올라간 줄 알고» 넘어가는 게
+    // 제일 나쁜 실패라서, 상태 줄에 못을 박아 둔다.
+    if(!C.signedIn()){
+      if(window.__TSA_CLOUD_STATUS)
+        window.__TSA_CLOUD_STATUS("저장된 데이터로 열었습니다 — 로그인해야 동기화됩니다");
+      return;
+    }
+    // 클라우드에 저장된 상태가 있으면 그대로 되살린다
+    C.getProgress().then(function(p){
+      if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
+      else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
+    }).catch(function(e){
+      if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("받기 실패: "+e.message);
+    });
+  }
+  var r=await C.completeOAuth();
+  if(r.error) fail(r.error);
+  btn.onclick=function(){ C.signIn(true); };
+
+  var booted=false;
+  var d=await C.fetchData("meta.json", function(cached){
+    if(!booted){ booted=true; start(cached); }        // 캐시가 있으면 즉시 띄운다
+  });
+  if(booted) return;
+  if(d) start(d);
+  else if(!C.signedIn()) fail("이 자료실을 보려면 로그인이 필요합니다.");
+  else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 meta.json 이 있는지 확인해 주세요.");
+})();
+</script>
+
+</body>
+</html>

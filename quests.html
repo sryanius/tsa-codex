@@ -104,6 +104,8 @@ input[type="search"]{flex:1 1 240px}
 .filebtn.alt{color:var(--muted)}
 .mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
   border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
 .hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
 .lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
   border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
@@ -246,7 +248,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a class="here" href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a>
+    <a href="index.html">자료실</a><a class="here" href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a>
   <a href="notes.html">원리</a></nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 데이터 색인</p>
@@ -285,6 +287,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <input type="file" id="savein2" multiple accept=".data" hidden></label>
       <span class="hint" id="savemsg"></span>
       <button type="button" id="saveclear" class="mini" hidden>불러온 세이브 지우기</button>
+    </div>
+    <div class="bar-row" id="verrow" hidden>
+      <span class="lvlabel">판번호</span>
+      <span class="hint" id="vermsg"></span>
     </div>
     <div class="bar-row" id="cloudrow" hidden>
       <span class="lvlabel">클라우드</span>
@@ -766,6 +772,18 @@ function bindSave(id){
       msg.textContent="세이브 반영 완료 — 파일 "+r.ok+"개 · 퀘스트 "+r.quests+"건"
         +(bn?" · 시설 "+bn+"개":" · 시설 레벨 없음(GameData 폴더까지 골라 주세요)")
         +(r.bad?" (실패 "+r.bad+")":"");
+      // 판번호가 다르면 여기 실린 수치가 낡았을 수 있다 — 조용히 넘기면 안 된다
+      var vr=el("verrow");
+      if(r.version && r.version!==r.dataVersion){
+        vr.hidden=false;
+        el("vermsg").innerHTML="게임이 <b>업데이트</b>됐습니다 — 세이브 판번호 <b>"+r.version
+          +"</b>, 이 자료실은 <b>"+r.dataVersion+"</b> 기준입니다. "
+          +"퀘스트·아이템·확률이 바뀌었을 수 있으니 새로 뽑아야 합니다.";
+        vr.classList.add("warn");
+      } else if(r.version){
+        vr.hidden=false; vr.classList.remove("warn");
+        el("vermsg").textContent="판번호 "+r.version+" — 자료실과 같습니다.";
+      }
       // 클라우드가 붙어 있으면 다른 기기에서도 보이게 올린다
       if(window.TSA_CLOUD && window.TSA_CLOUD.signedIn && window.TSA_CLOUD.signedIn()){
         msg.textContent+=" · 올리는 중…";
@@ -961,6 +979,10 @@ render();
 
      이다. kind 는 QuestMaster 의 upgradeableBuildingKind 와 같은 열거값이라
      퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
+  /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
+     게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
+  var DATA_VERSION = 6061;
+
   var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };
 
   function extractBuildings(plain, into) {
@@ -986,6 +1008,37 @@ render();
     return hit;
   }
 
+  /* GameData 의 currentVersion. userId(GUID 36자) 레코드 바로 뒤가
+       [1]isSpecialUser [8]lastAdTapTime [4]currentVersion 이다. */
+  var CV = [0x63,0x75,0x72,0x72,0x65,0x6e,0x74,0x56,0x65,0x72,0x73,0x69,0x6f,0x6e]; // "currentVersion"
+  function hasBytes(b, pat) {
+    outer: for (var i = 0; i + pat.length <= b.length; i++) {
+      for (var k = 0; k < pat.length; k++) if (b[i + k] !== pat[k]) continue outer;
+      return true;
+    }
+    return false;
+  }
+  function extractVersion(plain) {
+    var b = plain instanceof Uint8Array ? plain : new Uint8Array(plain);
+    // GameData 말고 다른 세이브에도 GUID 는 있다. 클래스 정의에 currentVersion 이
+    // 들어 있는 파일만 본다 — 안 그러면 엉뚱한 숫자를 판번호로 읽는다.
+    if (!hasBytes(b, CV)) return 0;
+    var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+    for (var i = 0; i + 60 < b.length; i++) {
+      if (b[i] !== 0x06 || b[i + 5] !== 0x24) continue;      // BinaryObjectString, 길이 36
+      var ok = true, j = i + 6;
+      for (var k = 0; k < 36 && ok; k++) {
+        var c = b[j + k];
+        var hex = (c >= 48 && c <= 57) || (c >= 97 && c <= 102);
+        ok = (k === 8 || k === 13 || k === 18 || k === 23) ? c === 45 : hex;
+      }
+      if (!ok) continue;
+      var v = dv.getInt32(j + 36 + 9, true);
+      if (v > 0 && v < 1000000) return v;
+    }
+    return 0;
+  }
+
   function validSet() {
     var v = {}, ids = window.TSA_QUEST_IDS || [];
     for (var i = 0; i < ids.length; i++) v[ids[i]] = 1;
@@ -1000,8 +1053,10 @@ render();
     _decrypt: decrypt,                       // 검증용
     _extract: extract,
     _buildings: extractBuildings,
+    _version: extractVersion,
+    DATA_VERSION: DATA_VERSION,
     ingest: async function (files, onProgress) {
-      var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [];
+      var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         if (!/\.data$/i.test(f.name)) continue;
@@ -1012,6 +1067,7 @@ render();
           // 시설은 GameData 파일에서만 나온다. 여기서 터져도 퀘스트는 이미 읽었으니
           // 따로 감싼다 — 한때 이게 없어서 전 파일이 «실패» 로 넘어갔다.
           try { extractBuildings(plain, blds); } catch (e2) { }
+          if (!ver) { try { ver = extractVersion(plain); } catch (e3) { } }
         } catch (e) {
           bad++;
           if (errs.length < 3) errs.push(f.name + ": " + e.message);
@@ -1024,7 +1080,8 @@ render();
       };
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
       return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
-               payload: payload, buildings: blds };
+               payload: payload, buildings: blds,
+               version: ver, dataVersion: DATA_VERSION };
     }
   };
 })();

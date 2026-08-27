@@ -100,6 +100,8 @@ input[type="search"]{flex:1 1 240px}
 .filebtn.alt{color:var(--muted)}
 .mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
   border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
 .hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
 .lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
   border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
@@ -168,7 +170,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 </style>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="notes.html">원리</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a><a class="here" href="notes.html">원리</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
@@ -294,6 +296,6 @@ RunCraft(craftIndex)</div>
   </div>
 
   <footer class="foot">
-    <p>게임이 업데이트되면 이 문서는 낡습니다. 수치는 추출 시점의 클라이언트 기준입니다.</p>
+    <p>이 문서는 <b>클라이언트 판번호 6061</b> 에서 뽑았습니다 (세이브의 <code>GameData.currentVersion</code> 과 같은 값). 게임이 업데이트되면 낡습니다 — 퀘스트 색인에 세이브를 넣으면 판번호가 달라졌는지 알려 줍니다.</p>
   </footer>
 </div>

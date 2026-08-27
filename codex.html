@@ -190,7 +190,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a>
   <a href="notes.html">원리</a></nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 몬스터 &middot; 아이템 &middot; 탐색지</p>
@@ -244,6 +244,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p><b>추가 공격 · 전체 공격은 «강화(craft)» 로만 붙습니다.</b> 마스터 데이터에 없고, <code>Weapon.Craft</code> 가 굴립니다. 결정적인 건 <b>한 번에 5단계 이상 강화될 때만 도는 블록</b>이 있다는 점입니다. 그 안에서 <b>추가 공격 5%</b>(마법 무기 15%), 그리고 <b>추가 공격이 붙은 경우에만</b> 후열 포함 15%(마법 25%) · <b>전체 공격 5%</b>(마법 15%) 를 굴립니다.</p>
     <p><b>상점에서 사면 강화 등급이 이렇게 정해집니다</b> (<code>TapBuyButton</code>): +1 이 20%, +2 가 5%, +3 이 1%, 그리고 <b>0.1%</b> 로 +3~+5 중 하나. 즉 <b>+5 로 나올 확률이 약 1/3000</b> 입니다. 곱하면 상점 무기에 추가 공격이 붙을 확률은 <b>약 6만분의 1</b>, 전체 공격은 <b>약 120만분의 1</b> 입니다 &mdash; 안 붙는 게 정상입니다.</p>
     <p><b>활만 예외입니다.</b> 강화 단계마다 5% 관문을 통과하면 <code>Weapon.Kind.Bow</code> 는 추가 공격이 <b>확정</b>으로 붙습니다(5단계 조건 없음). 그 외에는 <b>제작등급 5 이상으로 떨어지는 드랍</b>을 노리는 편이 빠릅니다 &mdash; 위 «+5강 이상 드랍» 태그로 걸러 보세요. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 입니다.</p>
+    <p>모든 수치는 <b>클라이언트 판번호 6061</b> 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
     <p>보물금고에서 나오는 아이템은 이 마스터 데이터에 없습니다 — 별도 로직이거나 서버 쪽입니다. 여기 실린 드랍은 <b>몬스터 처치 보상</b>만입니다.</p>
   </footer>
 </div>
