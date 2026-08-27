@@ -1185,11 +1185,28 @@ render();
   if(r.error) fail(r.error);
   btn.onclick=function(){ C.signIn(true); };
 
-  var booted=false;
+  var booted=false, cachedRaw=null;
   var d=await C.fetchData("data.json", function(cached){
-    if(!booted){ booted=true; start(cached); }        // 캐시가 있으면 즉시 띄운다
+    if(!booted){ booted=true; cachedRaw=JSON.stringify(cached); start(cached); }  // 캐시가 있으면 즉시 띄운다
   });
-  if(booted) return;
+  if(booted){
+    // 캐시로 띄운 뒤 새 자료가 왔으면 알린다. 조용히 지나가면 며칠씩 옛 자료를 본다.
+    if(d && cachedRaw && JSON.stringify(d)!==cachedRaw){
+      var bar=document.createElement("div");
+      bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
+        +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
+        +"gap:12px;align-items:center;justify-content:center";
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      var btn=document.createElement("button");
+      btn.type="button"; btn.textContent="새로고침";
+      btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"
+        +"border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer";
+      btn.onclick=function(){ location.reload(); };
+      bar.appendChild(btn);
+      document.body.appendChild(bar);
+    }
+    return;
+  }
   if(d) start(d);
   else if(!C.signedIn()) fail("이 자료실을 보려면 로그인이 필요합니다.");
   else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 data.json 이 있는지 확인해 주세요.");
