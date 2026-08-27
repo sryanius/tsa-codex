@@ -427,7 +427,12 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <h3>그래서 회피가 얼마면 다 피하나</h3>
   <p>2d6 의 최솟값이 2 이므로, 아래를 채우면 <b>그 몬스터의 물리 공격은 한 대도 안 맞습니다.</b></p>
   <div class="eq">회피값 + ⌊CreateRandomValue(민첩)의 <b>최솟값</b>/3⌋ + 지형 &ge; 몬스터 명중</div>
-  <p>민첩 30이면 흔들림이 ±9 라 최솟값이 21, 그 ⅓ 이 <b>7</b> 입니다. 민첩 20이면 최솟값 15 → <b>5</b>, 민첩 40이면 최솟값 27 → <b>9</b>. 즉 <b>회피값 ≥ 몬스터 명중 &minus; 7</b> (민첩 30 기준)이면 완봉입니다.</p>
+  <p>이 몫이 <b>민첩에 따라 달라집니다</b> &mdash; 민첩이 낮으면 회피값이 더 필요합니다.</p>
+  <table><thead><tr><th class="num">민첩</th><th class="num">10</th><th class="num">15</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">35</th><th class="num">40</th></tr></thead><tbody>
+  <tr><td>회피에 더해지는 최솟값</td><td class="num">2</td><td class="num">3</td><td class="num">5</td><td class="num">6</td><td class="num">7</td><td class="num"><b>9</b></td><td class="num">11</td><td class="num">12</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>민첩 30 → 31 에서 두 칸이 뜁니다.</b> <code>CreateRandomValue</code> 의 흔들림 폭이 «기준/3»(≤30)에서 «기준/10»(31~99)으로 확 줄기 때문입니다. 흔들림이 작아지니 최솟값이 올라가고, 그만큼 <b>바닥이 높아집니다</b>. 회피탱을 키운다면 <b>민첩 31 이 30보다 눈에 띄게 낫습니다.</b></div>
+  <p>즉 <b>회피값 ≥ 몬스터 명중 &minus; (위 표의 값)</b> 이면 완봉입니다. 명중 35 짜리 구역이라면 민첩 15는 회피 <b>32</b>, 민첩 30은 <b>28</b>, 민첩 31은 <b>26</b> 이 필요합니다.</p>
   <table><thead><tr><th>어디</th><th class="num">그 구역 최고 명중</th><th class="num">필요 회피값<br><span style="font-weight:400">민첩 30 기준</span></th></tr></thead><tbody>
   <tr><td>Lv0~4 탐색지</td><td class="num">12</td><td class="num">5</td></tr>
   <tr><td>Lv5~9</td><td class="num">19</td><td class="num">12</td></tr>
@@ -437,7 +442,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td>Lv25~29</td><td class="num">44</td><td class="num">37</td></tr>
   <tr><td><b>Lv30 이상</b></td><td class="num"><b>51</b></td><td class="num"><b>44</b></td></tr>
   </tbody></table>
-  <p><b>탐색지마다 정확한 값을 도감에 적어 뒀습니다</b> &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «회피 NN» 이 그 구역에서 가장 잘 맞히는 놈의 명중이고, 상세를 열면 필요한 회피값이 계산돼 나옵니다.</p>
+  <p><b>탐색지마다 정확한 값을 도감에 적어 뒀습니다</b> &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «회피 NN+» 이 민첩 30 기준으로 필요한 회피값이고, 상세를 열면 민첩별 표가 나옵니다. 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</p>
   <div class="note warn"><b>회피는 물리 공격에만 통합니다.</b> <code>AvoidRate</code> 를 부르는 자리는 <code>BattlePhysicalAttackExecutor.PhysicsAttack</code> <b>단 한 곳</b>입니다. 마법 피해도, 상태이상도 회피 판정을 거치지 않습니다. 회피탱은 물리만 막습니다.</div>
   <h3>지형이 양쪽을 다르게 건드립니다</h3>
   <table><thead><tr><th>지형</th><th class="num">내 회피</th><th class="num">공격자 명중</th></tr></thead><tbody>

@@ -86,7 +86,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px}
 .list{border:1px solid var(--line);border-radius:10px;overflow:hidden;
   background:var(--surface);box-shadow:var(--shadow)}
-.row{display:grid;grid-template-columns:minmax(0,1fr) 56px 92px;gap:12px;align-items:center;
+.row{display:grid;grid-template-columns:minmax(0,1fr) 56px 118px;gap:12px;align-items:center;
   padding:9px 14px;cursor:pointer;border-top:1px solid var(--line-soft)}
 .row:first-child{border-top:0}
 .row:hover,.row.open{background:var(--raised)}
@@ -94,7 +94,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .nm b{font-weight:500;color:var(--ink);font-size:14px;line-height:1.35}
 .nm span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;
-  font-variant-numeric:tabular-nums;color:var(--body);text-align:right}
+  font-variant-numeric:tabular-nums;color:var(--body);text-align:right;white-space:nowrap}
 .num.dim{color:var(--faint)}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
@@ -143,6 +143,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .jump:hover{color:var(--ink);border-bottom-style:solid}
 .t-place{color:var(--c-place)}
 .t-cl{color:var(--good);border-width:2px}
+table.mini{border-collapse:collapse;margin:8px 0;font-family:"IBM Plex Mono",monospace;font-size:12px}
+table.mini th,table.mini td{border:1px solid var(--line);padding:3px 9px;text-align:center}
+table.mini th{color:var(--faint);font-weight:600}
+table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--muted)}
 .t-magic{color:var(--f-arch);border-color:var(--f-arch);border-width:2px}
 /* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
 .drops{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.9}
@@ -506,21 +510,49 @@ function placeRow(p){
     +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
     +(mons.length>5?" 외 "+(mons.length-5):"")+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
-    +'<span class="num dim r3">'+(p.mh? "명중 "+p.mh : p.g.length+"그룹")+' · 함정'+p.t.length+'</span></div>';
+    +'<span class="num dim r3">'+(p.mh? "회피 "+needAvoid(p.mh,30)+"+" : p.g.length+"그룹")
+    +' <span class="dim">· 함정 '+p.t.length+'</span></span></div>';
 }
 /* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
    그래서 «회피값 + ⌊CreateRandomValue(민첩)/3⌋ ≥ 몬스터 명중» 이면
    2d6 이 최소(2)로 나와도 빗나간다 — 확실히 다 피한다. */
+/* CreateRandomValue(민첩) 의 «최솟값». 흔들림 폭 n 은 구간마다 다르고,
+   31 에서 확 줄어든다 — 그래서 민첩 30 보다 31 이 눈에 띄게 낫다. */
+var AGIS=[10,15,20,25,30,31,35,40];
+/* 행동 패턴 한 줄. HP 구간이 전체(0~100)가 아니면 «HP n% 이하» 같은 조건이 붙는다. */
+var FREQN={5:"항상",10:"자주",11:"흔히",12:"가끔",13:"이따금",14:"드물게",15:"희귀",16:"매우 희귀"};
+function actText(a){
+  var t=(a.k==="부름"? "동료 부름: " : "")+esc(a.n);
+  var cond=[];
+  if(FREQN[a.f] && a.f!==5) cond.push(FREQN[a.f]);
+  if(a.hp && (a.hp[0]>0 || a.hp[1]<100)) cond.push("HP "+a.hp[0]+"~"+a.hp[1]+"%");
+  return t + (cond.length? '<span class="meta">('+cond.join(" · ")+')</span>' : "");
+}
+function agiFloor(agi){
+  if(agi<1) return 0;
+  var n = agi<=8 ? 3 : (agi<=30 ? (agi*171>>9) : (agi<=99 ? (agi*205>>11) : (agi>>4)));
+  if(n<=0) return agi;
+  return Math.max(0, agi-(n-1));
+}
+/* 2d6 이 최소(2)로 나와도 빗나가려면 필요한 «회피값». 지형은 0 기준. */
+function needAvoid(hit, agi){ return Math.max(0, hit - Math.floor(agiFloor(agi)/3)); }
 function avoidNote(p){
   if(!p.mh) return "";
   var warn=[];
   if(p.nb) warn.push('<b>활이 안 통하는 몬스터 '+p.nb+'종</b>');
   if(p.np) warn.push('<b>물리가 안 통하는 몬스터 '+p.np+'종</b>');
+  var tbl='<table class="mini"><thead><tr><th>민첩</th>'
+    + AGIS.map(function(a){ return '<th>'+a+'</th>'; }).join("")
+    + '</tr></thead><tbody><tr><td>필요 회피값</td>'
+    + AGIS.map(function(a){ return '<td>'+needAvoid(p.mh,a)+'</td>'; }).join("")
+    + '</tr></tbody></table>';
   return '<div class="note"><b>여기서 물리 공격을 전부 피하려면</b> — 가장 잘 맞히는 놈의 명중이 '
-    +'<b>'+p.mh+'</b> 입니다. <code>회피값 + ⌊민첩 흔들림 최소/3⌋ ≥ '+p.mh+'</code> 이면 '
-    +'2d6 이 최소로 나와도 빗나갑니다. 민첩 30이면 회피값 <b>'+Math.max(0,p.mh-7)+'</b> 이상.'
-    + (warn.length? ' &mdash; 다만 '+warn.join(", ")+'이 있습니다.' : '')
-    + ' 마법·상태이상은 회피 판정을 하지 않습니다.</div>';
+    +'<b>'+p.mh+'</b> 입니다. <code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ '+p.mh+'</code> 이면 '
+    +'2d6 이 최소로 나와도 빗나갑니다 &mdash; <b>민첩이 낮을수록 회피가 더 필요합니다.</b>'
+    + tbl
+    + '<span class="meta">민첩 30→31 에서 두 칸 내려가는 건 <code>CreateRandomValue</code> 의 흔들림 폭이 거기서 확 줄기 때문입니다. 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</span>'
+    + (warn.length? '<br><span class="meta">다만 '+warn.join(", ")+'이 있습니다.</span>' : '')
+    + '<br><span class="meta">마법·상태이상은 회피 판정을 하지 않습니다.</span></div>';
 }
 function placeDetail(p){
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;
@@ -535,10 +567,21 @@ function placeDetail(p){
         dl.push(itemLink(d.n)+'<span class="meta"> ('+esc(mm.n)+' · 가중치 '+(d.f||0)+')</span>');
       });
     });
+    // 마법을 쓰는 놈이 섞여 있으면 회피만으로는 못 막는다 — 무슨 마법인지 적는다
+    var sk=[];
+    g.m.forEach(function(mm){
+      var mo=MONBY[mm.n]; if(!mo) return;
+      var a=(mo.acts||[]).map(actText);
+      if(mo.skills && mo.skills.length) a=a.concat(mo.skills.map(function(x){ return esc(x); }));
+      if(a.length) sk.push('<b>'+esc(mm.n)+'</b> '+a.join(", "));
+    });
     return '<li><b>'+g.m.map(function(m){
+      var mo=MONBY[m.n];
       return '<button type="button" class="jump" data-go="m:'+esc(m.n)+'">'+esc(m.n)+'</button>'
+        +(mo?'<span class="meta"> 명중'+(mo.hit||0)+'</span>':'')
         +(m.v?'':'<span class="meta"> (후위)</span>'); }).join(" + ")+'</b>'
       +'<span class="meta"> — 가중치 '+(g.f||0)+' (약 '+pct+'%)'+(g.q?' · 퀘스트 전용':'')+'</span>'
+      +(sk.length?'<div class="drops"><b style="color:var(--f-arch)">마법</b> '+sk.join('<i class="sep">·</i>')+'</div>':'')
       +(dl.length?'<div class="drops">드랍 '+dl.join('<i class="sep">·</i>')+'</div>':'')
       +'</li>'; }).join("");
   var th=p.t.length? '<div class="blk"><h4>함정</h4><ul>'+p.t.map(function(t){
@@ -566,6 +609,8 @@ function monRow(m){
   if(m.drops.length) tags+='<em class="tag t-drop">드랍</em>';
   if(m.fly) tags+='<em class="tag t-fly">비행</em>';
   if(m.undead) tags+='<em class="tag t-und">언데드</em>';
+  if((m.acts||[]).some(function(a){return a.k==="마법";})) tags+='<em class="tag t-magic" title="마법으로 공격합니다 — 회피로는 못 막습니다">마법</em>';
+  if((m.acts||[]).some(function(a){return a.k==="부름";})) tags+='<em class="tag t-fly" title="동료를 불러들입니다">부름</em>';
   if(m.nobow) tags+='<em class="tag t-cl" title="활 공격이 절대 안 맞습니다 — 회피에 999가 더해집니다">활 무효</em>';
   if(m.nophys) tags+='<em class="tag t-sp" title="보통 물리 공격이 통하지 않습니다 — 마법 무기(도감 «마법» 표) 나 마검사의 단검이면 통합니다">물리 무효</em>';
   return '<div class="row" data-k="m" data-i="'+esc(m.i)+'" tabindex="0" role="button">'
@@ -586,8 +631,12 @@ function monDetail(m){
   var pl=mp.length? '<div class="blk"><h4>출현지 ('+mp.length+')</h4><ul>'+mp.map(function(p){
       return '<li><button type="button" class="jump" data-go="p:'+esc(p.n)+'">'+esc(p.n)+'</button>'
         +'<span class="meta"> — '+esc(p.r)+' · Lv'+(p.lv||0)+'</span></li>'; }).join("")+'</ul></div>' : "";
-  var sk=m.skills.length? '<div class="blk"><h4>스킬</h4><ul>'+m.skills.map(function(s){
-      return '<li>'+esc(s)+'</li>'; }).join("")+'</ul></div>' : "";
+  var acts=(m.acts||[]);
+  var sk=(acts.length||m.skills.length)?
+      '<div class="blk"><h4>행동</h4><ul>'
+      + acts.map(function(a){ return '<li>'+actText(a)+'</li>'; }).join("")
+      + m.skills.map(function(s){ return '<li>'+esc(s)+'</li>'; }).join("")
+      +'</ul></div>' : "";
   return '<div class="detail"><dl class="dgrid">'
     +'<div class="dcell"><dt>레벨</dt><dd class="mono">'+(m.lv||0)+'</dd></div>'
     +'<div class="dcell"><dt>경험치</dt><dd class="mono">'+(m.exp||0).toLocaleString()+'</dd></div>'
