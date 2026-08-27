@@ -186,6 +186,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .lvtable td{padding:3px 10px 3px 0;text-align:right;color:var(--body);
   border-bottom:1px solid var(--line-soft);font-family:"IBM Plex Mono",monospace}
 .lvtable td:first-child{text-align:left}
+.mapbox{border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  box-shadow:var(--shadow);padding:10px;overflow:hidden}
+.mapbox svg{display:block;margin:0 auto;width:auto;height:auto;
+  max-width:100%;max-height:78vh}
+.mc circle{fill:var(--line);stroke:none;cursor:pointer;transition:fill .12s}
+.mc:hover circle{fill:var(--accent)}
+.mt circle{fill:var(--accent);stroke:var(--surface);stroke-width:2.5;cursor:pointer}
+.mt:hover circle{fill:var(--f-heal)}
+.mt text{font-family:"IBM Plex Sans KR",sans-serif;font-size:13px;font-weight:600;
+  fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4;cursor:pointer}
 .calc{border:1px solid var(--line);border-radius:10px;background:var(--surface);
   padding:14px 16px;margin:0 0 16px;box-shadow:var(--shadow)}
 .crow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
@@ -244,6 +254,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <button id="v-skill" type="button" aria-pressed="false">마법</button>
         <button id="v-town" type="button" aria-pressed="false">도시 시설</button>
         <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
+        <button id="v-map" type="button" aria-pressed="false">지도</button>
         <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
@@ -426,6 +437,41 @@ function rnd(v){
   return [Math.max(0,v-s), v+s];
 }
 
+/* ── 지도 ────────────────────────────────────────────────────────────
+   맵 이미지는 타일맵이라 한 장으로 못 꺼낸다. 대신 도시·탐색지에 좌표가
+   있어서 그걸로 그린다. 그림보다 나은 점이 있다 — 눌러서 갈 수 있다.
+   게임 좌표는 y 가 위로 자라므로 그릴 때 뒤집는다. */
+function mapSVG(m){
+  var pts=m.t.concat(m.c);
+  if(!pts.length) return "";
+  var xs=pts.map(function(p){return p.x}), ys=pts.map(function(p){return p.y});
+  var x0=Math.min.apply(null,xs), x1=Math.max.apply(null,xs);
+  var y0=Math.min.apply(null,ys), y1=Math.max.apply(null,ys);
+  var pad=3, W=(x1-x0)+pad*2, H=(y1-y0)+pad*2;
+  var S=22;                                   // 좌표 한 칸을 몇 px 로 볼 것인가
+  function px(p){ return [(p.x-x0+pad)*S, (y1-p.y+pad)*S]; }
+  var caves=m.c.map(function(c){
+    var q=px(c);
+    return '<g class="mc" data-go="p:'+esc(c.n)+'"><circle cx="'+q[0]+'" cy="'+q[1]+'" r="4.5"></circle>'
+      +'<title>'+esc(c.n)+' · Lv'+c.lv+'</title></g>';
+  }).join("");
+  var towns=m.t.map(function(t){
+    var q=px(t);
+    return '<g class="mt" data-go="t:'+esc(t.n)+'">'
+      +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="9"></circle>'
+      +'<text x="'+q[0]+'" y="'+(q[1]-14)+'" text-anchor="middle">'+esc(t.n)+'</text>'
+      +'<title>'+esc(t.n)+'</title></g>';
+  }).join("");
+  return '<div class="mapbox"><svg viewBox="0 0 '+(W*S)+' '+(H*S)+'" '
+    +'preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+esc(m.n)+' 지도">'
+    + caves + towns + '</svg></div>';
+}
+function mapBlock(m){
+  return '<section class="group"><div class="ghead"><h2>'+esc(m.n)+'</h2>'
+    +'<span class="sub">도시 '+m.t.length+'곳 · 탐색지 '+m.c.length+'곳'
+    +(m.lock?' · 미출시 지역':'')+'</span><span class="rule"></span></div>'
+    + mapSVG(m) + '</section>';
+}
 /* ── 용병 뽑기 계산기 ───────────────────────────────────────────────
    확률을 시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 셋이다.
 
@@ -730,6 +776,14 @@ function render(){
       return hit(s.n+" "+s.i+" "+s.d+" "+s.jobs.map(function(j){return j.j}).join(" ")); });
     n=ss.length;
     html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
+  } else if(state.view==="map"){
+    var ms=D.maps.filter(function(m){ return (state.showLocked || !m.lock)
+      && (!state.q || m.n.toLowerCase().indexOf(state.q.toLowerCase())>=0); });
+    el("out").innerHTML = ms.length ? ms.map(mapBlock).join("")
+      : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
+    el("count").textContent=ms.length+" 지역";
+    el("wk").style.display="none";
+    return;
   } else if(state.view==="calc"){
     el("out").innerHTML=calcHTML();
     el("count").textContent="";
@@ -785,7 +839,7 @@ el("showlocked").addEventListener("change",function(e){
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
 });
-var VIEWS=["job","race","skill","town","calc"];
+var VIEWS=["job","race","skill","town","calc","map"];
 VIEWS.forEach(function(v){
   el("v-"+v).onclick=function(){
     state.view=v;
@@ -794,6 +848,14 @@ VIEWS.forEach(function(v){
   };
 });
 // 계산기 입력 — 결과가 바뀔 때마다 화면을 다시 그리므로 위임으로 받는다
+// 지도에서 도시·탐색지를 누르면 그 자료로 보낸다
+el("out").addEventListener("click",function(e){
+  var g=e.target.closest("[data-go]"); if(!g) return;
+  e.stopPropagation();
+  var v=g.getAttribute("data-go"), kind=v.slice(0,1), name=v.slice(2);
+  if(kind==="t"){ location.href="quests.html?q="+encodeURIComponent(name); }
+  else { location.href="codex.html?q="+encodeURIComponent(name); }
+}, true);
 el("out").addEventListener("change",function(e){
   var t=e.target;
   if(t.id==="c-bar"){ calc.bar=t.value; render(); return; }
