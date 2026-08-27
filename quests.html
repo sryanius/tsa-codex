@@ -255,7 +255,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>침묵의 기록자 퀘스트 색인</h1>
     <p class="lede">게임이 알려주지 않는 것 &mdash; 어느 도시의 어떤 퀘스트가 어떤 시설을 올려주는지, 그리고 그 도시에 아직 남은 퀘스트가 무엇인지. 클라이언트 데이터에서 그대로 뽑았습니다.</p>
     <div class="stats">
-      <div class="stat"><b id="s-q">0</b><span>퀘스트</span></div>
+      <div class="stat"><b id="s-q">0</b><span>게시판 퀘스트</span></div>
       <div class="stat"><b id="s-t">0</b><span>도시</span></div>
       <div class="stat"><b id="s-f">0</b><span>시설 업그레이드</span></div>
       <div class="stat"><b id="s-u">0</b><span>훈련소 해금</span></div>
@@ -444,7 +444,11 @@ FORD.forEach(function(f){
   lvBox.appendChild(w);
 });
 
-function visQuests(){ return D.quests.filter(function(x){ return state.showLocked || !LOCKED[x.t]; }); }
+// 화면에 뜨는 것 전부 (길드 퀘스트 포함)
+function poolQuests(){ return D.quests.filter(function(x){ return state.showLocked || !LOCKED[x.t]; }); }
+// 진행도를 셀 때 쓰는 것. 길드 퀘스트(0_GuildQuests)는 도시 게시판에 안 뜨고
+// 도시 세이브에도 기록이 없어서, 세면 «남은 것» 이 영영 28개 남은 것처럼 보인다.
+function visQuests(){ return poolQuests().filter(function(x){ return !x.gq; }); }
 // 헤더 숫자 — «내가 깬 것» 은 세이브의 clearCount 가 진실이다.
 // 손으로 찍은 체크만 세면 세이브를 넣은 사람에게 늘 0 으로 보인다.
 function paintStats(){
@@ -456,9 +460,14 @@ function paintStats(){
   el("s-u").textContent=vis.filter(function(x){return x.u;}).length;
   el("s-d").textContent=doneN;
   el("s-r").textContent=(vis.length-doneN);
-  var sum=0, got=0;
-  FORD.forEach(function(f){ if(lv[f]!=null){ sum+=lv[f]; got++; } });
-  el("s-lv").textContent = got ? (sum+" / "+(got*30)) : "–";
+  // 상한은 시설마다 다르다 — 숙소는 16 이 만렙이고 나머지가 30 이다.
+  // 30 을 일률로 곱하면 «164 / 180» 처럼 영영 못 채우는 숫자가 나온다.
+  var sum=0, cap=0, got=0;
+  FORD.forEach(function(f){
+    if(lv[f]==null) return;
+    sum+=lv[f]; cap+=openCount(f)+(BASE[f]||0); got++;
+  });
+  el("s-lv").textContent = got ? (sum+" / "+cap) : "–";
 }
 paintStats();
 
@@ -608,7 +617,7 @@ function remainBox(town){
 function render(){
   var rows=D.quests.filter(match);
   paintStats();
-  el("count").textContent=rows.length+" / "+visQuests().length+" 건";
+  el("count").textContent=rows.length+" / "+poolQuests().length+" 건";
   if(!rows.length){ el("out").innerHTML='<p class="empty">조건에 맞는 퀘스트가 없습니다. 필터를 줄여 보세요.</p>'; return; }
   var html="";
   if(state.view==="fac"){
@@ -638,8 +647,10 @@ function render(){
       (state.showLocked ? "전체 "+uAll.length+"곳 · 지금 해금 가능 "+(uAll.length-uLock)+"곳 · 미출시 "+uLock+"곳"
                         : "전체 "+(uAll.length-uLock)+"곳")+" · 요구 평판 높은 순",
       un, "var(--f-train)");
-    var rest=rows.filter(function(x){ return !x.g && !x.u; });
+    var rest=rows.filter(function(x){ return !x.g && !x.u && !x.gq; });
     if(rest.length) html+=groupBlock("시설과 무관한 퀘스트", rest.length+"건", rest, null);
+    var gq=rows.filter(function(x){ return x.gq; });
+    if(gq.length) html+=groupBlock("길드 퀘스트", gq.length+"건 · 도시 게시판 밖입니다", gq, null);
   } else {
     var seen={};
     D.towns.forEach(function(t){
@@ -651,7 +662,7 @@ function render(){
       html+=groupBlock(t.n, sub, rs, null, LOCKED[t.n]?"":remainBox(t.n));
     });
     var orphan=rows.filter(function(x){ return !x.t; });
-    html+=groupBlock("길드 퀘스트", orphan.length+"건", orphan, null);
+    html+=groupBlock("길드 퀘스트", orphan.length+"건 · 도시 게시판에 안 뜨고 세이브에도 기록이 없어 진행도 집계에서 뺐습니다", orphan, null);
   }
   el("out").innerHTML=html;
 }
