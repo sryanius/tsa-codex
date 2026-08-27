@@ -1,0 +1,299 @@
+<title>침묵의 기록자 원리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --f-lodge:#3F8F63; --f-ware:#C2762E; --f-heal:#BC4F68;
+  --f-vault:#B08A16; --f-forge:#3B7FA8; --f-arch:#7160B8; --f-train:#5A6470;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+    --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+  --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px
+}
+.mast h1{
+  font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
+  margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em
+}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
+}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
+
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--ground);
+  padding:14px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px
+}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
+}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type="search"],select{
+  font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink);min-width:0
+}
+input[type="search"]{flex:1 1 240px}
+.chip{
+  font:inherit;font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex:none}
+.chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
+.filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
+.filebtn:hover{border-color:var(--accent)}
+.filebtn.alt{color:var(--muted)}
+.mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
+  border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+.hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
+.lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+  border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
+.lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lvin input{-moz-appearance:textfield}
+.lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
+.row.locked{opacity:.62}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+
+.group{margin-top:34px}
+.ghead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ghead h2{
+  font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  color:var(--ink);margin:0;letter-spacing:-.01em
+}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
+
+
+/* ── 읽는 페이지 ─────────────────────────────────────────────── */
+.doc{max-width:74ch;padding-bottom:80px}
+.doc h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
+  color:var(--ink);margin:46px 0 4px;scroll-margin-top:16px}
+.doc h2 .n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--faint);
+  margin-right:10px;font-weight:400}
+.doc h3{font-size:15px;font-weight:600;color:var(--ink);margin:26px 0 6px}
+.doc p{margin:10px 0;color:var(--body)}
+.doc b{color:var(--ink);font-weight:600}
+.doc code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--raised);
+  padding:1px 5px;border-radius:4px;color:var(--muted)}
+.doc ul{margin:10px 0;padding-left:18px}
+.doc li{margin:5px 0;color:var(--body)}
+.doc a{color:var(--accent)}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.85;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin:14px 0;color:var(--body);overflow-x:auto;white-space:pre}
+.eq b{color:var(--accent);font-weight:600}
+.eq i{font-style:normal;color:var(--faint)}
+.note{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin:16px 0;font-size:13.5px;color:var(--body)}
+.note.warn{border-left-color:var(--f-heal)}
+.doc table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13px;
+  font-variant-numeric:tabular-nums;display:block;overflow-x:auto}
+.doc th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--faint);
+  font-weight:600;padding:0 12px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.doc td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line-soft);
+  color:var(--body);vertical-align:top}
+.doc td.num,.doc th.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+.doc td b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0}
+.toc a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 12px;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.toc a:hover{color:var(--ink);border-color:var(--accent)}
+.src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:8px 0 0}
+</style>
+<div class="wrap">
+  <nav class="topnav">
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="/notes.html">원리</a>
+  </nav>
+  <header class="mast">
+    <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
+    <h1>게임이 안 알려주는 계산식</h1>
+    <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
+    <div class="toc">
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#job">직업</a><a href="#unknown">모르는 것</a>
+    </div>
+  </header>
+
+  <div class="doc">
+
+  <h2 id="rep"><span class="n">1</span>평판</h2>
+  <p><b>요구 평판은 부호에 따라 방향이 반대입니다.</b> 양수는 «그 값 이상»이라야 뜨는 하한이고, 음수는 «그 값 이하»여야 뜨는 상한입니다. 그래서 선행 체인을 하나로 합칠 수 없어, 퀘스트 색인에서는 <b>▲ 한 번은 올려야 하는 평판</b>과 <b>▼ 한 번은 내려가야 하는 평판</b>을 따로 계산합니다.</p>
+  <h3>평판이 오르다 멈추는 이유</h3>
+  <div class="eq">퀘스트 레벨 = master.level + Min(addLevel, master.maxAddLevel)
+평판 상한   = 5 × (퀘스트 레벨 − TownMaster.maxReputationLevel + 1)   <i>// 최소 5</i>
+
+if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      <i>// 최대 99</i></div>
+  <p>낮은 레벨 퀘스트를 아무리 반복해도 평판이 어느 선에서 멈추는 이유입니다. 천장이 <b>5 단위</b>로 올라갑니다.</p>
+  <p class="src">Town.MaxReputation · Town.ApplyReputationChange</p>
+
+  <h2 id="board"><span class="n">2</span>게시판에 뜨는 조건</h2>
+  <p><b>등장 주기</b>는 <code>questSpawnInterval</code> 입니다. 값 99는 코드 상수 <code>QUEST_SPAWN_INTERVAL_ONLY_ONCE</code> 와 같아 <b>1회성</b>을 뜻하고, 그 외 값은 클리어 뒤 재등장까지의 대기 일수로 쓰입니다. 게시된 퀘스트는 <code>deadline</code> 이 지나면 사라집니다.</p>
+  <p><b>«한 칸당 몫»은 확률이 아닙니다.</b> 같은 평판대에서 함께 후보가 되는 퀘스트들과 <code>questFrequency</code> 를 나눈 비율입니다 &mdash; 게시판이 한 칸을 뽑을 때 이 퀘스트일 확률이지, 하루에 뜰 확률이 아닙니다. 1회성 퀘스트를 깰수록 경쟁 대상이 줄어 실제로는 표시값보다 좋아집니다.</p>
+  <div class="note warn"><b>하루에 몇 칸이 뽑히는지는 확정하지 못했습니다.</b> 게시판 상한은 <code>GameSettings.TownAverageQuestCount</code> 이고 <code>Town.GetCanAcceptedQuests()</code> 가 목록 길이가 이 값에 닿을 때까지 채웁니다. 그런데 이 값은 실행 중 어떤 플래그에 따라 <b>100 또는 30</b> 으로 갈립니다. 화면에 보이는 개수와도 맞지 않아, 지어낸 «슬롯 수» 입력은 없앴습니다.</div>
+
+  <h2 id="chest"><span class="n">3</span>금고 &mdash; 발견과 해제</h2>
+  <p>살아 있는 파티원을 <b>차례로 굴려 한 명만 통과하면 성공</b>입니다. <b>발견</b>과 <b>해제</b> 두 판정을 모두 넘겨야 물건을 얻고, 해제 난이도가 0이면 해제 판정은 건너뜁니다.</p>
+  <div class="eq">목표  = 퀘스트 레벨 + 금고값(발견값 또는 해제 난이도)
+내 값 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + <b>도적 직업레벨</b> + <b>리더 보너스</b> + <b>통찰력/3</b>
+성공  = 내 값 &gt;= 목표 + <b>2d6</b></div>
+  <div class="note warn"><b>함정이 둘 있습니다.</b><br>
+  · 통찰력 보너스는 «도적레벨 + 리더보너스»가 <b>1 이상일 때만</b> 붙습니다. 도적을 안 키운 파티원은 통찰이 아무리 높아도 0으로 굴립니다.<br>
+  · 첫 2d6이 1+1이면 <b>−100(대실패)</b> 입니다. 1/36은 어떤 능력치로도 못 막습니다 &mdash; <b>한 명 기준 천장이 97.22%</b> 입니다.</div>
+  <h3>리더 보너스는 성격이 정합니다</h3>
+  <table><thead><tr><th>성격</th><th class="num">보너스</th><th>성격</th><th class="num">보너스</th></tr></thead><tbody>
+  <tr><td>무모한</td><td class="num"><b>+3</b></td><td>신중한</td><td class="num">0</td></tr>
+  <tr><td>합리적</td><td class="num"><b>+3</b></td><td>사교적</td><td class="num">−1</td></tr>
+  <tr><td>이기적</td><td class="num">+2</td><td>신경질적</td><td class="num">−1</td></tr>
+  <tr><td>감정적</td><td class="num">+1</td><td></td><td class="num"></td></tr>
+  </tbody></table>
+  <p>리더 <b>한 명에게만</b> 붙습니다. 통찰이 높은데 도적 레벨이 없는 파티원을 리더로 두면, 그 사람의 통찰이 판정에 살아납니다.</p>
+  <h3>사실상 확정을 만드는 조건</h3>
+  <div class="eq">도적레벨 + 리더보너스 + 통찰력/3  &gt;=  퀘스트 레벨 + 금고값 + 9</div>
+  <p>이걸 채운 캐릭터는 대실패(1/36)를 빼고 확정입니다. <b>두 명이 채우면</b> 판정당 실패가 1/1296이라 사실상 100%입니다.</p>
+  <p class="src">Party.OpenTreasureBox · Party.FoundItem · 리더 보너스 표 @0xF89F2C</p>
+
+  <h2 id="trap"><span class="n">4</span>함정 &mdash; 금고와는 다른 규칙</h2>
+  <p>함정마다 <code>TrapMaster.jobKind</code> 가 <b>어느 직업이 탐지하는지</b>를 따로 정합니다. 금고와 달리 도적 전용이 아닙니다.</p>
+  <table><thead><tr><th>담당</th><th class="num">개수</th><th>성격</th></tr></thead><tbody>
+  <tr><td><b>레인저</b></td><td class="num"><b>109</b></td><td>전부 «탐지로 회피 가능» &mdash; 물리 62 · 상태이상 24 · 효과 23</td></tr>
+  <tr><td>도적</td><td class="num">96</td><td>탐지 66 + <b>해제 필요 30</b></td></tr>
+  <tr><td>현자</td><td class="num">28</td><td>탐지</td></tr>
+  </tbody></table>
+  <p>탐지는 금고와 같은 식(담당 직업 레벨 + 리더 보너스 + 통찰/3)이고, <b>해제는 함정 종류마다 쓰는 스탯이 다릅니다.</b></p>
+  <table><thead><tr><th>함정 종류</th><th>해제에 쓰는 스탯</th></tr></thead><tbody>
+  <tr><td>물리 피해</td><td><b>재주</b></td></tr>
+  <tr><td>마법 피해 · MP 피해</td><td><b>마력</b></td></tr>
+  <tr><td>효과 부여</td><td><b>통찰력</b></td></tr>
+  </tbody></table>
+  <p class="src">Trap.Detect · Trap.DisarmTrap · TrapMaster 233건 집계</p>
+
+  <h2 id="craft"><span class="n">5</span>강화 &mdash; 추가 공격과 전체 공격</h2>
+  <p>두 옵션은 마스터 데이터에 없습니다. <b>강화(craft)가 굴립니다.</b> 그리고 결정적인 조건이 있습니다 &mdash; <b>한 번에 5단계 이상 강화될 때만 도는 블록</b> 안에만 들어 있습니다.</p>
+  <table><thead><tr><th>옵션</th><th class="num">일반 무기</th><th class="num">마법 무기</th></tr></thead><tbody>
+  <tr><td>추가 공격</td><td class="num">5%</td><td class="num">15%</td></tr>
+  <tr><td>후열 포함</td><td class="num">15%</td><td class="num">25%</td></tr>
+  <tr><td>전체 공격</td><td class="num">5%</td><td class="num">15%</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>후열 포함과 전체 공격은 추가 공격이 먼저 붙어야만 굴립니다.</b> 추가 공격 판정에 실패하면 두 줄을 통째로 건너뜁니다.</div>
+  <h3>상점에서 살 때 붙는 등급</h3>
+  <div class="eq">if RandSuccess100(20)   craft = 1           <i>// 20%</i>
+if RandSuccess100(5)    craft = 2           <i>//  5%</i>
+if RandSuccess100(1)    craft = 3           <i>//  1%</i>
+if RandSuccess(1,1000)  craft = Rand(3,6)   <i>// 0.1% → +3·+4·+5</i>
+RunCraft(craft)</div>
+  <p><b>+5로 나올 확률이 0.1% × ⅓ = 약 1/3000</b> 입니다. 곱하면 상점 무기에 추가 공격이 붙을 확률은 <b>약 1/60,000</b>, 전체 공격은 <b>약 1/1,200,000</b> 입니다. 돈을 아무리 모아도 상점으로는 사실상 불가능합니다.</p>
+  <h3>대장간에서 다이아로 강화할 때</h3>
+  <p>상점과는 완전히 다른 사다리입니다. 그리고 <b>시작점이 «대장간 레벨 − 장비 레벨»</b> 이라, <b>낮은 레벨 장비일수록 한 번에 훨씬 많이 굴려집니다.</b></p>
+  <div class="eq">n = 대장간 레벨 − 장비 레벨
+p = 50
+while (RandSuccess(p)) { n += 1; p -= 5 }   <i>// 50% → 45% → 40% → …</i>
+craftIndex = clamp(n + 1, 3, 15)
+RunCraft(craftIndex)</div>
+  <p>최소 3단계는 보장되고, 첫 성공이 50%라 잘 늘어납니다. 대장간 29 기준으로 다이아 <b>한 번</b>에 붙을 확률입니다.</p>
+  <table><thead><tr><th>장비</th><th class="num">평균 단계</th><th class="num">추가 공격</th><th class="num">전체 공격</th></tr></thead><tbody>
+  <tr><td>Lv13 단검</td><td class="num">15.0</td><td class="num">5.0%</td><td class="num">0.25%</td></tr>
+  <tr><td><b>Lv18 활</b></td><td class="num">12.8</td><td class="num"><b>50.6%</b></td><td class="num">0.25%</td></tr>
+  <tr><td>Lv23 단검</td><td class="num">7.9</td><td class="num">5.0%</td><td class="num">0.26%</td></tr>
+  <tr><td><b>Lv26 활</b></td><td class="num">4.9</td><td class="num"><b>23.8%</b></td><td class="num">0.13%</td></tr>
+  <tr><td>Lv27 단검</td><td class="num">3.9</td><td class="num">1.1%</td><td class="num">0.06%</td></tr>
+  <tr><td><b>Lv30 활</b></td><td class="num">3.0</td><td class="num"><b>14.6%</b></td><td class="num">0.02%</td></tr>
+  <tr><td>Lv30 단검</td><td class="num">3.0</td><td class="num">0.05%</td><td class="num">0.002%</td></tr>
+  <tr><td style="color:var(--faint)">상점 구매 (참고)</td><td class="num" style="color:var(--faint)">0.9</td><td class="num" style="color:var(--faint)">0.0017%</td><td class="num" style="color:var(--faint)">0.00008%</td></tr>
+  </tbody></table>
+  <p><b>다이아 강화가 상점보다 최소 수백 배 유리합니다.</b> 다만 «전체 공격»은 5단계 블록이 딱 한 번만 돌기 때문에 5%×5% = 0.25% 가 천장입니다 &mdash; 장비 레벨을 낮춰도 더 오르지 않습니다. 마법 무기라면 15%×15% = 2.25% 로 아홉 배가 됩니다.</p>
+
+  <h3>활만 예외입니다</h3>
+  <p>강화 단계마다 도는 5% 관문을 통과하면, <code>Weapon.Kind.Bow</code> 는 <b>5단계 조건 없이 추가 공격이 확정</b>으로 붙습니다.</p>
+  <h3>현실적인 길</h3>
+  <p>제작등급 5 이상으로 떨어지는 드랍은 전체 데이터에 <b>10종</b>뿐입니다 &mdash; 도감의 «+5강 이상 드랍» 태그로 걸러집니다. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 인데 Lv2 무기라 실전성은 없습니다.</p>
+  <p>그보다 <b>두 옵션이 처음부터 박혀 있는 무기가 39종</b> 있고, 거의 전부 <b>퀘스트 금고</b>에서 나옵니다. <a href="codex.html">도감</a> 아이템 탭의 «전체 공격»(24) / «추가 공격»(15) 체크박스로 찾으세요.</p>
+  <div class="note"><b>마법 속성은 강화로 못 붙입니다.</b> <code>Enhancement.Kind.IsMagic(254)</code> 가 enum에 있지만 <code>Weapon.Craft</code> 가 그걸 만드는 자리는 없습니다(생성 지점 28곳 전수 확인). 마스터 데이터의 <code>isMagic</code> 플래그가 유일한 경로라, <b>마법 속성 무기는 처음부터 그런 것을 구해야 합니다.</b></div>
+  <p class="src">Weapon.Craft · Equipment.RunCraft · ShopDialog TapBuyButton</p>
+
+  <h2 id="job"><span class="n">6</span>직업이 실제로 하는 일</h2>
+  <p>직업 레벨을 코드가 참조하는 곳을 전수로 찾았습니다. <b>특수 분기가 있는 직업은 셋뿐</b>입니다. 나머지 60여 직업은 스탯 보너스·스킬·장착 가능 무기로만 갈립니다.</p>
+  <table><thead><tr><th>직업</th><th>코드가 쓰는 곳</th><th class="num">통찰 보너스</th></tr></thead><tbody>
+  <tr><td><b>도적</b></td><td>금고 발견·해제, 함정 96건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
+  <tr><td><b>레인저</b></td><td>함정 109건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
+  <tr><td><b>현자</b></td><td>이벤트 등장 조건, 함정 28건</td><td class="num"><b>주 +10 / 부 +5</b></td></tr>
+  </tbody></table>
+  <p>전투에서는 <code>ExecuteBattle</code> 안에서 <b>도적 레벨 + 레인저 레벨 + 통찰</b>을 함께 더해 씁니다 &mdash; 둘 다 기여합니다. 현자는 통찰 보너스가 압도적이고 단검·검·활·창·지팡이를 전부 듭니다.</p>
+
+  <h2 id="unknown"><span class="n">7</span>확인하지 못한 것</h2>
+  <ul>
+    <li>게시판이 하루에 몇 칸을 뽑는지 &mdash; <code>TownAverageQuestCount</code> 가 100/30으로 갈리는 플래그의 정체</li>
+    <li>대장간 강화가 한 번에 몇 단계를 굴리는지 &mdash; <code>clamp(n+1, 3, 15)</code> 인데 <code>n</code> 의 출처가 비동기 코드 안에 있습니다</li>
+    <li>보물금고에서 나오는 아이템 일부 &mdash; 마스터 데이터에 없는 것이 있습니다</li>
+  </ul>
+
+  </div>
+
+  <footer class="foot">
+    <p>게임이 업데이트되면 이 문서는 낡습니다. 수치는 추출 시점의 클라이언트 기준입니다.</p>
+  </footer>
+</div>
