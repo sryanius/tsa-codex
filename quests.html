@@ -126,14 +126,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 }
 .ghead .sub{font-size:12px;color:var(--faint)}
 .ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
-.remain{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--muted);
-  border:1px solid var(--line);border-radius:99px;padding:2px 5px 2px 10px;background:var(--surface)}
-.remain input{width:48px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
-  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:2px}
-.remain input::-webkit-outer-spin-button,.remain input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-.remain input{-moz-appearance:textfield}
-.ptxt{font-size:11.5px;color:var(--faint);font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
-.ptxt.on{color:var(--accent);font-weight:600}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
 
 .list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
 .row{
@@ -608,20 +606,15 @@ function groupBlock(title,sub,rows,color,extra){
     +'<span class="sub">'+esc(sub)+'</span>'+(extra||"")+'<span class="rule"></span></div>'
     +'<div class="list">'+rows.map(rowHTML).join("")+'</div></section>';
 }
-// 게임이 갱신 때 알려주는 «남은 의뢰 수»를 넣으면 깬 개수를 역산한다.
-var RKEY="tsa.remain.v1", remain={};
-try{ remain=JSON.parse(localStorage.getItem(RKEY)||"{}")||{}; }catch(e){ remain={}; }
-function progressText(town){
-  var total=(BYTOWN[town]||[]).length, left=remain[town];
-  if(left==null||!total) return '<span class="ptxt">전체 '+total+'개</span>';
-  var doneN=Math.max(0,total-left), pct=Math.round(doneN/total*100);
-  return '<span class="ptxt on">깬 것 '+doneN+' / '+total+' ('+pct+'%)</span>';
-}
+// 남은 의뢰 수는 세이브(clearCount)에서 그대로 나온다.
+// 예전엔 게임 갱신창의 숫자를 손으로 넣게 했는데, 세이브를 붙인 뒤로는
+// 손 입력이 늘 세이브보다 낡아서 없앴다.
 function remainBox(town){
-  return '<label class="remain">남은 의뢰'
-    +'<input type="number" min="0" class="rin" data-town="'+esc(town)+'" value="'
-    +(remain[town]==null?"":remain[town])+'" placeholder="–"></label>'
-    +progressText(town);
+  var all=BYTOWN[town]||[], done=all.filter(isDone).length, left=all.length-done;
+  if(!all.length) return "";
+  var pct=Math.round(done/all.length*100);
+  return '<span class="ptxt'+(left?"":" on")+'">남은 의뢰 <b>'+left+'</b>'
+       + ' <span class="sm">· 깬 것 '+done+' / '+all.length+' ('+pct+'%)</span></span>';
 }
 
 function render(){
@@ -667,9 +660,8 @@ function render(){
       if(seen[t.n]) return; seen[t.n]=1;
       var rs=rows.filter(function(x){ return x.t===t.n; });
       var all=(BYTOWN[t.n]||[]), sd=all.filter(isDone).length;
-      var sub=t.r+" · "+rs.length+"건"+(LOCKED[t.n]?" · 미출시 지역":"")
-            +" · 클리어 "+sd+" / "+all.length+" (남은 "+(all.length-sd)+")";
-      html+=groupBlock(t.n, sub, rs, null, LOCKED[t.n]?"":remainBox(t.n));
+      var sub=t.r+" · 지금 보이는 것 "+rs.length+"건"+(LOCKED[t.n]?" · 미출시 지역":"");
+      html+=groupBlock(t.n, sub, rs, null, remainBox(t.n));
     });
     var orphan=rows.filter(function(x){ return !x.t; });
     html+=groupBlock("길드 퀘스트", orphan.length+"건 · 도시 게시판에 안 뜨고 세이브에도 기록이 없어 진행도 집계에서 뺐습니다", orphan, null);
@@ -712,16 +704,6 @@ el("out").addEventListener("click",function(e){
   }
   toggleRow(row);
 });
-el("out").addEventListener("input",function(e){
-  var i=e.target.closest(".rin"); if(!i) return;
-  var t=i.getAttribute("data-town");
-  if(i.value==="") delete remain[t]; else remain[t]=Math.max(0,parseInt(i.value,10)||0);
-  try{ localStorage.setItem(RKEY,JSON.stringify(remain)); }catch(err){}
-  pushSoon();
-  var box=i.closest(".remain"), txt=box && box.nextElementSibling;
-  if(txt && txt.classList.contains("ptxt")) txt.outerHTML=progressText(t);
-});
-el("out").addEventListener("click",function(e){ if(e.target.closest(".remain")) e.stopPropagation(); },true);
 el("out").addEventListener("keydown",function(e){
   if(e.key!=="Enter" && e.key!==" ") return;
   var row=e.target.closest(".row");
@@ -809,7 +791,7 @@ el("saveclear").onclick=function(){ window.TSA_SAVE.clear(); SAVE=null;
 // 기기를 바꿔도 화면이 똑같이 보인다.
 function gatherState(){
   return { q:(SAVE&&SAVE.q)||{}, at:(SAVE&&SAVE.at)||"",
-           levels:lv, remain:remain, done:done };
+           levels:lv, done:done };
 }
 function applyState(p){
   if(!p) return;
@@ -818,7 +800,6 @@ function applyState(p){
   if(p.levels){ lv=p.levels; saveLv();
     Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,k){
       var name=FORD[k]; if(name!=null) i.value=(lv[name]==null?"":lv[name]); }); }
-  if(p.remain){ remain=p.remain; try{ localStorage.setItem(RKEY,JSON.stringify(remain)); }catch(e){} }
   if(p.done){ done=p.done; save(); }
   render();
 }
