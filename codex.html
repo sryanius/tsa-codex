@@ -143,6 +143,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .jump:hover{color:var(--ink);border-bottom-style:solid}
 .t-place{color:var(--c-place)}
 .t-cl{color:var(--good);border-width:2px}
+.t-call{color:var(--f-vault);border-color:var(--f-vault);border-width:2px}
 table.mini{border-collapse:collapse;margin:8px 0;font-family:"IBM Plex Mono",monospace;font-size:12px}
 table.mini th,table.mini td{border:1px solid var(--line);padding:3px 9px;text-align:center}
 table.mini th{color:var(--faint);font-weight:600}
@@ -239,6 +240,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
     <select id="kind" aria-label="종류"><option value="">모든 종류</option></select>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
+    <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
     <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
     <span class="count" id="count"></span>
   </div>
@@ -281,7 +283,7 @@ window.__TSA_BOOT=function(D){
 var el=function(id){return document.getElementById(id)};
 // 칼레바스 고원은 아직 출시 전이라 기본으로 감춘다. 출시되면 토글만 켜면 된다.
 var LOCKED_REGION="칼레바스 고원", LKEY2="tsa.showlocked.v1";
-var state={view:"place",q:"",reg:"",kind:"",only:false,aband:false,abils:{},showLocked:false};
+var state={view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || p.r!==LOCKED_REGION; }
 function visPlaces(){ return D.places.filter(okPlace); }
@@ -292,14 +294,23 @@ el("s-m").textContent=D.monsters.length;
 el("s-i").textContent=D.items.length;
 el("s-d").textContent=D.items.filter(function(x){return x.drop&&x.drop.length}).length;
 
+/* 지역은 «가나다» 가 아니라 «난이도» 순이다. D.places 가 이미 그 순서로
+   실려 오므로(build_codex.py 의 REGIONS), 나온 순서대로 담기만 하면 된다. */
 function fillRegs(){
   el("reg").innerHTML='<option value="">모든 지역</option>';
-  var seen=[];
+  var seen=[], lo={}, hi={};
   D.places.forEach(function(p){
-    if(!p.r||seen.indexOf(p.r)>=0) return;
+    if(!p.r) return;
+    if(lo[p.r]==null || p.lv<lo[p.r]) lo[p.r]=p.lv;
+    if(hi[p.r]==null || p.lv>hi[p.r]) hi[p.r]=p.lv;
+    if(seen.indexOf(p.r)>=0) return;
     if(!state.showLocked && p.r===LOCKED_REGION) return;
     seen.push(p.r);
-    var o=document.createElement("option"); o.value=p.r; o.textContent=p.r; el("reg").appendChild(o);
+  });
+  seen.forEach(function(r){
+    var o=document.createElement("option"); o.value=r;
+    o.textContent=r+"  (Lv"+lo[r]+"~"+hi[r]+")";
+    el("reg").appendChild(o);
   });
   el("reg").value=state.reg;
 }
@@ -506,8 +517,12 @@ function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerC
 /* ---------- 탐색지 ---------- */
 function placeRow(p){
   var mons=[]; p.g.forEach(function(g){ g.m.forEach(function(m){ if(mons.indexOf(m.n)<0) mons.push(m.n); }); });
+  var cx=(p.call||[]).reduce(function(a,c){ return Math.max(a,c.exp||0); },0);
+  var tag=(p.call&&p.call.length)
+    ? '<em class="tag t-call" title="'+esc(p.call.map(function(c){return c.by+" → "+c.n;}).join(", "))
+      +' — 잡을수록 적이 불어나 경험치가 더 나옵니다">부름</em>' : "";
   return '<div class="row" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button">'
-    +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
+    +'<span class="nm"><b>'+tag+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
     +(mons.length>5?" 외 "+(mons.length-5):"")+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
     +'<span class="num dim r3">'+(p.mh? "회피 "+needAvoid(p.mh,30)+"+" : p.g.length+"그룹")
@@ -584,6 +599,13 @@ function placeDetail(p){
       +(sk.length?'<div class="drops"><b style="color:var(--f-arch)">마법</b> '+sk.join('<i class="sep">·</i>')+'</div>':'')
       +(dl.length?'<div class="drops">드랍 '+dl.join('<i class="sep">·</i>')+'</div>':'')
       +'</li>'; }).join("");
+  var ch=(p.call&&p.call.length)? '<div class="blk"><h4>동료를 부르는 몬스터</h4><ul>'
+      + p.call.map(function(c){
+          return '<li><button type="button" class="jump" data-go="m:'+esc(c.by)+'">'+esc(c.by)+'</button>'
+            +' → <button type="button" class="jump" data-go="m:'+esc(c.n)+'">'+esc(c.n)+'</button>'
+            +'<span class="meta"> — 불려오는 쪽 '+(c.exp||0).toLocaleString()+'xp'
+            +(FREQN[c.f]&&c.f!==5? ' · '+FREQN[c.f] : '')+'</span></li>'; }).join("")
+      + '</ul><span class="meta">부르는 놈을 남겨 두면 적이 계속 불어납니다 — 잡을 수만 있으면 경험치가 잘 나옵니다.</span></div>' : "";
   var th=p.t.length? '<div class="blk"><h4>함정</h4><ul>'+p.t.map(function(t){
       var m=(t.msg||"").replace(/%1/g,"동료").split(/[.。\n]/)[0];
       return '<li><b>'+esc(t.n)+'</b>'
@@ -596,7 +618,7 @@ function placeDetail(p){
     +'<div class="dcell"><dt>가장 높은 명중 <span class="fld">고정값</span></dt><dd class="mono" style="color:var(--accent)">'+(p.mh||0)+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(p.i)+'</dd></div>'
     +'</dl>'
-    + avoidNote(p)
+    + avoidNote(p) + ch
     +(p.g.length?'<div class="blk"><h4>출현 몬스터 그룹</h4><ul>'+gh+'</ul></div>':"")
     +th
     +(p.d?'<div class="story">'+esc(p.d)+'</div>':"")+'</div>';
@@ -740,6 +762,7 @@ function render(){
       var mons=[]; p.g.forEach(function(g){g.m.forEach(function(m){mons.push(m.n)})});
       if(!hit(p.n+" "+p.i+" "+p.d+" "+p.r+" "+mons.join(" "))) return;
       if(state.only && !p.t.length && !p.g.length) return;
+      if(state.callOnly && !(p.call&&p.call.length)) return;
       (byR[p.r||"기타"]=byR[p.r||"기타"]||[]).push(p);
     });
     Object.keys(byR).forEach(function(r){
@@ -783,6 +806,7 @@ function render(){
   el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   // 아이템 전용 필터는 아이템 탭에서만 보인다
+  el("callwrap").style.display = state.view==="place" ? "" : "none";
   var isItem = state.view==="item";
   el("abils").hidden = !isItem;
   el("itemtags").hidden = !isItem;
@@ -871,6 +895,7 @@ var t;
 el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("reg").addEventListener("change",function(e){ state.reg=e.target.value; render(); });
+el("callonly").addEventListener("change",function(e){ state.callOnly=e.target.checked; render(); });
 el("kind").addEventListener("change",function(e){ state.kind=e.target.value; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
 el("showlocked").checked=state.showLocked;
