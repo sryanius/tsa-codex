@@ -180,7 +180,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#pers">성격</a><a href="#unknown">모르는 것</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#unknown">모르는 것</a>
     </div>
   </header>
 
@@ -413,7 +413,55 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p class="src">Character.GetExpToNextLevel · Job.NeedNextExp · Character.SumOtherJobLevels</p>
   <p>전투에서는 <code>ExecuteBattle</code> 안에서 <b>도적 레벨 + 레인저 레벨 + 통찰</b>을 함께 더해 씁니다 &mdash; 둘 다 기여합니다. 현자는 통찰 보너스가 압도적이고 단검·검·활·창·지팡이를 전부 듭니다.</p>
 
-  <h2 id="pers"><span class="n">8</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
+  <h2 id="avoid"><span class="n">8</span>명중과 회피 &mdash; 몬스터는 주사위를 안 굴립니다</h2>
+  <div class="note"><b>맞느냐 빗나가느냐는 이 한 줄입니다.</b> <code>명중 &minus; 회피 &ge; &minus;1</code> 이면 맞습니다. 뒤집으면 <b>회피가 명중보다 2 이상 크면 무조건 빗나갑니다.</b> 확률이 아니라 값 비교입니다.</div>
+  <p>그런데 <b>몬스터 쪽에는 주사위가 없습니다.</b> 캐릭터만 2d6 을 굴립니다. 그래서 «회피가 얼마면 다 피하나» 에 정확한 답이 나옵니다.</p>
+  <div class="eq"><b>몬스터</b> (고정값)
+  명중 = 몬스터 레벨 + hitPoint + <b>7</b> + 스폰 레벨보정
+  회피 = 몬스터 레벨 + avoidPoint + ⌊민첩/3⌋ + 7 &minus; 2 (+2 비행)
+
+<b>캐릭터</b> (굴림)
+  명중 = <b>2d6</b> + ⌊CreateRandomValue(재주)/3⌋ + 명중값 + 지형 + 상태
+  회피 = <b>2d6</b> + ⌊CreateRandomValue(민첩)/3⌋ + <b>회피값</b> + 지형 + 상태</div>
+  <p>여기 <b>7</b> 은 <code>Util.Dice2DAvg</code> 입니다 &mdash; 2d6 의 기댓값을 몬스터에게 상수로 준 것입니다. 그래서 몬스터는 «평균만큼 굴린 셈» 으로 고정됩니다.</p>
+  <h3>그래서 회피가 얼마면 다 피하나</h3>
+  <p>2d6 의 최솟값이 2 이므로, 아래를 채우면 <b>그 몬스터의 물리 공격은 한 대도 안 맞습니다.</b></p>
+  <div class="eq">회피값 + ⌊CreateRandomValue(민첩)의 <b>최솟값</b>/3⌋ + 지형 &ge; 몬스터 명중</div>
+  <p>민첩 30이면 흔들림이 ±9 라 최솟값이 21, 그 ⅓ 이 <b>7</b> 입니다. 민첩 20이면 최솟값 15 → <b>5</b>, 민첩 40이면 최솟값 27 → <b>9</b>. 즉 <b>회피값 ≥ 몬스터 명중 &minus; 7</b> (민첩 30 기준)이면 완봉입니다.</p>
+  <table><thead><tr><th>어디</th><th class="num">그 구역 최고 명중</th><th class="num">필요 회피값<br><span style="font-weight:400">민첩 30 기준</span></th></tr></thead><tbody>
+  <tr><td>Lv0~4 탐색지</td><td class="num">12</td><td class="num">5</td></tr>
+  <tr><td>Lv5~9</td><td class="num">19</td><td class="num">12</td></tr>
+  <tr><td>Lv10~14</td><td class="num">27</td><td class="num">20</td></tr>
+  <tr><td>Lv15~19</td><td class="num">28</td><td class="num">21</td></tr>
+  <tr><td>Lv20~24</td><td class="num">38</td><td class="num">31</td></tr>
+  <tr><td>Lv25~29</td><td class="num">44</td><td class="num">37</td></tr>
+  <tr><td><b>Lv30 이상</b></td><td class="num"><b>51</b></td><td class="num"><b>44</b></td></tr>
+  </tbody></table>
+  <p><b>탐색지마다 정확한 값을 도감에 적어 뒀습니다</b> &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «회피 NN» 이 그 구역에서 가장 잘 맞히는 놈의 명중이고, 상세를 열면 필요한 회피값이 계산돼 나옵니다.</p>
+  <div class="note warn"><b>회피는 물리 공격에만 통합니다.</b> <code>AvoidRate</code> 를 부르는 자리는 <code>BattlePhysicalAttackExecutor.PhysicsAttack</code> <b>단 한 곳</b>입니다. 마법 피해도, 상태이상도 회피 판정을 거치지 않습니다. 회피탱은 물리만 막습니다.</div>
+  <h3>지형이 양쪽을 다르게 건드립니다</h3>
+  <table><thead><tr><th>지형</th><th class="num">내 회피</th><th class="num">공격자 명중</th></tr></thead><tbody>
+  <tr><td>평지 <code>Plain</code></td><td class="num">0</td><td class="num">0</td></tr>
+  <tr><td>이동 곤란 <code>HardToMove</code></td><td class="num">&minus;2</td><td class="num">활 0 · 그 외 &minus;2</td></tr>
+  <tr><td>매우 곤란 <code>VeryHardToMove</code></td><td class="num">&minus;4</td><td class="num">활 0 · 그 외 &minus;4</td></tr>
+  <tr><td>숲 <code>Forest</code></td><td class="num">+1</td><td class="num">활 &minus;1 · 그 외 0</td></tr>
+  </tbody></table>
+  <p>근접끼리는 서로 깎여 상쇄되지만, <b>거친 지형에서 활에게 맞을 때는 내 회피만 깎입니다</b> &mdash; 이동 곤란에서 &minus;2, 매우 곤란에서 &minus;4. 그리고 <b>활은 비행 몬스터에게 명중 +2</b> 를 받습니다.</p>
+  <h3>활이 절대 안 통하는 몬스터가 있습니다</h3>
+  <p><code>invalidBow</code> 가 켜진 몬스터에게 활로 때리면 <b>회피에 999 가 더해집니다</b> &mdash; 어떤 수치로도 못 맞힙니다. 전체 368종 중 <b>5종</b>입니다.</p>
+  <table><thead><tr><th>몬스터</th><th class="num">레벨</th></tr></thead><tbody>
+  <tr><td>본 하운드 <code>5_BoneHound</code></td><td class="num">5</td></tr>
+  <tr><td>데스 할로우 <code>9_DeathHollow</code></td><td class="num">9</td></tr>
+  <tr><td>프로스트 레이스 <code>12_FrostWraith</code></td><td class="num">12</td></tr>
+  <tr><td>아이스 앤트 <code>22_IceAnt</code></td><td class="num">22</td></tr>
+  <tr><td>본 베일 <code>24_BoneVeil</code></td><td class="num">24</td></tr>
+  </tbody></table>
+  <p>그리고 <code>invalidPhysics</code>(물리 무효)가 <b>36종</b> 있습니다 &mdash; 활이든 검이든 물리로는 못 잡습니다. 둘 다 도감의 몬스터 줄에 <b>«활 무효» · «물리 무효»</b> 표로 붙여 뒀습니다.</p>
+  <h3>방패는 따로 한 번 더 막습니다</h3>
+  <p>회피에 실패해도 방패가 남아 있습니다. <code>방패 회피값 &minus; 공격자 명중 &ge; 1</code> 이면 막습니다 &mdash; 이때는 <b>명중 계산에 재주 굴림이 다시 들어가므로</b> 회피 판정과는 다른 굴림입니다.</p>
+  <p class="src">BattleCreature.HitRate / AvoidRate / ShieldAvoidRate · BattlePhysicalAttackExecutor.PhysicsAttack · Terrain.GetHitRateModifier / GetAvoidRateModifier · Util.Dice2DAvg = 7</p>
+
+  <h2 id="pers"><span class="n">9</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
   <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
   <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
   <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num">30%</td><td class="num">+3</td><td class="num">+Rand(3)</td></tr>
@@ -485,7 +533,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
 
-  <h2 id="unknown"><span class="n">9</span>확인하지 못한 것</h2>
+  <h2 id="unknown"><span class="n">10</span>확인하지 못한 것</h2>
   <ul>
     <li>대장간 강화가 한 번에 몇 단계를 굴리는지 &mdash; <code>clamp(n+1, 3, 15)</code> 인데 <code>n</code> 의 출처가 비동기 코드 안에 있습니다</li>
     <li>보물금고에서 나오는 아이템 일부 &mdash; 마스터 데이터에 없는 것이 있습니다</li>

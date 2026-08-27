@@ -505,7 +505,21 @@ function placeRow(p){
     +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
     +(mons.length>5?" 외 "+(mons.length-5):"")+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
-    +'<span class="num dim r3">'+p.g.length+'그룹 · 함정'+p.t.length+'</span></div>';
+    +'<span class="num dim r3">'+(p.mh? "회피 "+p.mh : p.g.length+"그룹")+' · 함정'+p.t.length+'</span></div>';
+}
+/* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
+   그래서 «회피값 + ⌊CreateRandomValue(민첩)/3⌋ ≥ 몬스터 명중» 이면
+   2d6 이 최소(2)로 나와도 빗나간다 — 확실히 다 피한다. */
+function avoidNote(p){
+  if(!p.mh) return "";
+  var warn=[];
+  if(p.nb) warn.push('<b>활이 안 통하는 몬스터 '+p.nb+'종</b>');
+  if(p.np) warn.push('<b>물리가 안 통하는 몬스터 '+p.np+'종</b>');
+  return '<div class="note"><b>여기서 물리 공격을 전부 피하려면</b> — 가장 잘 맞히는 놈의 명중이 '
+    +'<b>'+p.mh+'</b> 입니다. <code>회피값 + ⌊민첩 흔들림 최소/3⌋ ≥ '+p.mh+'</code> 이면 '
+    +'2d6 이 최소로 나와도 빗나갑니다. 민첩 30이면 회피값 <b>'+Math.max(0,p.mh-7)+'</b> 이상.'
+    + (warn.length? ' &mdash; 다만 '+warn.join(", ")+'이 있습니다.' : '')
+    + ' 마법·상태이상은 회피 판정을 하지 않습니다.</div>';
 }
 function placeDetail(p){
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;
@@ -535,8 +549,10 @@ function placeDetail(p){
     +'<div class="dcell"><dt>지역</dt><dd>'+(esc(p.r)||"—")+'</dd></div>'
     +'<div class="dcell"><dt>레벨</dt><dd class="mono">'+(p.lv||0)+'</dd></div>'
     +'<div class="dcell"><dt>몬스터 그룹</dt><dd class="mono">'+p.g.length+'</dd></div>'
+    +'<div class="dcell"><dt>가장 높은 명중 <span class="fld">고정값</span></dt><dd class="mono" style="color:var(--accent)">'+(p.mh||0)+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(p.i)+'</dd></div>'
     +'</dl>'
+    + avoidNote(p)
     +(p.g.length?'<div class="blk"><h4>출현 몬스터 그룹</h4><ul>'+gh+'</ul></div>':"")
     +th
     +(p.d?'<div class="story">'+esc(p.d)+'</div>':"")+'</div>';
@@ -549,13 +565,15 @@ function monRow(m){
   if(m.drops.length) tags+='<em class="tag t-drop">드랍</em>';
   if(m.fly) tags+='<em class="tag t-fly">비행</em>';
   if(m.undead) tags+='<em class="tag t-und">언데드</em>';
+  if(m.nobow) tags+='<em class="tag t-cl" title="활 공격이 절대 안 맞습니다 — 회피에 999가 더해집니다">활 무효</em>';
+  if(m.nophys) tags+='<em class="tag t-sp" title="물리 공격이 통하지 않습니다">물리 무효</em>';
   return '<div class="row" data-k="m" data-i="'+esc(m.i)+'" tabindex="0" role="button">'
     +'<span class="nm"><b>'+tags+esc(m.n||m.i)+'</b><span>'
     +(mp.length? esc(mp.slice(0,3).map(function(p){return p.n}).join(", "))
       +(mp.length>3?" 외 "+(mp.length-3):"")
       : (m.places.length?"출현지는 미출시 지역뿐":"출현지 미확인"))+'</span></span>'
     +'<span class="num">Lv'+(m.lv||0)+'</span>'
-    +'<span class="num dim r3">'+(m.exp||0).toLocaleString()+'xp</span></div>';
+    +'<span class="num dim r3">명중 '+(m.hit||0)+'</span></div>';
 }
 function monDetail(m){
   var dr=m.drops.length? '<div class="blk"><h4>드랍</h4><ul>'+m.drops.map(function(d){
@@ -577,6 +595,8 @@ function monDetail(m){
     +'<div class="dcell"><dt>공격 / 방어</dt><dd class="mono">'+(m.atk||0)+' / '+(m.df||0)+'</dd></div>'
     +'<div class="dcell"><dt>마방 / 마력</dt><dd class="mono">'+(m.mdf||0)+' / '+(m.mag||0)+'</dd></div>'
     +'<div class="dcell"><dt>민첩 / 치명</dt><dd class="mono">'+(m.agi||0)+' / '+(m.crit||0)+'</dd></div>'
+    +'<div class="dcell"><dt>명중 <span class="fld">고정값</span></dt><dd class="mono" style="color:var(--accent)">'+(m.hit||0)+'</dd></div>'
+    +'<div class="dcell"><dt>회피 <span class="fld">고정값</span></dt><dd class="mono">'+(m.avo||0)+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(m.i)+'</dd></div>'
     +'</dl>'+dr+pl+sk+(m.d?'<div class="story">'+esc(m.d)+'</div>':"")+'</div>';
 }
