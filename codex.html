@@ -135,6 +135,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   border-bottom:1px dashed currentColor;padding:0;cursor:pointer}
 .jump:hover{color:var(--ink);border-bottom-style:solid}
 .t-place{color:var(--c-place)}
+.t-cl{color:var(--good);border-width:2px}
 /* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
 .drops{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.9}
 .drops .sep{font-style:normal;color:var(--faint);margin:0 5px}
@@ -240,6 +241,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <footer class="foot">
     <p>탐색지의 <code>monsterGroups</code> 는 그룹 단위로 뽑히며 <code>frequency</code> 가 가중치입니다. 몬스터의 <code>rewardWeapons</code> / <code>rewardArmors</code> 에도 각각 <code>frequency</code> 와 <code>craftLevel</code> 이 붙어 있어, 드랍은 «확률 가중치»와 «제작 등급»으로 나뉩니다. 절대 확률이 아니라 상대 가중치라는 점에 주의하세요.</p>
+    <p><b>추가 공격 · 전체 공격은 «강화(craft)» 로만 붙습니다.</b> 마스터 데이터에 없고, <code>Weapon.Craft</code> 가 굴립니다. 결정적인 건 <b>한 번에 5단계 이상 강화될 때만 도는 블록</b>이 있다는 점입니다. 그 안에서 <b>추가 공격 5%</b>(마법 무기 15%), 그리고 <b>추가 공격이 붙은 경우에만</b> 후열 포함 15%(마법 25%) · <b>전체 공격 5%</b>(마법 15%) 를 굴립니다.</p>
+    <p><b>상점에서 사면 강화 등급이 이렇게 정해집니다</b> (<code>TapBuyButton</code>): +1 이 20%, +2 가 5%, +3 이 1%, 그리고 <b>0.1%</b> 로 +3~+5 중 하나. 즉 <b>+5 로 나올 확률이 약 1/3000</b> 입니다. 곱하면 상점 무기에 추가 공격이 붙을 확률은 <b>약 6만분의 1</b>, 전체 공격은 <b>약 120만분의 1</b> 입니다 &mdash; 안 붙는 게 정상입니다.</p>
+    <p><b>활만 예외입니다.</b> 강화 단계마다 5% 관문을 통과하면 <code>Weapon.Kind.Bow</code> 는 추가 공격이 <b>확정</b>으로 붙습니다(5단계 조건 없음). 그 외에는 <b>제작등급 5 이상으로 떨어지는 드랍</b>을 노리는 편이 빠릅니다 &mdash; 위 «+5강 이상 드랍» 태그로 걸러 보세요. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 입니다.</p>
     <p>보물금고에서 나오는 아이템은 이 마스터 데이터에 없습니다 — 별도 로직이거나 서버 쪽입니다. 여기 실린 드랍은 <b>몬스터 처치 보상</b>만입니다.</p>
   </footer>
 </div>
@@ -410,6 +414,9 @@ var ITAG=[
   {k:"place", l:"탐색지",      t:function(x){ return itemPlaces(x).length>0; }},
   {k:"quest", l:"퀘스트",      t:function(x){ return x.qd.length>0; }},
   {k:"sp",    l:"특수능력",    t:function(x){ return x.sp.length>0; }},
+  // 제작등급 5 이상으로 떨어지는 것. Weapon.Craft 의 «5단계» 블록이 도는 유일한
+  // 현실적 경로라서, 추가공격·전체공격이 붙을 수 있는 후보다.
+  {k:"cl5",   l:"+5강 이상 드랍", t:function(x){ return maxCl(x)>=5; }},
   {k:"shop",  l:"상점 판매",   t:function(x){ return !!x.shop; }},
   // 드랍·퀘스트·상점 어디에도 없는 것 = 제작으로만 얻는다.
   // 예전 «획득처 없음» 은 상점 판매와 145개나 겹쳐 같은 말처럼 보였다.
@@ -419,6 +426,10 @@ state.itags={};
 var IT=makeTagBox("itbox","itand","itclear",ITAG,
                   function(){ return D.items; }, state.itags, {on:false});
 
+function maxCl(x){
+  var m=-99; (x.drop||[]).forEach(function(d){ if((d.cl||0)>m) m=d.cl||0; });
+  return m;
+}
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 // 아이템 이름 한 줄 — 눌러서 이동, 올려서 미리보기.
@@ -552,7 +563,9 @@ function monDetail(m){
 /* ---------- 아이템 ---------- */
 function itemRow(x){
   var ip = itemPlaces(x);
-  var tags = (x.drop.length? '<em class="tag t-drop">몬스터</em>' : "")
+  var cl=maxCl(x);
+  var tags = (cl>=5? '<em class="tag t-cl">+'+cl+'강</em>' : "")
+           + (x.drop.length? '<em class="tag t-drop">몬스터</em>' : "")
            + (ip.length? '<em class="tag t-place">탐색지</em>' : "")
            + (x.qd.length? '<em class="tag t-quest">퀘스트</em>' : "")
            + (x.sp.length? '<em class="tag t-sp">특수</em>' : "");
