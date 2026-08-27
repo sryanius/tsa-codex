@@ -81,7 +81,10 @@ body{
   font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
   background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
 }
-.seg button+button{border-left:1px solid var(--line)}
+.seg button+button,.seg a+a,.seg button+a,.seg a+button{border-left:1px solid var(--line)}
+.seg a.xtab{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;
+  color:var(--muted);text-decoration:none;white-space:nowrap;display:flex;align-items:center}
+.seg a.xtab:hover{color:var(--ink);background:var(--raised)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 input[type="search"],select{
   font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
@@ -204,7 +207,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <body>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">용병단 편람</a><a class="here" href="save.html">내 세이브</a><a href="notes.html">원리</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="save.html">내 세이브</a><a href="notes.html">원리</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 내 기록</p>

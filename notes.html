@@ -76,7 +76,10 @@ body{
   font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
   background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
 }
-.seg button+button{border-left:1px solid var(--line)}
+.seg button+button,.seg a+a,.seg button+a,.seg a+button{border-left:1px solid var(--line)}
+.seg a.xtab{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;
+  color:var(--muted);text-decoration:none;white-space:nowrap;display:flex;align-items:center}
+.seg a.xtab:hover{color:var(--ink);background:var(--raised)}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 input[type="search"],select{
   font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
@@ -170,7 +173,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 </style>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">용병단 편람</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
@@ -388,10 +391,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 + Rand(6)    → 0 ~ 5
 ───────────────────
               6 ~ 15        ← 실제 최대 <b>15</b>, 화면 표시는 <b>9</b></div>
-  <p>능력치 자체의 범위는 <a href="meta.html">종족 표</a>의 괄호에 적혀 있습니다.</p>
+  <p>능력치 자체의 범위는 <a href="meta.html?v=race">종족 표</a>의 괄호에 적혀 있습니다.</p>
 
   <h3>상점 — 레벨이 곧 파는 물건의 레벨</h3>
-  <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운은 Lv0부터, 하스포지는 Lv9부터 시작합니다. <a href="meta.html">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
+  <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운은 Lv0부터, 하스포지는 Lv9부터 시작합니다. <a href="meta.html?v=town">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
   <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · User.MaxCharacterCount · MaxRetireCharacterCount · Character.HealingCost · InviteAdventureDialog.TapInviteButton</p>
 
   <h2 id="job"><span class="n">7</span>직업이 실제로 하는 일</h2>
@@ -406,7 +409,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
             × (1 + (expLevel − 1) / 4)      <i>// 직업마다 다른 계수</i>
             × <b>1.05<sup>(다른 직업 레벨의 합)</sup></b></div>
   <p><b>다른 직업 레벨 1점마다 필요 경험치가 5%씩 복리로 붙습니다.</b> 합이 20이면 2.7배, 50이면 11.5배, 100이면 131배, 150이면 1,521배입니다. 보조로 조금씩 올려 둔 직업이 주직업의 성장을 그대로 눌러 버립니다.</p>
-  <p>직업 계수도 큽니다 — 모험가 ×1.00, 초급 직업 ×1.25, 도둑 ×2.75(최고), 레인저 ×2.50. <a href="meta.html">클래스 표</a>에 전부 적어 뒀습니다.</p>
+  <p>직업 계수도 큽니다 — 모험가 ×1.00, 초급 직업 ×1.25, 도둑 ×2.75(최고), 레인저 ×2.50. <a href="meta.html?v=job">클래스 표</a>에 전부 적어 뒀습니다.</p>
   <p class="src">Character.GetExpToNextLevel · Job.NeedNextExp · Character.SumOtherJobLevels</p>
   <p>전투에서는 <code>ExecuteBattle</code> 안에서 <b>도적 레벨 + 레인저 레벨 + 통찰</b>을 함께 더해 씁니다 &mdash; 둘 다 기여합니다. 현자는 통찰 보너스가 압도적이고 단검·검·활·창·지팡이를 전부 듭니다.</p>
 

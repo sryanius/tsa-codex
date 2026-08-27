@@ -60,7 +60,14 @@ body{margin:0;background:var(--ground);color:var(--body);
 .seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
 .seg button{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
   background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap}
-.seg button+button{border-left:1px solid var(--line)}
+.seg button+button,.seg a+a,.seg button+a,.seg a+button{border-left:1px solid var(--line)}
+.seg a.xtab{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;
+  color:var(--muted);text-decoration:none;white-space:nowrap;display:flex;align-items:center}
+.seg a.xtab:hover{color:var(--ink);background:var(--raised)}
+.seglab{font-size:11px;letter-spacing:.08em;color:var(--faint);font-weight:600;
+  align-self:center;margin:0 -2px 0 4px}
+.seglab:first-child{margin-left:0}
+.tabnote{font-size:13px;color:var(--muted);margin:14px 0 0}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 input[type="search"],select{font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
   border-radius:7px;background:var(--surface);color:var(--ink);min-width:0}
@@ -190,12 +197,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="meta.html">용병단 편람</a>
-  <a href="save.html">내 세이브</a><a href="notes.html">원리</a></nav>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a></nav>
   <header class="mast">
-    <p class="eyebrow">The Silent Archivist &middot; 몬스터 &middot; 아이템 &middot; 탐색지</p>
-    <h1>침묵의 기록자 도감</h1>
-    <p class="lede">어느 탐색지에 무엇이 나오고, 그놈이 무엇을 떨구는지. 퀘스트 색인과 같은 번들에서 뽑았습니다.</p>
+    <p class="eyebrow">The Silent Archivist &middot; 세계와 용병단</p>
+    <h1>도감</h1>
+    <p class="lede">세계에 무엇이 있고 용병단이 무엇으로 이루어지는지 &mdash; 탐색지·몬스터·아이템, 그리고 클래스·종족·마법·도시 시설. 여기에 <b>지도</b>와 <b>뽑기 계산기</b>가 붙어 있습니다.</p>
+    <p class="tabnote" id="tabnote"></p>
     <div class="stats">
       <div class="stat"><b id="s-p">0</b><span>탐색지</span></div>
       <div class="stat"><b id="s-m">0</b><span>몬스터</span></div>
@@ -205,10 +212,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </header>
 
   <div class="bar">
-    <div class="seg" role="group" aria-label="보기 전환">
-      <button id="v-place" type="button" aria-pressed="true">탐색지</button>
-      <button id="v-mon" type="button" aria-pressed="false">몬스터</button>
-      <button id="v-item" type="button" aria-pressed="false">아이템</button>
+    <span class="seglab">세계</span>
+    <div class="seg" role="group" aria-label="세계 보기 전환">
+    <button id="v-place" type="button" aria-pressed="false">탐색지</button>
+    <button id="v-mon" type="button" aria-pressed="false">몬스터</button>
+    <button id="v-item" type="button" aria-pressed="false">아이템</button>
+    <a class="xtab" href="meta.html?v=map">지도</a>
+    </div>
+    <span class="seglab">용병단</span>
+    <div class="seg" role="group" aria-label="용병단 보기 전환">
+    <a class="xtab" href="meta.html?v=job">클래스</a>
+    <a class="xtab" href="meta.html?v=race">종족</a>
+    <a class="xtab" href="meta.html?v=skill">마법</a>
+    <a class="xtab" href="meta.html?v=town">도시 시설</a>
+    </div>
+    <span class="seglab">도구</span>
+    <div class="seg" role="group" aria-label="도구 보기 전환">
+    <a class="xtab" href="meta.html?v=calc">뽑기 계산기</a>
     </div>
     <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
@@ -789,15 +809,22 @@ el("showlocked").addEventListener("change",function(e){
   if(!state.showLocked && state.reg===LOCKED_REGION) state.reg="";
   fillRegs(); render();
 });
-["place","mon","item"].forEach(function(v){
-  el("v-"+v).onclick=function(){
-    state.view=v;
-    ["place","mon","item"].forEach(function(w){
-      el("v-"+w).setAttribute("aria-pressed", w===v?"true":"false"); });
-    render();
-  };
-});
-render();
+var TABNOTE={
+  place:"지역별 탐색지와 거기 나오는 몬스터 그룹, 그리고 그 그룹이 떨구는 것.",
+  mon:"몬스터의 능력치·특수능력·출현지, 그리고 떨구는 아이템.",
+  item:"아이템의 성능과 «어디서 나오는지» 역인덱스."
+};
+function setView(v){
+  state.view=v;
+  ["place","mon","item"].forEach(function(w){
+    el("v-"+w).setAttribute("aria-pressed", w===v?"true":"false"); });
+  el("tabnote").textContent=TABNOTE[v]||"";
+  render();
+}
+["place","mon","item"].forEach(function(v){ el("v-"+v).onclick=function(){ setView(v); }; });
+// 다른 문서의 탭에서 넘어오면 ?v= 가 붙어 온다
+var _v=(new URLSearchParams(location.search)).get("v");
+setView(["place","mon","item"].indexOf(_v)>=0 ? _v : "place");
 };
 </script>
 
