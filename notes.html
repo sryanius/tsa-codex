@@ -311,11 +311,37 @@ RunCraft(craftIndex)</div>
   <p class="src">GameSettings.RetireCharacterExpBonusPercent(5) · MaxPercent(100) · MineBasePoint(200) · MaxBuildingPoolTime(86400) · Building.MaxPoolValue · GameSettings.MineLevel</p>
 
   <h3>주점 — 용병을 뽑을 때</h3>
-  <p>주점 레벨은 <b>초빙 포인트</b>를 바꿉니다. 이 포인트가 뽑히는 용병의 능력치를 정합니다.</p>
-  <div class="eq">포인트  = (기본값) + <b>주점 레벨</b> + Rand(2~3)
-if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 확률로 0 ~ 레벨−1</i>
+  <p>주점 레벨은 <b>초빙 포인트</b>를 바꿉니다. 화면에 별처럼 뜨는 그 숫자입니다.</p>
+  <div class="eq">포인트 = Rand(3)            <i>// 0~2</i>
+       + <b>주점 레벨</b>
+       + Rand(1~3)         <i>// 갈래에 따라 0~2</i>
+if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로 0 ~ 레벨−1</i>
+
+실제 최대   = <b>주점 레벨 × 2 + 3</b>
 화면의 «최대» = <b>주점 레벨 + 3</b></div>
-  <p>주점 레벨이 그대로 더해지고, <b>10% 확률로 한 번 더</b> 0~(레벨−1) 만큼 붙습니다. 능력치 자체는 종족의 기준값을 <code>CreateRandomValue</code> 로 흔든 값이라, 범위는 <a href="meta.html">종족 표</a>에 적어 뒀습니다.</p>
+  <div class="note warn"><b>화면에 뜨는 «최대»가 진짜 최대가 아닙니다.</b> 표시는 <code>주점 레벨 + 3</code> 인데 10% 주사위가 터지면 <code>주점 레벨 × 2 + 3</code> 까지 갑니다. 6레벨 주점이면 표시는 9인데 실제로는 <b>15</b> 까지 나옵니다.</div>
+  <h4 style="margin:18px 0 6px;font-size:14px">포인트와 능력치는 서로 다른 주사위입니다</h4>
+  <p>이 둘을 섞어 생각하면 헷갈립니다. 용병을 뽑을 때 주사위가 <b>두 번, 서로 무관하게</b> 굴러갑니다.</p>
+  <table><thead><tr><th></th><th>능력치 8종</th><th>초빙 포인트</th></tr></thead><tbody>
+  <tr><td><b>정하는 것</b></td><td>생명점·마나·힘·체력·지능·민첩·재주·통찰</td><td>화면의 그 숫자</td></tr>
+  <tr><td><b>어디서</b></td><td><code>Character.CreateParam</code></td><td><code>InviteAdventureDialog</code></td></tr>
+  <tr><td><b>식</b></td><td>종족 기준값을 <code>CreateRandomValue</code> 로 흔든다</td><td>위의 식</td></tr>
+  <tr><td><b>주점 레벨</b></td><td><b>영향 없음</b></td><td><b>그대로 더해진다</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>주점을 올려도 «민첩 7~11» 같은 범위는 안 바뀝니다.</b> 그 범위는 종족이 정합니다 — 풋워커 남자의 민첩 기준값이 9라서 7~11 입니다. 주점 레벨이 바꾸는 것은 <b>포인트뿐</b>입니다.</div>
+  <h4 style="margin:18px 0 6px;font-size:14px">예 — 주점 6레벨</h4>
+  <div class="eq">Rand(3)      → 0 ~ 2
++ 주점 레벨   → <b>+6</b>   (언제나)
++ Rand(1~3)  → 0 ~ 2
+───────────────────
+              6 ~ 10        ← 여기까지가 «보통»
+
+10% 로 한 번 더:
++ Rand(6)    → 0 ~ 5
+───────────────────
+              6 ~ 15        ← 실제 최대 <b>15</b>, 화면 표시는 <b>9</b></div>
+  <p>능력치 자체의 범위는 <a href="meta.html">종족 표</a>의 괄호에 적혀 있습니다.</p>
+
   <h3>상점 — 레벨이 곧 파는 물건의 레벨</h3>
   <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운은 Lv0부터, 하스포지는 Lv9부터 시작합니다. <a href="meta.html">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
   <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · User.MaxCharacterCount · MaxRetireCharacterCount · Character.HealingCost · InviteAdventureDialog.TapInviteButton</p>
