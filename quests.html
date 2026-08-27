@@ -1346,6 +1346,10 @@ render();
 </div>
 <script src="tsacloud.js"></script>
 <script>
+// 지도 배경은 비공개 버킷에 있다. 로그인해서 받아 Blob URL 로 꽂는다.
+window.__TSA_MAPIMG = function(id){
+  return window.TSA_CLOUD.fetchBlob("map" + id + ".webp");
+};
 (async function(){
   var gate=document.getElementById("gate"), msg=document.getElementById("gatemsg"),
       btn=document.getElementById("gatebtn"), C=window.TSA_CLOUD;

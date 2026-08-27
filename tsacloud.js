@@ -190,6 +190,28 @@
     },
 
     /**
+     * 그림 같은 덩어리 파일 받기. 지도 배경이 이걸로 온다.
+     * JSON 이 아니라 Blob 이므로 캐시도 Blob 째로 넣는다 —
+     * IndexedDB 는 Blob 을 그대로 받아 준다.
+     */
+    fetchBlob: async function (name) {
+      var key = "blob:" + name;
+      var cached = await cacheGet(key);
+      if (cached) return URL.createObjectURL(cached);
+      var s = await ensureFresh();
+      if (!s) return null;
+      try {
+        var r = await fetch(URL_ + "/storage/v1/object/tsa-data/" + name, {
+          headers: { apikey: ANON, Authorization: "Bearer " + s.access }
+        });
+        if (!r.ok) return null;
+        var b = await r.blob();
+        await cachePut(key, b);
+        return URL.createObjectURL(b);
+      } catch (e) { return null; }
+    },
+
+    /**
      * 저장된 상태 받기.
      * payload 에는 세이브에서 뽑은 진행도(q)뿐 아니라
      * 손으로 넣은 값(시설 레벨·남은 의뢰·슬롯 수·수동 체크)도 함께 들어 있다.

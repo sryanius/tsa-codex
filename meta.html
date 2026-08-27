@@ -190,12 +190,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   box-shadow:var(--shadow);padding:10px;overflow:hidden}
 .mapbox svg{display:block;margin:0 auto;width:auto;height:auto;
   max-width:100%;max-height:78vh}
-.mc circle{fill:var(--line);stroke:none;cursor:pointer;transition:fill .12s}
-.mc:hover circle{fill:var(--accent)}
-.mt circle{fill:var(--accent);stroke:var(--surface);stroke-width:2.5;cursor:pointer}
-.mt:hover circle{fill:var(--f-heal)}
-.mt text{font-family:"IBM Plex Sans KR",sans-serif;font-size:13px;font-weight:600;
-  fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4;cursor:pointer}
+.mapbox{background:#11131a}
+.mc circle{fill:none;stroke:#fff;stroke-width:2;opacity:.55;cursor:pointer;transition:opacity .12s,fill .12s}
+.mc:hover circle{opacity:1;fill:#fff}
+.mt circle{fill:#f4d35e;stroke:#2b2416;stroke-width:3;cursor:pointer}
+.mt:hover circle{fill:#fff}
+.mt text{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;
+  fill:#fff;paint-order:stroke;stroke:#1a1a22;stroke-width:5;stroke-linejoin:round;cursor:pointer}
 .calc{border:1px solid var(--line);border-radius:10px;background:var(--surface);
   padding:14px 16px;margin:0 0 16px;box-shadow:var(--shadow)}
 .crow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
@@ -452,33 +453,59 @@ function rnd(v){
 }
 
 /* ── 지도 ────────────────────────────────────────────────────────────
-   맵 이미지는 타일맵이라 한 장으로 못 꺼낸다. 대신 도시·탐색지에 좌표가
-   있어서 그걸로 그린다. 그림보다 나은 점이 있다 — 눌러서 갈 수 있다.
-   게임 좌표는 y 가 위로 자라므로 그릴 때 뒤집는다. */
+   «맵 이미지» 라는 파일은 애초에 없다. 유니티 Tilemap 이라 셀 배치와
+   타일 스프라이트가 따로 들어 있어서, build_mapimg.py 가 그걸 합성해
+   지역마다 한 장으로 굽는다. 여기서는 그 그림을 깔고 그 위에 표를 얹는다.
+
+   셀 → 그림 좌표는 유니티 육각 격자 규칙 그대로다.
+     ux = 셀x + (셀y 가 홀수면 0.5)     uy = 셀y × 0.75
+     px = (ux − x0) × s                 py = (y1 − uy) × s   ← y 를 뒤집는다
+   도시·탐색지의 x,y 가 바로 그 셀 좌표라 자를 대고 맞출 필요가 없다. */
+function cellPx(cx, cy, g){
+  var ux = cx + ((cy % 2) ? 0.5 : 0), uy = cy * 0.75;
+  return [(ux - g.x0) * g.s, (g.y1 - uy) * g.s];
+}
 function mapSVG(m){
-  var pts=m.t.concat(m.c);
-  if(!pts.length) return "";
-  var xs=pts.map(function(p){return p.x}), ys=pts.map(function(p){return p.y});
-  var x0=Math.min.apply(null,xs), x1=Math.max.apply(null,xs);
-  var y0=Math.min.apply(null,ys), y1=Math.max.apply(null,ys);
-  var pad=3, W=(x1-x0)+pad*2, H=(y1-y0)+pad*2;
-  var S=22;                                   // 좌표 한 칸을 몇 px 로 볼 것인가
-  function px(p){ return [(p.x-x0+pad)*S, (y1-p.y+pad)*S]; }
+  var g = D.mapimg && D.mapimg[m.i];
+  if(!g) return '<p class="empty">이 지역은 배경을 못 구웠습니다.</p>';
   var caves=m.c.map(function(c){
-    var q=px(c);
-    return '<g class="mc" data-go="p:'+esc(c.n)+'"><circle cx="'+q[0]+'" cy="'+q[1]+'" r="4.5"></circle>'
+    var q=cellPx(c.x, c.y, g);
+    return '<g class="mc" data-go="p:'+esc(c.n)+'">'
+      +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(g.s*0.34).toFixed(1)+'"></circle>'
       +'<title>'+esc(c.n)+' · Lv'+c.lv+'</title></g>';
   }).join("");
   var towns=m.t.map(function(t){
-    var q=px(t);
+    var q=cellPx(t.x, t.y, g);
     return '<g class="mt" data-go="t:'+esc(t.n)+'">'
-      +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="9"></circle>'
-      +'<text x="'+q[0]+'" y="'+(q[1]-14)+'" text-anchor="middle">'+esc(t.n)+'</text>'
+      +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(g.s*0.5).toFixed(1)+'"></circle>'
+      +'<text x="'+q[0]+'" y="'+(q[1]-g.s*0.72).toFixed(1)+'" text-anchor="middle" '
+        +'style="font-size:'+(g.s*0.62).toFixed(1)+'px">'+esc(t.n)+'</text>'
       +'<title>'+esc(t.n)+'</title></g>';
   }).join("");
-  return '<div class="mapbox"><svg viewBox="0 0 '+(W*S)+' '+(H*S)+'" '
+  return '<div class="mapbox"><svg viewBox="0 0 '+g.w+' '+g.h+'" '
     +'preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+esc(m.n)+' 지도">'
+    +'<image data-map="'+esc(m.i)+'" x="0" y="0" width="'+g.w+'" height="'+g.h+'" '
+      +'style="image-rendering:auto"></image>'
     + caves + towns + '</svg></div>';
+}
+/* 배경 그림은 나중에 채운다. 로컬은 파일이 그냥 있고, 클라우드는
+   비공개 버킷이라 로그인해서 받아야 한다 — 그쪽에서 이 함수를 갈아끼운다. */
+window.__TSA_MAPIMG = window.__TSA_MAPIMG || function(id){
+  return Promise.resolve("mapimg/" + id + ".webp");
+};
+var mapImgDone={};
+function fillMapImages(){
+  Array.prototype.forEach.call(document.querySelectorAll("#out image[data-map]"), function(el){
+    var id=el.getAttribute("data-map");
+    if(mapImgDone[id]){ el.setAttributeNS("http://www.w3.org/1999/xlink","href",mapImgDone[id]);
+                        el.setAttribute("href",mapImgDone[id]); return; }
+    window.__TSA_MAPIMG(id).then(function(u){
+      if(!u) return;
+      mapImgDone[id]=u;
+      el.setAttributeNS("http://www.w3.org/1999/xlink","href",u);
+      el.setAttribute("href",u);
+    }).catch(function(){});
+  });
 }
 function mapBlock(m){
   return '<section class="group"><div class="ghead"><h2>'+esc(m.n)+'</h2>'
@@ -870,6 +897,7 @@ function render(){
       : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
     el("count").textContent=ms.length+" 지역";
     el("wk").style.display="none";
+    fillMapImages();
     return;
   } else if(state.view==="calc"){
     el("out").innerHTML=calcHTML();
@@ -981,6 +1009,10 @@ render();
 </div>
 <script src="tsacloud.js"></script>
 <script>
+// 지도 배경은 비공개 버킷에 있다. 로그인해서 받아 Blob URL 로 꽂는다.
+window.__TSA_MAPIMG = function(id){
+  return window.TSA_CLOUD.fetchBlob("map" + id + ".webp");
+};
 (async function(){
   var gate=document.getElementById("gate"), msg=document.getElementById("gatemsg"),
       btn=document.getElementById("gatebtn"), C=window.TSA_CLOUD;
