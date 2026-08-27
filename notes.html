@@ -404,6 +404,17 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td><b>레인저</b></td><td>함정 109건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
   <tr><td><b>현자</b></td><td>이벤트 등장 조건, 함정 28건</td><td class="num"><b>주 +10 / 부 +5</b></td></tr>
   </tbody></table>
+  <h3>주/부 보너스는 «레벨 × 보너스 ÷ 10, 올림» 입니다</h3>
+  <p>클래스 표의 «주 보너스 / 부 보너스» 숫자는 그대로 더해지는 값이 아닙니다. <code>Character.AddJobBonuses</code> 가 이렇게 씁니다:</p>
+  <div class="eq">직업 몫 = ⌈<b>주직업레벨 × 주보너스</b> ÷ 10⌉ + ⌈<b>Σ(부직업레벨 × 부보너스)</b> ÷ 10⌉</div>
+  <p>두 가지가 중요합니다. <b>주직업은 하나만</b> 세지만(<code>Job.isCurrent</code> 가 켜진 것 &mdash; 레벨 1등이 아닙니다), <b>부직업은 가진 것 전부를 합칩니다.</b> 그래서 부 보너스가 있는 직업을 여럿 올려 두면 합이 꽤 커집니다.</p>
+  <table><thead><tr><th>예</th><th class="num">계산</th><th class="num">회피값</th></tr></thead><tbody>
+  <tr><td>도둑 30을 <b>주직업</b>으로</td><td class="num">⌈30×7÷10⌉</td><td class="num"><b>21</b></td></tr>
+  <tr><td>도둑 30을 <b>부직업</b>으로</td><td class="num">⌈30×3÷10⌉</td><td class="num">9</td></tr>
+  <tr><td>부직업에 도둑30·검술사30·마검사30</td><td class="num">⌈30×(3+2+2)÷10⌉</td><td class="num">21</td></tr>
+  </tbody></table>
+  <div class="note"><b>회피 보너스가 있는 직업은 36종 중 12종뿐입니다</b> &mdash; 도둑(주7/부3)이 압도적이고, 마도병·마검사·숨은 칼날의 궁사·검술사·베테랑 파이터가 4/2, 나머지는 2/1 이하입니다. 회피탱을 만들 생각이면 <b>도둑을 주직업으로</b> 두는 것이 가장 크고, 나머지 열한 직업은 부직업으로 쌓을 수 있습니다.</div>
+
   <h3>여러 직업을 키우면 왜 급격히 느려지나</h3>
   <div class="eq">필요 경험치 = (직업 레벨 + 1)<sup>2.5</sup> × 14
             × (1 + (expLevel − 1) / 4)      <i>// 직업마다 다른 계수</i>
