@@ -220,6 +220,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .goto:hover{color:var(--ink);border-bottom-style:solid}
 .pre{margin:12px 0 0;font-size:13px;color:var(--body)}
 .pre b{color:var(--ink);font-weight:500}
+.reptbl{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);
+  box-shadow:var(--shadow);overflow-x:auto}
+.reptbl table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+.reptbl th{text-align:right;font-size:10.5px;letter-spacing:.05em;color:var(--faint);font-weight:600;
+  padding:8px 14px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--raised)}
+.reptbl th:first-child{text-align:left}
+.reptbl td{padding:6px 14px;text-align:right;color:var(--body);border-bottom:1px solid var(--line-soft);
+  font-family:"IBM Plex Mono",monospace;white-space:nowrap}
+.reptbl td:first-child{text-align:left;color:var(--ink);font-weight:600}
+.reptbl tr:last-child td{border-bottom:0}
+.reptbl tr.warn td{color:var(--faint)}
+.reptbl tr.warn td:first-child{color:var(--f-heal)}
+.reptbl td.zero{color:var(--faint)}
+.reptbl .sm{font-size:11px;color:var(--faint)}
 .empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
 .foot{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);font-size:12px;color:var(--faint);max-width:74ch}
 .foot code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--raised);padding:1px 5px;border-radius:4px;color:var(--muted)}
@@ -270,6 +284,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <div class="seg" role="group" aria-label="보기 전환">
         <button id="v-fac" type="button" aria-pressed="true">시설 로드맵</button>
         <button id="v-town" type="button" aria-pressed="false">도시별 전체</button>
+        <button id="v-rep" type="button" aria-pressed="false">평판 표</button>
       </div>
       <input type="search" id="q" placeholder="퀘스트명 · 내용 · 장소 검색" aria-label="검색">
       <select id="town" aria-label="도시 선택"><option value="">모든 도시</option></select>
@@ -608,6 +623,50 @@ function remainBox(town){
        + ' <span class="sm">· 깬 것 '+done+' / '+all.length+' ('+pct+'%)</span></span>';
 }
 
+/* ── 평판 표 ────────────────────────────────────────────────────────
+   평판 상한 = max(5, 5 × (퀘스트 레벨 − maxReputationLevel + 1))
+   그래서 «평판 R 까지 올리려면» 필요한 최소 퀘스트 레벨은
+     L >= R/5 + mrl − 1
+   이다. 5 단위로 끊어 그 레벨과, 그 평판대에서 실제로 쓸 수 있는
+   퀘스트 수를 같이 보여 준다. */
+function minLvFor(rep, mrl){ return Math.max(1, Math.ceil(rep/5) + mrl - 1); }
+function repTable(town, mrl){
+  var all=(BYTOWN[town]||[]);
+  var rows=[];
+  for(var R=5; R<=99; R+=5){
+    var need=minLvFor(R, mrl);
+    // R 을 «찍으려면» 평판이 R−5 일 때 뜨는 퀘스트로 밀어야 한다.
+    var atHand=all.filter(function(x){ return x.rep>=0 && x.pk<=R-5 && (x.rp||0)>0; });
+    var exact=atHand.filter(function(x){ return x.lv >= need; });           // 지금 레벨로 충분
+    var grow =atHand.filter(function(x){ return x.lv < need && (x.lv+(x.ml||0)) >= need; }); // 레벨이 올라야
+    var openAt=all.filter(function(x){ return x.rep>=0 && x.pk<=R; });      // R 에서 열리는 것
+    rows.push({R:R, need:need, exact:exact.length, grow:grow.length, open:openAt.length});
+    if(!exact.length && !grow.length) break;        // 더는 못 올린다
+  }
+  return rows;
+}
+function repBlock(t){
+  var rows=repTable(t.n, t.mrl||0);
+  var all=(BYTOWN[t.n]||[]).length;
+  var okRows=rows.filter(function(r){ return r.exact||r.grow; });
+  var cap=okRows.length? okRows[okRows.length-1].R : 0;
+  var body=rows.map(function(r){
+    var dead=!r.exact && !r.grow;
+    return '<tr'+(dead?' class="warn"':'')+'><td>'+r.R+'</td><td>'+r.need+'</td>'
+      +'<td'+(r.exact?'':' class="zero"')+'>'+(dead?'—':r.exact)+'</td>'
+      +'<td class="sm">'+(dead?'—':(r.grow?'+'+r.grow:'·'))+'</td>'
+      +'<td>'+r.open+'</td></tr>';
+  }).join("");
+  return '<section class="group"><div class="ghead"><h2>'+esc(t.n)+'</h2>'
+    +'<span class="sub">'+esc(t.r)+' · 퀘스트 '+all+'개 · 기준 레벨 '+(t.mrl||0)
+    +' · <b>올릴 수 있는 평판 '+cap+'</b></span><span class="rule"></span></div>'
+    +'<div class="reptbl"><table><thead><tr>'
+    +'<th>이 평판까지</th><th>필요한 퀘스트 레벨</th><th title="지금 레벨 그대로 밀어 올릴 수 있는 퀘스트">바로 되는 것</th>'
+    +'<th title="퀘스트 레벨이 최대까지 올라야 닿는 것">레벨 올리면</th>'
+    +'<th title="그 평판에서 게시판에 뜰 수 있는 퀘스트 총수">열리는 퀘스트</th>'
+    +'</tr></thead><tbody>'+body+'</tbody></table></div></section>';
+}
+
 function render(){
   var rows=D.quests.filter(match);
   paintStats();
@@ -645,6 +704,14 @@ function render(){
     if(rest.length) html+=groupBlock("시설과 무관한 퀘스트", rest.length+"건", rest, null);
     var gq=rows.filter(function(x){ return x.gq; });
     if(gq.length) html+=groupBlock("길드 퀘스트", gq.length+"건 · 도시 게시판 밖입니다", gq, null);
+  } else if(state.view==="rep"){
+    var ts=D.towns.filter(function(t){ return (state.showLocked || !LOCKED[t.n])
+      && (!state.town || t.n===state.town)
+      && (!state.q || (t.n+" "+t.r).toLowerCase().indexOf(state.q.toLowerCase())>=0); });
+    html+=ts.map(repBlock).join("");
+    el("count").textContent=ts.length+" 도시";
+    el("out").innerHTML = html || '<p class="empty">조건에 맞는 도시가 없습니다.</p>';
+    return;
   } else {
     var seen={};
     D.towns.forEach(function(t){
@@ -728,8 +795,15 @@ el("showlocked").addEventListener("change",function(e){
   if(!state.showLocked && LOCKED[state.town]) state.town="";
   fillTowns(); render();
 });
-el("v-fac").onclick=function(){ state.view="fac"; el("v-fac").setAttribute("aria-pressed","true"); el("v-town").setAttribute("aria-pressed","false"); render(); };
-el("v-town").onclick=function(){ state.view="town"; el("v-town").setAttribute("aria-pressed","true"); el("v-fac").setAttribute("aria-pressed","false"); render(); };
+el("v-fac").onclick=function(){ setView("fac"); };
+function setView(v){
+  state.view=v;
+  ["fac","town","rep"].forEach(function(x){
+    el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
+  render();
+}
+el("v-town").onclick=function(){ setView("town"); };
+el("v-rep").onclick=function(){ setView("rep"); };
 
 // quests.html?q=... 로 들어오면 그 검색어로 시작한다 (도감에서 넘어올 때)
 try{
