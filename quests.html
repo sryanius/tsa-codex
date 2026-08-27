@@ -262,7 +262,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a class="here" href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a>
+    <a href="index.html">자료실</a><a class="here" href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">용병단 편람</a>
   <a href="save.html">내 세이브</a><a href="notes.html">원리</a></nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 데이터 색인</p>
@@ -485,6 +485,16 @@ function paintStats(){
 }
 paintStats();
 
+/* 게시 기한. 수주하면 시계가 멈추고, 여기 적힌 건 «게시판에 걸려 있는» 시간이다. */
+function dlTxt(m){
+  m = +m || 0;
+  if(!m) return "없음";
+  var d=Math.floor(m/1440), h=Math.floor(m%1440/60), mi=m%60, t=[];
+  if(d) t.push(d+"일");
+  if(h) t.push(h+"시간");
+  if(mi) t.push(mi+"분");
+  return t.join(" ");
+}
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 function anyFac(){ return FORD.concat(["__job"]).some(function(f){ return state.facs[f]; }); }
 function facMatch(x){ return (x.g && state.facs[x.g]) || (x.u && state.facs["__job"]); }
@@ -570,7 +580,8 @@ function detailHTML(x){
         return '<div class="dcell"><dt>한 칸당 몫 <span class="fld">가중치 비율</span></dt>'
              + '<dd class="mono'+(pct<0.5?" warn":"")+'">'+(pct<1?pct.toFixed(2):pct.toFixed(1))+'% · '+t
              + ' <span class="sm">(경쟁 '+o.pool+'개)</span></dd></div>'; })()
-    + '<div class="dcell"><dt>게시판 유효기간 <span class="fld">deadline</span></dt><dd class="mono">'+esc(x.dl)+'</dd></div>'
+    + '<div class="dcell"><dt>게시판 유효기간 <span class="fld">deadline</span></dt><dd class="mono">'+dlTxt(x.dl)
+      + (x.si===99 && x.dl && x.dl<=1440 ? ' <span class="meta" style="color:var(--f-heal)">짧다</span>' : '')+'</dd></div>'
     + '<div class="dcell"><dt>선행 성공 횟수 <span class="fld">successCount</span></dt><dd class="mono">'+x.sc+'</dd></div>'
     + (x.nc?'<div class="dcell"><dt>선행 중 음수 평판</dt><dd class="mono warn">'+x.nc+'개 (최저 '+x.nm+')</dd></div>':"")
     + (x.sx?'<div class="dcell"><dt>파티 제한</dt><dd class="mono hi">'+esc(x.sx)+'</dd></div>':"")

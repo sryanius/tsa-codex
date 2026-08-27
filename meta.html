@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>침묵의 기록자 클래스 · 종족 · 시설</title>
+<title>침묵의 기록자 용병단 편람</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -197,6 +197,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .mt:hover circle{fill:#fff}
 .mt text{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;
   fill:#fff;paint-order:stroke;stroke:#1a1a22;stroke-width:5;stroke-linejoin:round;cursor:pointer}
+.seglab{font-size:11px;letter-spacing:.08em;color:var(--faint);font-weight:600;
+  align-self:center;margin:0 -2px 0 4px}
+.seglab:first-child{margin-left:0}
+.tabnote{font-size:13px;color:var(--muted);margin:14px 0 0}
 .calc{border:1px solid var(--line);border-radius:10px;background:var(--surface);
   padding:14px 16px;margin:0 0 16px;box-shadow:var(--shadow)}
 .crow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
@@ -235,27 +239,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <body>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="meta.html">클래스·종족·시설</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="meta.html">용병단 편람</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 용병단 운영</p>
-    <h1>클래스 · 종족 · 시설</h1>
-    <p class="lede">어느 클래스가 무엇을 들고 무엇에 능한지, 주직업일 때와 부직업일 때 뭐가 다른지, 어느 종족을 어느 주점에서 뽑는지, 그리고 시설을 올리는 데 얼마가 드는지. <a href="notes.html#job">경험치가 왜 점점 비싸지는지</a>는 원리 페이지에 있습니다.</p>
-    <div class="stats">
-      <div class="stat"><b id="s-j">0</b><span>클래스</span></div>
-      <div class="stat"><b id="s-r">0</b><span>종족</span></div>
-      <div class="stat"><b id="s-s">0</b><span>마법</span></div>
-      <div class="stat"><b id="s-t">0</b><span>도시 시설</span></div>
-    </div>
+    <h1>용병단 편람</h1>
+    <p class="lede">용병을 뽑고 키우고 보내는 데 필요한 표를 한곳에 모았습니다. <b>자료</b> 넷은 읽는 것 &mdash; 클래스·종족·마법·도시 시설. <b>도구</b> 둘은 쓰는 것 &mdash; 원하는 조건의 용병이 나올 확률을 계산하고, 지도에서 도시와 탐색지를 눌러 갑니다. <a href="notes.html">계산식이 왜 그런지</a>는 원리 페이지에 있습니다.</p>
+    <p class="tabnote" id="tabnote"></p>
+    <div class="stats" id="stats"></div>
   </header>
 
   <div class="bar">
     <div class="bar-row">
-      <div class="seg" role="group" aria-label="보기 전환">
+      <span class="seglab">자료</span>
+      <div class="seg" role="group" aria-label="자료 보기 전환">
         <button id="v-job" type="button" aria-pressed="true">클래스</button>
         <button id="v-race" type="button" aria-pressed="false">종족</button>
         <button id="v-skill" type="button" aria-pressed="false">마법</button>
         <button id="v-town" type="button" aria-pressed="false">도시 시설</button>
+      </div>
+      <span class="seglab">도구</span>
+      <div class="seg" role="group" aria-label="도구 전환">
         <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
         <button id="v-map" type="button" aria-pressed="false">지도</button>
       </div>
@@ -269,7 +273,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <main id="out"></main>
 
   <footer class="foot">
-    <p>클래스 설명은 게임의 원문(<code>LCDetail</code>)입니다. 주/부 보너스는 <code>mainJobBonuses*</code> / <code>subJobBonuses*</code>, 훈련소 레벨과 비용은 <code>BuildingMaster.levelManagers</code>, 종족 능력치는 <code>CharacterMaster.ability</code> 에서 뽑았습니다.</p>
+    <p>클래스 설명은 게임의 원문(<code>LCDetail</code>)입니다. 주/부 보너스는 <code>mainJobBonuses*</code> / <code>subJobBonuses*</code>, 훈련소와 시설 비용은 <code>BuildingMaster.levelManagers</code>, 종족 능력치는 <code>CharacterMaster.ability</code>, 뽑기 계산은 <code>Character.CreateParam</code> 과 <code>InviteAdventureDialog</code>, 지도는 번들 안의 <code>Tilemap</code> 을 직접 합성한 것입니다.</p>
     <p>모든 수치는 <b>클라이언트 판번호 6061</b> 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
     <p>창고·숙소·치료소·금고·대장간·아카이브 여섯은 골드로 못 올립니다 — 퀘스트로만 오릅니다. 어떤 퀘스트가 무엇을 올려주는지는 <a href="quests.html">퀘스트 색인</a>에 있습니다.</p>
   </footer>
@@ -307,11 +311,6 @@ function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
 function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
 function gold(n){ return n>=10000 ? (n/1000).toFixed(0)+"K" : n.toLocaleString(); }
 function mins(n){ var h=Math.floor(n/60); return (h?h+"시간 ":"")+(n%60)+"분"; }
-
-el("s-j").textContent=D.jobs.length;
-el("s-r").textContent=D.races.length;
-el("s-s").textContent=D.skills.length;
-el("s-t").textContent=visTowns().length;
 
 // 무기 필터는 실제로 있는 것만
 var wks=[]; D.jobs.forEach(function(j){ j.w.forEach(function(w){ if(wks.indexOf(w)<0) wks.push(w); }); });
@@ -867,8 +866,50 @@ function calcHTML(){
     +'</div>'+body+'</section>';
 }
 
+/* 탭이 여섯이라 머리글도 탭을 따라가야 한다.
+   한 줄 설명과 숫자를 여기서 갈아 끼운다. */
+var TABNOTE = {
+  job:  "무엇을 들고 무엇에 능한지, 주직업일 때와 부직업일 때 뭐가 다른지.",
+  race: "어느 주점에서 뽑히는지, 기준값이 실제로 얼마가 되는지, 어떤 성격이 나오는지.",
+  skill:"어느 클래스가 몇 레벨에 배우는지. 회복 주문은 시전자 성격이 시점을 바꿉니다.",
+  town: "도시마다 어떤 시설이 몇 레벨까지 있고, 올리는 데 얼마가 드는지.",
+  calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
+  map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다."
+};
+function headStats(){
+  var out=[];
+  if(state.view==="job"){
+    var wk={}, mg=0;
+    D.jobs.forEach(function(j){ j.w.forEach(function(w){ wk[w]=1; }); if(j.sk && j.sk.length) mg++; });
+    out=[[D.jobs.length,"클래스"],[Object.keys(wk).length,"무기 종류"],[mg,"마법 쓰는 클래스"]];
+  } else if(state.view==="race"){
+    var bt={}; D.races.forEach(function(r){ (r.open||r.towns).forEach(function(t){ bt[t]=1; }); });
+    out=[[D.races.length,"종족·성별"],[Object.keys(bt).length,"뽑는 주점"],[7,"성격"]];
+  } else if(state.view==="skill"){
+    var jb={}; D.skills.forEach(function(s2){ s2.jobs.forEach(function(j){ jb[j.j]=1; }); });
+    out=[[D.skills.length,"마법"],[Object.keys(jb).length,"배우는 클래스"]];
+  } else if(state.view==="town"){
+    var ts=visTowns();
+    out=[[ts.length,"도시"],[ts.reduce(function(a,t){return a+t.b.length},0),"시설"]];
+  } else if(state.view==="calc"){
+    var bt2=barTowns();
+    out=[[bt2.length,"주점"],[D.races.length,"종족·성별"],[7,"성격"]];
+  } else {
+    var ms=D.maps.filter(function(m){ return state.showLocked || !m.lock; });
+    out=[[ms.length,"지역"],
+         [ms.reduce(function(a,m){return a+m.t.length},0),"도시"],
+         [ms.reduce(function(a,m){return a+m.c.length},0),"탐색지"]];
+  }
+  el("stats").innerHTML = out.map(function(x){
+    return '<div class="stat"><b>'+x[0]+'</b><span>'+esc(x[1])+'</span></div>'; }).join("");
+  el("tabnote").textContent = TABNOTE[state.view] || "";
+  // 계산기에서는 검색칸이 아무 일도 안 한다
+  el("q").style.display = state.view==="calc" ? "none" : "";
+}
+
 function render(){
   var html="", n=0;
+  headStats();
   if(state.view==="job"){
     var rows=D.jobs.filter(function(j){
       if(state.wk && j.w.indexOf(state.wk)<0) return false;
@@ -913,7 +954,6 @@ function render(){
     Object.keys(byR).forEach(function(r){
       html+='<h2 class="regname">'+esc(r)+'</h2>'+byR[r].map(townBlock).join(""); });
   }
-  el("s-t").textContent=visTowns().length;
   el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   el("wk").style.display = state.view==="job" ? "" : "none";

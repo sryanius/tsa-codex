@@ -170,7 +170,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 </style>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">용병단 편람</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
@@ -203,6 +203,10 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
 }</div>
   <h3>내려가는 건 기한이 지날 때뿐</h3>
   <p>게시된 퀘스트는 <b><code>deadline</code>(분+시+일)이 지나야</b> 내려갑니다. 그때 카운터가 <code>questSpawnInterval</code> 로 <b>리셋되어 처음부터 다시</b> 셉니다 &mdash; 깨서 <code>Finish()</code> 했을 때도 똑같습니다. 그러니 <b>안 받을 퀘스트를 게시판에 오래 묵혀 두는 것 자체는 손해가 아닙니다.</b> 다만 기한이 지나 내려가면 그 퀘스트는 카운터를 처음부터 다시 채워야 합니다.</p>
+  <p><b>기한은 퀘스트마다 다릅니다</b> &mdash; <code>deadlineDays·Hours·Minutes</code> 세 칸을 합친 값이고, 1,364건에 <b>145가지</b>가 있습니다. <b>2시간에서 12일까지</b>, 중앙값은 1.7일입니다. 레벨과는 거의 무관합니다(어느 레벨대나 중앙값 1.4~1.8일).</p>
+  <div class="note warn"><b>1회성 퀘스트는 기한이 유난히 짧습니다.</b> 주기 99(1회성) 266건의 중앙값이 <b>18시간</b>이고 <b>81%가 하루 안에</b> 내려갑니다. 반복 퀘스트는 10%뿐입니다. 어렵게 띄운 1회성을 하루 넘겨 두면 다시 카운터를 처음부터 채워야 합니다 &mdash; <b>퀘스트 색인</b>의 각 퀘스트에 «게시판 유효기간» 으로 적어 뒀습니다.</div>
+  <p>수주하고 나면 이 시계는 멈춥니다. 기한 검사는 <b>게시 중(<code>NotAccepted</code>)</b> 일 때만 돌고, 수주해서 <code>InProgress</code> 가 되면 기한으로 실패하는 길이 없습니다.</p>
+
   <h3>카운터가 줄려면 빈도 판정을 통과해야 합니다</h3>
   <p>갱신 한 번에 카운터가 무조건 1 주는 게 아닙니다. <code>Town.CanAcceptQuest()</code> 를 통과해야 하고, 그 마지막 관문이 <b>빈도</b>입니다. <code>Always</code> 는 무조건 통과, 나머지는 <code>GetRandom()</code> 을 <b>두 번</b> 굴려 한 번이라도 자기 빈도와 같으면 통과합니다.</p>
   <table><thead><tr><th>빈도</th><th class="num">한 번 굴려 나올 확률</th><th class="num">갱신 1회 통과율</th><th class="num">퀘스트 수</th></tr></thead><tbody>
