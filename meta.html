@@ -386,7 +386,7 @@ function raceRow(r){
     +'<span class="nm"><b>'+esc(r.race)+' · '+(r.man?"남":"여")+' <span class="meta">'+esc(r.i)+'</span></b>'
     +'<span>'+(tw.length? "주점: "+esc(tw.join(", ")) : (r.towns.length?"미출시 지역 주점뿐":"주점 배치 없음"))+'</span></span>'
     +'<span class="num dim">'+esc(top.join("·"))+'</span>'
-    +'<span class="num">합 '+r.sum+'</span>'
+    +'<span class="num">기준합 '+r.sum+'</span>'
     +'<span class="num dim">Lv'+r.lv+'</span></div>';
 }
 /* 주점 레벨이 초빙 포인트를 바꾼다. 세이브가 붙어 있으면 이 종족을 뽑는
@@ -400,19 +400,25 @@ function barBlock(r){
     return '<li><b>'+esc(tn)+'</b>'
       + (my!=null ? '<span class="meta"> — 주점 '+my+'레벨 · 포인트 <b>+'+my+'</b>'
           + ' · 10% 로 최대 +'+Math.max(0,my-1)+' 더 · <b>실제 최대 '+(my*2+3)+'</b>'
-          + ' <span style="opacity:.7">(화면 표시는 '+(my+3)+')</span></span>'
+          + '</span><span class="meta" style="display:block;opacity:.75">'
+          + '게임 화면은 최대치를 '+(my+3)+' 로 그리지만, 실제로는 '+(my*2+3)+' 까지 나옵니다 '
+          + '&mdash; 표시용 상한이 <code>주점레벨 + 3</code> 으로 따로 박혀 있습니다.</span>'
         : '<span class="meta"> — 세이브를 넣으면 내 주점 레벨로 계산합니다</span>')
       + '</li>';
   }).join("");
   return '<div class="blk"><h4>초빙 포인트 — 주점 레벨이 정한다</h4><ul>'+rows+'</ul>'
-    + '<span class="meta">포인트 = Rand(3) + 주점레벨 + Rand(1~3), 그리고 10% 로 + Rand(주점레벨). '
-    + '이 포인트가 위 능력치에 얹힙니다.</span></div>';
+    + '<span class="meta">포인트 = Rand(3) + 주점레벨 + 성격보정, 그리고 10% 로 + Rand(주점레벨). '
+    + '성격보정은 무모한 Rand(3) · 이기적 Rand(2) · 나머지는 없습니다. '
+    + '이건 뽑은 뒤 <b>내가 직접 능력치에 나눠 넣는</b> 몫이라, 위 능력치 숫자에는 안 들어 있습니다.</span></div>';
 }
 function raceDetail(r){
+  var tot=0;
   var cells=STAT.map(function(k){
-    var v=r.ab[k], lo=rnd(v)[0], hi=rnd(v)[1];
-    return '<div class="dcell"><dt>'+esc(k)+'</dt><dd class="mono">'+v
-         +' <span class="meta">('+lo+"~"+hi+')</span></dd></div>'; }).join("");
+    var v=r.ab[k], b=statBand(k,[r]), d=statFinal(r.ab,k), m=0;
+    for(var x in d) m+=(+x)*d[x];
+    tot+=m;
+    return '<div class="dcell"><dt>'+esc(k)+'</dt><dd class="mono">'+(b?b[0]+"–"+b[1]:v)
+         +' <span class="meta">기준 '+v+' · 평균 '+m.toFixed(1)+'</span></dd></div>'; }).join("");
   return '<div class="detail"><dl class="dgrid">'+cells+'</dl>'
     +'<div class="blk"><h4>뽑히는 주점</h4><ul>'
     + (function(){ var tw2 = state.showLocked ? r.towns : (r.open||r.towns);
@@ -425,10 +431,17 @@ function raceDetail(r){
     + (r.no.length? '<div class="blk"><h4>가질 수 없는 직업</h4><span class="bonus sub">'
         + r.no.map(function(p){ return '<i>'+esc(p)+'</i>'; }).join("")+'</span></div>' : "")
     + barBlock(r)
-    +'<div class="blk"><h4>괄호 안 범위는 무엇인가</h4>'
-    +'<span class="meta">뽑을 때 능력치마다 주사위를 굴립니다 — <code>CreateRandomValue</code>. '
-    +'기준값이 1~8이면 ±0~2, 9~30이면 ±(기준/3), 31~99면 ±(기준/10) 만큼 흔들리고 0 밑으로는 안 내려갑니다. '
-    +'괄호가 그 최소~최대입니다.</span></div></div>';
+    +'<div class="blk"><h4>이 숫자는 어떻게 나오나</h4>'
+    +'<span class="meta">두 단계입니다(<code>Character.CreateParam</code>). '
+    +'<b>① 흔들기</b> — 능력치마다 <code>CreateRandomValue</code> 로 기준값을 흔듭니다. '
+    +'기준 1~8은 ±0~2, 9~30은 ±(기준/3), 31~99는 ±(기준/10), 0 밑으로는 안 갑니다. '
+    +'<b>② 남는 포인트</b> — <code>pp = Σ⌊CreateRandomValue(기준ᵢ)/2⌋</code> (상한 = 기준합 '+r.sum+') 만큼 '
+    +'공을 하나씩 던져 넣습니다. 던질 때마다 <code>Rand('+r.sum+')</code> 룰렛이라 '
+    +'<b>기준값이 큰 능력치에 잘 붙고, 기준값 0 인 곳에는 절대 안 붙습니다.</b> '
+    +'마지막에 생명점은 4, 힘은 2 로 바닥이 깔립니다. '
+    +'그래서 기준합 '+r.sum+' 짜리가 실제로는 <b>합 '+tot.toFixed(0)+'</b> 쯤으로 나옵니다 — '
+    +'큰 숫자는 <b>1~99% 구간</b>이고 기준·평균을 옆에 적어 뒀습니다. '
+    +'초빙 포인트는 여기에 더해 <b>내가</b> 나눠 넣는 몫이라 위 숫자에는 안 들어 있습니다.</span></div></div>';
 }
 // CreateRandomValue 의 흔들림 폭 — 원리 페이지의 그 함수와 같다
 function rnd(v){
