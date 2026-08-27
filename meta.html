@@ -186,6 +186,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .lvtable td{padding:3px 10px 3px 0;text-align:right;color:var(--body);
   border-bottom:1px solid var(--line-soft);font-family:"IBM Plex Mono",monospace}
 .lvtable td:first-child{text-align:left}
+.calc{border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  padding:14px 16px;margin:0 0 16px;box-shadow:var(--shadow)}
+.crow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
+.crow:last-child{margin:0}
+.crow .lvlabel{min-width:82px;padding-top:5px}
+.crow select{font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);
+  border-radius:7px;background:var(--raised);color:var(--ink)}
+.statbox{display:flex;flex-wrap:wrap;gap:6px}
+.statbox .lvin{font-size:11.5px}
+.statbox .lvin input{width:44px}
 .empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
 .group{margin:24px 0 0}
 .regname{font-family:"Gowun Batang",Georgia,serif;font-size:15px;font-weight:700;
@@ -233,6 +243,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <button id="v-race" type="button" aria-pressed="false">종족</button>
         <button id="v-skill" type="button" aria-pressed="false">마법</button>
         <button id="v-town" type="button" aria-pressed="false">도시 시설</button>
+        <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
+        <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
@@ -414,6 +426,60 @@ function rnd(v){
   return [Math.max(0,v-s), v+s];
 }
 
+/* ── 용병 뽑기 계산기 ───────────────────────────────────────────────
+   확률을 시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 셋이다.
+
+   1) 종족  — 주점의 barCharacters 에서 균등 추출
+   2) 성격  — 그 종족의 personalities 목록에서 균등 추출
+              (목록에 중복이 있고 그게 곧 가중치다)
+   3) 능력치 — 종족 기준값을 CreateRandomValue 로 흔든다 (8종이 독립)
+   4) 포인트 — Rand(3) + 주점레벨 + 성격보정, 그리고 10% 로 + Rand(주점레벨)
+      성격보정: 무모한 Rand(3) · 이기적 Rand(2) · 신경질적·감정적 0
+                사교적·신중한·합리적은 아예 없음                        */
+function dist(pairs){ var m={}; pairs.forEach(function(p){ m[p[0]]=(m[p[0]]||0)+p[1]; }); return m; }
+function conv(a,b){
+  var out={};
+  for(var x in a) for(var y in b){
+    var k=(+x)+(+y); out[k]=(out[k]||0)+a[x]*b[y];
+  }
+  return out;
+}
+function uniform(n, from){          // Rand(n) = from..from+n-1
+  from=from||0; var m={};
+  if(n<=0){ m[from]=1; return m; }
+  for(var i=0;i<n;i++) m[from+i]=1/n;
+  return m;
+}
+/* CreateRandomValue(base) 의 분포. 흔들림 폭은 구간마다 다르고,
+   부호는 반반이며, 0 밑으로는 안 내려간다. */
+function crvDist(base){
+  if(base<1) return {0:1};
+  var n = base<=8 ? 3 : (base<=30 ? (base*171>>9) : (base<=99 ? (base*205>>11) : (base>>4)));
+  var m={};
+  if(n<=0){ m[base]=1; return m; }
+  for(var s=0;s<n;s++){
+    [base+s, base-s].forEach(function(v){
+      v=Math.max(0,v); m[v]=(m[v]||0)+0.5/n;
+    });
+  }
+  return m;
+}
+var PERS_BONUS={"무모한":3,"이기적":2,"신경질적":1,"감정적":1};   // Rand(n), 없으면 0
+function pointDist(lv, pers){
+  var d=conv(uniform(3), uniform(1, lv));           // Rand(3) + 주점레벨
+  var pb=PERS_BONUS[pers];
+  if(pb) d=conv(d, uniform(pb));
+  var bonus=conv(d, uniform(lv));                   // 10% 가지
+  var out={};
+  for(var k in d)     out[k]=(out[k]||0)+d[k]*0.9;
+  for(var k2 in bonus) out[k2]=(out[k2]||0)+bonus[k2]*0.1;
+  return out;
+}
+function pAtLeast(d, min){
+  var p=0; for(var k in d) if((+k)>=min) p+=d[k];
+  return p;
+}
+
 /* ---------- 마법 ---------- */
 function skillRow(s){
   return '<div class="row" data-k="s" data-i="'+esc(s.i)+'" tabindex="0" role="button" '
@@ -504,6 +570,143 @@ function block(title,sub,rows){
     +'<div class="list">'+rows.join("")+'</div></section>';
 }
 
+/* ── 용병 뽑기 계산기 ───────────────────────────────────────────────
+   시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 넷이다.
+     1) 종족   — 주점의 barCharacters 에서 균등 추출
+     2) 성격   — 그 종족의 personalities 목록에서 균등 추출
+                 (목록에 중복이 있고 그게 곧 가중치다)
+     3) 능력치 — 종족 기준값을 CreateRandomValue 로 흔든다 (8종 독립)
+     4) 포인트 — Rand(3) + 주점레벨 + 성격보정, 그리고 10% 로 + Rand(주점레벨)
+        성격보정: 무모한 Rand(3) · 이기적 Rand(2) · 신경질적·감정적 Rand(1)=0
+                  사교적·신중한·합리적은 아예 없다                     */
+var PERS_ALL=["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
+var PERS_BONUS={"무모한":3,"이기적":2,"신경질적":1,"감정적":1};
+var calc={bar:"", pers:{}, min:{}, pt:0};
+
+function conv(a,b){
+  var out={};
+  for(var x in a) for(var y in b){ var k=(+x)+(+y); out[k]=(out[k]||0)+a[x]*b[y]; }
+  return out;
+}
+function uniform(n, from){
+  from=from||0; var m={};
+  if(n<=0){ m[from]=1; return m; }
+  for(var i=0;i<n;i++) m[from+i]=1/n;
+  return m;
+}
+function crvDist(base){
+  if(base<1) return {0:1};
+  var n = base<=8 ? 3 : (base<=30 ? (base*171>>9) : (base<=99 ? (base*205>>11) : (base>>4)));
+  if(n<=0){ var one={}; one[base]=1; return one; }
+  var m={};
+  for(var s2=0;s2<n;s2++){
+    [base+s2, Math.max(0, base-s2)].forEach(function(v){ m[v]=(m[v]||0)+0.5/n; });
+  }
+  return m;
+}
+function pointDist(lv, pb){
+  var d=conv(uniform(3), uniform(1, lv));
+  if(pb) d=conv(d, uniform(pb));
+  var bo=conv(d, uniform(lv));
+  var out={}, k;
+  for(k in d)  out[k]=(out[k]||0)+d[k]*0.9;
+  for(k in bo) out[k]=(out[k]||0)+bo[k]*0.1;
+  return out;
+}
+function pAtLeast(d, min){ var p=0; for(var k in d) if((+k)>=min) p+=d[k]; return p; }
+
+function barTowns(){
+  var out=[];
+  D.races.forEach(function(r){
+    (state.showLocked?r.towns:(r.open||r.towns)).forEach(function(t){
+      if(out.indexOf(t)<0) out.push(t); });
+  });
+  return out.sort();
+}
+function racesAt(town){ return D.races.filter(function(r){ return r.towns.indexOf(town)>=0; }); }
+function barLvOf(town){
+  var t=null; D.towns.forEach(function(x){ if(x.n===town) t=x; });
+  return t ? myTownLv(t.i,"주점") : null;
+}
+function calcRun(){
+  var rs=racesAt(calc.bar);
+  if(!rs.length) return null;
+  var lv=barLvOf(calc.bar), useLv = lv!=null ? lv : 1;
+  var total=0, per=[];
+  rs.forEach(function(r){
+    var pStat=1;
+    STAT.forEach(function(k){
+      var need=calc.min[k]||0;
+      if(need>0) pStat *= pAtLeast(crvDist(r.ab[k]||0), need);
+    });
+    var cnt={}; r.pers.forEach(function(pp){ cnt[pp]=(cnt[pp]||0)+1; });
+    var pAll=0;
+    // 성격을 하나도 안 고르면 «아무거나» 로 본다 — 0% 를 띄우는 것보다 낫다
+    var anyPers=true; for(var pk in calc.pers){ anyPers=false; break; }
+    Object.keys(cnt).forEach(function(pp){
+      if(!anyPers && !calc.pers[pp]) return;
+      var pPt = calc.pt>0 ? pAtLeast(pointDist(useLv, PERS_BONUS[pp]||0), calc.pt) : 1;
+      pAll += (cnt[pp]/r.pers.length) * pPt;
+    });
+    var p=(1/rs.length)*pStat*pAll;
+    per.push({r:r, p:p, pStat:pStat, pPers:pAll});
+    total+=p;
+  });
+  return {p:total, per:per, lv:lv, useLv:useLv};
+}
+function calcHTML(){
+  var towns=barTowns();
+  if(!calc.bar && towns.length) calc.bar=towns[0];
+  var lv=barLvOf(calc.bar);
+  var opts=towns.map(function(t){
+    var l=barLvOf(t);
+    return '<option value="'+esc(t)+'"'+(t===calc.bar?" selected":"")+'>'+esc(t)
+      +(l!=null?" (주점 "+l+"레벨)":"")+'</option>'; }).join("");
+  var persBox=PERS_ALL.map(function(pp){
+    return '<label class="ab'+(calc.pers[pp]?" on":"")+'"><input type="checkbox" data-p="'+esc(pp)+'"'
+      +(calc.pers[pp]?" checked":"")+'>'+esc(pp)+'</label>'; }).join("");
+  var statBox=STAT.map(function(k){
+    return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-s="'+esc(k)+'" value="'
+      +(calc.min[k]||"")+'" placeholder="–"></label>'; }).join("");
+  var res=calcRun(), body;
+  if(!res || !res.p){
+    body='<p class="empty">'+(!res?"이 주점에서 뽑히는 종족이 없습니다."
+      :"이 조건으로는 <b>나오지 않습니다.</b> 어떤 종족도 못 채우는 최소값입니다 — 능력치나 포인트를 낮춰 보세요.")+'</p>';
+  } else {
+    var tries=1/res.p;
+    body='<div class="dgrid" style="margin:0 0 12px">'
+      +'<div class="dcell"><dt>한 번에 나올 확률</dt><dd class="mono" style="color:var(--accent);font-size:17px">'
+        +(res.p*100<0.01?(res.p*100).toFixed(4):(res.p*100).toFixed(2))+'%</dd></div>'
+      +'<div class="dcell"><dt>평균 시도</dt><dd class="mono" style="font-size:17px">'
+        +(tries>=1000?Math.round(tries).toLocaleString():tries.toFixed(1))+'번</dd></div>'
+      +'<div class="dcell"><dt>절반 확률로</dt><dd class="mono">'
+        +Math.ceil(Math.log(0.5)/Math.log(1-res.p))+'번 안에</dd></div>'
+      +'<div class="dcell"><dt>90% 확률로</dt><dd class="mono">'
+        +Math.ceil(Math.log(0.1)/Math.log(1-res.p))+'번 안에</dd></div>'
+      +'</div>'
+      + (res.lv==null?'<div class="note" style="margin:0 0 12px">주점 레벨을 몰라 <b>1레벨</b>로 계산했습니다 &mdash; <a href="save.html">세이브를 넣으면</a> 실제 레벨로 바뀝니다.</div>':"")
+      +'<div class="blk"><h4>종족별로 뜯어보면</h4><ul>'
+      + res.per.map(function(x){
+          return '<li><b>'+esc(x.r.race+" · "+(x.r.man?"남":"여"))+'</b>'
+            +'<span class="meta"> &mdash; 뽑힐 확률 '+(x.p*100).toFixed(3)+'%'
+            +' (성격·포인트 '+(x.pPers*100).toFixed(1)+'% × 능력치 '+(x.pStat*100).toFixed(1)+'%)</span></li>';
+        }).join("")
+      + '</ul></div>';
+  }
+  return '<section class="group"><div class="ghead"><h2>용병 뽑기 계산기</h2>'
+    +'<span class="sub">조건을 넣으면 확률과 평균 시도 횟수를 계산합니다</span>'
+    +'<span class="rule"></span></div>'
+    +'<div class="calc">'
+    +'<div class="crow"><span class="lvlabel">주점</span><select id="c-bar">'+opts+'</select>'
+      +'<span class="meta">'+(lv!=null?"내 주점 "+lv+"레벨":"세이브 없음 &rarr; 1레벨로 계산")+'</span></div>'
+    +'<div class="crow"><span class="lvlabel">원하는 성격</span><div class="abils-box">'+persBox+'</div></div>'
+    +'<div class="crow"><span class="lvlabel">최소 능력치</span><div class="statbox">'+statBox+'</div></div>'
+    +'<div class="crow"><span class="lvlabel">최소 포인트</span>'
+      +'<label class="lvin"><input type="number" id="c-pt" min="0" max="30" value="'+(calc.pt||"")+'" placeholder="–"></label>'
+      +'<span class="meta">화면에 별처럼 뜨는 그 숫자입니다</span></div>'
+    +'</div>'+body+'</section>';
+}
+
 function render(){
   var html="", n=0;
   if(state.view==="job"){
@@ -527,6 +730,11 @@ function render(){
       return hit(s.n+" "+s.i+" "+s.d+" "+s.jobs.map(function(j){return j.j}).join(" ")); });
     n=ss.length;
     html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
+  } else if(state.view==="calc"){
+    el("out").innerHTML=calcHTML();
+    el("count").textContent="";
+    el("wk").style.display="none";
+    return;
   } else {
     var ts=visTowns().filter(function(t){
       return hit(t.n+" "+t.r+" "+t.b.map(function(b){return b.n+" "+b.kind}).join(" ")); });
@@ -577,13 +785,37 @@ el("showlocked").addEventListener("change",function(e){
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
 });
-["job","race","skill","town"].forEach(function(v){
+var VIEWS=["job","race","skill","town","calc"];
+VIEWS.forEach(function(v){
   el("v-"+v).onclick=function(){
     state.view=v;
-    ["job","race","skill","town"].forEach(function(x){
-      el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
+    VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
     render();
   };
+});
+// 계산기 입력 — 결과가 바뀔 때마다 화면을 다시 그리므로 위임으로 받는다
+el("out").addEventListener("change",function(e){
+  var t=e.target;
+  if(t.id==="c-bar"){ calc.bar=t.value; render(); return; }
+  if(t.dataset && t.dataset.p!=null){
+    if(t.checked) calc.pers[t.dataset.p]=1; else delete calc.pers[t.dataset.p];
+    render();
+  }
+});
+var ct;
+el("out").addEventListener("input",function(e){
+  var t=e.target;
+  if(t.id!=="c-pt" && !(t.dataset && t.dataset.s!=null)) return;
+  clearTimeout(ct);
+  var isPt=(t.id==="c-pt"), key=isPt?null:t.dataset.s, v=t.value;
+  ct=setTimeout(function(){
+    if(isPt) calc.pt=Math.max(0,parseInt(v,10)||0);
+    else { var n2=Math.max(0,parseInt(v,10)||0); if(n2) calc.min[key]=n2; else delete calc.min[key]; }
+    render();
+    // 다시 그렸으니 커서를 그 칸으로 돌려놓는다
+    var again=el("out").querySelector(isPt?"#c-pt":'[data-s="'+key+'"]');
+    if(again){ again.focus(); try{ again.setSelectionRange(again.value.length, again.value.length); }catch(err){} }
+  }, 350);
 });
 render();
 };
