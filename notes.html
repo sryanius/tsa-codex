@@ -288,6 +288,28 @@ RunCraft(craftIndex)</div>
   <tr><td><b>모험가 아카이브</b></td><td>몬스터 정보 공개</td><td>수치가 아니라 표시 여부</td></tr>
   </tbody></table>
   <div class="note"><b>창고는 구독하면 ×12 입니다.</b> 코드에 <code>레벨 × 12 + 10</code> 가지가 따로 있고, 어떤 플래그로 갈립니다.</div>
+  <h3>은퇴 — 골드와 경험치가 여기서 나온다</h3>
+  <p>은퇴시킨 용병은 사라지지 않고 <b>둘을 계속 벌어 줍니다.</b> 은퇴 정원은 <code>숙소 레벨 × 5</code> 입니다.</p>
+  <h4 style="margin:18px 0 6px;font-size:14px">① 경험치 보너스</h4>
+  <div class="eq">보너스% = min( <b>조건을 통과한 은퇴자 수 × 5</b>, <b>100</b> )
+
+조건: 은퇴자의 최고 직업 레벨 &gt; 경험치를 받는 캐릭터의 레벨</div>
+  <p><b>스무 명이면 +100% 로 상한에 닿습니다.</b> 그 위로는 아무 소용이 없습니다 — 다만 «내 레벨보다 높은» 은퇴자여야 세어지므로, 주력이 성장할수록 조건을 통과하는 인원이 줄어듭니다. 모험 경험치(<code>AddAdventureExp</code>)에 붙습니다.</p>
+  <h4 style="margin:18px 0 6px;font-size:14px">② 광산 골드</h4>
+  <div class="eq">광산 레벨 = 은퇴자를 최고 직업 레벨 순으로 <b>상위 20명</b>만 골라 그 합을 계단에 대입
+             계단: 5, 15, 30, 50, 75, 105, …  (누적 5·(L−1)L/2)
+
+24시간에 차는 최대 골드 = <b>광산 레벨 × 200</b></div>
+  <p>여기서는 <b>상위 20명의 직업 레벨 합</b>이 전부입니다 — 인원을 더 늘려도 21등부터는 안 세어집니다. <b>레벨 30짜리 스무 명이면 합 600, 광산 16레벨, 하루 3,200골드</b>입니다. 24시간이 지나면 더 안 쌓이니 하루에 한 번은 받아 가야 합니다.</p>
+  <table><thead><tr><th class="num">상위 20명 합</th><th class="num">광산 레벨</th><th class="num">하루 골드</th></tr></thead><tbody>
+  <tr><td class="num">5</td><td class="num">2</td><td class="num">400</td></tr>
+  <tr><td class="num">50</td><td class="num">5</td><td class="num">1,000</td></tr>
+  <tr><td class="num">200</td><td class="num">9</td><td class="num">1,800</td></tr>
+  <tr><td class="num">450</td><td class="num">14</td><td class="num">2,800</td></tr>
+  <tr><td class="num">600</td><td class="num">16</td><td class="num">3,200</td></tr>
+  </tbody></table>
+  <p class="src">GameSettings.RetireCharacterExpBonusPercent(5) · MaxPercent(100) · MineBasePoint(200) · MaxBuildingPoolTime(86400) · Building.MaxPoolValue · GameSettings.MineLevel</p>
+
   <h3>주점 — 용병을 뽑을 때</h3>
   <p>주점 레벨은 <b>초빙 포인트</b>를 바꿉니다. 이 포인트가 뽑히는 용병의 능력치를 정합니다.</p>
   <div class="eq">포인트  = (기본값) + <b>주점 레벨</b> + Rand(2~3)
