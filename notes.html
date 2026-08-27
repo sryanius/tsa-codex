@@ -177,7 +177,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#unknown">모르는 것</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#pers">성격</a><a href="#unknown">모르는 것</a>
     </div>
   </header>
 
@@ -362,11 +362,84 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p class="src">Character.GetExpToNextLevel · Job.NeedNextExp · Character.SumOtherJobLevels</p>
   <p>전투에서는 <code>ExecuteBattle</code> 안에서 <b>도적 레벨 + 레인저 레벨 + 통찰</b>을 함께 더해 씁니다 &mdash; 둘 다 기여합니다. 현자는 통찰 보너스가 압도적이고 단검·검·활·창·지팡이를 전부 듭니다.</p>
 
-  <h2 id="unknown"><span class="n">8</span>확인하지 못한 것</h2>
+  <h2 id="pers"><span class="n">8</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
+  <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
+  <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
+  <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num">30%</td><td class="num">+3</td><td class="num">+Rand(3)</td></tr>
+  <tr><td><b>이기적</b></td><td class="num">24</td><td class="num">50%</td><td class="num">30%</td><td class="num">+2</td><td class="num">+Rand(2)</td></tr>
+  <tr><td><b>사교적</b></td><td class="num">16</td><td class="num">50%</td><td class="num">20%</td><td class="num">&minus;1</td><td class="num">&mdash;</td></tr>
+  <tr><td><b>신중한</b></td><td class="num">8</td><td class="num"><b>70%</b></td><td class="num">5%</td><td class="num">0</td><td class="num">&mdash;</td></tr>
+  <tr><td><b>합리적</b></td><td class="num">14</td><td class="num">60%</td><td class="num">15%</td><td class="num">+3</td><td class="num">&mdash;</td></tr>
+  <tr><td><b>신경질적</b></td><td class="num">12</td><td class="num">60%</td><td class="num">20%</td><td class="num">&minus;1</td><td class="num">0</td></tr>
+  <tr><td><b>감정적</b></td><td class="num">7&ndash;29<br><span style="font-size:11px;color:var(--faint)">매번 다시 굴림</span></td><td class="num">50%</td><td class="num">30%</td><td class="num">+1</td><td class="num">0</td></tr>
+  </tbody></table>
+  <p class="src">Party.GetRetreatThreshold &middot; BattleSkill.CanUse &middot; Character.GetShoutRate &middot; Party.LeaderBonus &middot; InviteAdventureDialog.TapInviteButton</p>
+
+  <h3>후퇴 &mdash; 리더의 성격만 봅니다</h3>
+  <p>후퇴는 <b>리더 한 명의 성격</b>으로 정해집니다. 나머지 파티원의 성격은 여기에 아무 영향이 없습니다. 방식은 «점수 적립»입니다 &mdash; 사건이 하나 끝날 때마다 파티에 <b>후퇴 점수</b>가 쌓이고, 그 합이 기준점에 닿는 순간 되돌아섭니다.</p>
+  <div class="eq">A = 살아 있는 인원 &nbsp; N = 전체 인원
+
+무모한   &rarr; int.MaxValue          <i>// 사실상 없음 — 전멸까지 안 돌아선다</i>
+이기적   &rarr; N == 1 ? 30 : 24
+사교적   &rarr; N &lt;  2 ? 2  : A &times; 4
+신중한   &rarr; A &gt;  1 ? A &times; 2 : 3
+합리적   &rarr; A &ge;  2 ? A &times; 3 + 2 : 3
+신경질적 &rarr; A == 1 ? 4  : A &times; 3
+감정적   &rarr; Rand(7, 30)          <i>// 판정할 때마다 새로 굴린다</i>
+
+리더가 죽어 있으면 &rarr; 0  <i>// 다음 사건에서 바로 돌아선다</i></div>
+  <div class="note warn"><b>기준점은 살아 있는 인원에 비례합니다.</b> 한 명 죽으면 기준점 자체가 내려가서, 남은 점수로도 곧바로 넘길 수 있습니다 &mdash; 무너지기 시작하면 가속이 붙습니다. 무모한 리더만 이 사다리 밖에 있습니다.</div>
+  <h4 style="font-size:13px;margin:20px 0 8px">점수가 붙는 자리</h4>
+  <p>퀘스트 이벤트마다 <code>retreatCondition</code> 이 달려 있고, 그 값이 <b>None</b> 이면 그 사건은 점수를 안 만듭니다. 값이 있을 때만 아래를 굴립니다.</p>
+  <table><thead><tr><th>조건</th><th>붙는 점수</th></tr></thead><tbody>
+  <tr><td><b>IfBattleOrTrap</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">전투·함정·금고 이벤트에서만</span></td><td>사건 중 <b>죽은 사람마다 +5</b><br>최대 MP 5 이상인 사람의 MP가 줄고, 그 결과 최대의 &frac14; 이하가 되면 +1<br>HP가 사건 직전의 절반 미만이면 +1 &mdash; 아니면 MP가 절반 미만일 때 +1</td></tr>
+  <tr><td><b>Happen</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">사건 종류를 안 가림</span></td><td><code>clamp((퀘스트 레벨 &minus; 파티 평균 레벨) &times; 10 + 50, 5, 95)</code>% 로 +1</td></tr>
+  <tr><td colspan="2" style="color:var(--muted)"><b>그리고 두 조건 모두 공통으로</b> &mdash; HP가 최대의 &frac13; 미만이거나 상태이상이 하나라도 걸린 사람마다,<br>&nbsp;&nbsp;&middot; 이번 사건으로 HP가 줄었으면 +1<br>&nbsp;&nbsp;&middot; 새로 걸린 상태이상 <b>개수만큼</b> +N</td></tr>
+  </tbody></table>
+  <p>점수는 <b>퀘스트 내내 누적</b>됩니다. 초반에 크게 다치면 그 점수를 안고 끝까지 갑니다.</p>
+  <p class="src">AdventureMain.EvaluateLeaderRetreat &middot; Party.AddRetreatPoint &middot; Party.StartReturning</p>
+
+  <h3>회복 마법을 언제 쓰는가</h3>
+  <p>회복 주문의 설명문에 «시전자의 성격에 따라 사용 타이밍이 달라집니다» 라고 적혀 있는 그 부분입니다. <b>시전자</b>의 성격이 기준선을 올립니다.</p>
+  <div class="eq">T = min(스킬의 healTiming + 성격 보정, 8)
+  신중한 +2 &nbsp;&middot;&nbsp; 합리적 +1 &nbsp;&middot;&nbsp; 신경질적 +1 &nbsp;&middot;&nbsp; 나머지 +0
+
+대상으로 고른다  &hArr;  HP &le; 최대 HP &times; T / 10
+              또는  HP == 1
+              또는  잃은 HP &gt; (마법력 + (최소회복+최대회복)/2) &minus; 2</div>
+  <p><b>게임 안의 모든 스킬이 <code>healTiming = 5</code> 입니다</b> (152건 전수). 그래서 실질적으로 성격만 남습니다 &mdash; <b>신중한 70% · 합리적/신경질적 60% · 나머지 50%</b>. 상한 8(80%)에는 어떤 조합으로도 닿지 않습니다.</p>
+  <div class="note"><b>힐러는 신중한이 가장 빠릅니다.</b> 다른 성격의 힐러는 HP가 절반으로 떨어질 때까지 기다립니다 &mdash; 한 방에 절반 넘게 맞는 구간에서는 그 차이가 그대로 사망으로 이어집니다. 마지막 줄(«잃은 HP가 회복량보다 크면») 덕분에 최대 HP가 큰 캐릭터는 기준선 위에서도 힐을 받습니다.</div>
+  <p class="src">BattleSkill.CanUse &middot; SkillMaster.healTiming [Range(2,8)]</p>
+
+  <h3>전투 중 대사</h3>
+  <p><code>GetShoutRate()</code> 는 <b>대사 출력 확률</b>입니다 &mdash; 크리티컬을 냈을 때, 그리고 몬스터의 정체를 간파했을 때 말풍선이 뜰 확률. 행동 자체는 바꾸지 않습니다. 신중한(5%)은 거의 말이 없고 무모한·이기적·감정적(30%)은 시끄럽습니다.</p>
+
+  <h3>궁합 &mdash; 그리고 코드에 남은 버그</h3>
+  <p>친밀도가 오르내릴 때 성격 궁합이 배수로 곱해집니다. <b>«잘 맞음»을 먼저 보고, 아니면 «안 맞음»을 봅니다.</b></p>
+  <table><thead><tr><th>판정</th><th class="num">친밀도가 오를 때</th><th class="num">내릴 때</th></tr></thead><tbody>
+  <tr><td>잘 맞음</td><td class="num"><b>&times;1.5</b></td><td class="num">&times;0.8</td></tr>
+  <tr><td>안 맞음</td><td class="num">&times;0.3</td><td class="num"><b>&times;2.0</b></td></tr>
+  <tr><td>둘 다 아님</td><td class="num">&times;1.0</td><td class="num">&times;1.0</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>내 성격</th><th>잘 맞음</th><th>안 맞음 (코드)</th><th>실제로 도는가</th></tr></thead><tbody>
+  <tr><td><b>무모한</b></td><td>감정적</td><td>이기적 · 신중한 · 신경질적</td><td>둘 다 산다</td></tr>
+  <tr><td><b>이기적</b></td><td>무모한 · 합리적</td><td>신중한 · 신경질적 · 감정적</td><td>둘 다 산다</td></tr>
+  <tr><td><b>사교적</b></td><td>이기적 · 감정적</td><td>이기적 · 감정적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>신중한</b></td><td>합리적 · 신경질적</td><td>합리적 · 신경질적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>합리적</b></td><td>이기적 · 신중한 · 신경질적</td><td>신중한 · 신경질적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>신경질적</b></td><td>신중한 · 합리적</td><td>신중한 · 합리적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>감정적</b></td><td>무모한 · 사교적</td><td>무모한 · 사교적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>일곱 중 다섯은 «잘 맞음»과 «안 맞음»의 목록이 완전히 같습니다.</b> <code>IsGood</code> 을 먼저 보기 때문에, 그 다섯 성격에게 <code>IsBad</code> 는 한 번도 실행되지 않습니다. 합리적의 «안 맞음»(신중한·신경질적)도 «잘 맞음»에 통째로 들어 있어서 마찬가지입니다. <b>실제로 «안 맞음»이 도는 건 무모한과 이기적, 둘뿐입니다.</b> 두 함수의 <code>switch</code> 가지가 한 칸씩 어긋나 있는 모양이라, 게임 쪽 실수로 보입니다.</div>
+  <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
+  <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
+
+  <h2 id="unknown"><span class="n">9</span>확인하지 못한 것</h2>
   <ul>
     <li>게시판이 하루에 몇 칸을 뽑는지 &mdash; <code>TownAverageQuestCount</code> 가 100/30으로 갈리는 플래그의 정체</li>
     <li>대장간 강화가 한 번에 몇 단계를 굴리는지 &mdash; <code>clamp(n+1, 3, 15)</code> 인데 <code>n</code> 의 출처가 비동기 코드 안에 있습니다</li>
     <li>보물금고에서 나오는 아이템 일부 &mdash; 마스터 데이터에 없는 것이 있습니다</li>
+    <li>방어구 강화에서 회피·민첩이 붙는 확률 &mdash; <code>Armor.Craft</code> 는 방어구 종류마다 가지가 갈리는 900줄짜리라 아직 다 못 읽었습니다. 회피(<code>Avoid 253</code>)가 <b>5% 관문 안쪽</b>에 있는 것까지는 확인했습니다</li>
   </ul>
 
   </div>
