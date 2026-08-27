@@ -193,10 +193,37 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <p>낮은 레벨 퀘스트를 아무리 반복해도 평판이 어느 선에서 멈추는 이유입니다. 천장이 <b>5 단위</b>로 올라갑니다.</p>
   <p class="src">Town.MaxReputation · Town.ApplyReputationChange</p>
 
-  <h2 id="board"><span class="n">2</span>게시판에 뜨는 조건</h2>
-  <p><b>등장 주기</b>는 <code>questSpawnInterval</code> 입니다. 값 99는 코드 상수 <code>QUEST_SPAWN_INTERVAL_ONLY_ONCE</code> 와 같아 <b>1회성</b>을 뜻하고, 그 외 값은 클리어 뒤 재등장까지의 대기 일수로 쓰입니다. 게시된 퀘스트는 <code>deadline</code> 이 지나면 사라집니다.</p>
-  <p><b>«한 칸당 몫»은 확률이 아닙니다.</b> 같은 평판대에서 함께 후보가 되는 퀘스트들과 <code>questFrequency</code> 를 나눈 비율입니다 &mdash; 게시판이 한 칸을 뽑을 때 이 퀘스트일 확률이지, 하루에 뜰 확률이 아닙니다. 1회성 퀘스트를 깰수록 경쟁 대상이 줄어 실제로는 표시값보다 좋아집니다.</p>
-  <div class="note warn"><b>하루에 몇 칸이 뽑히는지는 확정하지 못했습니다.</b> 게시판 상한은 <code>GameSettings.TownAverageQuestCount</code> 이고 <code>Town.GetCanAcceptedQuests()</code> 가 목록 길이가 이 값에 닿을 때까지 채웁니다. 그런데 이 값은 실행 중 어떤 플래그에 따라 <b>100 또는 30</b> 으로 갈립니다. 화면에 보이는 개수와도 맞지 않아, 지어낸 «슬롯 수» 입력은 없앴습니다.</div>
+  <h2 id="board"><span class="n">2</span>게시판 &mdash; 칸을 다투지 않습니다</h2>
+  <div class="note"><b>게시판에는 «칸» 이 없습니다.</b> 퀘스트마다 자기 카운터를 하나씩 들고 있고, 그 카운터가 0 이 되면 뜹니다. 서로 자리를 뺏지 않습니다 &mdash; <b>게시판에 이미 잔뜩 걸려 있어도 새 퀘스트가 뜨는 데 아무 지장이 없습니다.</b></div>
+  <p>갱신할 때 도는 것은 <b>아직 안 떠 있는 퀘스트</b>뿐입니다. 이미 게시된 것(<code>Status = NotAccepted</code>)은 아예 건드리지 않습니다. 그래서 «지우고 새로 채우기» 가 아니라 <b>그대로 두고 추가만</b> 하는 쪽입니다.</p>
+  <div class="eq">for (안 떠 있는 퀘스트 하나씩) {
+  if (조건·빈도 판정 실패)  continue;      <i>// 카운터도 안 줄어든다</i>
+  if (!isAddOnly)  카운터 -= 1;
+  if (카운터 &le; 0)  Quest.Start()          <i>// 게시판에 뜬다</i>
+}</div>
+  <h3>내려가는 건 기한이 지날 때뿐</h3>
+  <p>게시된 퀘스트는 <b><code>deadline</code>(분+시+일)이 지나야</b> 내려갑니다. 그때 카운터가 <code>questSpawnInterval</code> 로 <b>리셋되어 처음부터 다시</b> 셉니다 &mdash; 깨서 <code>Finish()</code> 했을 때도 똑같습니다. 그러니 <b>안 받을 퀘스트를 게시판에 오래 묵혀 두는 것 자체는 손해가 아닙니다.</b> 다만 기한이 지나 내려가면 그 퀘스트는 카운터를 처음부터 다시 채워야 합니다.</p>
+  <h3>카운터가 줄려면 빈도 판정을 통과해야 합니다</h3>
+  <p>갱신 한 번에 카운터가 무조건 1 주는 게 아닙니다. <code>Town.CanAcceptQuest()</code> 를 통과해야 하고, 그 마지막 관문이 <b>빈도</b>입니다. <code>Always</code> 는 무조건 통과, 나머지는 <code>GetRandom()</code> 을 <b>두 번</b> 굴려 한 번이라도 자기 빈도와 같으면 통과합니다.</p>
+  <table><thead><tr><th>빈도</th><th class="num">한 번 굴려 나올 확률</th><th class="num">갱신 1회 통과율</th><th class="num">퀘스트 수</th></tr></thead><tbody>
+  <tr><td><b>항상</b> Always</td><td class="num">25%</td><td class="num"><b>100%</b><span class="meta"> (판정 안 함)</span></td><td class="num">554</td></tr>
+  <tr><td><b>자주</b> Usually</td><td class="num">37.5%</td><td class="num">60.9%</td><td class="num">529</td></tr>
+  <tr><td><b>흔히</b> Often</td><td class="num">18.75%</td><td class="num">34.0%</td><td class="num">200</td></tr>
+  <tr><td><b>가끔</b> Sometimes</td><td class="num">9.38%</td><td class="num">17.9%</td><td class="num">62</td></tr>
+  <tr><td><b>이따금</b> Occasionally</td><td class="num">3.52%</td><td class="num">6.9%</td><td class="num">16</td></tr>
+  <tr><td><b>드물게</b> Infrequently</td><td class="num">1.76%</td><td class="num">3.5%</td><td class="num">3</td></tr>
+  <tr><td style="color:var(--faint)">희귀 · 매우 희귀</td><td class="num" style="color:var(--faint)">0.56% · 0.03%</td><td class="num" style="color:var(--faint)">&mdash;</td><td class="num" style="color:var(--faint)">0</td></tr>
+  </tbody></table>
+  <p>그래서 <b>기대 갱신 횟수 = <code>questSpawnInterval</code> ÷ 통과율</b> 입니다. 주기가 3인 «가끔» 퀘스트라면 평균 <b>17번</b> 갱신해야 뜹니다. 주기 분포는 1~12 가 1,098건, <b>99(1회성)가 266건</b>입니다.</p>
+  <h3>갱신이 걸리는 자리</h3>
+  <table><thead><tr><th>언제</th><th>카운터가 주는가</th></tr></thead><tbody>
+  <tr><td><b>의뢰 갱신 버튼</b></td><td>줍니다 <code>isAddOnly = false</code></td></tr>
+  <tr><td><b>일일 로그인 보너스</b></td><td>줍니다</td></tr>
+  <tr><td>모험 결과 화면</td><td>안 줍니다 &mdash; 이미 0 인 것만 띄웁니다</td></tr>
+  <tr><td>지도에서 탐색 의뢰</td><td>안 줍니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>표시 상한 100 은 사실상 안 걸립니다.</b> <code>GetCanAcceptedQuests()</code> 안에 <code>TownAverageQuestCount</code>(100, 어떤 내부 플래그가 켜지면 30) 비교가 있긴 한데, 목록이 그걸 넘어도 <b>그 플래그가 켜져 있을 때만</b> 오래된 것을 건너뜁니다. 평소에는 전부 나옵니다. &mdash; 전에 여기 «목록이 이 값에 닿을 때까지 채운다» 고 적어 뒀던 건 <b>틀린 설명</b>이라 고쳤습니다.</div>
+  <p class="src">Town.UpdateQuests · Town.UpdateQuestStatus · Town.CanAcceptQuest · FrequencyExtensions.GetRandom · Quest.Start · Quest.Finish · Quest.GetStatus</p>
 
   <h2 id="chest"><span class="n">3</span>금고 &mdash; 발견과 해제</h2>
   <p>살아 있는 파티원을 <b>차례로 굴려 한 명만 통과하면 성공</b>입니다. <b>발견</b>과 <b>해제</b> 두 판정을 모두 넘겨야 물건을 얻고, 해제 난이도가 0이면 해제 판정은 건너뜁니다.</p>
@@ -234,7 +261,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   </tbody></table>
   <p class="src">Trap.Detect · Trap.DisarmTrap · TrapMaster 233건 집계</p>
 
-  <h2 id="craft"><span class="n">5</span>강화 &mdash; 추가 공격과 전체 공격</h2>
+  <h2 id="craft"><span class="n">5</span>강화 &mdash; 무기의 추가 공격, 방어구의 회피</h2>
   <p>두 옵션은 마스터 데이터에 없습니다. <b>강화(craft)가 굴립니다.</b> 그리고 결정적인 조건이 있습니다 &mdash; <b>한 번에 5단계 이상 강화될 때만 도는 블록</b> 안에만 들어 있습니다.</p>
   <table><thead><tr><th>옵션</th><th class="num">일반 무기</th><th class="num">마법 무기</th></tr></thead><tbody>
   <tr><td>추가 공격</td><td class="num">5%</td><td class="num">15%</td></tr>
@@ -271,6 +298,23 @@ RunCraft(craftIndex)</div>
 
   <h3>활만 예외입니다</h3>
   <p>강화 단계마다 도는 5% 관문을 통과하면, <code>Weapon.Kind.Bow</code> 는 <b>5단계 조건 없이 추가 공격이 확정</b>으로 붙습니다.</p>
+  <h3>방어구는 규칙이 다릅니다 &mdash; 단계마다 «무엇이 붙는지» 가 정해져 있습니다</h3>
+  <p>무기는 5단계 블록 하나에 몰려 있었지만, <b>방어구는 단계 번호 자체가 조건</b>입니다. <code>RunCraft(n)</code> 은 <code>Craft(i)</code> 를 <b>i = n, n−1, …, 1</b> 로 <b>n번</b> 부릅니다. 그래서 «3단계 강화» 는 i=3, 2, 1 을 한 번씩 지나갑니다.</p>
+  <table><thead><tr><th>언제</th><th>붙는 것</th><th class="num">확률</th></tr></thead><tbody>
+  <tr><td rowspan="2"><b>매 단계</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">방어력이 1 이상인 방어구만</span></td>
+      <td>최소 방어 또는 최대 방어 <b>+1~2</b>, 그리고 방어 <b>+1</b></td><td class="num">확정</td></tr>
+  <tr><td>최대 방어 +1~5 · 방어 +1~4 · <b>회피 +1</b> · 민첩 +2~4 <span class="meta">(한 묶음)</span></td><td class="num"><b>5%</b></td></tr>
+  <tr><td><b>매 단계</b></td><td>민첩 <b>+1~2</b></td><td class="num">확정</td></tr>
+  <tr><td><b>i = 2</b> &mdash; 모든 방어구<br><span class="meta" style="font-size:11.5px;color:var(--faint)">옷은 i = 1 · 3 에서도</span></td><td><b>회피 +1~2</b></td><td class="num"><b>확정</b></td></tr>
+  <tr><td><b>i = 3</b>, 또는 <b>마법 방어구</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)"><code>ability.isMagic</code> &mdash; 311종 중 54종</span></td><td>HP · MP · 마법력 · 마법방어 각각 <b>+ Rand(장비레벨/2) + 1</b></td><td class="num">확정</td></tr>
+  <tr><td><b>i = 5</b> 이고 이미 자동회복이 붙어 있을 때<br><span class="meta" style="font-size:11.5px;color:var(--faint)">데이터상 18종뿐</span></td><td>HP 자동회복 <b>+1</b></td><td class="num">10%</td></tr>
+  <tr><td><b>방패</b> (매 단계)</td><td>방패 방어 +1 <span class="meta">(최소&lt;최대/2 일 때)</span> · <b>방패 회피 +1</b></td><td class="num">확정</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>회피는 «확률» 이 아니라 «2단계 이상이면 붙는 것» 입니다.</b> 무기의 추가 공격처럼 5% 관문 뒤에 숨어 있지 않습니다. 2단계 이상으로 강화되면 회피 +1~2 가 <b>반드시</b> 붙고, 5% 묶음에 걸리면 거기서 +1 이 더 붙습니다. <b>옷은 1·3 단계에서도 붙어서</b>, 3단계 강화면 회피가 세 번(i=3·2·1) 들어갑니다.</div>
+  <p>거꾸로, <b>1단계 강화로는 회피가 5%로만 붙습니다</b> &mdash; 상점 무기·방어구가 대부분 여기입니다(20%로 +1, 5%로 +2). 대장간 다이아 강화는 최소 3단계가 보장되므로 <b>회피는 사실상 딸려 옵니다.</b></p>
+  <p><b>부적은 방어력이 0 이라</b> 위 표의 첫 두 줄(5% 묶음 포함)을 통째로 건너뜁니다. 대신 i=2 의 회피와 매 단계 민첩은 그대로 받습니다.</p>
+  <p class="src">Armor.Craft · Equipment.RunCraft · ArmorMaster.Ability.isMagic</p>
+
   <h3>현실적인 길</h3>
   <p>제작등급 5 이상으로 떨어지는 드랍은 전체 데이터에 <b>10종</b>뿐입니다 &mdash; 도감의 «+5강 이상 드랍» 태그로 걸러집니다. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 인데 Lv2 무기라 실전성은 없습니다.</p>
   <p>그보다 <b>두 옵션이 처음부터 박혀 있는 무기가 39종</b> 있고, 거의 전부 <b>퀘스트 금고</b>에서 나옵니다. <a href="codex.html">도감</a> 아이템 탭의 «전체 공격»(24) / «추가 공격»(15) 체크박스로 찾으세요.</p>
@@ -436,10 +480,8 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 
   <h2 id="unknown"><span class="n">9</span>확인하지 못한 것</h2>
   <ul>
-    <li>게시판이 하루에 몇 칸을 뽑는지 &mdash; <code>TownAverageQuestCount</code> 가 100/30으로 갈리는 플래그의 정체</li>
     <li>대장간 강화가 한 번에 몇 단계를 굴리는지 &mdash; <code>clamp(n+1, 3, 15)</code> 인데 <code>n</code> 의 출처가 비동기 코드 안에 있습니다</li>
     <li>보물금고에서 나오는 아이템 일부 &mdash; 마스터 데이터에 없는 것이 있습니다</li>
-    <li>방어구 강화에서 회피·민첩이 붙는 확률 &mdash; <code>Armor.Craft</code> 는 방어구 종류마다 가지가 갈리는 900줄짜리라 아직 다 못 읽었습니다. 회피(<code>Avoid 253</code>)가 <b>5% 관문 안쪽</b>에 있는 것까지는 확인했습니다</li>
   </ul>
 
   </div>
