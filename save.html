@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>침묵의 기록자 세이브</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --f-lodge:#3F8F63; --f-ware:#C2762E; --f-heal:#BC4F68;
+  --f-vault:#B08A16; --f-forge:#3B7FA8; --f-arch:#7160B8; --f-train:#5A6470;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+    --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+  --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px
+}
+.mast h1{
+  font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
+  margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em
+}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
+}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
+
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--ground);
+  padding:14px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px
+}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
+}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type="search"],select{
+  font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink);min-width:0
+}
+input[type="search"]{flex:1 1 240px}
+.chip{
+  font:inherit;font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex:none}
+.chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
+.filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
+.filebtn:hover{border-color:var(--accent)}
+.filebtn.alt{color:var(--muted)}
+.mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
+  border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
+.hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
+.lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+  border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
+.lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lvin input{-moz-appearance:textfield}
+.lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
+.row.locked{opacity:.62}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+
+.group{margin-top:34px}
+.ghead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ghead h2{
+  font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  color:var(--ink);margin:0;letter-spacing:-.01em
+}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
+
+
+.list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.row{display:grid;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line-soft);
+  cursor:pointer;font-size:13.5px}
+.row:first-child{border-top:0}
+.row:hover,.row.open{background:var(--raised)}
+.nm{min-width:0}
+.nm b{display:block;color:var(--ink);font-weight:600;font-size:14px}
+.nm span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--body);
+  text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.num.dim{color:var(--faint)}
+.num.hi{color:var(--accent);font-weight:600}
+.tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
+  border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
+.t-ret{color:var(--faint)} .t-cur{color:var(--accent)} .t-hurt{color:var(--f-heal)}
+.detail{padding:14px 16px 18px;background:var(--raised);border-top:1px solid var(--line-soft);font-size:13px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px 16px;margin:0 0 4px}
+.dcell dt{font-size:10.5px;color:var(--faint);letter-spacing:.04em}
+.dcell dd{margin:1px 0 0;color:var(--body)}
+.dcell dd.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.blk{margin:14px 0 0;padding:12px 15px;background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;max-width:80ch}
+.blk h4{margin:0 0 8px;font-family:"Gowun Batang",Georgia,serif;font-size:14px;font-weight:700;color:var(--ink)}
+.blk ul{margin:0;padding-left:16px;list-style:none}
+.blk li{position:relative;margin:0 0 5px}
+.blk li::before{content:"·";position:absolute;left:-12px;color:var(--faint)}
+.meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.jobs{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 0}
+.jobs i{font-style:normal;font-size:11.5px;font-family:"IBM Plex Mono",monospace;
+  border:1px solid var(--line);border-radius:99px;padding:1px 9px;color:var(--body);background:var(--surface)}
+.jobs i.cur{border-color:var(--accent);color:var(--accent);font-weight:600}
+.jobs i.zero{color:var(--faint);opacity:.6}
+.empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
+.group{margin:28px 0 0}
+.ghead{display:flex;align-items:baseline;gap:10px;margin:0 0 9px;flex-wrap:wrap}
+.ghead h2{font-family:"Gowun Batang",Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin:0}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:26px 20px;text-align:center;
+  background:var(--surface);margin:0 0 18px}
+.drop h3{margin:0 0 6px;font-family:"Gowun Batang",Georgia,serif;font-size:18px;color:var(--ink)}
+.drop p{margin:0 0 14px;font-size:13px;color:var(--muted)}
+.drop .btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.card{border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  padding:14px 16px;margin:0 0 12px;box-shadow:var(--shadow)}
+.card h3{margin:0 0 10px;font-family:"Gowun Batang",Georgia,serif;font-size:15px;color:var(--ink)}
+.warn{border-left:3px solid var(--f-heal)}
+.ok{border-left:3px solid var(--f-lodge)}
+
+.gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  background:var(--ground);padding:24px}
+.gatebox{max-width:420px;text-align:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:32px 28px;box-shadow:var(--shadow)}
+.gatebox h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
+  color:var(--ink);margin:0 0 10px}
+.gatebox p{margin:0 0 16px;font-size:14px;color:var(--muted)}
+.gatebox button{font:inherit;font-size:14px;font-weight:500;padding:10px 22px;
+  border:1px solid var(--accent);border-radius:99px;background:var(--accent);
+  color:var(--on-accent,#fff);cursor:pointer}
+.gatebox button:hover{filter:brightness(1.08)}
+.gatenote{font-size:12px!important;color:var(--faint)!important;margin:16px 0 0!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a><a class="here" href="save.html">내 세이브</a><a href="notes.html">원리</a>
+  </nav>
+  <header class="mast">
+    <p class="eyebrow">The Silent Archivist &middot; 내 기록</p>
+    <h1>세이브 넣기</h1>
+    <p class="lede">여기 한 번 넣으면 <b>모든 페이지가 같은 세이브를 봅니다</b> &mdash; 퀘스트 진행도, 시설 레벨, 도시별 주점·상점, 그리고 용병 현황까지. <b>복호화는 이 브라우저 안에서만</b> 일어나고 파일은 어디로도 전송되지 않습니다.</p>
+    <div class="stats">
+      <div class="stat"><b id="s-q">–</b><span>깬 퀘스트</span></div>
+      <div class="stat"><b id="s-c">–</b><span>활동 용병</span></div>
+      <div class="stat"><b id="s-r">–</b><span>은퇴</span></div>
+      <div class="stat"><b id="s-m">–</b><span>광산 레벨</span></div>
+      <div class="stat"><b id="s-g">–</b><span>하루 골드</span></div>
+    </div>
+  </header>
+
+  <div class="drop" id="drop">
+    <h3>세이브 폴더를 고르세요</h3>
+    <p><code>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</code> 로 받은 <b><code>files</code> 폴더를 통째로</b> 고르시면 됩니다. <a href="guide.html">받는 방법</a></p>
+    <div class="btns">
+      <label class="filebtn">폴더 열기<input type="file" id="savein" webkitdirectory directory multiple hidden></label>
+      <label class="filebtn alt">파일로 고르기<input type="file" id="savein2" multiple accept=".data" hidden></label>
+      <button type="button" id="saveclear" class="mini" hidden>불러온 세이브 지우기</button>
+    </div>
+    <p class="meta" id="savemsg" style="margin:12px 0 0"></p>
+  </div>
+
+  <div class="card" id="vercard" hidden><h3>판번호</h3><p class="meta" id="vermsg"></p></div>
+  <div class="card" id="cloudcard"><h3>클라우드</h3>
+    <p class="meta" id="cloudmsg" style="margin:0 0 10px">확인 중…</p>
+    <div class="btns" style="display:flex;gap:8px;flex-wrap:wrap">
+      <button type="button" id="cloudup" class="mini">올리기</button>
+      <button type="button" id="clouddown" class="mini">받기</button>
+      <button type="button" id="cloudlogin" class="mini" hidden>로그인</button>
+    </div>
+  </div>
+
+  <div class="bar" id="crewbar" hidden>
+    <div class="bar-row">
+      <div class="seg" role="group" aria-label="보기 전환">
+        <button id="v-act" type="button" aria-pressed="true">활동 중</button>
+        <button id="v-ret" type="button" aria-pressed="false">은퇴</button>
+      </div>
+      <input type="search" id="q" placeholder="이름 · 직업 · 장비 검색" aria-label="검색">
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <main id="out"></main>
+
+  <footer class="foot">
+    <p>세이브는 AES-256-CBC 로 암호화돼 있고, 이 페이지가 브라우저 안에서 <code>crypto.subtle</code> 로 풉니다. 결과는 이 브라우저의 저장소에만 남습니다 &mdash; 클라우드에 올리는 것은 <b>본인 계정으로만</b> 읽히고, 원본 파일은 올라가지 않습니다.</p>
+    <p>용병의 «전 직업 레벨 합»이 경험치 요구량을 <code>1.05^합</code> 배로 올립니다 &mdash; <a href="notes.html#job">원리</a>에 식이 있습니다.</p>
+  </footer>
+</div>
+
+<script>
+/* ── 세이브 직접 읽기 ────────────────────────────────────────────────
+   PC·서버 없이 브라우저에서 세이브를 복호화한다. 게임 바이너리에서 확인한 규격:
+     [1]magic길이 [n]"Model_20240322" [4]version [4]평문길이
+     [16]IV [32]salt [16]MD5 [..]AES-256-CBC/PKCS7
+     key = PBKDF2-SHA1(pw, salt, 50회, 32바이트)
+   평문은 .NET BinaryFormatter. Quest 의 직렬화 순서는
+     startedAt endedAt addLevel masterName status
+     daysUntilAvailable displayPriority clearCount gotKeys memo iconNo
+   결과는 localStorage 에만 남고 어디로도 전송되지 않는다.                */
+(function () {
+  "use strict";
+  var PW = "78nA1_IJKf_ZOUn1I8_KeM0";
+  var SKEY = "tsa.save.v1";
+  var TD = new TextDecoder("utf-8");
+
+  function bytesOf(s) {
+    var a = new Uint8Array(s.length);
+    for (var i = 0; i < s.length; i++) a[i] = s.charCodeAt(i);
+    return a;
+  }
+
+  async function aesKey(salt) {
+    var base = await crypto.subtle.importKey("raw", bytesOf(PW), "PBKDF2", false, ["deriveBits"]);
+    var bits = await crypto.subtle.deriveBits(
+      { name: "PBKDF2", hash: "SHA-1", salt: salt, iterations: 50 }, base, 256);
+    return crypto.subtle.importKey("raw", bits, { name: "AES-CBC" }, false, ["decrypt"]);
+  }
+
+  async function decrypt(buf) {
+    var b = new Uint8Array(buf);
+    var n = b[0];
+    if (TD.decode(b.subarray(1, 1 + n)) !== "Model_20240322") throw new Error("magic 불일치");
+    var declared = new DataView(b.buffer, b.byteOffset).getUint32(1 + n + 4, true);
+    var body = b.subarray(1 + n + 8);
+    // subarray 는 원본 버퍼 위의 뷰다. WebCrypto 에 넘기기 전에 잘라낸 사본을 만든다.
+    var iv = body.slice(0, 16);
+    var salt = body.slice(16, 48);
+    var ct = body.slice(64);
+    var pt = await crypto.subtle.decrypt({ name: "AES-CBC", iv: iv }, await aesKey(salt), ct);
+    if (pt.byteLength !== declared) throw new Error("길이 불일치 " + pt.byteLength + "/" + declared);
+    return new Uint8Array(pt);
+  }
+
+  /* ── NRBF 최소 파서 ── */
+  function rstr(b, i) {
+    var n = 0, sh = 0, c;
+    do { c = b[i++]; n |= (c & 0x7f) << sh; sh += 7; } while (c & 0x80);
+    return [TD.decode(b.subarray(i, i + n)), i + n];
+  }
+
+  function skipStatus(b, dv, i) {
+    var tag = b[i];
+    if (tag === 1) { i += 9; return [dv.getInt32(i, true), i + 4]; }          // ClassWithId
+    if (tag === 5) {                                                          // ClassWithMembersAndTypes
+      i += 5;
+      i = rstr(b, i)[1];
+      var cnt = dv.getInt32(i, true); i += 4;
+      for (var k = 0; k < cnt; k++) i = rstr(b, i)[1];
+      var types = b.subarray(i, i + cnt); i += cnt;
+      for (var t = 0; t < cnt; t++) {
+        var ty = types[t];
+        if (ty === 0 || ty === 7) i += 1;
+        else if (ty === 3) i = rstr(b, i)[1];
+        else if (ty === 4 || ty === 5) i = rstr(b, i)[1] + 4;
+      }
+      i += 4;                                                                 // libraryId
+      return [dv.getInt32(i, true), i + 4];
+    }
+    throw new Error("status 태그 " + tag);
+  }
+
+  function extract(pt, valid, into) {
+    var dv = new DataView(pt.buffer, pt.byteOffset, pt.byteLength);
+    var n = pt.length, i = 0, hit = 0;
+    while (i < n - 6) {
+      if (pt[i] === 6) {
+        var r = null;
+        try { r = rstr(pt, i + 5); } catch (e) { r = null; }
+        if (r && valid[r[0]] === 1) {
+          try {
+            var st = skipStatus(pt, dv, r[1]);
+            var j = st[1];
+            var clear = dv.getInt32(j + 8, true);
+            var add = i >= 4 ? dv.getInt32(i - 4, true) : 0;
+            if (!(add >= 0 && add <= 20)) add = 0;
+            var prev = into[r[0]];
+            if (!prev || clear > prev.clear) {
+              into[r[0]] = { clear: clear, status: st[0], add: add };
+              hit++;
+            }
+          } catch (e) { /* 레코드 하나 실패는 무시 */ }
+        }
+      }
+      i++;
+    }
+    return hit;
+  }
+
+  /* GameData 세이브의 시설 레벨.
+     Building 레코드에서 우리가 원하는 «도시에 속하지 않은» 6개는
+     name / townMasterName / buildingMasterName 이 셋 다 null 이라
+     본문이 0a 0a 0a 로 시작한다. 그 뒤가
+
+       [4]level  09+[4]ref  09+[4]ref  01+[4]oid+[4]clsId  [4]kind  [8]lastActionTime
+
+     이다. kind 는 QuestMaster 의 upgradeableBuildingKind 와 같은 열거값이라
+     퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
+  /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
+     게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
+  var DATA_VERSION = 6061;
+
+  var TKIND = { 1: "주점", 2: "무기상점", 3: "방어구상점" };
+  var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };
+
+  /* 도시 건물(주점·상점)과 훈련소는 이름이 채워져 있어 앞이 0a0a0a 가 아니다.
+     세 모양을 다 받는다:
+       0a 0a 0a                    전역 시설(창고·숙소…)
+       0a 06<도시이름> 0a           도시 건물(주점·무기상·방어구상)
+       0a 0a 06<직업이름>           직업 훈련소                         */
+  function readLen(b, i) {                      // NRBF 가변길이
+    var n = 0, sh = 0, c, j = i;
+    do { c = b[j++]; n |= (c & 0x7f) << sh; sh += 7; } while (c & 0x80);
+    return [n, j];
+  }
+  function readStr(b, i) {                      // [06][oid:4][가변길이][utf8]
+    if (b[i] !== 0x06) return null;
+    var r = readLen(b, i + 5), n = r[0], j = r[1];
+    if (n < 1 || n > 64) return null;
+    return { s: TD.decode(b.subarray(j, j + n)), end: j + n };
+  }
+  /* kind 는 열거값이라 ClassWithId(0x01)로 오는데, 그 클래스가 처음 나오는
+     자리에서는 정의째로(0x05) 실린다. 정의를 건너뛰지 않으면 첫 건물 하나를
+     통째로 놓친다 — 실제로 도시마다 주점이 빠져 있었다. */
+  function skipKindHeader(b, dv, j) {
+    if (b[j] === 0x01) return j + 9;
+    if (b[j] !== 0x05) return -1;
+    j += 5;                                     // 태그 + objectId
+    var r = readLen(b, j); j = r[1] + r[0];     // 클래스 이름
+    var cnt = dv.getInt32(j, true); j += 4;
+    if (cnt < 1 || cnt > 8) return -1;
+    for (var k = 0; k < cnt; k++) { r = readLen(b, j); j = r[1] + r[0]; }
+    var types = b.subarray(j, j + cnt); j += cnt;
+    for (var t = 0; t < cnt; t++) {
+      var v = types[t];
+      if (v === 0 || v === 7) j += 1;           // Primitive / PrimitiveArray
+      else if (v === 3) { r = readLen(b, j); j = r[1] + r[0]; }
+      else if (v === 4 || v === 5) { r = readLen(b, j); j = r[1] + r[0] + 4; }
+    }
+    return j + 4;                               // libraryId
+  }
+  function extractBuildings(plain, into) {
+    // decrypt() 는 Uint8Array 를 준다. DataView 는 ArrayBuffer 를 받으므로
+    // 뷰의 버퍼와 오프셋을 그대로 넘긴다 — plain 을 바로 넣으면 던진다.
+    var b = plain instanceof Uint8Array ? plain : new Uint8Array(plain);
+    var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+    var n = b.length, hit = 0;
+    for (var i = 0; i + 30 < n; i++) {
+      if (b[i] !== 0x0a) continue;              // name 은 언제나 null
+      var j = i + 1, town = "", master = "";
+      var r = readStr(b, j);
+      if (r) { town = r.s; j = r.end; }
+      else if (b[j] === 0x0a) j++;
+      else continue;
+      var r2 = readStr(b, j);
+      if (r2) { master = r2.s; j = r2.end; }
+      else if (b[j] === 0x0a) j++;
+      else continue;
+      if (j + 24 > n) continue;
+      var level = dv.getInt32(j, true); j += 4;
+      if (level < 0 || level > 99) continue;
+      if (b[j] !== 0x09) continue; j += 5;              // readCollectInfoMasters
+      if (b[j] !== 0x09) continue; j += 5;              // monsterLibraryEntries
+      j = skipKindHeader(b, dv, j);                    // kind
+      if (j < 0 || j + 4 > n) continue;
+      var kind = dv.getInt32(j, true);
+      if (kind >= 30 && kind <= 35) {                   // 전역 시설
+        if (town || master) continue;
+        into[BKIND[kind]] = level; hit++;
+      } else if (kind >= 1 && kind <= 3 && town) {      // 도시 건물
+        (into.towns = into.towns || {});
+        (into.towns[town] = into.towns[town] || {})[TKIND[kind]] = level; hit++;
+      } else if (kind === 200 && master) {              // 훈련소
+        (into.halls = into.halls || {})[master] = level; hit++;
+      }
+    }
+    return hit;
+  }
+
+  /* GameData 의 currentVersion. userId(GUID 36자) 레코드 바로 뒤가
+       [1]isSpecialUser [8]lastAdTapTime [4]currentVersion 이다. */
+  var CV = [0x63,0x75,0x72,0x72,0x65,0x6e,0x74,0x56,0x65,0x72,0x73,0x69,0x6f,0x6e]; // "currentVersion"
+  function hasBytes(b, pat) {
+    outer: for (var i = 0; i + pat.length <= b.length; i++) {
+      for (var k = 0; k < pat.length; k++) if (b[i + k] !== pat[k]) continue outer;
+      return true;
+    }
+    return false;
+  }
+  function extractVersion(plain) {
+    var b = plain instanceof Uint8Array ? plain : new Uint8Array(plain);
+    // GameData 말고 다른 세이브에도 GUID 는 있다. 클래스 정의에 currentVersion 이
+    // 들어 있는 파일만 본다 — 안 그러면 엉뚱한 숫자를 판번호로 읽는다.
+    if (!hasBytes(b, CV)) return 0;
+    var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
+    for (var i = 0; i + 60 < b.length; i++) {
+      if (b[i] !== 0x06 || b[i + 5] !== 0x24) continue;      // BinaryObjectString, 길이 36
+      var ok = true, j = i + 6;
+      for (var k = 0; k < 36 && ok; k++) {
+        var c = b[j + k];
+        var hex = (c >= 48 && c <= 57) || (c >= 97 && c <= 102);
+        ok = (k === 8 || k === 13 || k === 18 || k === 23) ? c === 45 : hex;
+      }
+      if (!ok) continue;
+      var v = dv.getInt32(j + 36 + 9, true);
+      if (v > 0 && v < 1000000) return v;
+    }
+    return 0;
+  }
+
+  function validSet() {
+    var v = {}, ids = window.TSA_QUEST_IDS || [];
+    for (var i = 0; i < ids.length; i++) v[ids[i]] = 1;
+    return v;
+  }
+
+  /* ── 일반 NRBF 파서 ───────────────────────────────────────────────
+     위의 스캔들은 «찾는 값 주변만» 훑는 방식이라 용병 정보처럼 참조가
+     얽힌 구조는 못 읽는다. Character / Equipment 는 제대로 파싱한다.
+     기록 종류는 세이브에 실제로 나오는 것만 다룬다. */
+  var PRIM = { 1:["b",1], 2:["B",1], 3:["B",1], 6:["d",8], 7:["h",2], 8:["i",4],
+               9:["q",8], 10:["b",1], 11:["f",4], 12:["q",8], 13:["q",8],
+               14:["H",2], 15:["I",4], 16:["Q",8] };
+
+  function Reader(buf){
+    this.b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+    this.dv = new DataView(this.b.buffer, this.b.byteOffset, this.b.byteLength);
+    this.i = 0; this.cls = {}; this.obj = {};
+  }
+  Reader.prototype.len = function(){
+    var n=0, sh=0, c;
+    do { c = this.b[this.i++]; n |= (c & 0x7f) << sh; sh += 7; } while (c & 0x80);
+    return n;
+  };
+  Reader.prototype.str = function(){ var n=this.len(), s=TD.decode(this.b.subarray(this.i,this.i+n)); this.i+=n; return s; };
+  Reader.prototype.prim = function(pt){
+    if (pt === 18) return this.str();
+    if (pt === 17) { var n=this.dv.getInt32(this.i,true); this.i+=4+n; return null; }
+    var f = PRIM[pt]; if (!f) throw new Error("primitive " + pt);
+    var i = this.i; this.i += f[1];
+    switch (f[0]) {
+      case "b": return this.dv.getInt8(i);
+      case "B": return this.dv.getUint8(i);
+      case "?": return !!this.dv.getUint8(i);
+      case "h": return this.dv.getInt16(i,true);
+      case "H": return this.dv.getUint16(i,true);
+      case "i": return this.dv.getInt32(i,true);
+      case "I": return this.dv.getUint32(i,true);
+      case "f": return this.dv.getFloat32(i,true);
+      case "d": return this.dv.getFloat64(i,true);
+      default:  return Number(this.dv.getBigInt64(i,true));   // q / Q — 정확도는 필요 없다
+    }
+  };
+  Reader.prototype.typeInfo = function(cnt){
+    var ts = Array.prototype.slice.call(this.b.subarray(this.i, this.i+cnt)); this.i += cnt;
+    var ai = [];
+    for (var k=0;k<cnt;k++){
+      var t = ts[k];
+      if (t===0 || t===7) ai.push(this.b[this.i++]);
+      else if (t===3) ai.push(this.str());
+      else if (t===4 || t===5) { ai.push(this.str()); this.i += 4; }
+      else ai.push(null);
+    }
+    return [ts, ai];
+  };
+  Reader.prototype.members = function(nm, mem, ts, ai){
+    var o = { __: nm };
+    for (var k=0;k<mem.length;k++) o[mem[k]] = ts[k]===0 ? this.prim(ai[k]) : this.rec();
+    return o;
+  };
+  Reader.prototype.rec = function(){
+    var t = this.b[this.i], oid, v, k;
+    if (t === 0x01) {                                   // ClassWithId
+      this.i++; oid = this.dv.getInt32(this.i,true);
+      var mid = this.dv.getInt32(this.i+4,true); this.i += 8;
+      var c = this.cls[mid]; if (!c) throw new Error("class " + mid);
+      v = this.members(c[0], c[1], c[2], c[3]); this.obj[oid] = v; return v;
+    }
+    if (t === 0x04 || t === 0x05) {                     // 클래스 정의 + 값
+      this.i++; oid = this.dv.getInt32(this.i,true); this.i += 4;
+      var nm = this.str();
+      var cnt = this.dv.getInt32(this.i,true); this.i += 4;
+      var mem = []; for (k=0;k<cnt;k++) mem.push(this.str());
+      var ti = this.typeInfo(cnt);
+      if (t === 0x05) this.i += 4;                      // libraryId
+      this.cls[oid] = [nm, mem, ti[0], ti[1]];
+      v = this.members(nm, mem, ti[0], ti[1]); this.obj[oid] = v; return v;
+    }
+    if (t === 0x06) { this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4; v=this.str(); this.obj[oid]=v; return v; }
+    if (t === 0x09) { this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4; return {__ref:oid}; }
+    if (t === 0x0a) { this.i++; return null; }
+    if (t === 0x0d) { this.i++; return {__nulls:this.b[this.i++]}; }
+    if (t === 0x0c) { this.i++; this.i+=4; this.str(); return this.rec(); }   // BinaryLibrary
+    if (t === 0x0f) {                                   // ArraySinglePrimitive
+      this.i++; oid=this.dv.getInt32(this.i,true); var ln=this.dv.getInt32(this.i+4,true); this.i+=8;
+      var pt=this.b[this.i++]; v=[]; for (k=0;k<ln;k++) v.push(this.prim(pt));
+      this.obj[oid]=v; return v;
+    }
+    if (t === 0x10 || t === 0x11) {                     // ArraySingleObject / String
+      this.i++; oid=this.dv.getInt32(this.i,true); ln=this.dv.getInt32(this.i+4,true); this.i+=8;
+      v=[]; while (v.length < ln) { var x=this.rec();
+        if (x && x.__nulls) { for (k=0;k<x.__nulls;k++) v.push(null); } else v.push(x); }
+      this.obj[oid]=v; return v;
+    }
+    if (t === 0x07) {                                   // BinaryArray
+      this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4;
+      var at=this.b[this.i++]; var rank=this.dv.getInt32(this.i,true); this.i+=4;
+      var lens=[], n=1;
+      for (k=0;k<rank;k++){ lens.push(this.dv.getInt32(this.i,true)); this.i+=4; }
+      if (at===3||at===4||at===5) this.i += 4*rank;
+      var ti2=this.typeInfo(1);
+      for (k=0;k<rank;k++) n *= lens[k];
+      v=[]; while (v.length < n) {
+        if (ti2[0][0]===0) { v.push(this.prim(ti2[1][0])); continue; }
+        var y=this.rec();
+        if (y && y.__nulls) { for (k=0;k<y.__nulls;k++) v.push(null); } else v.push(y);
+      }
+      this.obj[oid]=v; return v;
+    }
+    throw new Error("record 0x" + t.toString(16) + " @" + this.i);
+  };
+
+  function parseNrbf(plain){
+    var r = new Reader(plain);
+    // 앞에 게임이 붙인 바이트가 있다. 첫 BinaryLibrary(0x0c) 레코드부터 읽는다.
+    var b = r.b, start = -1;
+    for (var i=0;i+5<b.length;i++)
+      if (b[i]===0x0c && b[i+1]===0x02 && b[i+2]===0 && b[i+3]===0 && b[i+4]===0) { start=i; break; }
+    r.i = start >= 0 ? start : 17;
+    var root = null;
+    while (r.i < b.length && b[r.i] !== 0x0b) {
+      var v = r.rec();
+      if (!root && v && v.__) root = v;
+    }
+    return { root: root, obj: r.obj };
+  }
+  function deref(p, x){ return (x && x.__ref !== undefined) ? p.obj[x.__ref] : x; }
+  function listOf(p, x){
+    var l = deref(p, x);
+    if (!l || l._items === undefined) return [];
+    var arr = deref(p, l._items) || [];
+    return arr.slice(0, l._size || 0).map(function(e){ return deref(p, e); });
+  }
+  function assetId(s){ return s ? String(s).split("/").pop().replace(/\.asset$/, "") : ""; }
+
+  /* ── 용병 · 장비 ─────────────────────────────────────────────────
+     Character 세이브 하나가 용병 하나다. 직업은 List<Job>, 장비는
+     equipEquipIds(문자열 목록) 로 Equipment 세이브를 가리킨다. */
+  var CSTAT = ["maxHp","maxMp","power","physicalStrength","magicPower",
+               "agility","dexterity","insight"];
+  var CSTAT_KO = ["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
+  var PERSONALITY = ["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
+  var CSTATUS = { 0:"미고용", 1:"대기", 2:"모험 중", 3:"부상", 6:"은퇴" };
+
+  function enumVal(p, x){ var v = deref(p, x); return (v && v.value__ !== undefined) ? v.value__ : null; }
+
+  function readCharacter(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "Character") return null;
+    var jobs = listOf(p, R.jobs).map(function(j){
+      return { i: assetId(deref(p, j.assetName) || deref(p, j["Model+assetName"])),
+               lv: j.level || 0, cur: !!j.isCurrent };
+    }).filter(function(j){ return j.i; });
+    var ab = {};
+    for (var k=0;k<CSTAT.length;k++) ab[CSTAT_KO[k]] = R[CSTAT[k]] || 0;
+    var st = enumVal(p, R.status);
+    var main = null, sum = 0;
+    jobs.forEach(function(j){ sum += j.lv; if (j.cur) main = j; });
+    return {
+      id: deref(p, R["Model+id"]) || "",
+      n: String(deref(p, R.name) || "").replace(/<[^>]*>/g, ""),
+      race: assetId(deref(p, R.assetName)),
+      st: st, stn: CSTATUS[st] || ("상태 " + st),
+      pers: PERSONALITY[enumVal(p, R.personality)] || "",
+      hp: R.hp || 0, mp: R.mp || 0, ab: ab,
+      jobs: jobs.sort(function(a,b){ return b.lv - a.lv; }),
+      main: main ? main.i : "", mainLv: main ? main.lv : 0,
+      sum: sum,                                   // 전 직업 레벨 합 — 경험치 계수의 그 값
+      eq: listOf(p, R.equipEquipIds).map(function(x){ return deref(p, x); }).filter(Boolean),
+      lock: !!R.isLock
+    };
+  }
+
+  /* 화면의 «+N». Enhancement.AddPoint() 를 그대로 옮겼다 —
+     값이 클수록, 흡수·속성 같은 특별한 종류일수록 점수가 크고,
+     요구 근력이 오르는 등 대가는 −1 이다. */
+  function addPoint(kind, val){
+    var pt;
+    if (val >= 1) {
+      pt = val >= 6 ? (val >= 11 ? 3 : 2) : 1;
+      if ((kind - 300) >>> 0 < 2 || kind === 230) pt += 1;   // 화염·냉기·HP 자동회복
+      if ((kind - 152) >>> 0 < 3 || kind === 231) pt += 2;   // 추가공격·흡수계·MP 자동회복
+    } else {
+      pt = val !== 0 ? -1 : 0;
+    }
+    if (kind === 181) pt += 4;                               // 전체 공격
+    if (kind === 180) pt += 2;                               // 후열 포함
+    return pt;
+  }
+
+  function readEquipment(plain, fileName){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || !R["Equipment+assetName"]) return null;
+    // kind 는 열거라 객체로 온다 — 그냥 비교하면 늘 거짓이다.
+    var enh = listOf(p, R.enhancements).map(function(e){
+      return { k: enumVal(p, e.kind), v: e.value };
+    });
+    var plus = 0;
+    enh.forEach(function(e){ plus += addPoint(e.k, e.v); });
+    // ★ 캐릭터의 equipEquipIds 는 «파일 이름» 을 가리킨다. Model+id 가 아니다.
+    return { id: String(fileName || "").replace(/\.data$/i, ""),
+             i: assetId(deref(p, R["Equipment+assetName"])),
+             enh: enh, plus: plus, crafted: !!R.isCrafted };
+  }
+
+  window.TSA_SAVE = {
+    load: function () {
+      try { return JSON.parse(localStorage.getItem(SKEY) || "null"); } catch (e) { return null; }
+    },
+    clear: function () { try { localStorage.removeItem(SKEY); } catch (e) { } },
+    _decrypt: decrypt,                       // 검증용
+    _extract: extract,
+    _buildings: extractBuildings,
+    _version: extractVersion,
+    _char: readCharacter,
+    _equip: readEquipment,
+    _nrbf: parseNrbf,
+    DATA_VERSION: DATA_VERSION,
+    ingest: async function (files, onProgress) {
+      var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
+      var chars = [], equips = {};
+      for (var i = 0; i < files.length; i++) {
+        var f = files[i];
+        if (!/\.data$/i.test(f.name)) continue;
+        try {
+          var plain = await decrypt(await f.arrayBuffer());
+          extract(plain, valid, into);
+          ok++;
+          // 시설은 GameData 파일에서만 나온다. 여기서 터져도 퀘스트는 이미 읽었으니
+          // 따로 감싼다 — 한때 이게 없어서 전 파일이 «실패» 로 넘어갔다.
+          try { extractBuildings(plain, blds); } catch (e2) { }
+          if (!ver) { try { ver = extractVersion(plain); } catch (e3) { } }
+          // 용병·장비는 파일 이름이 아니라 내용으로 가른다 — 폴더 구조에 안 기댄다
+          try {
+            var c = readCharacter(plain);
+            if (c) chars.push(c);
+            else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+          } catch (e4) { }
+        } catch (e) {
+          bad++;
+          if (errs.length < 3) errs.push(f.name + ": " + e.message);
+        }
+        if (onProgress && i % 25 === 0) onProgress(i + 1, files.length);
+      }
+      var payload = {
+        at: new Date().toISOString().slice(0, 16).replace("T", " "),
+        q: into, files: ok
+      };
+      try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
+      // 용병·장비는 따로 둔다. 퀘스트 진행도(SKEY)보다 크고, 쓰는 페이지도 다르다.
+      try {
+        localStorage.setItem("tsa.crew.v1", JSON.stringify(
+          { at: payload.at, ver: ver, chars: chars, equips: equips }));
+      } catch (e) { }
+      return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
+               payload: payload, buildings: blds,
+               version: ver, dataVersion: DATA_VERSION,
+               chars: chars, equips: equips };
+    }
+  };
+})();
+</script>
+
+<script>
+window.__TSA_BOOT=function(D){
+"use strict";
+
+var el=function(id){return document.getElementById(id)};
+var JOB={}; D.jobs.forEach(function(j){ JOB[j.i]=j; });
+var GEAR=D.gear||{};
+var RACE={}; D.races.forEach(function(r){ RACE[r.i]=r; });
+var state={view:"act",q:""};
+var CREW=null;
+try{ CREW=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
+function jobName(i){ return (JOB[i]&&JOB[i].n)||i; }
+function gearOf(id){
+  var e=CREW&&CREW.equips?CREW.equips[id]:null;
+  if(!e) return null;
+  var g=GEAR[e.i]||{n:e.i,k:"?",lv:0,c:""};
+  return { n:g.n, k:g.k, lv:g.lv, c:g.c, plus:e.plus, enh:e.enh };
+}
+
+/* 광산 레벨 — 은퇴자를 최고 직업 레벨 순 상위 20명만 세어 계단에 대입한다.
+   자세한 식은 원리 페이지에 있다. */
+function mineLevel(ret){
+  var sum=ret.map(function(c){ return c.jobs.length?c.jobs[0].lv:0; })
+             .sort(function(a,b){return b-a;}).slice(0,20)
+             .reduce(function(a,b){return a+b;},0);
+  if(sum<5) return {lv:1,sum:sum};
+  var lv=1, need=5, rem=sum;
+  while(true){ rem-=need; need+=5; lv+=1; if(rem<need) break; }
+  return {lv:lv, sum:sum};
+}
+function expBonus(ret, myLv){
+  var n=ret.filter(function(c){ return (c.jobs.length?c.jobs[0].lv:0) > myLv; }).length;
+  return { n:n, pct:Math.min(n*5,100) };
+}
+
+function paint(){
+  var S=null; try{ S=window.TSA_SAVE.load(); }catch(e){}
+  el("s-q").textContent = S&&S.q ? Object.keys(S.q).filter(function(k){return S.q[k].clear>0}).length : "–";
+  if(!CREW||!CREW.chars){ el("crewbar").hidden=true; el("out").innerHTML=""; return; }
+  var act=CREW.chars.filter(function(c){ return c.st!==6; });
+  var ret=CREW.chars.filter(function(c){ return c.st===6; });
+  var m=mineLevel(ret);
+  el("s-c").textContent=act.length;
+  el("s-r").textContent=ret.length;
+  el("s-m").textContent=m.lv;
+  el("s-g").textContent=(m.lv*200).toLocaleString();
+  el("crewbar").hidden=false;
+  render();
+}
+
+function crewRow(c, ret){
+  var eb = ret ? null : expBonus(RET, c.mainLv);
+  var top=c.jobs.slice(0,3).map(function(j){ return jobName(j.i)+" "+j.lv; }).join(" · ");
+  return '<div class="row" data-i="'+esc(c.id)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 150px 74px 66px">'
+    +'<span class="nm"><b>'+(c.st===3?'<em class="tag t-hurt">부상</em>':"")
+      +(c.st===6?'<em class="tag t-ret">은퇴</em>':"")+esc(c.n||"(이름 없음)")+'</b>'
+    +'<span>'+esc((RACE[c.race]?RACE[c.race].race:c.race)+" · "+c.pers+" · "+top)+'</span></span>'
+    +'<span class="num dim">'+esc(c.main?jobName(c.main):"직업 없음")+'</span>'
+    +'<span class="num hi">Lv'+c.mainLv+'</span>'
+    +'<span class="num dim" title="전 직업 레벨 합 — 경험치가 이만큼 비싸진다">합 '+c.sum+'</span></div>';
+}
+function crewDetail(c){
+  var ab=Object.keys(c.ab).map(function(k){
+    return '<div class="dcell"><dt>'+esc(k)+'</dt><dd class="mono">'+c.ab[k]+'</dd></div>'; }).join("");
+  var jobs='<div class="blk"><h4>직업 '+c.jobs.length+'개 · 레벨 합 '+c.sum+'</h4><div class="jobs">'
+    + c.jobs.map(function(j){
+        return '<i class="'+(j.cur?"cur":(j.lv?"":"zero"))+'">'+esc(jobName(j.i))+' '+j.lv+'</i>'; }).join("")
+    + '</div><span class="meta">경험치 요구량은 <b>1.05<sup>'+c.sum+'</sup> = '
+    + Math.pow(1.05,c.sum).toFixed(c.sum>120?0:1)+'배</b> 입니다 — 다른 직업 레벨 1점마다 5%씩 붙습니다.</span></div>';
+  var gs=c.eq.map(gearOf).filter(Boolean);
+  var gear = gs.length ? '<div class="blk"><h4>장비 '+gs.length+'개</h4><ul>'+gs.map(function(g){
+      return '<li><b>'+esc(g.n)+(g.plus?'<span style="color:var(--accent)"> +'+g.plus+'</span>':"")+'</b>'
+        +'<span class="meta"> — '+esc(g.k)+' · Lv'+g.lv+(g.enh.length?' · 강화 '+g.enh.length+'줄':"")+'</span></li>';
+    }).join("")+'</ul></div>' : '<div class="blk"><h4>장비</h4><span class="meta">없습니다</span></div>';
+  var eb = c.st===6 ? "" : (function(){
+    var e=expBonus(RET, c.mainLv);
+    return '<div class="blk"><h4>은퇴자 경험치 보너스</h4><span class="meta">내 레벨('+c.mainLv
+      +')보다 높은 은퇴자 <b>'+e.n+'명</b> → <b>+'+e.pct+'%</b>'
+      +(e.pct>=100?' (상한)':' — 20명이면 상한 +100%')+'</span></div>'; })();
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>상태</dt><dd>'+esc(c.stn)+'</dd></div>'
+    +'<div class="dcell"><dt>종족</dt><dd>'+esc(RACE[c.race]?RACE[c.race].race:c.race)+'</dd></div>'
+    +'<div class="dcell"><dt>성격</dt><dd>'+esc(c.pers||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>HP / MP</dt><dd class="mono">'+c.hp+' / '+c.mp+'</dd></div>'
+    + ab + '</dl>' + jobs + gear + eb + '</div>';
+}
+
+var RET=[];
+function render(){
+  if(!CREW||!CREW.chars) return;
+  RET=CREW.chars.filter(function(c){ return c.st===6; });
+  var src = state.view==="act" ? CREW.chars.filter(function(c){ return c.st!==6; }) : RET;
+  var rows=src.filter(function(c){
+    return hit(c.n+" "+c.pers+" "+(RACE[c.race]?RACE[c.race].race:c.race)
+      +" "+c.jobs.map(function(j){return jobName(j.i)}).join(" ")
+      +" "+c.eq.map(function(id){ var g=gearOf(id); return g?g.n:""; }).join(" "));
+  }).sort(function(a,b){ return b.mainLv-a.mainLv || b.sum-a.sum; });
+  el("count").textContent=rows.length+" 명";
+  var ret = state.view!=="act";
+  el("out").innerHTML = rows.length
+    ? '<section class="group"><div class="ghead"><h2>'+(ret?"은퇴한 모험가":"내 부대")+'</h2>'
+      +'<span class="sub">'+rows.length+'명 · 주직업 레벨 순</span><span class="rule"></span></div>'
+      +'<div class="list">'+rows.map(function(c){ return crewRow(c, ret); }).join("")+'</div></section>'
+    : '<p class="empty">조건에 맞는 용병이 없습니다.</p>';
+}
+
+el("out").addEventListener("click",function(e){
+  var row=e.target.closest(".row"); if(!row) return;
+  var nx=row.nextElementSibling;
+  if(nx&&nx.classList.contains("detail")){ nx.remove(); row.classList.remove("open"); return; }
+  var cur=row.parentNode.querySelector(".detail");
+  if(cur){ var pr=cur.previousElementSibling; if(pr) pr.classList.remove("open"); cur.remove(); }
+  var id=row.getAttribute("data-i"), c=null;
+  CREW.chars.forEach(function(x){ if(x.id===id) c=x; });
+  if(!c) return;
+  row.insertAdjacentHTML("afterend", crewDetail(c));
+  row.classList.add("open");
+});
+var t;
+el("q").addEventListener("input",function(e){
+  clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
+["act","ret"].forEach(function(v){
+  el("v-"+v).onclick=function(){
+    state.view=v;
+    ["act","ret"].forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
+    render();
+  };
+});
+
+/* ── 세이브 넣기 ── */
+function bindSave(id){
+  var e2=el(id); if(!e2) return;
+  e2.addEventListener("change", async function(e){
+    var files=Array.prototype.slice.call(e.target.files||[]);
+    if(!files.length) return;
+    var msg=el("savemsg");
+    msg.textContent="읽는 중… (0/"+files.length+")";
+    try{
+      var r=await window.TSA_SAVE.ingest(files,function(i,n){ msg.textContent="읽는 중… ("+i+"/"+n+")"; });
+      try{ CREW=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(err){}
+      var bn=r.buildings? Object.keys(r.buildings).filter(function(k){return k!=="towns"&&k!=="halls"}).length : 0;
+      msg.textContent="반영 완료 — 파일 "+r.ok+"개 · 퀘스트 "+r.quests+"건 · 시설 "+bn+"개 · 용병 "
+        +(r.chars?r.chars.length:0)+"명"+(r.bad?" (실패 "+r.bad+")":"");
+      el("saveclear").hidden=false;
+      showVersion(r.version, r.dataVersion);
+      paint();
+      await pushCloud("올렸습니다");
+    }catch(err){ msg.textContent="읽기 실패: "+err.message; }
+    e.target.value="";
+  });
+}
+bindSave("savein"); bindSave("savein2");
+el("saveclear").onclick=function(){
+  window.TSA_SAVE.clear();
+  try{ localStorage.removeItem("tsa.crew.v1"); }catch(e){}
+  CREW=null; el("savemsg").textContent="지웠습니다."; el("saveclear").hidden=true;
+  el("vercard").hidden=true; paint();
+};
+function showVersion(v, dv){
+  if(!v) return;
+  var c=el("vercard"); c.hidden=false;
+  if(v!==dv){ c.classList.add("warn"); c.classList.remove("ok");
+    el("vermsg").innerHTML="게임이 <b>업데이트</b>됐습니다 — 세이브 판번호 <b>"+v
+      +"</b>, 자료실은 <b>"+dv+"</b> 기준입니다. 퀘스트·아이템·확률이 바뀌었을 수 있습니다.";
+  } else { c.classList.add("ok"); c.classList.remove("warn");
+    el("vermsg").textContent="판번호 "+v+" — 자료실과 같습니다."; }
+}
+
+/* ── 클라우드 ── */
+function gatherState(){
+  var S=null; try{ S=window.TSA_SAVE.load(); }catch(e){}
+  var lv={}, fac=null, done={};
+  try{ lv=JSON.parse(localStorage.getItem("tsa.levels.v1")||"{}")||{}; }catch(e){}
+  try{ fac=JSON.parse(localStorage.getItem("tsa.fac.v1")||"null"); }catch(e){}
+  try{ done=JSON.parse(localStorage.getItem("tsa.done.v1")||"{}")||{}; }catch(e){}
+  return { q:(S&&S.q)||{}, at:(S&&S.at)||"", levels:lv, fac:fac, done:done };
+}
+function cloudStatus(extra){
+  var C=window.TSA_CLOUD; if(!C){ el("cloudcard").hidden=true; return; }
+  var who=C.signedIn()? ("로그인됨 · "+(C.email()||"계정 확인 중")) : "로그인 안 됨";
+  var S=null; try{ S=window.TSA_SAVE.load(); }catch(e){}
+  var loc=S? ("로컬 "+Object.keys(S.q||{}).length+"건("+S.at+")") : "로컬 없음";
+  el("cloudmsg").textContent=who+" · "+loc+(extra?" · "+extra:"");
+  el("cloudlogin").hidden=C.signedIn();
+  el("cloudup").disabled=!C.signedIn();
+  el("clouddown").disabled=!C.signedIn();
+}
+async function pushCloud(ok){
+  var C=window.TSA_CLOUD;
+  if(!C||!C.signedIn()){ cloudStatus("로그인하면 다른 기기와 맞춰집니다"); return; }
+  cloudStatus("올리는 중…");
+  var r=await C.putProgress(gatherState());
+  cloudStatus(r.ok? ok : "실패: "+r.error);
+}
+(function(){
+  var C=window.TSA_CLOUD; if(!C){ el("cloudcard").hidden=true; return; }
+  cloudStatus();
+  el("cloudlogin").onclick=function(){ C.signIn(true); };
+  el("cloudup").onclick=function(){ pushCloud("올렸습니다"); };
+  el("clouddown").onclick=async function(){
+    cloudStatus("받는 중…");
+    var p;
+    try{ p=await C.getProgress(); }
+    catch(err){ cloudStatus("받기 실패: "+err.message); return; }
+    if(!p){ cloudStatus("클라우드에 저장된 것이 없습니다"); return; }
+    try{
+      localStorage.setItem("tsa.save.v1", JSON.stringify(
+        {at:String(p.at||"").slice(0,16).replace("T"," "), q:p.q||{}, files:0}));
+      if(p.levels) localStorage.setItem("tsa.levels.v1", JSON.stringify(p.levels));
+      if(p.fac) localStorage.setItem("tsa.fac.v1", JSON.stringify(p.fac));
+      if(p.done) localStorage.setItem("tsa.done.v1", JSON.stringify(p.done));
+    }catch(e){}
+    cloudStatus("받았습니다 — 용병 목록은 세이브를 다시 넣어야 채워집니다");
+    paint();
+  };
+})();
+
+if(CREW && CREW.ver) showVersion(CREW.ver, window.TSA_SAVE.DATA_VERSION);
+var S0=null; try{ S0=window.TSA_SAVE.load(); }catch(e){}
+el("savemsg").textContent = S0 ? ("반영돼 있습니다 — "+S0.at+" · 파일 "+S0.files+"개")
+  : "아직 넣지 않았습니다.";
+if(S0) el("saveclear").hidden=false;
+paint();
+};
+</script>
+
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <h2>침묵의 기록자 자료실</h2>
+    <p id="gatemsg">데이터를 받는 중…</p>
+    <button type="button" id="gatebtn" hidden>구글로 로그인</button>
+    <p class="gatenote">데이터는 로그인한 사람만 받을 수 있습니다. 한 번 받으면 이 기기에 저장돼 다음부터는 오프라인에서도 열립니다.</p>
+  </div>
+</div>
+<script src="tsacloud.js"></script>
+<script>
+(async function(){
+  var gate=document.getElementById("gate"), msg=document.getElementById("gatemsg"),
+      btn=document.getElementById("gatebtn"), C=window.TSA_CLOUD;
+  function fail(t){ msg.textContent=t; btn.hidden=false; }
+  function start(D){
+    gate.remove();
+    window.__TSA_BOOT(D);
+    // 캐시로 떴을 수 있다. 로그인이 끊긴 채로 «올라간 줄 알고» 넘어가는 게
+    // 제일 나쁜 실패라서, 상태 줄에 못을 박아 둔다.
+    if(!C.signedIn()){
+      if(window.__TSA_CLOUD_STATUS)
+        window.__TSA_CLOUD_STATUS("저장된 데이터로 열었습니다 — 로그인해야 동기화됩니다");
+      return;
+    }
+    // 클라우드에 저장된 상태가 있으면 그대로 되살린다
+    C.getProgress().then(function(p){
+      if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
+      else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
+    }).catch(function(e){
+      if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("받기 실패: "+e.message);
+    });
+  }
+  var r=await C.completeOAuth();
+  if(r.error) fail(r.error);
+  btn.onclick=function(){ C.signIn(true); };
+
+  var booted=false, cachedRaw=null;
+  var d=await C.fetchData("meta.json", function(cached){
+    if(!booted){ booted=true; cachedRaw=JSON.stringify(cached); start(cached); }  // 캐시가 있으면 즉시 띄운다
+  });
+  if(booted){
+    // 캐시로 띄운 뒤 새 자료가 왔으면 알린다. 조용히 지나가면 며칠씩 옛 자료를 본다.
+    if(d && cachedRaw && JSON.stringify(d)!==cachedRaw){
+      var bar=document.createElement("div");
+      bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
+        +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
+        +"gap:12px;align-items:center;justify-content:center";
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      var btn=document.createElement("button");
+      btn.type="button"; btn.textContent="새로고침";
+      btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"
+        +"border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer";
+      btn.onclick=function(){ location.reload(); };
+      bar.appendChild(btn);
+      document.body.appendChild(bar);
+    }
+    return;
+  }
+  if(d) start(d);
+  else if(!C.signedIn()) fail("이 자료실을 보려면 로그인이 필요합니다.");
+  else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 meta.json 이 있는지 확인해 주세요.");
+})();
+</script>
+
+</body>
+</html>

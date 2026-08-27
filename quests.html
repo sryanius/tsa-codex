@@ -249,7 +249,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <div class="wrap">
   <nav class="topnav">
     <a href="index.html">자료실</a><a class="here" href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="meta.html">클래스·종족·시설</a>
-  <a href="notes.html">원리</a></nav>
+  <a href="save.html">내 세이브</a><a href="notes.html">원리</a></nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 데이터 색인</p>
     <h1>침묵의 기록자 퀘스트 색인</h1>
@@ -281,23 +281,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <div class="bar-row" id="levels"><span class="lvlabel">내 시설 레벨</span></div>
     <div class="bar-row" id="saverow">
       <span class="lvlabel">세이브</span>
-      <label class="filebtn" title="adb 로 받은 files 폴더를 통째로 고르세요 — Town(퀘스트)과 GameData(시설 레벨)가 둘 다 필요합니다">세이브 폴더 열기
-        <input type="file" id="savein" webkitdirectory directory multiple hidden></label>
-      <label class="filebtn alt">파일로 고르기
-        <input type="file" id="savein2" multiple accept=".data" hidden></label>
       <span class="hint" id="savemsg"></span>
-      <button type="button" id="saveclear" class="mini" hidden>불러온 세이브 지우기</button>
-    </div>
-    <div class="bar-row" id="verrow" hidden>
-      <span class="lvlabel">판번호</span>
-      <span class="hint" id="vermsg"></span>
-    </div>
-    <div class="bar-row" id="cloudrow" hidden>
-      <span class="lvlabel">클라우드</span>
-      <span class="hint" id="cloudmsg"></span>
-      <button type="button" id="cloudup" class="mini">올리기</button>
-      <button type="button" id="clouddown" class="mini">받기</button>
-      <button type="button" id="cloudlogin" class="mini" hidden>로그인</button>
+      <a class="filebtn" href="save.html">세이브 넣기 · 내 용병</a>
     </div>
   </div>
 
@@ -752,66 +737,6 @@ try{
   if(qp){ state.q=qp; el("q").value=qp; }
 }catch(e){}
 
-// 세이브 폴더/파일 읽기 — 전부 브라우저 안에서 처리되고 어디로도 전송되지 않는다
-function bindSave(id){
-  var el2=el(id); if(!el2) return;
-  el2.addEventListener("change", async function(e){
-    var files=Array.prototype.slice.call(e.target.files||[]);
-    var msg=el("savemsg");
-    if(!files.length) return;
-    msg.textContent="읽는 중… (0/"+files.length+")";
-    try{
-      var r=await window.TSA_SAVE.ingest(files,function(i,n){ msg.textContent="읽는 중… ("+i+"/"+n+")"; });
-      SAVE=window.TSA_SAVE.load();
-      // 시설 레벨도 세이브(GameData)에 들어 있다. 손으로 넣던 값을 덮어쓴다.
-      var bn=0;
-      if(r.buildings){
-        for(var k in r.buildings){
-          if(k==="towns"||k==="halls") continue;
-          lv[k]=r.buildings[k]; bn++;
-        }
-        // 도시 주점·상점과 훈련소는 여기서 안 쓰지만, meta 페이지가 읽어 간다
-        try{ localStorage.setItem(FKEY, JSON.stringify(
-          {towns:r.buildings.towns||{}, halls:r.buildings.halls||{}, at:new Date().toISOString()})); }catch(e){}
-      }
-      if(bn){ saveLv();
-        Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,ix){
-          var nm=FORD[ix]; if(nm!=null) i.value=(lv[nm]==null?"":lv[nm]); }); }
-      msg.textContent="세이브 반영 완료 — 파일 "+r.ok+"개 · 퀘스트 "+r.quests+"건"
-        +(bn?" · 시설 "+bn+"개":" · 시설 레벨 없음(GameData 폴더까지 골라 주세요)")
-        +(r.bad?" (실패 "+r.bad+")":"");
-      // 판번호가 다르면 여기 실린 수치가 낡았을 수 있다 — 조용히 넘기면 안 된다
-      var vr=el("verrow");
-      if(r.version && r.version!==r.dataVersion){
-        vr.hidden=false;
-        el("vermsg").innerHTML="게임이 <b>업데이트</b>됐습니다 — 세이브 판번호 <b>"+r.version
-          +"</b>, 이 자료실은 <b>"+r.dataVersion+"</b> 기준입니다. "
-          +"퀘스트·아이템·확률이 바뀌었을 수 있으니 새로 뽑아야 합니다.";
-        vr.classList.add("warn");
-      } else if(r.version){
-        vr.hidden=false; vr.classList.remove("warn");
-        el("vermsg").textContent="판번호 "+r.version+" — 자료실과 같습니다.";
-      }
-      // 클라우드가 붙어 있으면 다른 기기에서도 보이게 올린다
-      if(window.TSA_CLOUD && window.TSA_CLOUD.signedIn && window.TSA_CLOUD.signedIn()){
-        msg.textContent+=" · 올리는 중…";
-        var up=await window.TSA_CLOUD.putProgress(gatherState());
-        msg.textContent=msg.textContent.replace(" · 올리는 중…",
-          up.ok ? " · 클라우드 저장됨" : " · 클라우드 저장 실패("+up.error+")");
-        cloudStatus(up.ok ? ("올림 — 클리어 "+up.cleared) : ("실패: "+up.error));
-      } else if(window.TSA_CLOUD){
-        cloudStatus("로그인하면 클라우드에 올릴 수 있습니다");
-      }
-      el("saveclear").hidden=false;
-      render();
-    }catch(err){ msg.textContent="읽기 실패: "+err.message; }
-    e.target.value="";
-  });
-}
-bindSave("savein"); bindSave("savein2");
-el("saveclear").onclick=function(){ window.TSA_SAVE.clear(); SAVE=null;
-  el("savemsg").textContent="불러온 세이브를 지웠습니다 (내장 스냅샷으로 되돌림)";
-  el("saveclear").hidden=true; render(); };
 // 클라우드에 올릴 «화면 상태» 한 덩어리.
 // 세이브에서 뽑은 진행도만이 아니라 손으로 넣은 값도 같이 옮겨야
 // 기기를 바꿔도 화면이 똑같이 보인다.
@@ -831,49 +756,22 @@ function applyState(p){
   if(p.done){ done=p.done; save(); }
   render();
 }
-function cloudStatus(extra){
-  var C=window.TSA_CLOUD;
-  if(!C){ return; }
-  el("cloudrow").hidden=false;
-  var who = C.signedIn() ? ("로그인됨 · "+(C.email()||"계정 확인 중")) : "로그인 안 됨";
-  var loc = SAVE ? ("로컬 "+Object.keys(SAVE.q||{}).length+"건("+SAVE.at+")") : "로컬 없음";
-  el("cloudmsg").textContent = who+" · "+loc+(extra?" · "+extra:"");
-  el("cloudlogin").hidden = C.signedIn();
-  el("cloudup").disabled = !C.signedIn();
-  el("clouddown").disabled = !C.signedIn();
-}
-window.__TSA_CLOUD_STATUS=cloudStatus;
-// 콘솔에서 상태를 들여다보고 되돌릴 수 있게 열어 둔다 (동기화가 어긋났을 때 쓴다)
+// 세이브·클라우드 UI 는 /save.html 이 맡는다. 여기서는 상태만 알리고,
+// 화면에서 손댄 값(시설 레벨·수동 체크)은 조용히 클라우드에 올린다.
+function cloudStatus(extra){ /* 이 페이지에는 표시할 자리가 없다 */ }
 window.__TSA_STATE={gather:gatherState, apply:applyState};
 window.__TSA_ON_CLOUD_PROGRESS=function(p){
   applyState(p);
   var n=0; for(var k in (p.q||{})) n++;
-  el("savemsg").textContent="클라우드에서 불러옴 — 퀘스트 "+n+"건";
-  el("saveclear").hidden=false; cloudStatus("받음");
+  el("savemsg").innerHTML='클라우드에서 불러옴 — 퀘스트 <b>'+n+'</b>건';
 };
-if(SAVE){ el("savemsg").textContent="세이브 반영됨 — "+SAVE.at+" · 파일 "+SAVE.files+"개";
-  el("saveclear").hidden=false; }
-else { el("savemsg").textContent="폴더를 고르면 브라우저에서 바로 복호화합니다. 아무 데도 전송되지 않습니다."; }
-
-(function(){
-  var C=window.TSA_CLOUD; if(!C) return;
-  cloudStatus();
-  el("cloudlogin").onclick=function(){ C.signIn(true); };
-  el("cloudup").onclick=async function(){
-    cloudStatus("올리는 중…");
-    var r=await C.putProgress(gatherState());
-    cloudStatus(r.ok ? ("올림 — 클리어 "+r.cleared+" · 시설/남은의뢰 포함") : ("실패: "+r.error));
-  };
-  el("clouddown").onclick=async function(){
-    cloudStatus("받는 중…");
-    var p;
-    try{ p=await C.getProgress(); }
-    catch(err){ cloudStatus("받기 실패: "+err.message); return; }
-    if(!p){ cloudStatus("클라우드에 저장된 것이 없습니다"); return; }
-    applyState(p);
-    cloudStatus("받음 — 퀘스트 "+Object.keys(p.q||{}).length+"건 · 시설/남은의뢰 포함");
-  };
-})();
+function paintSave(){
+  SAVE=(window.TSA_SAVE&&window.TSA_SAVE.load())||SAVE;
+  el("savemsg").innerHTML = SAVE
+    ? ('반영돼 있습니다 — '+esc(SAVE.at)+' · 파일 '+SAVE.files+'개')
+    : '아직 안 넣었습니다 — 넣으면 클리어 여부와 시설 레벨이 자동으로 채워집니다.';
+}
+paintSave();
 
 render();
 };
@@ -1107,6 +1005,205 @@ render();
     return v;
   }
 
+  /* ── 일반 NRBF 파서 ───────────────────────────────────────────────
+     위의 스캔들은 «찾는 값 주변만» 훑는 방식이라 용병 정보처럼 참조가
+     얽힌 구조는 못 읽는다. Character / Equipment 는 제대로 파싱한다.
+     기록 종류는 세이브에 실제로 나오는 것만 다룬다. */
+  var PRIM = { 1:["b",1], 2:["B",1], 3:["B",1], 6:["d",8], 7:["h",2], 8:["i",4],
+               9:["q",8], 10:["b",1], 11:["f",4], 12:["q",8], 13:["q",8],
+               14:["H",2], 15:["I",4], 16:["Q",8] };
+
+  function Reader(buf){
+    this.b = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+    this.dv = new DataView(this.b.buffer, this.b.byteOffset, this.b.byteLength);
+    this.i = 0; this.cls = {}; this.obj = {};
+  }
+  Reader.prototype.len = function(){
+    var n=0, sh=0, c;
+    do { c = this.b[this.i++]; n |= (c & 0x7f) << sh; sh += 7; } while (c & 0x80);
+    return n;
+  };
+  Reader.prototype.str = function(){ var n=this.len(), s=TD.decode(this.b.subarray(this.i,this.i+n)); this.i+=n; return s; };
+  Reader.prototype.prim = function(pt){
+    if (pt === 18) return this.str();
+    if (pt === 17) { var n=this.dv.getInt32(this.i,true); this.i+=4+n; return null; }
+    var f = PRIM[pt]; if (!f) throw new Error("primitive " + pt);
+    var i = this.i; this.i += f[1];
+    switch (f[0]) {
+      case "b": return this.dv.getInt8(i);
+      case "B": return this.dv.getUint8(i);
+      case "?": return !!this.dv.getUint8(i);
+      case "h": return this.dv.getInt16(i,true);
+      case "H": return this.dv.getUint16(i,true);
+      case "i": return this.dv.getInt32(i,true);
+      case "I": return this.dv.getUint32(i,true);
+      case "f": return this.dv.getFloat32(i,true);
+      case "d": return this.dv.getFloat64(i,true);
+      default:  return Number(this.dv.getBigInt64(i,true));   // q / Q — 정확도는 필요 없다
+    }
+  };
+  Reader.prototype.typeInfo = function(cnt){
+    var ts = Array.prototype.slice.call(this.b.subarray(this.i, this.i+cnt)); this.i += cnt;
+    var ai = [];
+    for (var k=0;k<cnt;k++){
+      var t = ts[k];
+      if (t===0 || t===7) ai.push(this.b[this.i++]);
+      else if (t===3) ai.push(this.str());
+      else if (t===4 || t===5) { ai.push(this.str()); this.i += 4; }
+      else ai.push(null);
+    }
+    return [ts, ai];
+  };
+  Reader.prototype.members = function(nm, mem, ts, ai){
+    var o = { __: nm };
+    for (var k=0;k<mem.length;k++) o[mem[k]] = ts[k]===0 ? this.prim(ai[k]) : this.rec();
+    return o;
+  };
+  Reader.prototype.rec = function(){
+    var t = this.b[this.i], oid, v, k;
+    if (t === 0x01) {                                   // ClassWithId
+      this.i++; oid = this.dv.getInt32(this.i,true);
+      var mid = this.dv.getInt32(this.i+4,true); this.i += 8;
+      var c = this.cls[mid]; if (!c) throw new Error("class " + mid);
+      v = this.members(c[0], c[1], c[2], c[3]); this.obj[oid] = v; return v;
+    }
+    if (t === 0x04 || t === 0x05) {                     // 클래스 정의 + 값
+      this.i++; oid = this.dv.getInt32(this.i,true); this.i += 4;
+      var nm = this.str();
+      var cnt = this.dv.getInt32(this.i,true); this.i += 4;
+      var mem = []; for (k=0;k<cnt;k++) mem.push(this.str());
+      var ti = this.typeInfo(cnt);
+      if (t === 0x05) this.i += 4;                      // libraryId
+      this.cls[oid] = [nm, mem, ti[0], ti[1]];
+      v = this.members(nm, mem, ti[0], ti[1]); this.obj[oid] = v; return v;
+    }
+    if (t === 0x06) { this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4; v=this.str(); this.obj[oid]=v; return v; }
+    if (t === 0x09) { this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4; return {__ref:oid}; }
+    if (t === 0x0a) { this.i++; return null; }
+    if (t === 0x0d) { this.i++; return {__nulls:this.b[this.i++]}; }
+    if (t === 0x0c) { this.i++; this.i+=4; this.str(); return this.rec(); }   // BinaryLibrary
+    if (t === 0x0f) {                                   // ArraySinglePrimitive
+      this.i++; oid=this.dv.getInt32(this.i,true); var ln=this.dv.getInt32(this.i+4,true); this.i+=8;
+      var pt=this.b[this.i++]; v=[]; for (k=0;k<ln;k++) v.push(this.prim(pt));
+      this.obj[oid]=v; return v;
+    }
+    if (t === 0x10 || t === 0x11) {                     // ArraySingleObject / String
+      this.i++; oid=this.dv.getInt32(this.i,true); ln=this.dv.getInt32(this.i+4,true); this.i+=8;
+      v=[]; while (v.length < ln) { var x=this.rec();
+        if (x && x.__nulls) { for (k=0;k<x.__nulls;k++) v.push(null); } else v.push(x); }
+      this.obj[oid]=v; return v;
+    }
+    if (t === 0x07) {                                   // BinaryArray
+      this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4;
+      var at=this.b[this.i++]; var rank=this.dv.getInt32(this.i,true); this.i+=4;
+      var lens=[], n=1;
+      for (k=0;k<rank;k++){ lens.push(this.dv.getInt32(this.i,true)); this.i+=4; }
+      if (at===3||at===4||at===5) this.i += 4*rank;
+      var ti2=this.typeInfo(1);
+      for (k=0;k<rank;k++) n *= lens[k];
+      v=[]; while (v.length < n) {
+        if (ti2[0][0]===0) { v.push(this.prim(ti2[1][0])); continue; }
+        var y=this.rec();
+        if (y && y.__nulls) { for (k=0;k<y.__nulls;k++) v.push(null); } else v.push(y);
+      }
+      this.obj[oid]=v; return v;
+    }
+    throw new Error("record 0x" + t.toString(16) + " @" + this.i);
+  };
+
+  function parseNrbf(plain){
+    var r = new Reader(plain);
+    // 앞에 게임이 붙인 바이트가 있다. 첫 BinaryLibrary(0x0c) 레코드부터 읽는다.
+    var b = r.b, start = -1;
+    for (var i=0;i+5<b.length;i++)
+      if (b[i]===0x0c && b[i+1]===0x02 && b[i+2]===0 && b[i+3]===0 && b[i+4]===0) { start=i; break; }
+    r.i = start >= 0 ? start : 17;
+    var root = null;
+    while (r.i < b.length && b[r.i] !== 0x0b) {
+      var v = r.rec();
+      if (!root && v && v.__) root = v;
+    }
+    return { root: root, obj: r.obj };
+  }
+  function deref(p, x){ return (x && x.__ref !== undefined) ? p.obj[x.__ref] : x; }
+  function listOf(p, x){
+    var l = deref(p, x);
+    if (!l || l._items === undefined) return [];
+    var arr = deref(p, l._items) || [];
+    return arr.slice(0, l._size || 0).map(function(e){ return deref(p, e); });
+  }
+  function assetId(s){ return s ? String(s).split("/").pop().replace(/\.asset$/, "") : ""; }
+
+  /* ── 용병 · 장비 ─────────────────────────────────────────────────
+     Character 세이브 하나가 용병 하나다. 직업은 List<Job>, 장비는
+     equipEquipIds(문자열 목록) 로 Equipment 세이브를 가리킨다. */
+  var CSTAT = ["maxHp","maxMp","power","physicalStrength","magicPower",
+               "agility","dexterity","insight"];
+  var CSTAT_KO = ["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
+  var PERSONALITY = ["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
+  var CSTATUS = { 0:"미고용", 1:"대기", 2:"모험 중", 3:"부상", 6:"은퇴" };
+
+  function enumVal(p, x){ var v = deref(p, x); return (v && v.value__ !== undefined) ? v.value__ : null; }
+
+  function readCharacter(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "Character") return null;
+    var jobs = listOf(p, R.jobs).map(function(j){
+      return { i: assetId(deref(p, j.assetName) || deref(p, j["Model+assetName"])),
+               lv: j.level || 0, cur: !!j.isCurrent };
+    }).filter(function(j){ return j.i; });
+    var ab = {};
+    for (var k=0;k<CSTAT.length;k++) ab[CSTAT_KO[k]] = R[CSTAT[k]] || 0;
+    var st = enumVal(p, R.status);
+    var main = null, sum = 0;
+    jobs.forEach(function(j){ sum += j.lv; if (j.cur) main = j; });
+    return {
+      id: deref(p, R["Model+id"]) || "",
+      n: String(deref(p, R.name) || "").replace(/<[^>]*>/g, ""),
+      race: assetId(deref(p, R.assetName)),
+      st: st, stn: CSTATUS[st] || ("상태 " + st),
+      pers: PERSONALITY[enumVal(p, R.personality)] || "",
+      hp: R.hp || 0, mp: R.mp || 0, ab: ab,
+      jobs: jobs.sort(function(a,b){ return b.lv - a.lv; }),
+      main: main ? main.i : "", mainLv: main ? main.lv : 0,
+      sum: sum,                                   // 전 직업 레벨 합 — 경험치 계수의 그 값
+      eq: listOf(p, R.equipEquipIds).map(function(x){ return deref(p, x); }).filter(Boolean),
+      lock: !!R.isLock
+    };
+  }
+
+  /* 화면의 «+N». Enhancement.AddPoint() 를 그대로 옮겼다 —
+     값이 클수록, 흡수·속성 같은 특별한 종류일수록 점수가 크고,
+     요구 근력이 오르는 등 대가는 −1 이다. */
+  function addPoint(kind, val){
+    var pt;
+    if (val >= 1) {
+      pt = val >= 6 ? (val >= 11 ? 3 : 2) : 1;
+      if ((kind - 300) >>> 0 < 2 || kind === 230) pt += 1;   // 화염·냉기·HP 자동회복
+      if ((kind - 152) >>> 0 < 3 || kind === 231) pt += 2;   // 추가공격·흡수계·MP 자동회복
+    } else {
+      pt = val !== 0 ? -1 : 0;
+    }
+    if (kind === 181) pt += 4;                               // 전체 공격
+    if (kind === 180) pt += 2;                               // 후열 포함
+    return pt;
+  }
+
+  function readEquipment(plain, fileName){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || !R["Equipment+assetName"]) return null;
+    // kind 는 열거라 객체로 온다 — 그냥 비교하면 늘 거짓이다.
+    var enh = listOf(p, R.enhancements).map(function(e){
+      return { k: enumVal(p, e.kind), v: e.value };
+    });
+    var plus = 0;
+    enh.forEach(function(e){ plus += addPoint(e.k, e.v); });
+    // ★ 캐릭터의 equipEquipIds 는 «파일 이름» 을 가리킨다. Model+id 가 아니다.
+    return { id: String(fileName || "").replace(/\.data$/i, ""),
+             i: assetId(deref(p, R["Equipment+assetName"])),
+             enh: enh, plus: plus, crafted: !!R.isCrafted };
+  }
+
   window.TSA_SAVE = {
     load: function () {
       try { return JSON.parse(localStorage.getItem(SKEY) || "null"); } catch (e) { return null; }
@@ -1116,9 +1213,13 @@ render();
     _extract: extract,
     _buildings: extractBuildings,
     _version: extractVersion,
+    _char: readCharacter,
+    _equip: readEquipment,
+    _nrbf: parseNrbf,
     DATA_VERSION: DATA_VERSION,
     ingest: async function (files, onProgress) {
       var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
+      var chars = [], equips = {};
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         if (!/\.data$/i.test(f.name)) continue;
@@ -1130,6 +1231,12 @@ render();
           // 따로 감싼다 — 한때 이게 없어서 전 파일이 «실패» 로 넘어갔다.
           try { extractBuildings(plain, blds); } catch (e2) { }
           if (!ver) { try { ver = extractVersion(plain); } catch (e3) { } }
+          // 용병·장비는 파일 이름이 아니라 내용으로 가른다 — 폴더 구조에 안 기댄다
+          try {
+            var c = readCharacter(plain);
+            if (c) chars.push(c);
+            else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+          } catch (e4) { }
         } catch (e) {
           bad++;
           if (errs.length < 3) errs.push(f.name + ": " + e.message);
@@ -1141,9 +1248,15 @@ render();
         q: into, files: ok
       };
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
+      // 용병·장비는 따로 둔다. 퀘스트 진행도(SKEY)보다 크고, 쓰는 페이지도 다르다.
+      try {
+        localStorage.setItem("tsa.crew.v1", JSON.stringify(
+          { at: payload.at, ver: ver, chars: chars, equips: equips }));
+      } catch (e) { }
       return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
                payload: payload, buildings: blds,
-               version: ver, dataVersion: DATA_VERSION };
+               version: ver, dataVersion: DATA_VERSION,
+               chars: chars, equips: equips };
     }
   };
 })();
