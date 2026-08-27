@@ -143,6 +143,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .jump:hover{color:var(--ink);border-bottom-style:solid}
 .t-place{color:var(--c-place)}
 .t-cl{color:var(--good);border-width:2px}
+.t-magic{color:var(--f-arch);border-color:var(--f-arch);border-width:2px}
 /* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
 .drops{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.9}
 .drops .sep{font-style:normal;color:var(--faint);margin:0 5px}
@@ -505,7 +506,7 @@ function placeRow(p){
     +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
     +(mons.length>5?" 외 "+(mons.length-5):"")+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
-    +'<span class="num dim r3">'+(p.mh? "회피 "+p.mh : p.g.length+"그룹")+' · 함정'+p.t.length+'</span></div>';
+    +'<span class="num dim r3">'+(p.mh? "명중 "+p.mh : p.g.length+"그룹")+' · 함정'+p.t.length+'</span></div>';
 }
 /* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
    그래서 «회피값 + ⌊CreateRandomValue(민첩)/3⌋ ≥ 몬스터 명중» 이면
@@ -566,7 +567,7 @@ function monRow(m){
   if(m.fly) tags+='<em class="tag t-fly">비행</em>';
   if(m.undead) tags+='<em class="tag t-und">언데드</em>';
   if(m.nobow) tags+='<em class="tag t-cl" title="활 공격이 절대 안 맞습니다 — 회피에 999가 더해집니다">활 무효</em>';
-  if(m.nophys) tags+='<em class="tag t-sp" title="물리 공격이 통하지 않습니다">물리 무효</em>';
+  if(m.nophys) tags+='<em class="tag t-sp" title="보통 물리 공격이 통하지 않습니다 — 마법 무기(도감 «마법» 표) 나 마검사의 단검이면 통합니다">물리 무효</em>';
   return '<div class="row" data-k="m" data-i="'+esc(m.i)+'" tabindex="0" role="button">'
     +'<span class="nm"><b>'+tags+esc(m.n||m.i)+'</b><span>'
     +(mp.length? esc(mp.slice(0,3).map(function(p){return p.n}).join(", "))
@@ -605,7 +606,8 @@ function monDetail(m){
 function itemRow(x){
   var ip = itemPlaces(x);
   var cl=maxCl(x);
-  var tags = (cl>=5? '<em class="tag t-cl">+'+cl+'강</em>' : "")
+  var tags = (x.mag? '<em class="tag t-magic" title="마법 공격으로 취급됩니다 — 물리 무효 몬스터에게 통하는 유일한 무기입니다">마법</em>' : "")
+           + (cl>=5? '<em class="tag t-cl">+'+cl+'강</em>' : "")
            + (x.drop.length? '<em class="tag t-drop">몬스터</em>' : "")
            + (ip.length? '<em class="tag t-place">탐색지</em>' : "")
            + (x.qd.length? '<em class="tag t-quest">퀘스트</em>' : "")

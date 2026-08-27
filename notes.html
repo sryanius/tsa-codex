@@ -456,7 +456,18 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td>아이스 앤트 <code>22_IceAnt</code></td><td class="num">22</td></tr>
   <tr><td>본 베일 <code>24_BoneVeil</code></td><td class="num">24</td></tr>
   </tbody></table>
-  <p>그리고 <code>invalidPhysics</code>(물리 무효)가 <b>36종</b> 있습니다 &mdash; 활이든 검이든 물리로는 못 잡습니다. 둘 다 도감의 몬스터 줄에 <b>«활 무효» · «물리 무효»</b> 표로 붙여 뒀습니다.</p>
+  <h3>물리 무효는 «마법 무기» 로 뚫립니다</h3>
+  <p><code>invalidPhysics</code> 가 <b>36종</b> 있는데, 무효 판정이 이렇게 돼 있습니다:</p>
+  <div class="eq">if (대상.InvalidPhysics() &amp;&amp; <b>!공격.isMagicAttack</b>) → 무효</div>
+  <p>즉 <b>공격이 «마법 공격» 으로 표시되면 그대로 통합니다.</b> 그 표시는 <code>BattleCreature.IsUseMagicWeapon()</code> 이 정합니다:</p>
+  <div class="eq">무기가 없으면 → 아니오
+<b>주직업이 마검사(Job.Kind 29) 이고 단검을 들었으면 → 예</b>
+그 외에는 <b>Weapon.IsMagic()</b> — 무기 마스터의 <code>ability.isMagic</code>
+(강화로 붙는 <code>IsMagic(254)</code> 도 세지만, 강화는 그걸 만들지 않습니다)
+그리고 <code>EffectOnCreature 41</code> 이 걸려 있으면 무조건 예</div>
+  <div class="note"><b>마법 무기는 446종 중 68종(15%)입니다.</b> 활이 12종, 단검이 8종 있습니다 &mdash; 실버 활(Lv5) · 엘프 활(7) · 지구결속 활(12) · 아케인 연마 활(16) · 프리즈 아이(17) · 기원의 활(22) · 넝쿨 묶은 활(23) · 모래거울 활(24) · 지문의 현궁(25) · 라이프드레인보우(28) · 명천궁(30) · 불타는 활(34). <a href="codex.html">도감</a> 아이템 줄에 <b>«마법»</b> 표로 붙여 뒀습니다.</div>
+  <p><b>강화로는 마법 속성을 못 붙입니다.</b> 처음부터 마법인 무기를 구해야 합니다 &mdash; 물리 무효 몬스터가 36종이나 되니, 파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</p>
+  <p>도감의 몬스터 줄에 <b>«활 무효» · «물리 무효»</b> 표를 붙여 뒀습니다.</p>
   <h3>방패는 따로 한 번 더 막습니다</h3>
   <p>회피에 실패해도 방패가 남아 있습니다. <code>방패 회피값 &minus; 공격자 명중 &ge; 1</code> 이면 막습니다 &mdash; 이때는 <b>명중 계산에 재주 굴림이 다시 들어가므로</b> 회피 판정과는 다른 굴림입니다.</p>
   <p class="src">BattleCreature.HitRate / AvoidRate / ShieldAvoidRate · BattlePhysicalAttackExecutor.PhysicsAttack · Terrain.GetHitRateModifier / GetAvoidRateModifier · Util.Dice2DAvg = 7</p>
