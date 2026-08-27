@@ -750,6 +750,9 @@ var el=function(id){return document.getElementById(id)};
 var JOB={}; D.jobs.forEach(function(j){ JOB[j.i]=j; });
 var GEAR=D.gear||{};
 var RACE={}; D.races.forEach(function(r){ RACE[r.i]=r; });
+// 세이브 읽기는 «아는 퀘스트 id» 목록이 있어야 진행도를 잡는다.
+// 퀘스트 색인에서만 이 값을 넣고 있어서 여기서 넣은 세이브는 퀘스트가 0건이었다.
+window.TSA_QUEST_IDS = D.qids || [];
 var state={view:"act",q:""};
 var CREW=null;
 try{ CREW=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){}

@@ -138,8 +138,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 
 .list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
-.row{display:grid;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line-soft);
-  cursor:pointer;font-size:13.5px}
+.row{display:grid;gap:6px 12px;align-items:center;padding:10px 14px;
+  border-top:1px solid var(--line-soft);cursor:pointer;font-size:13.5px}
+@media (max-width:760px){
+  /* 좁은 화면에서는 오른쪽 숫자들을 아래로 내린다 — 잘리는 것보다 낫다 */
+  .row{grid-template-columns:1fr auto !important}
+  .row .nm{grid-column:1 / -1}
+}
 .row:first-child{border-top:0}
 .row:hover{background:var(--raised)}
 .row.open{background:var(--raised)}
@@ -148,7 +153,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .nm span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--body);
-  text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
 .num.dim{color:var(--faint)}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
@@ -162,7 +168,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   border-radius:8px;max-width:80ch}
 .blk h4{margin:0 0 8px;font-family:"Gowun Batang",Georgia,serif;font-size:14px;font-weight:700;color:var(--ink)}
 .blk ul{margin:0;padding-left:16px;list-style:none}
-.blk li{position:relative;margin:0 0 5px}
+.blk li{position:relative;margin:0 0 7px;line-height:1.7}
+.blk li .meta{display:block;margin-top:1px;white-space:normal}
 .blk li::before{content:"·";position:absolute;left:-12px;color:var(--faint)}
 .meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
 .story{margin:12px 0 0;padding:11px 14px;border-left:2px solid var(--line);background:var(--surface);
@@ -440,7 +447,7 @@ function townBlock(t){
       cur = (my!=null?"":"만렙 ") + (rr?soldTxt(rr):"–");
     } else if(b.lv.length) cur = gold(b.lv[b.lv.length-1].g)+"G";
     return '<div class="row" data-k="b" data-i="'+esc(t.n+"|"+b.n)+'" tabindex="0" role="button" '
-      +'style="grid-template-columns:100px minmax(0,1fr) 66px 84px">'
+      +'style="grid-template-columns:88px minmax(0,1fr) auto auto">'
       +'<span class="num dim" style="text-align:left">'+esc(b.kind)+'</span>'
       +'<span class="nm"><b>'+esc(b.n)+'</b></span>'
       +'<span class="num">'+(my!=null? '<b style="color:var(--accent)">Lv'+my+'</b> / '+b.max : 'Lv'+b.max)+'</span>'
