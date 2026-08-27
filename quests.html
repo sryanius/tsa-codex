@@ -305,6 +305,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p><b>등장 주기</b>는 <code>questSpawnInterval</code> 입니다. 값 99는 코드 상수 <code>QUEST_SPAWN_INTERVAL_ONLY_ONCE</code> 와 같아 <b>1회성</b>을 뜻하고, 그 외 값은 클리어 뒤 재등장까지의 대기 일수(<code>daysUntilAvailable</code>)로 쓰입니다. 게시판은 <code>TownAverageQuestCount</code> 만큼을 목표로 채워지며, 게시된 퀘스트는 <code>deadline</code> 이 지나면 사라집니다.</p>
     <p><b>«한 칸당 몫»은 확률이 아닙니다.</b> 같은 평판대에서 함께 후보가 되는 퀘스트들과 <code>questFrequency</code> 를 나눈 비율입니다 &mdash; 게시판이 한 칸을 뽑을 때 이 퀘스트일 확률이지, 하루에 뜰 확률이 아닙니다. 1회성 퀘스트를 깰수록 경쟁 대상이 줄어 실제로는 표시값보다 좋아집니다.</p>
     <p><b>하루에 몇 칸이 뽑히는지는 확정하지 못했습니다.</b> 게시판 상한은 <code>GameSettings.TownAverageQuestCount</code> 이고, <code>Town.GetCanAcceptedQuests()</code> 가 목록 길이가 이 값에 닿을 때까지만 채웁니다. 그런데 이 값은 실행 중 어떤 플래그에 따라 <b>100 또는 30</b> 으로 갈립니다(<code>get_TownAverageQuestCount</code> 를 디스어셈블해 확인). 화면에 실제로 보이는 개수와 맞지 않아, 지어낸 «슬롯 수» 입력은 없앴습니다.</p>
+    <p><b>금고의 «발견»과 «해제»는 이렇게 판정합니다</b> (<code>Party.OpenTreasureBox</code>). 살아 있는 파티원을 차례로 굴려 <b>한 명만 통과하면 성공</b>이고, 발견·해제 두 판정을 모두 넘겨야 물건을 얻습니다. 해제 난이도가 0이면 해제 판정은 건너뜁니다.</p>
+    <pre style="white-space:pre-wrap">목표   = 퀘스트 레벨 + 금고값(발견값 또는 해제 난이도)
+내 값  = 2d6(10 이상이면 다시 굴려 더함) + 도적 직업레벨 + 리더 보너스 + 통찰력/3*
+성공   = 내 값 &gt;= 목표 + 2d6
+
+* 통찰력 보너스는 «도적레벨 + 리더보너스»가 1 이상일 때만 붙습니다.
+  도적을 안 키운 파티원은 통찰이 아무리 높아도 0 으로 굴립니다.
+* 첫 2d6 이 1+1 이면 −100 (대실패). 1/36 은 어떤 능력치로도 못 막습니다.</pre>
+    <p><b>리더 보너스는 성격이 정합니다</b> &mdash; 무모한 +3, 합리적 +3, 이기적 +2, 감정적 +1, 신중한 0, 사교적 −1, 신경질적 −1. 리더 한 명에게만 붙습니다.</p>
+    <p>따라서 <b>«도적레벨 + 리더보너스 + 통찰력/3 ≥ 퀘스트레벨 + 금고값 + 9»</b> 를 채우면 그 캐릭터는 대실패(1/36)를 빼고 확정입니다. 두 명이 이 조건을 채우면 판정당 실패는 1/1296 이라 사실상 100% 입니다.</p>
     <p>완료 체크는 이 브라우저에만 저장되며 게임과는 무관합니다. 게임이 업데이트되면 이 표는 낡습니다.</p>
   </footer>
 </div>
