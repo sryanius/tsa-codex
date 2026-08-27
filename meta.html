@@ -266,14 +266,28 @@ function bonusHTML(o,cls){
   return '<span class="bonus '+(cls||"")+'">'+ks.map(function(k){
     return '<i>'+esc(k)+' +'+o[k]+'</i>'; }).join("")+'</span>';
 }
-function lvTable(lv){
-  if(!lv.length) return "";
-  return '<div class="lvtable"><table><thead><tr><th>레벨</th><th>골드</th><th>평판</th><th>시간</th></tr></thead><tbody>'
-    + lv.map(function(r){
-        return '<tr><td>'+r.lv+'</td><td>'+r.g.toLocaleString()+'</td><td>'
-             + (r.r||"–")+'</td><td>'+mins(r.t)+'</td></tr>'; }).join("")
-    + '</tbody></table></div>';
+// base 는 «levelManagers[0] 이 몇 레벨로 올리는 비용인가». 훈련소는 1(짓는 값),
+// 상점·주점은 이미 1레벨로 서 있어서 2다. 여기를 틀리면 표가 한 칸씩 밀린다.
+function lvTable(lv, base, shop){
+  base = base || 1;
+  var byLv = {}; (shop||[]).forEach(function(r){ byLv[r.lv]=r; });
+  if(!lv.length && !(shop||[]).length) return "";
+  var rows=[], seen={};
+  lv.forEach(function(r){
+    var L=r.lv + base - 1; seen[L]=1;
+    rows.push('<tr><td>'+L+'</td><td>'+r.g.toLocaleString()+'</td><td>'+(r.r||"–")+'</td><td>'
+      +mins(r.t)+'</td>'+(shop&&shop.length?'<td>'+(byLv[L]?soldTxt(byLv[L]):"–")+'</td>':"")+'</tr>');
+  });
+  (shop||[]).forEach(function(r){          // 1레벨은 올리는 비용이 없다 — 맨 앞에 끼운다
+    if(seen[r.lv]) return;
+    rows.unshift('<tr><td>'+r.lv+'</td><td class="meta">처음부터</td><td>–</td><td>–</td>'
+      +'<td>'+soldTxt(r)+'</td></tr>');
+  });
+  return '<div class="lvtable"><table><thead><tr><th>레벨</th><th>골드</th><th>평판</th><th>시간</th>'
+    + (shop&&shop.length?'<th>파는 물건</th>':"")
+    + '</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';
 }
+function soldTxt(r){ return r.min===r.max ? ("Lv"+r.max) : ("Lv"+r.min+"–"+r.max); }
 
 /* ---------- 클래스 ---------- */
 function jobRow(j){
@@ -299,7 +313,7 @@ function jobDetail(j){
     +'<div class="blk"><h4>주직업일 때</h4>'+bonusHTML(j.main)+'</div>'
     +'<div class="blk"><h4>부직업일 때</h4>'+bonusHTML(j.sub,"sub")+'</div>'
     + sk
-    + (j.lv.length?'<div class="blk"><h4>훈련소 올리는 비용</h4>'+lvTable(j.lv)+'</div>':"")
+    + (j.lv.length?'<div class="blk"><h4>훈련소 올리는 비용</h4>'+lvTable(j.lv,1)+'</div>':"")
     + (j.d?'<div class="story">'+esc(j.d)+'</div>':"")+'</div>';
 }
 
@@ -373,7 +387,8 @@ function townBlock(t){
       +'<span class="num dim" style="text-align:left">'+esc(b.kind)+'</span>'
       +'<span class="nm"><b>'+esc(b.n)+'</b></span>'
       +'<span class="num">Lv'+b.max+'</span>'
-      +'<span class="num dim">'+(b.lv.length? gold(b.lv[b.lv.length-1].g)+"G" : "–")+'</span></div>';
+      +'<span class="num dim">'+(b.shop&&b.shop.length? "무기 "+soldTxt(b.shop[b.shop.length-1])
+          : (b.lv.length? gold(b.lv[b.lv.length-1].g)+"G" : "–"))+'</span></div>';
   }).join("");
   return '<section class="group"><div class="ghead"><h2>'+esc(t.n)+'</h2>'
     +'<span class="sub">'+t.b.length+'곳 · 합계 '+t.b.reduce(function(a,b){return a+b.max},0)+'단계</span>'
@@ -386,13 +401,24 @@ function buildDetail(key){
   if(!b) return '<div class="detail">찾을 수 없습니다</div>';
   var tot=b.lv.reduce(function(a,r){return a+r.g},0);
   var time=b.lv.reduce(function(a,r){return a+r.t},0);
+  var top=b.shop&&b.shop.length? b.shop[b.shop.length-1] : null;
   return '<div class="detail"><dl class="dgrid">'
     +'<div class="dcell"><dt>종류</dt><dd>'+esc(b.kind)+'</dd></div>'
     +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+b.max+'</dd></div>'
     +'<div class="dcell"><dt>만렙까지 골드</dt><dd class="mono">'+tot.toLocaleString()+'</dd></div>'
     +'<div class="dcell"><dt>만렙까지 시간</dt><dd class="mono">'+mins(time)+'</dd></div>'
-    +'</dl><div class="blk"><h4>레벨별 비용</h4>'+lvTable(b.lv)+'</div></div>';
+    +(top?'<div class="dcell"><dt>만렙에서 파는 것</dt><dd class="mono">'+soldTxt(top)+'</dd></div>':"")
+    +'</dl>'
+    + (b.kind==="주점" ? BAR_NOTE : "")
+    +'<div class="blk"><h4>레벨별 비용'+(top?" · 파는 물건":"")+'</h4>'
+    + lvTable(b.lv, b.base, b.shop)+'</div></div>';
 }
+
+var BAR_NOTE = '<div class="blk"><h4>주점 레벨이 하는 일</h4>'
+ + '<ul><li><b>초빙 포인트에 주점 레벨이 그대로 더해집니다.</b> 능력치를 정하는 그 포인트입니다.</li>'
+ + '<li><b>10% 확률로 0 ~ (주점 레벨 − 1) 만큼 더 붙습니다.</b> 주사위가 한 번 더 돌아가는 자리입니다.</li>'
+ + '<li>화면에 뜨는 «최대»는 <b>주점 레벨 + 3</b> 입니다.</li></ul>'
+ + '<span class="meta">InviteAdventureDialog.TapInviteButton 을 디스어셈블해 확인</span></div>';
 
 function block(title,sub,rows){
   if(!rows.length) return "";

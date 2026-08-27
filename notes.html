@@ -177,7 +177,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#job">직업</a><a href="#unknown">모르는 것</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#unknown">모르는 것</a>
     </div>
   </header>
 
@@ -277,16 +277,44 @@ RunCraft(craftIndex)</div>
   <div class="note"><b>마법 속성은 강화로 못 붙입니다.</b> <code>Enhancement.Kind.IsMagic(254)</code> 가 enum에 있지만 <code>Weapon.Craft</code> 가 그걸 만드는 자리는 없습니다(생성 지점 28곳 전수 확인). 마스터 데이터의 <code>isMagic</code> 플래그가 유일한 경로라, <b>마법 속성 무기는 처음부터 그런 것을 구해야 합니다.</b></div>
   <p class="src">Weapon.Craft · Equipment.RunCraft · ShopDialog TapBuyButton</p>
 
-  <h2 id="job"><span class="n">6</span>직업이 실제로 하는 일</h2>
+  <h2 id="fac"><span class="n">6</span>시설 레벨이 실제로 바꾸는 것</h2>
+  <p>직업 레벨과 마찬가지로, 코드가 <code>GetBuildingLevel</code> 을 부르는 자리를 전수로 찾았습니다. 시설마다 <b>딱 한 가지 수치</b>를 바꿉니다.</p>
+  <table><thead><tr><th>시설</th><th>바꾸는 것</th><th>식</th></tr></thead><tbody>
+  <tr><td><b>금고</b></td><td>골드 상한</td><td><code>레벨 × 2000 + 4000</code></td></tr>
+  <tr><td><b>창고</b></td><td>장비 보관 칸</td><td><code>레벨 × 8 + 10</code></td></tr>
+  <tr><td><b>숙소</b></td><td>보유 가능 인원</td><td><code>레벨 × 5</code></td></tr>
+  <tr><td><b>치료소</b></td><td>치료 비용·시간</td><td><code>max(레벨, 5)</code> 가 계산에 들어갑니다</td></tr>
+  <tr><td><b>대장간</b></td><td>강화 단계</td><td><a href="#craft">위의 다이아 강화</a> — <code>대장간 레벨 − 장비 레벨</code> 에서 시작</td></tr>
+  <tr><td><b>모험가 아카이브</b></td><td>몬스터 정보 공개</td><td>수치가 아니라 표시 여부</td></tr>
+  </tbody></table>
+  <div class="note"><b>창고는 구독하면 ×12 입니다.</b> 코드에 <code>레벨 × 12 + 10</code> 가지가 따로 있고, 어떤 플래그로 갈립니다.</div>
+  <h3>주점 — 용병을 뽑을 때</h3>
+  <p>주점 레벨은 <b>초빙 포인트</b>를 바꿉니다. 이 포인트가 뽑히는 용병의 능력치를 정합니다.</p>
+  <div class="eq">포인트  = (기본값) + <b>주점 레벨</b> + Rand(2~3)
+if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 확률로 0 ~ 레벨−1</i>
+화면의 «최대» = <b>주점 레벨 + 3</b></div>
+  <p>주점 레벨이 그대로 더해지고, <b>10% 확률로 한 번 더</b> 0~(레벨−1) 만큼 붙습니다. 능력치 자체는 종족의 기준값을 <code>CreateRandomValue</code> 로 흔든 값이라, 범위는 <a href="meta.html">종족 표</a>에 적어 뒀습니다.</p>
+  <h3>상점 — 레벨이 곧 파는 물건의 레벨</h3>
+  <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운은 Lv0부터, 하스포지는 Lv9부터 시작합니다. <a href="meta.html">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
+  <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · MaxRetireCharacterCount · Character.HealingCost · InviteAdventureDialog.TapInviteButton</p>
+
+  <h2 id="job"><span class="n">7</span>직업이 실제로 하는 일</h2>
   <p>직업 레벨을 코드가 참조하는 곳을 전수로 찾았습니다. <b>특수 분기가 있는 직업은 셋뿐</b>입니다. 나머지 60여 직업은 스탯 보너스·스킬·장착 가능 무기로만 갈립니다.</p>
   <table><thead><tr><th>직업</th><th>코드가 쓰는 곳</th><th class="num">통찰 보너스</th></tr></thead><tbody>
   <tr><td><b>도적</b></td><td>금고 발견·해제, 함정 96건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
   <tr><td><b>레인저</b></td><td>함정 109건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
   <tr><td><b>현자</b></td><td>이벤트 등장 조건, 함정 28건</td><td class="num"><b>주 +10 / 부 +5</b></td></tr>
   </tbody></table>
+  <h3>여러 직업을 키우면 왜 급격히 느려지나</h3>
+  <div class="eq">필요 경험치 = (직업 레벨 + 1)<sup>2.5</sup> × 14
+            × (1 + (expLevel − 1) / 4)      <i>// 직업마다 다른 계수</i>
+            × <b>1.05<sup>(다른 직업 레벨의 합)</sup></b></div>
+  <p><b>다른 직업 레벨 1점마다 필요 경험치가 5%씩 복리로 붙습니다.</b> 합이 20이면 2.7배, 50이면 11.5배, 100이면 131배, 150이면 1,521배입니다. 보조로 조금씩 올려 둔 직업이 주직업의 성장을 그대로 눌러 버립니다.</p>
+  <p>직업 계수도 큽니다 — 모험가 ×1.00, 초급 직업 ×1.25, 도둑 ×2.75(최고), 레인저 ×2.50. <a href="meta.html">클래스 표</a>에 전부 적어 뒀습니다.</p>
+  <p class="src">Character.GetExpToNextLevel · Job.NeedNextExp · Character.SumOtherJobLevels</p>
   <p>전투에서는 <code>ExecuteBattle</code> 안에서 <b>도적 레벨 + 레인저 레벨 + 통찰</b>을 함께 더해 씁니다 &mdash; 둘 다 기여합니다. 현자는 통찰 보너스가 압도적이고 단검·검·활·창·지팡이를 전부 듭니다.</p>
 
-  <h2 id="unknown"><span class="n">7</span>확인하지 못한 것</h2>
+  <h2 id="unknown"><span class="n">8</span>확인하지 못한 것</h2>
   <ul>
     <li>게시판이 하루에 몇 칸을 뽑는지 &mdash; <code>TownAverageQuestCount</code> 가 100/30으로 갈리는 플래그의 정체</li>
     <li>대장간 강화가 한 번에 몇 단계를 굴리는지 &mdash; <code>clamp(n+1, 3, 15)</code> 인데 <code>n</code> 의 출처가 비동기 코드 안에 있습니다</li>
