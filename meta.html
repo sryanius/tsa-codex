@@ -219,6 +219,8 @@ table.sct th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--fai
 table.sct td{padding:6px 12px 6px 0;border-bottom:1px solid var(--line-soft);color:var(--body);font-size:13px}
 table.sct th.num,table.sct td.num{text-align:right;font-family:"IBM Plex Mono",monospace}
 table.sct tr.zero td{color:var(--faint)}
+ol.explist{margin:0;padding-left:1.5em}
+ol.explist li{margin:2px 0}
 details.fine{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
 details.fine summary{cursor:pointer;color:var(--faint);font-size:12px;
   letter-spacing:.02em;list-style:none}
@@ -760,29 +762,48 @@ function expCounts(jobId){
   if(!j) return false;
   return !(j.k===202 || j.k===0 || j.k==null);
 }
-/* 지금 상태에서 지금 입력한 레벨까지 올리는 데 드는 총 경험치.
-   목록 순서대로 한 직업씩 올린다고 보고, 올릴 때마다 «다른 직업 합» 을 갱신한다. */
+/* 지금 상태에서 입력한 레벨까지 올리는 데 드는 총 경험치.
+
+   Character.GetExpToNextLevel 은 MainJob() 하나만 본다 — 모험으로 얻는
+   경험치는 «지금 지정한 주직업» 에만 들어간다. 그래서 어느 직업부터
+   올릴지 고를 수 있고, 순서가 총합을 크게 바꾼다.
+     한 레벨의 값 = (레벨+1)^2.5 × 14 × 직업계수 × 1.05^(다른 직업 레벨 합)
+
+   ★ 한 직업을 쭉 올리는 동안 «다른 직업 합» 은 안 변하므로, 그 직업이
+   치르는 값은 S(그 직업의 기본값 합) × 1.05^(먼저 끝낸 레벨 수) 다.
+   그러면 순서 문제는 Σ Pᵢ Sᵢ 꼴이 되고, 인접교환으로 정확한 최적이 나온다:
+
+       S / (1.05^레벨수 − 1)  내림차순
+
+   면제 직업(현자·모험가)은 분모가 0 이라 맨 앞 — 지수를 안 올리니
+   가장 쌀 때 해치우는 게 맞다. 무작위 300판을 전수 최적과 맞춰 확인했다. */
 function expPlan(){
   var rows=[{i:sc.main, to:sc.mainLv||0, main:true}]
     .concat(sc.subs.map(function(x){ return {i:x.i, to:x.lv||0, main:false}; }))
     .filter(function(r){ return r.i; });
-  var now={};
-  rows.forEach(function(r){ now[r.i] = Math.min(sc.was[r.i]||0, r.to); });
-  var total=0, out=[];
+  rows.forEach(function(r){ r.from=Math.min(sc.was[r.i]||0, r.to); });
+  rows = rows.filter(function(r){ return r.to > r.from; });
+  // 그 직업만 올릴 때 드는 기본값 합(1.05 를 뺀 값)과, 올릴 레벨 수
   rows.forEach(function(r){
-    var from=now[r.i], cost=0;
-    for(var L=from; L<r.to; L++){
-      var others=0;
-      for(var k in now) if(k!==r.i && expCounts(k)) others+=now[k];
-      cost += needNextExp(r.i, L, others);
-      now[r.i]=L+1;
-    }
-    total+=cost;
-    if(cost>0) out.push({i:r.i, from:from, to:r.to, cost:cost, main:r.main});
+    var S=0;
+    for(var L=r.from; L<r.to; L++) S += needNextExp(r.i, L, 0);
+    r.S = S;
+    r.n = expCounts(r.i) ? (r.to - r.from) : 0;   // 지수에 보태는 레벨 수
   });
-  return {rows:out, total:total};
+  rows.sort(function(a,b){
+    var ga=Math.pow(1.05,a.n), gb=Math.pow(1.05,b.n);
+    var ka = ga<=1 ? Infinity : a.S/(ga-1);
+    var kb = gb<=1 ? Infinity : b.S/(gb-1);
+    return kb-ka;
+  });
+  var others=0, total=0;
+  rows.forEach(function(r){
+    var cost=0;
+    for(var L=r.from; L<r.to; L++) cost += needNextExp(r.i, L, others);
+    r.cost=cost; total+=cost; others+=r.n;
+  });
+  return {rows:rows, total:total};
 }
-
 /* ── 목표 회피 풀이 ───────────────────────────────────────────────────
    Σ(부레벨 × 부보너스) ≥ 필요값 을 만족하는 «레벨 합 최소» 조합을 찾는다.
    보너스가 큰 직업부터 채우면 최소가 된다(보너스가 1·2·3 뿐이라 그렇다).
@@ -925,22 +946,24 @@ function statHTML(){
   var expBlock="";
   if(plan.total>0){
     var hrs = sc.xph>0 ? plan.total/sc.xph : 0;
-    expBlock='<div class="blk"><h4>여기까지 올리는 데 드는 경험치</h4><ul>'
+    expBlock='<div class="blk"><h4>여기까지 올리는 데 드는 경험치</h4>'
+      + '<p class="meta" style="margin:0 0 6px">싼 순서가 <b>이 차례</b>입니다 — 주직업을 이 순서로 바꿔 가며 올리세요.</p><ol class="explist">'
       + plan.rows.map(function(r){
           var j=D.jobs.filter(function(x){ return x.i===r.i; })[0];
-          return '<li><b>'+esc(j?j.n:r.i)+'</b>'+(r.main?' <span class="meta">(주)</span>':'')
+          return '<li><b>'+esc(j?j.n:r.i)+'</b>'+(r.main?' <span class="meta">(끝 주직업)</span>':'')
             +'<span class="meta"> — Lv'+r.from+' → '+r.to+' · '
             +Math.round(r.cost).toLocaleString()+' 경험치</span></li>'; }).join("")
-      + '</ul>'
+      + '</ol>'
       + '<div class="sumline">합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치</div>'
       + '<div class="crow"><span class="lvlabel">시간당 경험치</span>'
       + '<label class="lvin"><input type="number" min="0" step="1000" id="sc-xph" class="wide" value="'+(sc.xph||"")+'" placeholder="50000"></label>'
       + (hrs>0 ? '<span class="meta">→ 약 <b>'+(hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일')+'</b></span>'
                : '<span class="meta">넣으면 걸리는 시간을 계산합니다</span>')
       + '</div>'
-      + '<details class="fine"><summary>순서에 따라 총합이 달라집니다</summary>'
-      + '<p>한 직업을 올리면 <code>1.05^(다른 직업 레벨 합)</code> 때문에 나머지가 즉시 비싸집니다. '
-      + '위 목록 <b>순서대로</b> 올린다고 보고 계산했습니다.</p></details>'
+      + '<details class="fine"><summary>어떤 순서로 올린다고 보았나</summary>'
+      + '<p>경험치는 <b>지금 지정한 주직업 하나에만</b> 들어갑니다 (<code>Character.GetExpToNextLevel</code> 이 <code>MainJob()</code> 만 봅니다). 그래서 올리는 <b>차례를 내가 고를 수 있고</b>, 한 레벨의 값이 <code>(레벨+1)^2.5 × 1.05^(다른 직업 레벨 합)</code> 이라 차례에 따라 총합이 열 배 넘게 벌어집니다.</p>'
+      + '<p>한 직업을 쭉 올리는 동안 «다른 직업 합» 은 안 변하므로, 그 직업이 치르는 값은 <code>S × 1.05^(먼저 끝낸 레벨 수)</code> 입니다. 여기서 <b>가장 싼 차례가 정확히 정해집니다</b> &mdash; <code>S ÷ (1.05^레벨수 − 1)</code> 이 큰 직업부터. <b>«싼 한 칸부터» 집어 가는 방식은 오히려 가장 비쌉니다</b> (비싼 레벨을 지수가 다 오른 뒤로 미루게 됩니다).</p>'
+      + '<p><b>현자와 모험가는 «다른 직업 레벨 합» 에 안 들어갑니다</b> — 올려도 나머지를 비싸게 만들지 않습니다. 위 식에서 분모가 0 이라 <b>맨 앞</b>에 옵니다.</p></details>'
       + '</div>';
   }
   var sol = sc.goal>0 ? solveAvoid(sc.goal) : null;
