@@ -325,14 +325,16 @@ function pct(p){
   return p.toFixed(3)+"%";
 }
 function monPlaces(m){ return (m.places||[]).filter(okPlace); }
+// 「미출시 지역 보기」 를 따른다 — 안 따르면 못 가는 곳을 출처라고 우긴다
+function monQuests(m){ return (m.quests||[]).filter(function(q){ return okPlace(q); }); }
 function monQuestBlock(m){
-  var qs=m.quests||[];
+  var qs=monQuests(m);
   if(!qs.length) return "";
   var head = (monPlaces(m).length ? '나오는 퀘스트' : '탐색지에는 없습니다 — 퀘스트 전투에서만');
   return '<div class="blk"><h4>'+head+' ('+qs.length+')</h4><ul>'
     + qs.slice(0,12).map(function(q){
         return '<li><a href="quests.html?q='+encodeURIComponent(q.n)+'">'+esc(q.n)+'</a>'
-          +'<span class="meta"> — '+esc(q.t)+' · Lv'+(q.lv||0)+'</span></li>'; }).join("")
+          +'<span class="meta"> — '+esc(q.t)+(q.r?' · '+esc(q.r):'')+' · Lv'+(q.lv||0)+'</span></li>'; }).join("")
     + (qs.length>12 ? '<li class="meta">… 그 밖에 '+(qs.length-12)+'건</li>' : "")
     + '</ul></div>';
 }
@@ -507,6 +509,7 @@ function itemQuests(x){
   (x.drop||[]).forEach(function(d){
     var m=MONBY[d.m]; if(!m) return;
     (m.quests||[]).forEach(function(q){
+      if(!okPlace(q)) return;
       var k=q.t+"/"+q.n;
       if(seen[k]){ if(seen[k].m.indexOf(d.m)<0) seen[k].m.push(d.m); return; }
       seen[k]={n:q.n,t:q.t,lv:q.lv,m:[d.m]}; out.push(seen[k]);
@@ -727,8 +730,8 @@ function monRow(m){
     +(mp.length? esc(mp.slice(0,3).map(function(p){return p.n}).join(", "))
       +(mp.length>3?" 외 "+(mp.length-3):"")
       : (m.places.length ? "출현지는 미출시 지역뿐"
-         : ((m.quests||[]).length ? "탐색지에는 없음 — 퀘스트 전투 "+m.quests.length+"곳"
-                                  : "출현지 미확인")))+'</span></span>'
+         : (monQuests(m).length ? "탐색지에는 없음 — 퀘스트 전투 "+monQuests(m).length+"곳"
+                                : "출현지 미확인")))+'</span></span>'
     +'<span class="num">Lv'+(m.lv||0)+'</span>'
     +'<span class="num dim r3">명중 '+(m.hit||0)+'</span></div>';
 }
@@ -1029,8 +1032,15 @@ function setView(v){
 }
 ["place","mon","item"].forEach(function(v){ el("v-"+v).onclick=function(){ setView(v); }; });
 // 다른 문서의 탭에서 넘어오면 ?v= 가 붙어 온다
-var _v=(new URLSearchParams(location.search)).get("v");
+var _p=new URLSearchParams(location.search), _v=_p.get("v"), _q=_p.get("q");
 setView(["place","mon","item"].indexOf(_v)>=0 ? _v : "place");
+/* 다른 문서에서 «이걸 보여 줘» 하고 넘어온다 (퀘스트의 몬스터 표찰 등).
+   ?v= 만 읽고 ?q= 를 버려서, 탭만 열리고 정작 그 줄로는 안 갔다. */
+if(_q){
+  el("q").value=_q; state.q=_q; render();
+  var rows=el("out").querySelectorAll(".row");
+  if(rows.length===1){ openRow(rows[0]); rows[0].scrollIntoView({block:"center"}); }
+}
 };
 </script>
 
