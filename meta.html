@@ -646,7 +646,7 @@ function block(title,sub,rows){
    주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
 var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
-var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0};
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0, goal:0};
 
 function scJobs(){ return D.jobs.slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
@@ -750,6 +750,57 @@ function expPlan(){
     if(cost>0) out.push({i:r.i, from:from, to:r.to, cost:cost, main:r.main});
   });
   return {rows:out, total:total};
+}
+
+/* ── 목표 회피 풀이 ───────────────────────────────────────────────────
+   Σ(부레벨 × 부보너스) ≥ 필요값 을 만족하는 «레벨 합 최소» 조합을 찾는다.
+   보너스가 큰 직업부터 채우면 최소가 된다(보너스가 1·2·3 뿐이라 그렇다).
+   같은 레벨 합이면 경험치 계수가 낮고 레벨이 낮게 흩어진 쪽이 싸다. */
+function solveAvoid(target, key){
+  key = key || "회피";
+  var mj=scMainJob();
+  if(!mj) return null;
+  var mainPart = Math.ceil((sc.mainLv||0) * (mj.main[key]||0) / 10);
+  var gearPart = scGearPart(key);
+  var need = target - mainPart - gearPart;
+  if(need <= 0) return {ok:true, need:0, rows:[], mainPart:mainPart, gearPart:gearPart};
+  var S = (need-1)*10 + 1;                     // ⌈Σ/10⌉ ≥ need  ⟺  Σ ≥ 10(need−1)+1
+  var pool = D.jobs.filter(function(j){ return j.i!==sc.main && (j.sub[key]||0)>0; })
+    .map(function(j){ return {i:j.i, n:j.n, av:j.sub[key], max:j.max, exp:j.exp}; })
+    .sort(function(a,b){ return (b.av-a.av) || (a.exp-b.exp) || (b.max-a.max); });
+  // 1) 보너스 큰 것부터 채워 «필요한 최소 레벨 합» 을 구한다
+  var left=S, lv={}, total=0;
+  for(var i=0;i<pool.length && left>0;i++){
+    var p=pool[i], take=Math.min(p.max, Math.ceil(left/p.av));
+    if(take<=0) continue;
+    lv[p.i]=take; left-=take*p.av; total+=take;
+  }
+  if(left>0) return {ok:false, need:need, short:left, mainPart:mainPart, gearPart:gearPart};
+  // 2) 같은 레벨 합을 유지하면서, 비싼 «높은 레벨» 을 싼 직업의 낮은 레벨로 옮긴다
+  var used=Object.keys(lv).filter(function(k){ return lv[k]>0; });
+  for(var pass=0; pass<200; pass++){
+    var moved=false;
+    for(var a=0;a<used.length;a++){
+      var A=pool.filter(function(p){ return p.i===used[a]; })[0];
+      for(var b=0;b<pool.length;b++){
+        var B=pool[b];
+        if(B.i===A.i || (lv[B.i]||0)>=B.max) continue;
+        if(A.av!==B.av) continue;                 // 같은 효율끼리만 옮긴다
+        var la=lv[A.i]||0, lb=lv[B.i]||0;
+        if(la<=0 || la-1 < lb+1) continue;        // 더 고르게 될 때만
+        lv[A.i]=la-1; lv[B.i]=lb+1;
+        if(used.indexOf(B.i)<0) used.push(B.i);
+        moved=true;
+      }
+    }
+    if(!moved) break;
+  }
+  var rows=Object.keys(lv).filter(function(k){ return lv[k]>0; })
+    .map(function(k){ var p=pool.filter(function(x){ return x.i===k; })[0];
+                      return {i:k, n:p.n, lv:lv[k], av:p.av}; })
+    .sort(function(x,y){ return y.lv-x.lv; });
+  return {ok:true, need:need, S:S, rows:rows, total:total,
+          mainPart:mainPart, gearPart:gearPart};
 }
 function scMaxJobLv(){
   var m=sc.mainLv||0;
@@ -860,6 +911,31 @@ function statHTML(){
       + '위 목록 <b>순서대로</b> 올린다고 보고 계산했습니다 &mdash; 순서를 바꾸면 총합도 조금 달라집니다.</span>'
       + '</div>';
   }
+  var sol = sc.goal>0 ? solveAvoid(sc.goal) : null;
+  var solBlock='<div class="blk"><h4>목표 회피로 부직업 짜기</h4>'
+    +'<div class="crow"><span class="lvlabel">목표 회피값</span>'
+    +'<label class="lvin"><input type="number" min="0" max="99" id="sc-goal" value="'+(sc.goal||"")+'" placeholder="예: 40"></label>'
+    +'<span class="meta">지금 갈 수 있는 곳의 최고 명중은 <b>44</b> 입니다 &mdash; '
+    +'<code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ 44</code> 면 물리는 다 피합니다</span></div>';
+  if(sol && !sol.ok){
+    solBlock += '<p class="meta" style="color:var(--f-heal)">이 주직업·장비로는 못 채웁니다 &mdash; '
+      +'부직업을 전부 최대로 올려도 '+sol.short+' 모자랍니다.</p>';
+  } else if(sol && sol.rows && sol.rows.length){
+    solBlock += '<p class="meta">주직업 <b>'+sol.mainPart+'</b> + 장비 <b>'+sol.gearPart+'</b> '
+      +'→ 부직업에서 <b>'+sol.need+'</b> 이 더 필요합니다 (Σ 부레벨×부보너스 ≥ '+sol.S+').</p>'
+      +'<ul>'+sol.rows.map(function(r){
+          return '<li><b>'+esc(r.n)+' '+r.lv+'</b><span class="meta"> — 레벨당 '+(r.av/10).toFixed(1)
+            +' · 합 '+(r.lv*r.av/10).toFixed(1)+'</span></li>'; }).join("")
+      +'</ul>'
+      +'<div class="crow"><span class="lvlabel"></span>'
+      +'<button type="button" class="mini" id="sc-apply">이대로 넣기</button>'
+      +'<span class="meta">부직업 레벨 합 <b>'+sol.total+'</b> &mdash; 넣으면 위에서 경험치가 계산됩니다</span></div>';
+  } else if(sol && sol.ok){
+    solBlock += '<p class="meta">주직업 '+sol.mainPart+' + 장비 '+sol.gearPart+' 만으로 이미 넘습니다.</p>';
+  }
+  solBlock += '<span class="meta">부직업은 <b>전부 더한 뒤 한 번만 올림</b>합니다 &mdash; '
+    +'그래서 여럿에 얇게 나눠 담아도 손해가 없고, 경험치가 <code>(레벨+1)^2.5</code> 로 커지니 '
+    +'오히려 그쪽이 훨씬 쌉니다.</span></div>';
   var table='<table class="sct"><thead><tr><th>수치</th><th class="num">기본</th><th class="num">직업</th><th class="num">장비</th><th class="num">합계</th></tr></thead><tbody>'
     + rows.map(function(r){
         var z=(!r.base&&!r.job&&!r.gear);
@@ -889,7 +965,7 @@ function statHTML(){
             +(sc.elf? ' (엘프라 부적이 하나 더)' : '')
           : '주직업을 먼저 고르세요')+'</span></div>'
     +'</div>'
-    + table + expBlock
+    + table + solBlock + expBlock
     +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
       +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
     +'<p class="meta"><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
@@ -1317,6 +1393,17 @@ el("out").addEventListener("click",function(e){
   var b=e.target.closest("button.mini");
   if(b){
     if(b.id==="sc-subadd"){ sc.subs.push({i:"",lv:1}); render(); return; }
+    if(b.id==="sc-apply"){
+      var so=solveAvoid(sc.goal);
+      if(so && so.ok && so.rows){
+        so.rows.forEach(function(r){
+          var cur=sc.subs.filter(function(x){ return x.i===r.i; })[0];
+          if(cur){ if(cur.lv < r.lv) cur.lv = r.lv; }
+          else sc.subs.push({i:r.i, lv:r.lv});
+        });
+      }
+      render(); return;
+    }
     if(b.dataset.submain!=null){
       // 주직업과 자리를 맞바꾼다. 지금 주직업이 비어 있으면 그냥 올린다.
       var k=+b.dataset.submain, was={i:sc.main, lv:sc.mainLv};
@@ -1351,6 +1438,16 @@ el("out").addEventListener("change",function(e){
 var ct;
 el("out").addEventListener("input",function(e){
   var t=e.target;
+  if(t.id==="sc-goal"){
+    clearTimeout(ct);
+    var v4=t.value;
+    ct=setTimeout(function(){
+      sc.goal=Math.max(0,parseInt(v4,10)||0); render();
+      var a3=el("out").querySelector("#sc-goal");
+      if(a3){ a3.focus(); try{ a3.setSelectionRange(a3.value.length,a3.value.length); }catch(e){} }
+    }, 350);
+    return;
+  }
   if(t.id==="sc-xph"){
     clearTimeout(ct);
     var v3=t.value;
