@@ -699,11 +699,29 @@ function scCanKinds(){
   if(sc.elf && arm.indexOf("부적")<0) arm.push("부적");
   return {arm:arm, wep:wep};
 }
-function scCanEquip(id){
-  var g=D.gear[id]; if(!g) return true;
-  var k=scCanKinds();
-  return (g.c==="무기" ? k.wep : k.arm).indexOf(g.k) >= 0;
+/* Character.CanEquip 은 세 가지를 본다.
+     ① 요구 레벨 ≤ 내 최고 직업 레벨
+     ② 요구 힘   ≤ 내 «힘»
+     ③ 그 부위를 주직업이 허락하는가
+   ②의 «힘» 은 기본 힘이 아니라 직업·장비까지 더한 값이다. */
+function scMaxJobLv(){
+  var m=sc.mainLv||0;
+  sc.subs.forEach(function(x){ if((x.lv||0)>m) m=x.lv||0; });
+  return m;
 }
+function scPower(){
+  var base=sc.base["힘"]||0;
+  return base + scJobPart("힘") + scGearPart("힘");
+}
+function scWhyNot(id){
+  var g=D.gear[id]; if(!g) return "";
+  var k=scCanKinds();
+  if((g.c==="무기" ? k.wep : k.arm).indexOf(g.k) < 0) return "부위";
+  if((g.nl||0) > scMaxJobLv()) return "레벨 "+g.nl;
+  if((g.pw||0) > scPower())    return "힘 "+g.pw;
+  return "";
+}
+function scCanEquip(id){ return !scWhyNot(id); }
 /* 장비는 부위마다 하나씩이다. 무기는 한 칸, 방어구는 종류가 곧 부위다. */
 function scSlots(){
   var k=scCanKinds();
@@ -755,12 +773,16 @@ function statHTML(){
     var cur=sc.slot[sl.key]||"";
     var opts='<option value="">— 없음 —</option>'
       + scPick(sl).map(function(id){
-          var g=D.gear[id], bn=scBonusText(id);
+          var g=D.gear[id], bn=scBonusText(id), why=scWhyNot(id);
           return '<option value="'+esc(id)+'"'+(id===cur?" selected":"")+'>'
-            +esc(g.n)+' · Lv'+g.lv+(bn? ' · '+esc(bn) : '')+'</option>'; }).join("");
+            +(why? "✕ " : "")+esc(g.n)+' · Lv'+(g.nl||g.lv)+' 힘'+(g.pw||0)
+            +(bn? ' · '+esc(bn) : '')+(why? ' — '+esc(why)+' 모자람' : '')+'</option>'; }).join("");
     return '<div class="crow"><span class="lvlabel">'+esc(sl.key)+'</span>'
       +'<select data-slot="'+esc(sl.key)+'">'+opts+'</select>'
-      +'<span class="meta">'+(cur? esc(scBonusText(cur)||"보너스 없음") : "")+'</span></div>'; }).join("");
+      +'<span class="meta"'+(cur&&scWhyNot(cur)?' style="color:var(--f-heal)"':'')+'>'
+      +(cur? (scWhyNot(cur)? "<b>못 낌</b> — "+esc(scWhyNot(cur))+" 모자람"
+                           : esc(scBonusText(cur)||"보너스 없음")) : "")
+      +'</span></div>'; }).join("");
 
   var baseRow = SC_BASE.map(function(k){
     return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-base="'+esc(k)+'" value="'
@@ -786,6 +808,9 @@ function statHTML(){
     +'<div class="crow"><span class="lvlabel"></span><button type="button" class="mini" id="sc-subadd">부직업 추가</button></div>'
     +'<div class="crow"><span class="lvlabel">기본 능력치</span><div class="statbox">'+baseRow+'</div></div>'
     + eqRows
+    +'<div class="crow"><span class="lvlabel">내 착용 한도</span><span class="meta">'
+      +'힘 <b>'+scPower()+'</b> · 최고 직업 레벨 <b>'+scMaxJobLv()+'</b> &mdash; '
+      +'장비의 «힘 N» 과 «Lv N» 이 이 값을 넘으면 못 낍니다</span></div>'
     +'<div class="crow"><span class="lvlabel"></span><span class="meta">'
       +(kinds.wep.length||kinds.arm.length
           ? '주직업이 <b>'+esc(kinds.wep.concat(kinds.arm).join(" · "))+'</b> 만 허락합니다'
@@ -795,7 +820,8 @@ function statHTML(){
     + table
     +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
       +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
-    +'<p class="meta"><b>착용 가능 부위는 주직업 하나로만 정해집니다</b> &mdash; 부직업은 관계없습니다. '
+    +'<p class="meta"><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
+      +'<b>착용 가능 부위는 주직업 하나로만 정해집니다</b> &mdash; 부직업은 관계없습니다. '
       +'엘프는 주직업과 무관하게 부적을 하나 더 낍니다. '
       +'강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p>'
     +'</section>';
