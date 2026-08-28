@@ -232,6 +232,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .statbox{display:flex;flex-wrap:wrap;gap:6px}
 .statbox .lvin{font-size:11.5px}
 .statbox .lvin input{width:44px}
+.t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
 .crow .lvin input{width:54px}
 .crow .lvin input.wide{width:96px;text-align:right}
 .sumline{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:12px 0 8px}
@@ -331,6 +332,9 @@ var LOCKED_SET = (function(){
   return out;
 })();
 function isLockedRegion(r){ return !!LOCKED_SET[r]; }
+/* 훈련소를 여는 퀘스트가 못 가는 지역에만 있으면 그 직업은 아직 못 얻는다.
+   판정은 build 쪽 locklib 이 하고, 여기서는 그 결과(j.lock)를 쓴다. */
+function visJobs(){ return D.jobs.filter(function(j){ return state.showLocked || !j.lock; }); }
 
 // 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
 // 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
@@ -395,9 +399,10 @@ function soldTxt(r){ return r.min===r.max ? ("Lv"+r.max) : ("Lv"+r.min+"–"+r.m
 /* ---------- 클래스 ---------- */
 function jobRow(j){
   var mh=myHallLv(j.i);
+  var lockTag = j.lock ? '<em class="tag t-lock" title="이 직업의 훈련소를 여는 퀘스트가 아직 못 가는 지역에 있습니다">미출시</em>' : "";
   return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
-    +'<span class="nm"><b>'+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
+    +'<span class="nm"><b>'+lockTag+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
     +'<span>'+esc(j.o||j.d.split("\n")[0])+'</span></span>'
     +'<span class="num dim">'+esc(j.w.join("·"))+'</span>'
     +'<span class="num">'+(mh!=null? '<b style="color:var(--accent)">Lv'+mh+'</b> / '+j.max : 'Lv'+j.max)+'</span>'
@@ -660,7 +665,7 @@ var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
 var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0, goal:0};
 
-function scJobs(){ return D.jobs.slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
+function scJobs(){ return visJobs().slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
   return Object.keys(D.gear).map(function(k){ var g=D.gear[k]; return {i:k,g:g}; })
     .filter(function(x){ return x.g.c===cat; })
@@ -783,7 +788,7 @@ function solveAvoid(target, key){
   var need = target - mainPart - gearPart;
   if(need <= 0) return {ok:true, need:0, rows:[], mainPart:mainPart, gearPart:gearPart};
   var S = (need-1)*10 + 1;                     // ⌈Σ/10⌉ ≥ need  ⟺  Σ ≥ 10(need−1)+1
-  var pool = D.jobs.filter(function(j){ return j.i!==sc.main && (j.sub[key]||0)>0; })
+  var pool = visJobs().filter(function(j){ return j.i!==sc.main && (j.sub[key]||0)>0; })
     .map(function(j){ return {i:j.i, n:j.n, av:j.sub[key], max:j.max, exp:j.exp}; })
     .sort(function(a,b){ return (b.av-a.av) || (a.exp-b.exp) || (b.max-a.max); });
   // 1) 보너스 큰 것부터 채워 «필요한 최소 레벨 합» 을 구한다
@@ -1280,7 +1285,7 @@ function headStats(){
   if(state.view==="job"){
     var wk={}, mg=0;
     D.jobs.forEach(function(j){ j.w.forEach(function(w){ wk[w]=1; }); if(j.sk && j.sk.length) mg++; });
-    out=[[D.jobs.length,"클래스"],[Object.keys(wk).length,"무기 종류"],[mg,"마법 쓰는 클래스"]];
+    out=[[visJobs().length,"클래스"],[Object.keys(wk).length,"무기 종류"],[mg,"마법 쓰는 클래스"]];
   } else if(state.view==="race"){
     var bt={}; D.races.forEach(function(r){ (r.open||r.towns).forEach(function(t){ bt[t]=1; }); });
     out=[[D.races.length,"종족·성별"],[Object.keys(bt).length,"뽑는 주점"],[7,"성격"]];
@@ -1313,7 +1318,7 @@ function render(){
   var html="", n=0;
   headStats();
   if(state.view==="job"){
-    var rows=D.jobs.filter(function(j){
+    var rows=visJobs().filter(function(j){
       if(state.wk && j.w.indexOf(state.wk)<0) return false;
       return hit(j.n+" "+j.i+" "+j.o+" "+j.d+" "+j.w.join(" ")+" "+j.a.join(" ")+" "+j.hall
         +" "+j.sk.map(function(s){return s.n}).join(" "));
