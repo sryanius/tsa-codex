@@ -646,7 +646,7 @@ function block(title,sub,rows){
    주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
 var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
-var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false};
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0};
 
 function scJobs(){ return D.jobs.slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
@@ -697,6 +697,8 @@ function scLoad(id){
   sc.mainLv = mj ? (mj.lv||0) : 0;
   sc.subs = (c.jobs||[]).filter(function(j){ return j!==mj && (j.lv||0)>0; })
               .map(function(j){ return {i:j.i, lv:j.lv||0}; });
+  // «지금 레벨» 을 따로 적어 둔다 — 올릴 때 드는 경험치를 여기서부터 센다
+  sc.was={}; (c.jobs||[]).forEach(function(j){ sc.was[j.i]=j.lv||0; });
   var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
   sc.elf = !!(rc && rc.race==="엘프");
   sc.slot={};
@@ -720,6 +722,35 @@ function scCanKinds(){
      ② 요구 힘   ≤ 내 «힘»
      ③ 그 부위를 주직업이 허락하는가
    ②의 «힘» 은 기본 힘이 아니라 직업·장비까지 더한 값이다. */
+/* Job.NeedNextExp — 레벨 L 에서 L+1 로 갈 때 드는 경험치.
+   다른 직업 레벨 합이 1.05 의 지수로 붙어서, 부직업을 키울수록 전부 비싸진다. */
+function needNextExp(jobId, lv, others){
+  var j=D.jobs.filter(function(x){ return x.i===jobId; })[0];
+  if(!j) return 0;
+  return Math.floor(Math.pow(lv+1, 2.5) * 14 * (((j.exp||1)-1)/4 + 1) * Math.pow(1.05, others));
+}
+/* 지금 상태에서 지금 입력한 레벨까지 올리는 데 드는 총 경험치.
+   목록 순서대로 한 직업씩 올린다고 보고, 올릴 때마다 «다른 직업 합» 을 갱신한다. */
+function expPlan(){
+  var rows=[{i:sc.main, to:sc.mainLv||0, main:true}]
+    .concat(sc.subs.map(function(x){ return {i:x.i, to:x.lv||0, main:false}; }))
+    .filter(function(r){ return r.i; });
+  var now={};
+  rows.forEach(function(r){ now[r.i] = Math.min(sc.was[r.i]||0, r.to); });
+  var total=0, out=[];
+  rows.forEach(function(r){
+    var from=now[r.i], cost=0;
+    for(var L=from; L<r.to; L++){
+      var others=0;
+      for(var k in now) if(k!==r.i) others+=now[k];
+      cost += needNextExp(r.i, L, others);
+      now[r.i]=L+1;
+    }
+    total+=cost;
+    if(cost>0) out.push({i:r.i, from:from, to:r.to, cost:cost, main:r.main});
+  });
+  return {rows:out, total:total};
+}
 function scMaxJobLv(){
   var m=sc.mainLv||0;
   sc.subs.forEach(function(x){ if((x.lv||0)>m) m=x.lv||0; });
@@ -807,6 +838,28 @@ function statHTML(){
     return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-base="'+esc(k)+'" value="'
       +(sc.base[k]||0)+'"></label>'; }).join("");
 
+  var plan=expPlan();
+  var expBlock="";
+  if(plan.total>0){
+    var hrs = sc.xph>0 ? plan.total/sc.xph : 0;
+    expBlock='<div class="blk"><h4>여기까지 올리는 데 드는 경험치</h4><ul>'
+      + plan.rows.map(function(r){
+          var j=D.jobs.filter(function(x){ return x.i===r.i; })[0];
+          return '<li><b>'+esc(j?j.n:r.i)+'</b>'+(r.main?' <span class="meta">(주)</span>':'')
+            +'<span class="meta"> — Lv'+r.from+' → '+r.to+' · '
+            +Math.round(r.cost).toLocaleString()+' 경험치</span></li>'; }).join("")
+      + '</ul>'
+      + '<div class="crow" style="margin:8px 0 0"><span class="lvlabel">시간당 경험치</span>'
+      + '<label class="lvin"><input type="number" min="0" step="100" id="sc-xph" value="'+(sc.xph||"")+'" placeholder="예: 5000"></label>'
+      + '<span class="meta">'+(hrs>0
+          ? '합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> → 약 <b>'
+            + (hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일') + '</b>'
+          : '합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치 — 시간당 얻는 양을 넣으면 걸리는 시간을 계산합니다')
+      + '</span></div>'
+      + '<span class="meta">한 직업을 올리면 <code>1.05^(다른 직업 레벨 합)</code> 때문에 나머지가 비싸집니다. '
+      + '위 목록 <b>순서대로</b> 올린다고 보고 계산했습니다 &mdash; 순서를 바꾸면 총합도 조금 달라집니다.</span>'
+      + '</div>';
+  }
   var table='<table class="sct"><thead><tr><th>수치</th><th class="num">기본</th><th class="num">직업</th><th class="num">장비</th><th class="num">합계</th></tr></thead><tbody>'
     + rows.map(function(r){
         var z=(!r.base&&!r.job&&!r.gear);
@@ -836,7 +889,7 @@ function statHTML(){
             +(sc.elf? ' (엘프라 부적이 하나 더)' : '')
           : '주직업을 먼저 고르세요')+'</span></div>'
     +'</div>'
-    + table
+    + table + expBlock
     +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
       +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
     +'<p class="meta"><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
@@ -1298,6 +1351,16 @@ el("out").addEventListener("change",function(e){
 var ct;
 el("out").addEventListener("input",function(e){
   var t=e.target;
+  if(t.id==="sc-xph"){
+    clearTimeout(ct);
+    var v3=t.value;
+    ct=setTimeout(function(){
+      sc.xph=Math.max(0,parseInt(v3,10)||0); render();
+      var a2=el("out").querySelector("#sc-xph");
+      if(a2){ a2.focus(); try{ a2.setSelectionRange(a2.value.length,a2.value.length); }catch(e){} }
+    }, 350);
+    return;
+  }
   if(t.id==="sc-mainlv" || (t.dataset && (t.dataset.sublv!=null || t.dataset.base!=null))){
     clearTimeout(ct);
     var el2=t, v2=t.value;
