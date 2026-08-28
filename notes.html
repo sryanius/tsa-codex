@@ -721,34 +721,75 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      넘어서면 피해가 <b>0 까지</b> 내려갑니다(물리는 아무리 막아도 최소 1).
      <b>문제는 올릴 수단이 없다는 것입니다.</b></div>
 
-  <h3>마법 방어는 거의 안 올라갑니다</h3>
-  <p>방어구 <b>311개 중 마법 방어가 붙은 것이 6개</b>뿐입니다. 부위별 최고를
-     다 모아도 <b>18</b> 입니다 (방패 오버쉘드 +8 · 부적 단마의 부적 +6 · 갑옷 지상 메일 +4).
-     의복과 투구에는 아예 없습니다. <b>미출시 지역까지 뒤져도 18 그대로</b>입니다.</p>
-  <p>직업 보너스는 <b>마법사 계열에만</b> 있습니다 &mdash; 암흑마법사 주 6 / 부 3 이 최고이고,
-     마검사·현자·전술병 같은 것은 주 2 / 부 1 입니다.</p>
+  <h3>마법 방어는 부적이 정합니다</h3>
+  <p>마스터의 <code>_magicDefense</code> 는 거의 다 0 이라 그것만 보면 «마법 방어가 없는 게임»
+     처럼 보입니다. 실제 값은 <code>Armor.MagicDefense()</code> 가 만듭니다.</p>
+  <div class="eq">v = ability.addMagicDefense + <b>강화로 붙은 몫</b>
+<b>if</b> ability.isMagic:  v += &lfloor;레벨 &divide; 3&rfloor; + 1
+<b>if</b> 부위 == 부적:      v += <b>레벨</b>        <span class="cmt">// ★ 부적은 레벨을 통째로 받는다</span></div>
+  <p>그래서 <b>부적이 압도적</b>입니다 &mdash; 늪왕의 부적(Lv29)이 <b>39</b>, 고목의 부적(Lv34)이 46 입니다.
+     마법 방어가 붙는 방어구는 <b>311개 중 107개</b> 이고, 강화로도 붙습니다.</p>
+  <table class="t"><thead><tr><th>부위</th><th>지금 낄 수 있는 최고</th><th>마법 방어</th></tr></thead><tbody>
+    <tr class="hi"><td><b>부적</b></td><td>늪왕의 부적 (Lv29)</td><td><b>+39</b></td></tr>
+    <tr><td>방패</td><td>검은 봉인의 방패 (Lv26)</td><td>+11</td></tr>
+    <tr><td>갑옷</td><td>반환로 도강 갑옷 (Lv27)</td><td>+10</td></tr>
+    <tr><td>의복</td><td>반조명 도강복 (Lv27)</td><td>+10</td></tr>
+    <tr><td>투구</td><td>반조의 투구 (Lv24)</td><td>+9</td></tr>
+    <tr><td colspan="2"><b>합계</b></td><td><b>69</b> <span class="sm">(미출시까지 84)</span></td></tr>
+  </tbody></table>
+  <p>여기에 직업 몫이 붙습니다 &mdash; <b>마법사 계열에만</b> 있고 암흑마법사 주 6 / 부 3 이 최고,
+     마검사·현자·전술병은 주 2 / 부 1 입니다.
+     마검사 주 30 이면 주몫 6, 마법계 부직업 다섯이면 부몫 21 쯤 됩니다.</p>
   <table class="t"><thead><tr><th>짜는 법</th><th>마법 방어</th></tr></thead><tbody>
-    <tr><td>마검사 주 + 마법계 부직업 5개</td><td>45</td></tr>
-    <tr><td>암흑마법사 주 + 부직업 8개</td><td>58</td></tr>
-    <tr class="hi"><td><b>천장</b> (암흑마법사 주 + 부직업 전부)</td><td><b>65</b></td></tr>
+    <tr><td>부적만 끼고 직업은 안 봄</td><td>39</td></tr>
+    <tr class="hi"><td>마검사 주 + 마법계 부 5개 + 장비</td><td><b>96</b></td></tr>
+    <tr><td>암흑마법사 주 + 부 8개 + 장비</td><td>109</td></tr>
   </tbody></table>
 
-  <h3>그래서 「안 맞기」 는 안 됩니다</h3>
-  <table class="t"><thead><tr><th>마법</th><th>원래 피해</th><th>마방 45</th><th>마방 65(천장)</th></tr></thead><tbody>
-    <tr><td>톡식노바 <span class="sm">(전체 · 7종이 씀)</span></td><td>56~84</td><td>11~39</td><td>0~19</td></tr>
-    <tr><td>번아웃 <span class="sm">(단일)</span></td><td>62~96</td><td>17~51</td><td>0~31</td></tr>
-    <tr><td>프리즈링 에지 <span class="sm">(단일)</span></td><td>66~102</td><td>21~57</td><td>1~37</td></tr>
-    <tr class="hi"><td>뇌우 <span class="sm">(전체 · Lv35)</span></td><td>76~114</td><td>31~69</td><td><b>11~49</b></td></tr>
+  <h3>그래서 마법은 «막을 수» 있습니다</h3>
+  <table class="t"><thead><tr><th>마법</th><th>원래 피해</th><th>마방 69 <span class="sm">(장비만)</span></th><th>마방 96</th></tr></thead><tbody>
+    <tr><td>톡식노바 <span class="sm">(전체 · 7종이 씀)</span></td><td>56~84</td><td>0~15</td><td>0~2</td></tr>
+    <tr><td>번아웃 <span class="sm">(단일)</span></td><td>62~96</td><td>0~27</td><td>0~2</td></tr>
+    <tr><td>프리즈링 에지 <span class="sm">(단일)</span></td><td>66~102</td><td>0~33</td><td>0~6</td></tr>
+    <tr class="hi"><td>뇌우 <span class="sm">(전체 · Lv35)</span></td><td>76~114</td><td>7~45</td><td>0~18</td></tr>
   </tbody></table>
-  <div class="note warn"><b>회피처럼 0 으로 만들 수는 없습니다.</b>
-     천장인 65 를 찍어도 상위 마법은 그대로 수십이 들어오고, 대부분이 <b>전체 마법</b>이라
-     파티 전원이 맞습니다. 게다가 <code>2d6 &gt; 9</code> 로 <b>1/6 씩 터지는 굴림</b>이 있어
-     최댓값 위로도 올라갑니다.</div>
+  <div class="note"><b>부적 하나로 절반이 해결됩니다.</b> 회피처럼 «완전히 0» 은 아니지만
+     &mdash; <code>2d6 &gt; 9</code> 로 <b>1/6 씩 터지는 굴림</b>이 있어 최댓값 위로도 올라갑니다 &mdash;
+     <b>마방 96 이면 대부분의 마법이 0~2 로 떨어집니다.</b>
+     물리는 방어를 최대로 껴도 78 을 맞는데, 마법은 부적 한 자리로 그보다 훨씬 잘 막힙니다.</div>
   <p>정리하면 <b>물리는 회피로 0 을 만들 수 있고, 마법은 못 만듭니다.</b>
      마법 쓰는 몬스터가 나오는 곳은 회피탱으로도 안전해지지 않습니다 &mdash;
      도감의 탐색지에 <b>출현 몬스터의 마법</b>을 적어 둔 것이 그래서입니다.</p>
-  <p class="src">BattleSkill.GetDamage / DamageSkill &middot; BattleCreature.MagicDamageReduction &middot;
-     SkillMaster.MinDamage / MaxDamage &middot; JobMaster.mainJobBonusesMagicDefense</p>
+  <h3>수면·마비 같은 상태이상은 규칙이 또 다릅니다</h3>
+  <p>피해 마법과 달리 <b>상태이상에는 저항 굴림이 있습니다</b>.
+     그리고 <b>무엇으로 막느냐가 스킬마다 다릅니다</b>.</p>
+  <div class="eq">공격 = <b>Dice2DWithCritical(10)</b> + 시전자 마력 + addSuccessRate
+방어 = <b>2d6</b> + (isUseMagicDefense ? 대상 <b>마법 방어</b> : 대상 <b>힘</b>)
+성공 &hArr; 공격 &minus; 방어 &ge; 1</div>
+  <p><code>Dice2DWithCritical</code> 은 2d6 을 굴려 더하고 <b>10 이상이 나오면 또 굴려 더합니다</b>.
+     대신 <b>첫 굴림이 2 면 &minus;100</b> 으로 그 자리에서 실패합니다.
+     <code>addSuccessRate</code> 는 <b>152개 스킬 전부 0</b> 이라 실제로는 안 쓰입니다.</p>
+  <div class="note warn"><b>대부분의 상태이상은 «힘» 이 막습니다.</b>
+     <code>isUseMagicDefense</code> 가 켜진 스킬은 152개 중 <b>27개</b>뿐입니다.
+     몬스터가 실제로 쓰는 것으로 보면 &mdash;
+     <b>수면(슬립 미스트)·매력</b>은 정신계라 <b>마법 방어</b>로 막고,
+     <b>바디 슬램(25종)·둘러싸기(17종)·마비 공격(9종)·통째로 삼키기</b> 같은 것은
+     <b>힘</b>으로 막습니다. 회피도 마법 방어도 안 통하는 자리가 있습니다.</div>
+  <p>몬스터 <b>367종 중 마력이 있는 것이 106종</b>(중앙 20 · 최대 37)이고 나머지는 0 입니다.
+     마력 0 짜리가 거는 상태이상은 저항값만 조금 있어도 거의 안 걸립니다.</p>
+  <table class="t"><thead><tr><th>내 저항값<br><span class="sm">(힘 또는 마법 방어)</span></th><th>마력 0</th><th>마력 10</th><th>마력 20 <span class="sm">(중앙)</span></th><th>마력 30</th></tr></thead><tbody>
+    <tr><td>0</td><td>46%</td><td>97%</td><td>97%</td><td>97%</td></tr>
+    <tr><td>10</td><td>8.8%</td><td>46%</td><td>97%</td><td>97%</td></tr>
+    <tr class="hi"><td>20</td><td>1.7%</td><td>8.8%</td><td>46%</td><td>97%</td></tr>
+    <tr><td>30</td><td>0.3%</td><td>1.7%</td><td>8.8%</td><td>46%</td></tr>
+    <tr><td>40</td><td>0.1%</td><td>0.3%</td><td>1.7%</td><td>8.8%</td></tr>
+  </tbody></table>
+  <p><b>저항값이 상대 마력보다 10 높으면 걸릴 확률이 한 자릿수로 떨어집니다.</b>
+     주사위가 폭발하는 구조라 완전히 0 은 안 되지만, 물리 회피와 비슷하게
+     «넘기면 사실상 안 걸린다» 가 성립합니다.</p>
+  <p class="src">BattleSkill.GetDamage / DamageSkill / SkillAttack / AddCondition &middot;
+     BattleCreature.MagicDamageReduction / MagicResistValue &middot; Armor.MagicDefense &middot;
+     Util.Dice2DWithCritical &middot; JobMaster.mainJobBonusesMagicDefense</p>
 
   </div>
 
