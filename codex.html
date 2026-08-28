@@ -534,14 +534,16 @@ function itemGist(name){
     +'</div>';
 }
 // 마우스를 올렸을 때 뜨는 카드
+function sgn(v){ v=v||0; return (v>0?"+":"")+v; }
 function itemCard(name){
   var x=ITEMBY[name];
   if(!x) return '<div class="card"><b>'+esc(name)+'</b><p class="cmeta">이 도감에 없는 아이템입니다</p></div>';
   var rows=[["분류", x.cat+" · "+x.kind], ["레벨", String(x.lv||0)]];
   if(x.cat==="무기") rows.push(["공격력", String(x.dmg||"-")], ["치명타", (x.crit||0)+"%"],
-                              ["공격 범위", x.rng||"-"], ["공격 대상", x.tgt||"-"]);
+                              ["공격 범위", x.rng||"-"], ["공격 대상", x.tgt||"-"],
+                              ["명중률 보너스", sgn(x.hit)]);
   else rows.push(["방어력", String(x.def||"-")], ["마법 방어", String(x.mdef||"-")],
-                 ["치명타 저항", "+"+(x.cdef||0)+"%"]);
+                 ["치명타 저항", "+"+(x.cdef||0)+"%"], ["마법 장비", x.mag?"○":"×"]);
   rows.push(["필요 능력", String(x.pw||"-")], ["가격", (x.price||"-")+"G"]);
   if(x.shop) rows.push(["판매처", x.shop]);
   var pl=itemPlaces(x);
@@ -779,10 +781,12 @@ function itemDetail(x){
       +'<div class="dcell"><dt>치명타</dt><dd class="mono">'+(x.crit||0)+'%</dd></div>'
       +'<div class="dcell"><dt>공격 범위</dt><dd>'+esc(x.rng||"-")+'</dd></div>'
       +'<div class="dcell"><dt>공격 대상</dt><dd>'+esc(x.tgt||"-")+'</dd></div>'
+      +'<div class="dcell"><dt>명중률 보너스</dt><dd class="mono">'+sgn(x.hit)+'</dd></div>'
       +'<div class="dcell"><dt>마법 장비</dt><dd>'+(x.mag?"○":"×")+'</dd></div>'
     : '<div class="dcell"><dt>방어력</dt><dd class="mono">'+esc(x.def||"-")+'</dd></div>'
       +'<div class="dcell"><dt>마법 방어</dt><dd class="mono">'+esc(x.mdef||"-")+'</dd></div>'
-      +'<div class="dcell"><dt>치명타 저항</dt><dd class="mono">+'+(x.cdef||0)+'%</dd></div>';
+      +'<div class="dcell"><dt>치명타 저항</dt><dd class="mono">+'+(x.cdef||0)+'%</dd></div>'
+      +'<div class="dcell"><dt>마법 장비</dt><dd>'+(x.mag?"○":"×")+'</dd></div>';
   var sp = x.sp.length ? '<div class="blk"><h4 style="color:var(--good)">특수 능력 '+x.sp.length+'</h4><ul>'
       + x.sp.map(function(a){
           return '<li><b style="color:var(--good)">'+esc(a.k)+'</b>'
