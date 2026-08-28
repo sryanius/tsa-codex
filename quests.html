@@ -119,6 +119,17 @@ input[type="search"]{flex:1 1 240px}
 .lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
 .row.locked{opacity:.62}
+.gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
+.gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
+.gnote p.meta{margin:10px 0 0;font-size:12.5px}
+.gnote table{width:100%;max-width:560px;border-collapse:collapse;font-size:12.5px}
+.gnote th,.gnote td{padding:4px 8px;border-bottom:1px solid var(--line-soft);text-align:left}
+.gnote th{color:var(--faint);font-weight:600}
+.gnote td.num,.gnote th.num{text-align:right;font-variant-numeric:tabular-nums}
+.gnote td.plus{color:var(--f-heal);font-weight:600}
+.gnote td.minus{color:var(--f-vault)}
+.gnote tr.zero td{color:var(--faint)}
 .party{font-style:normal;font-size:10px;font-weight:600;color:var(--f-heal);
   border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
   vertical-align:1px;white-space:nowrap}
@@ -296,6 +307,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <button id="v-fac" type="button" aria-pressed="true">시설 로드맵</button>
         <button id="v-town" type="button" aria-pressed="false">도시별 전체</button>
         <button id="v-rep" type="button" aria-pressed="false">평판 표</button>
+        <button id="v-guild" type="button" aria-pressed="false">길드</button>
       </div>
       <input type="search" id="q" placeholder="퀘스트명 · 내용 · 장소 검색" aria-label="검색">
       <select id="town" aria-label="도시 선택"><option value="">모든 도시</option></select>
@@ -686,6 +698,52 @@ function chestHTML(x){
     + '</ul></div>';
 }
 
+/* ── 길드 퀘스트 ────────────────────────────────────────────────────
+   같은 레벨대의 개인 퀘스트와 나란히 놓는다. 「참여할 값어치가 있나」 는
+   결국 «같은 시간에 개인 퀘스트를 돌면 얼마인가» 와의 비교라서,
+   시간당 경험치를 옆에 붙여 준다. */
+function tmMinOf(x){ return tmMin(x); }
+function xph(x){ var m=tmMin(x); return m ? x.xp/(m/60) : 0; }
+function med(a){
+  if(!a.length) return 0;
+  var b=a.slice().sort(function(p,q){ return p-q; }), h=b.length>>1;
+  return b.length%2 ? b[h] : (b[h-1]+b[h])/2;
+}
+function guildView(rows){
+  var g=D.quests.filter(function(x){ return x.gq; });
+  var p=D.quests.filter(function(x){ return !x.gq; });
+  var gm=med(g.map(xph)), lvMax=Math.max.apply(null, g.map(function(x){ return x.lv; }));
+  // 길드 퀘스트가 있는 레벨대에서만 견준다
+  var same=p.filter(function(x){ return x.lv<=lvMax; });
+  var head='<section class="group"><div class="ghead"><h2 style="color:var(--f-vault)">길드 퀘스트</h2>'
+    +'<span class="sub">'+g.length+'건 · 레벨 1~'+lvMax+' · 전부 반복 · 평판 늘 +1</span><span class="rule"></span></div>'
+    +'<div class="gnote">'
+    +'<p>도시 게시판 밖에서 뜨고, <b>길드원이 한 명씩 등록</b>해 한 명 이상 모이면 출발합니다. '
+    +'세이브에 기록이 남지 않아 진행도 집계에서는 빠집니다.</p>'
+    +'<table class="sct"><thead><tr><th>레벨대</th><th class="num">길드 시간당 XP</th>'
+    +'<th class="num">개인 시간당 XP</th><th class="num">차이</th><th class="num">길드 건수</th></tr></thead><tbody>';
+  var body="";
+  for(var lo=0; lo<=35; lo+=5){
+    var gg=g.filter(function(x){ return x.lv>=lo && x.lv<lo+5; });
+    var pp=p.filter(function(x){ return x.lv>=lo && x.lv<lo+5; });
+    if(!gg.length && !pp.length) continue;
+    var a=med(gg.map(xph)), b=med(pp.map(xph));
+    var d = (a&&b) ? (a/b-1)*100 : null;
+    body+='<tr'+(gg.length?'':' class="zero"')+'><td>'+lo+'~'+(lo+4)+'</td>'
+      +'<td class="num">'+(a?Math.round(a).toLocaleString():'—')+'</td>'
+      +'<td class="num">'+(b?Math.round(b).toLocaleString():'—')+'</td>'
+      +'<td class="num'+(d==null?'':(d>0?' plus':' minus'))+'">'
+      +(d==null?'—':(d>0?'+':'')+d.toFixed(0)+'%')+'</td>'
+      +'<td class="num">'+(gg.length||'—')+'</td></tr>';
+  }
+  head+=body+'</tbody></table>'
+    +'<p class="meta">레벨 '+(lvMax+1)+' 이상에는 길드 퀘스트가 <b>없습니다</b> &mdash; '
+    +'그 위로는 개인 퀘스트만 남습니다.</p></div></section>';
+  var mine=rows.filter(function(x){ return x.gq; });
+  return head + groupBlock("목록", mine.length+"건 · 레벨순",
+    mine.slice().sort(function(a,b){ return a.lv-b.lv; }), "var(--f-vault)");
+}
+
 function groupBlock(title,sub,rows,color,extra){
   if(!rows.length) return "";
   return '<section class="group"><div class="ghead">'
@@ -785,6 +843,10 @@ function render(){
     if(rest.length) html+=groupBlock("시설과 무관한 퀘스트", rest.length+"건", rest, null);
     var gq=rows.filter(function(x){ return x.gq; });
     if(gq.length) html+=groupBlock("길드 퀘스트", gq.length+"건 · 도시 게시판 밖입니다", gq, null);
+  } else if(state.view==="guild"){
+    html+=guildView(rows);
+    el("out").innerHTML=html;
+    return;
   } else if(state.view==="rep"){
     var ts=D.towns.filter(function(t){ return (state.showLocked || !LOCKED[t.n])
       && (!state.town || t.n===state.town)
@@ -873,12 +935,13 @@ el("showlocked").addEventListener("change",function(e){
 el("v-fac").onclick=function(){ setView("fac"); };
 function setView(v){
   state.view=v;
-  ["fac","town","rep"].forEach(function(x){
+  ["fac","town","rep","guild"].forEach(function(x){
     el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
   render();
 }
 el("v-town").onclick=function(){ setView("town"); };
 el("v-rep").onclick=function(){ setView("rep"); };
+el("v-guild").onclick=function(){ setView("guild"); };
 
 // quests.html?q=... 로 들어오면 그 검색어로 시작한다 (도감에서 넘어올 때)
 try{

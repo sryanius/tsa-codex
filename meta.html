@@ -120,6 +120,17 @@ input[type="search"]{flex:1 1 240px}
 .lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
 .row.locked{opacity:.62}
+.gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
+.gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
+.gnote p.meta{margin:10px 0 0;font-size:12.5px}
+.gnote table{width:100%;max-width:560px;border-collapse:collapse;font-size:12.5px}
+.gnote th,.gnote td{padding:4px 8px;border-bottom:1px solid var(--line-soft);text-align:left}
+.gnote th{color:var(--faint);font-weight:600}
+.gnote td.num,.gnote th.num{text-align:right;font-variant-numeric:tabular-nums}
+.gnote td.plus{color:var(--f-heal);font-weight:600}
+.gnote td.minus{color:var(--f-vault)}
+.gnote tr.zero td{color:var(--faint)}
 .party{font-style:normal;font-size:10px;font-weight:600;color:var(--f-heal);
   border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
   vertical-align:1px;white-space:nowrap}
