@@ -219,6 +219,14 @@ table.sct th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--fai
 table.sct td{padding:6px 12px 6px 0;border-bottom:1px solid var(--line-soft);color:var(--body);font-size:13px}
 table.sct th.num,table.sct td.num{text-align:right;font-family:"IBM Plex Mono",monospace}
 table.sct tr.zero td{color:var(--faint)}
+details.fine{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+details.fine summary{cursor:pointer;color:var(--faint);font-size:12px;
+  letter-spacing:.02em;list-style:none}
+details.fine summary::-webkit-details-marker{display:none}
+details.fine summary::before{content:"▸ ";color:var(--faint)}
+details.fine[open] summary::before{content:"▾ "}
+details.fine p{margin:6px 0 0;line-height:1.6}
+#out .blk{margin:16px 0 0}
 .crow select{font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);
   border-radius:7px;background:var(--raised);color:var(--ink)}
 .statbox{display:flex;flex-wrap:wrap;gap:6px}
@@ -711,6 +719,12 @@ function scName(i){ var g=D.gear[i]; return g? g.n+" (Lv"+g.lv+" "+g.k+")" : i; 
 /* Character.CanEquipArmors / CanEquipWeapons — «주직업 하나» 만 본다.
    부직업은 관계없다. 엘프는 주직업과 무관하게 부적이 하나 더 붙는다. */
 function scMainJob(){ return D.jobs.filter(function(j){ return j.i===sc.main; })[0] || null; }
+/* 직업마다 최대 레벨이 다르다 — 베테랑 파이터 10, 검술사 15, 도둑 30 … */
+function scJobMax(id){
+  var j=D.jobs.filter(function(x){ return x.i===id; })[0];
+  return j ? (j.max||0) : 0;
+}
+function scClamp(id, v){ return Math.max(0, Math.min(scJobMax(id), v|0)); }
 function scCanKinds(){
   var mj=scMainJob();
   var arm = mj ? mj.a.slice() : [], wep = mj ? mj.w.slice() : [];
@@ -865,7 +879,8 @@ function statHTML(){
   var subRows = sc.subs.map(function(s2,i){
     return '<div class="crow"><span class="lvlabel">부직업 '+(i+1)+'</span>'
       +'<select data-sub="'+i+'">'+jobOpts(s2.i)+'</select>'
-      +'<label class="lvin">Lv<input type="number" min="0" max="30" data-sublv="'+i+'" value="'+(s2.lv||0)+'"></label>'
+      +'<label class="lvin">Lv<input type="number" min="0" max="'+scJobMax(s2.i)+'" data-sublv="'+i+'" value="'+(s2.lv||0)+'"></label>'
+      +'<span class="meta">/'+scJobMax(s2.i)+'</span>'
       +'<button type="button" class="mini" data-submain="'+i+'" title="지금 주직업과 자리를 맞바꿉니다 — 착용 가능 부위도 같이 바뀝니다">&#9650; 주직업으로</button>'
       +'<button type="button" class="mini" data-subdel="'+i+'">빼기</button></div>'; }).join("");
 
@@ -907,8 +922,9 @@ function statHTML(){
             + (hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일') + '</b>'
           : '합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치 — 시간당 얻는 양을 넣으면 걸리는 시간을 계산합니다')
       + '</span></div>'
-      + '<span class="meta">한 직업을 올리면 <code>1.05^(다른 직업 레벨 합)</code> 때문에 나머지가 비싸집니다. '
-      + '위 목록 <b>순서대로</b> 올린다고 보고 계산했습니다 &mdash; 순서를 바꾸면 총합도 조금 달라집니다.</span>'
+      + '<details class="fine"><summary>순서에 따라 총합이 달라집니다</summary>'
+      + '<p>한 직업을 올리면 <code>1.05^(다른 직업 레벨 합)</code> 때문에 나머지가 즉시 비싸집니다. '
+      + '위 목록 <b>순서대로</b> 올린다고 보고 계산했습니다.</p></details>'
       + '</div>';
   }
   var sol = sc.goal>0 ? solveAvoid(sc.goal) : null;
@@ -923,19 +939,23 @@ function statHTML(){
   } else if(sol && sol.rows && sol.rows.length){
     solBlock += '<p class="meta">주직업 <b>'+sol.mainPart+'</b> + 장비 <b>'+sol.gearPart+'</b> '
       +'→ 부직업에서 <b>'+sol.need+'</b> 이 더 필요합니다 (Σ 부레벨×부보너스 ≥ '+sol.S+').</p>'
-      +'<ul>'+sol.rows.map(function(r){
-          return '<li><b>'+esc(r.n)+' '+r.lv+'</b><span class="meta"> — 레벨당 '+(r.av/10).toFixed(1)
-            +' · 합 '+(r.lv*r.av/10).toFixed(1)+'</span></li>'; }).join("")
-      +'</ul>'
-      +'<div class="crow"><span class="lvlabel"></span>'
-      +'<button type="button" class="mini" id="sc-apply">이대로 넣기</button>'
-      +'<span class="meta">부직업 레벨 합 <b>'+sol.total+'</b> &mdash; 넣으면 위에서 경험치가 계산됩니다</span></div>';
+      +'<table class="sct" style="max-width:400px"><thead><tr><th>부직업</th><th class="num">레벨</th><th class="num">레벨당</th><th class="num">몫</th></tr></thead><tbody>'
+      + sol.rows.map(function(r){
+          return '<tr><td>'+esc(r.n)+'</td><td class="num">'+r.lv+' <span class="meta">/'+scJobMax(r.i)+'</span></td>'
+            +'<td class="num">'+(r.av/10).toFixed(1)+'</td><td class="num">'+(r.lv*r.av/10).toFixed(1)+'</td></tr>'; }).join("")
+      + '<tr><td><b>합</b></td><td class="num"><b>'+sol.total+'</b></td><td class="num"></td>'
+      + '<td class="num"><b>'+(sol.rows.reduce(function(a,r){return a+r.lv*r.av;},0)/10).toFixed(1)+'</b></td></tr>'
+      + '</tbody></table>'
+      +'<div class="crow"><button type="button" class="mini" id="sc-apply">이대로 넣기</button>'
+      +'<span class="meta">부직업 칸에 채워 넣고 경험치를 계산합니다</span></div>';
   } else if(sol && sol.ok){
     solBlock += '<p class="meta">주직업 '+sol.mainPart+' + 장비 '+sol.gearPart+' 만으로 이미 넘습니다.</p>';
   }
-  solBlock += '<span class="meta">부직업은 <b>전부 더한 뒤 한 번만 올림</b>합니다 &mdash; '
-    +'그래서 여럿에 얇게 나눠 담아도 손해가 없고, 경험치가 <code>(레벨+1)^2.5</code> 로 커지니 '
-    +'오히려 그쪽이 훨씬 쌉니다.</span></div>';
+  solBlock += '<details class="fine"><summary>왜 여럿에 나눠 담는가</summary>'
+    +'<p>부직업은 <b>전부 더한 뒤 한 번만 올림</b>합니다 &mdash; 직업마다 올림하지 않으므로 '
+    +'여럿에 얇게 나눠 담아도 손해가 없습니다. 그리고 한 레벨의 경험치가 '
+    +'<code>(레벨+1)^2.5</code> 로 커지므로, 한 직업을 30까지 올리는 것보다 '
+    +'셋을 10 안팎으로 올리는 쪽이 훨씬 쌉니다.</p></details></div>';
   var table='<table class="sct"><thead><tr><th>수치</th><th class="num">기본</th><th class="num">직업</th><th class="num">장비</th><th class="num">합계</th></tr></thead><tbody>'
     + rows.map(function(r){
         var z=(!r.base&&!r.job&&!r.gear);
@@ -950,7 +970,8 @@ function statHTML(){
     +'<div class="calc">'
     +'<div class="crow"><span class="lvlabel">불러오기</span>'+crewSel+'</div>'
     +'<div class="crow"><span class="lvlabel">주직업</span><select id="sc-main">'+jobOpts(sc.main)+'</select>'
-      +'<label class="lvin">Lv<input type="number" min="0" max="30" id="sc-mainlv" value="'+(sc.mainLv||0)+'"></label>'
+      +'<label class="lvin">Lv<input type="number" min="0" max="'+scJobMax(sc.main)+'" id="sc-mainlv" value="'+(sc.mainLv||0)+'"></label>'
+      +'<span class="meta">/'+(scJobMax(sc.main)||"—")+'</span>'
       +'<span class="meta">주직업은 하나만 셉니다 &mdash; 부직업과 계수가 다릅니다</span></div>'
     + subRows
     +'<div class="crow"><span class="lvlabel"></span><button type="button" class="mini" id="sc-subadd">부직업 추가</button></div>'
@@ -968,10 +989,10 @@ function statHTML(){
     + table + solBlock + expBlock
     +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
       +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
-    +'<p class="meta"><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
+    +'<details class="fine"><summary>계산에 안 들어간 것</summary><p><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
       +'<b>착용 가능 부위는 주직업 하나로만 정해집니다</b> &mdash; 부직업은 관계없습니다. '
       +'엘프는 주직업과 무관하게 부적을 하나 더 낍니다. '
-      +'강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p>'
+      +'강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p></details>'
     +'</section>';
 }
 
@@ -1396,11 +1417,14 @@ el("out").addEventListener("click",function(e){
     if(b.id==="sc-apply"){
       var so=solveAvoid(sc.goal);
       if(so && so.ok && so.rows){
-        so.rows.forEach(function(r){
-          var cur=sc.subs.filter(function(x){ return x.i===r.i; })[0];
-          if(cur){ if(cur.lv < r.lv) cur.lv = r.lv; }
-          else sc.subs.push({i:r.i, lv:r.lv});
+        /* «그대로 넣는다» 는 뜻이다 — 올리기만 하면 목표를 낮춰도 그대로였다.
+           회피를 주는 부직업만 걷어내고 풀이대로 다시 깐다.
+           회피 0 인 부직업(현자·모험가 등)은 건드리지 않는다. */
+        sc.subs = sc.subs.filter(function(x){
+          var j=D.jobs.filter(function(y){ return y.i===x.i; })[0];
+          return !j || !(j.sub["회피"]||0);
         });
+        so.rows.forEach(function(r){ sc.subs.push({i:r.i, lv:scClamp(r.i, r.lv)}); });
       }
       render(); return;
     }
@@ -1424,12 +1448,17 @@ el("out").addEventListener("change",function(e){
   if(t.id==="c-bar"){ calc.bar=t.value; render(); return; }
   if(t.name==="c-sex"){ calc.sex=t.dataset.x; render(); return; }
   if(t.id==="sc-crew"){ if(t.value) scLoad(t.value); else { sc.from=""; } render(); return; }
-  if(t.id==="sc-main"){ sc.main=t.value; render(); return; }
+  if(t.id==="sc-main"){ sc.main=t.value; sc.mainLv=scClamp(t.value, sc.mainLv||0); render(); return; }
   if(t.dataset && t.dataset.slot!=null){
     if(t.value) sc.slot[t.dataset.slot]=t.value; else delete sc.slot[t.dataset.slot];
     render(); return;
   }
-  if(t.dataset && t.dataset.sub!=null){ sc.subs[+t.dataset.sub].i=t.value; render(); return; }
+  if(t.dataset && t.dataset.sub!=null){
+    var k2=+t.dataset.sub;
+    sc.subs[k2].i=t.value;
+    sc.subs[k2].lv=scClamp(t.value, sc.subs[k2].lv||0);
+    render(); return;
+  }
   if(t.dataset && t.dataset.p!=null){
     if(t.checked) calc.pers[t.dataset.p]=1; else delete calc.pers[t.dataset.p];
     render();
@@ -1463,8 +1492,11 @@ el("out").addEventListener("input",function(e){
     var el2=t, v2=t.value;
     ct=setTimeout(function(){
       var n3=Math.max(0,parseInt(v2,10)||0);
-      if(el2.id==="sc-mainlv") sc.mainLv=n3;
-      else if(el2.dataset.sublv!=null) sc.subs[+el2.dataset.sublv].lv=n3;
+      if(el2.id==="sc-mainlv") sc.mainLv=scClamp(sc.main, n3);
+      else if(el2.dataset.sublv!=null){
+        var si=+el2.dataset.sublv;
+        sc.subs[si].lv=scClamp(sc.subs[si].i, n3);
+      }
       else sc.base[el2.dataset.base]=n3;
       render();
       var sel = el2.id ? "#"+el2.id
