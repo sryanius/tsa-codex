@@ -884,8 +884,10 @@ function crewDetail(c){
        확실한 «무기 몫(강화 포함)» 만 보여 준다. */
     +'<div class="dcell"><dt>무기 공격력 <span class="fld">직업 몫 제외</span></dt>'
       +'<dd class="mono">'+weaponRange(c).join(' – ')+'</dd></div>'
-    +'<div class="dcell"><dt>방어력</dt><dd class="mono">'+defRange(c).join(' – ')+'</dd></div>'
+    +'<div class="dcell"><dt>장비 방어력 <span class="fld">직업 몫 제외</span></dt>'
+      +'<dd class="mono">'+gearDefRange(c).join(' – ')+'</dd></div>'
     +'<div class="dcell"><dt>명중률</dt><dd class="mono">'+hitValue(c)+'</dd></div>'
+    +'<div class="dcell"><dt>크리티컬 확률</dt><dd class="mono">'+critRate(c)+'</dd></div>'
     +'<div class="dcell"><dt>회피 능력</dt><dd class="mono" style="color:var(--accent)">'+avoidValue(c)+'</dd></div>'
     +'<div class="dcell"><dt>마법 방어</dt><dd class="mono">'+magicDef(c)+'</dd></div>'
     +'<div class="dcell"><dt>방패 차단 확률</dt><dd class="mono">'+shieldAvoid(c)+'</dd></div>'
@@ -1010,7 +1012,7 @@ function jobBonus(c, key){
 }
 /* Enhancement.Kind -> 능력치 이름. 세이브의 강화 기록을 능력치에 얹는다. */
 var ENH={253:"회피",250:"명중률",256:"민첩",210:"통찰력",211:"생명점",212:"마나",
-         203:"마법 방어",200:"방어력",201:"방어력",202:"방어력",252:"치명 저항",
+         203:"마법 방어",200:"방어력",201:"최소 방어",202:"최대 방어",252:"치명 저항",
          251:"치명타",255:"지능",100:"공격력",101:"최소 공격",102:"최대 공격",
          204:"방패 방어",205:"방패 회피",1:"필요 근력"};
 /* ★ c.eq 는 장비 «파일 GUID» 다 — GEAR 는 «에셋 이름» 으로 키를 쓴다.
@@ -1058,27 +1060,29 @@ function weaponRange(c){
   return [gearField(c,"dm",0)+e+enhSum(c,"최소 공격"),
           gearField(c,"dm",1)+e+enhSum(c,"최대 공격")];
 }
-function defRange(c){
-  var j=jobBonus2(c,"방어력"), e=enhSum(c,"방어력");
-  return [gearField(c,"df",0)+j+e, gearField(c,"df",1)+j+e];
+function gearDefRange(c){
+  return [gearField(c,"df",0)+enhSum(c,"방어력")+enhSum(c,"최소 방어"),
+          gearField(c,"df",1)+enhSum(c,"방어력")+enhSum(c,"최대 방어")];
 }
 function shieldRange(c){
   var e=enhSum(c,"방패 방어");
   return [gearField(c,"sd",0)+e, gearField(c,"sd",1)+e];
 }
-function critRate(c){ return gearField(c,"cr")+jobBonus2(c,"치명타")+enhSum(c,"치명타"); }
+/* ★ 치명타만 나눔수가 20 이다 — 다른 항목은 전부 10 인데 여기만 다르다.
+   혜주(4+5=9)·동일(0+5=5) 두 명으로 확인했다. */
+function critRate(c){ return gearField(c,"cr")+jobBonus2(c,"치명타",20)+enhSum(c,"치명타"); }
 function critDef(c){ return gearField(c,"cd")+jobBonus2(c,"치명 저항")+enhSum(c,"치명 저항"); }
 function magicDef(c){ return gearField(c,"md")+jobBonus2(c,"마법 방어")+enhSum(c,"마법 방어"); }
 function shieldAvoid(c){ return gearField(c,"sv")+jobBonus(c,"sav")+enhSum(c,"방패 회피"); }
 /* main/sub 이 [주,부] 배열이 아니라 이름표 사전(main{}/sub{})인 것들 */
-function jobBonus2(c, label){
-  var main=0, sub=0;
+function jobBonus2(c, label, div){
+  var main=0, sub=0, d=div||10;
   (c.jobs||[]).forEach(function(j){
     var jm=JOB[j.i]; if(!jm) return;
     if(j.cur) main += (j.lv||0)*((jm.main&&jm.main[label])||0);
     else      sub  += (j.lv||0)*((jm.sub &&jm.sub[label]) ||0);
   });
-  return ceilDiv10(main)+ceilDiv10(sub);
+  return Math.ceil(main/d)+Math.ceil(sub/d);
 }
 /* 마법 클래스는 레벨을 올리며 마법을 배운다 — 지금 레벨까지의 것을 모은다. */
 function spellsOf(c){
