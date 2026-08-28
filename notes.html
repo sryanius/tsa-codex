@@ -342,6 +342,29 @@ RunCraft(craftIndex)</div>
   <p><b>부적은 방어력이 0 이라</b> 위 표의 첫 두 줄(5% 묶음 포함)을 통째로 건너뜁니다. 대신 i=2 의 회피와 매 단계 민첩은 그대로 받습니다.</p>
   <p class="src">Armor.Craft · Equipment.RunCraft · ArmorMaster.Ability.isMagic</p>
 
+  <h3>몇 단계가 걸리나 &mdash; 대장간 레벨이 정합니다</h3>
+  <p>강화가 «몇 단계» 로 들어가는지는 위의 두 옵션을 가르는 가장 중요한 값입니다
+     (무기의 추가 공격은 5단계 이상, 방어구의 회피는 2단계 이상). 그 수는 이렇게 정해집니다.</p>
+  <div class="eq">강화석 1개 소비
+n = <b>대장간 레벨 &minus; 장비 레벨</b>
+p = 50
+<b>while</b> RandSuccess(p): n += 1; p &minus;= 5      <span class="cmt">// 50 · 45 · 40 … 5 %</span>
+단계 = <b>clamp(n + 1, 3, 15)</b></div>
+  <p>보너스 굴림은 <b>50%로 시작해 성공할 때마다 5%p씩 낮아집니다</b>. 그래서 보너스는
+     0회가 절반이고, 기댓값은 <b>0.86회</b> 입니다.</p>
+  <table class="t"><thead><tr><th>보너스</th><th>0회</th><th>1회</th><th>2회</th><th>3회</th><th>4회</th><th>5회 이상</th></tr></thead>
+  <tbody><tr><td>확률</td><td>50%</td><td>27.5%</td><td>13.5%</td><td>5.9%</td><td>2.2%</td><td>0.9%</td></tr></tbody></table>
+  <p>바닥이 <b>3단계</b> 라서, 대장간 레벨이 장비 레벨보다 낮아도 <b>회피(2단계 이상)는 반드시 붙습니다</b>.
+     반대로 <b>추가 공격(5단계 이상)을 노리려면 대장간이 장비보다 최소 4레벨 높아야</b> 반쯤 걸립니다 &mdash;
+     레벨차 +4 면 5단계가 50%, 6단계 이상이 50% 입니다.</p>
+  <table class="t"><thead><tr><th>대장간 &minus; 장비</th><th>평균 단계</th><th>분포</th></tr></thead><tbody>
+    <tr><td>0 이하</td><td>3.0 ~ 3.1</td><td>거의 언제나 3단계</td></tr>
+    <tr><td>+2</td><td>3.9</td><td>3:50% · 4:28% · 5:14% · 6:6%</td></tr>
+    <tr class="hi"><td>+4</td><td>5.9</td><td>5:50% · 6:28% · 7:14% · 8:6%</td></tr>
+    <tr><td>+6</td><td>7.9</td><td>7:50% · 8:28% · 9:14% · 10:6%</td></tr>
+  </tbody></table>
+  <p class="src">EquipmentDialog.&lt;RunCraft&gt;d__38.MoveNext · GameData.GetBuildingLevel(35) · Util.RandSuccess</p>
+
   <h3>현실적인 길</h3>
   <p>제작등급 5 이상으로 떨어지는 드랍은 전체 데이터에 <b>10종</b>뿐입니다 &mdash; 도감의 «+5강 이상 드랍» 태그로 걸러집니다. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 인데 Lv2 무기라 실전성은 없습니다.</p>
   <p>그보다 <b>두 옵션이 처음부터 박혀 있는 무기가 39종</b> 있고, 거의 전부 <b>퀘스트 금고</b>에서 나옵니다. <a href="codex.html">도감</a> 아이템 탭의 «전체 공격»(24) / «추가 공격»(15) 체크박스로 찾으세요.</p>
@@ -584,9 +607,13 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
 
   <h2 id="unknown"><span class="n">10</span>확인하지 못한 것</h2>
+  <p>둘 다 풀려서 비었습니다. 무엇이었는지와 답은 아래에 있습니다.</p>
   <ul>
-    <li>대장간 강화가 한 번에 몇 단계를 굴리는지 &mdash; <code>clamp(n+1, 3, 15)</code> 인데 <code>n</code> 의 출처가 비동기 코드 안에 있습니다</li>
-    <li>보물금고에서 나오는 아이템 일부 &mdash; 마스터 데이터에 없는 것이 있습니다</li>
+    <li><b>대장간이 한 번에 몇 단계를 굴리는지</b> &mdash; §5 의 「몇 단계가 걸리나」 로 옮겼습니다.
+        <code>n</code> 은 <b>대장간 레벨 − 장비 레벨</b> 이었습니다.</li>
+    <li><b>금고에서 나오는 아이템 일부가 마스터에 없다</b> &mdash; 지금 다시 세니
+        금고·습득물 <b>1140개 중 이름을 못 찾는 것이 0</b> 입니다.
+        무기와 방어구를 따로 훑던 시절의 흔적이었습니다.</li>
   </ul>
 
   </div>
