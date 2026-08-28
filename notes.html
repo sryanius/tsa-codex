@@ -200,7 +200,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#tank">근접이 죽는 이유</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#tank">근접이 죽는 이유</a><a href="#magic">마법</a>
     </div>
   </header>
 
@@ -706,6 +706,49 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p class="src">GameBalanceCalculator.CalculateMonsterAttackPower / CalculateHumanDefense &middot;
      BattleCreature.DamagePoint / DefensePoint &middot; BattlePhysicalAttackExecutor.PhysicsAttack &middot;
      세이브 Character 87건</p>
+
+  <h2 id="magic"><span class="n">11</span>마법 &mdash; 명중 굴림이 아예 없습니다</h2>
+  <p>물리는 <code>명중 &minus; 회피</code> 를 견주고 안 맞으면 그만입니다(§8).
+     <b>마법에는 그 비교가 없습니다.</b> <code>BattleSkill.DamageSkill</code> 은
+     빗나가는 갈래를 갖고 있지 않습니다 &mdash; <b>쏘면 들어갑니다.</b></p>
+  <div class="eq">피해 = Rand(스킬최소, 스킬최대) + <b>시전자 마력</b>
+     <span class="cmt">// 대상 약점 +2 · 저항 &minus;2</span>
+<b>while</b> 2d6 &gt; 9: 피해 += &lfloor;Rand(최소,최대) &divide; 2&rfloor;   <span class="cmt">// 1/6 로 터지고, 터지면 또 굴린다</span>
+피해 &minus;= <b>대상 마법 방어</b>          <span class="cmt">// ★ 전액 &mdash; 물리처럼 반으로 안 나눈다</span>
+<b>if</b> 피해 &le; 0: 피해 = <b>Rand(3)</b>       <span class="cmt">// 0 ~ 2 &mdash; 물리의 「최소 1」 과 다르다</span></div>
+  <div class="note"><b>규칙만 보면 마법 방어가 물리 방어보다 낫습니다.</b>
+     물리 방어는 <code>&lfloor;방어&divide;2&rfloor;</code> 만 깎이는데 마법 방어는 <b>전액</b> 깎이고,
+     넘어서면 피해가 <b>0 까지</b> 내려갑니다(물리는 아무리 막아도 최소 1).
+     <b>문제는 올릴 수단이 없다는 것입니다.</b></div>
+
+  <h3>마법 방어는 거의 안 올라갑니다</h3>
+  <p>방어구 <b>311개 중 마법 방어가 붙은 것이 6개</b>뿐입니다. 부위별 최고를
+     다 모아도 <b>18</b> 입니다 (방패 오버쉘드 +8 · 부적 단마의 부적 +6 · 갑옷 지상 메일 +4).
+     의복과 투구에는 아예 없습니다. <b>미출시 지역까지 뒤져도 18 그대로</b>입니다.</p>
+  <p>직업 보너스는 <b>마법사 계열에만</b> 있습니다 &mdash; 암흑마법사 주 6 / 부 3 이 최고이고,
+     마검사·현자·전술병 같은 것은 주 2 / 부 1 입니다.</p>
+  <table class="t"><thead><tr><th>짜는 법</th><th>마법 방어</th></tr></thead><tbody>
+    <tr><td>마검사 주 + 마법계 부직업 5개</td><td>45</td></tr>
+    <tr><td>암흑마법사 주 + 부직업 8개</td><td>58</td></tr>
+    <tr class="hi"><td><b>천장</b> (암흑마법사 주 + 부직업 전부)</td><td><b>65</b></td></tr>
+  </tbody></table>
+
+  <h3>그래서 「안 맞기」 는 안 됩니다</h3>
+  <table class="t"><thead><tr><th>마법</th><th>원래 피해</th><th>마방 45</th><th>마방 65(천장)</th></tr></thead><tbody>
+    <tr><td>톡식노바 <span class="sm">(전체 · 7종이 씀)</span></td><td>56~84</td><td>11~39</td><td>0~19</td></tr>
+    <tr><td>번아웃 <span class="sm">(단일)</span></td><td>62~96</td><td>17~51</td><td>0~31</td></tr>
+    <tr><td>프리즈링 에지 <span class="sm">(단일)</span></td><td>66~102</td><td>21~57</td><td>1~37</td></tr>
+    <tr class="hi"><td>뇌우 <span class="sm">(전체 · Lv35)</span></td><td>76~114</td><td>31~69</td><td><b>11~49</b></td></tr>
+  </tbody></table>
+  <div class="note warn"><b>회피처럼 0 으로 만들 수는 없습니다.</b>
+     천장인 65 를 찍어도 상위 마법은 그대로 수십이 들어오고, 대부분이 <b>전체 마법</b>이라
+     파티 전원이 맞습니다. 게다가 <code>2d6 &gt; 9</code> 로 <b>1/6 씩 터지는 굴림</b>이 있어
+     최댓값 위로도 올라갑니다.</div>
+  <p>정리하면 <b>물리는 회피로 0 을 만들 수 있고, 마법은 못 만듭니다.</b>
+     마법 쓰는 몬스터가 나오는 곳은 회피탱으로도 안전해지지 않습니다 &mdash;
+     도감의 탐색지에 <b>출현 몬스터의 마법</b>을 적어 둔 것이 그래서입니다.</p>
+  <p class="src">BattleSkill.GetDamage / DamageSkill &middot; BattleCreature.MagicDamageReduction &middot;
+     SkillMaster.MinDamage / MaxDamage &middot; JobMaster.mainJobBonusesMagicDefense</p>
 
   </div>
 
