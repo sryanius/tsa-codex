@@ -873,7 +873,8 @@ function crewDetail(c){
     +'<div class="dcell"><dt>성격</dt><dd>'+esc(c.pers||"—")+'</dd></div>'
     +'<div class="dcell"><dt>HP / MP</dt><dd class="mono">'+c.hp+' / '+c.mp+'</dd></div>'
     +'<div class="dcell"><dt>민첩 <span class="fld">기본+직업+장비</span></dt><dd class="mono">'+statOf(c,"민첩")
-      +' <span class="meta">(기본 '+((c.ab&&c.ab["민첩"])||0)+')</span></dd></div>'
+      +' <span class="meta">(기본 '+((c.ab&&c.ab["민첩"])||0)
+      +' + 직업 '+jobLabel(c,"민첩")+' + 장비 '+gearLabel(c,"민첩")+')</span></dd></div>'
     +'<div class="dcell"><dt>회피값</dt><dd class="mono" style="color:var(--accent)">'+avoidValue(c)+'</dd></div>'
     +'<div class="dcell"><dt>명중값</dt><dd class="mono">'+hitValue(c)+'</dd></div>'
     +'<div class="dcell"><dt>완봉 가능한 최대 명중 <span class="fld">회피값+⌊민첩최소/3⌋</span></dt>'
@@ -983,9 +984,25 @@ function jobBonus(c, key){
   });
   return ceilDiv10(main) + ceilDiv10(sub);
 }
+/* Enhancement.Kind -> 능력치 이름. 세이브의 강화 기록을 능력치에 얹는다. */
+var ENH={253:"회피",250:"명중률",256:"민첩",210:"통찰력",211:"생명점",212:"마나",
+         203:"마법 방어",200:"방어력",201:"방어력",202:"방어력",252:"치명 저항",
+         251:"치명타",255:"지능",100:"공격력",101:"공격력",102:"공격력",205:"방패 회피"};
+/* ★ c.eq 는 장비 «파일 GUID» 다 — GEAR 는 «에셋 이름» 으로 키를 쓴다.
+   CREW.equips 를 거쳐야 한다. 안 거치면 장비 몫이 통째로 0 이 된다.
+   표시용 gearOf() 는 제대로 거쳐서, 장비 이름은 맞는데 수치만 틀렸다. */
+function equipsOf(c){
+  return (c.eq||[]).map(function(id){
+    var e=CREW&&CREW.equips?CREW.equips[id]:null;
+    return e ? {g:GEAR[e.i], enh:e.enh||[]} : null;
+  }).filter(function(x){ return x && x.g; });
+}
 function gearSum(c, key){
-  var t=0;
-  (c.eq||[]).forEach(function(id){ var g=GEAR[id]; if(g && g[key]) t += g[key]; });
+  var t=0, want = key==="av" ? "회피" : (key==="hr" ? "명중률" : null);
+  equipsOf(c).forEach(function(x){
+    if(x.g[key]) t += x.g[key];
+    if(want) x.enh.forEach(function(e){ if(ENH[e.k]===want) t += (e.v||0); });
+  });
   return t;
 }
 function avoidValue(c){ return jobBonus(c,"av") + gearSum(c,"av"); }
@@ -1003,7 +1020,10 @@ function jobLabel(c, label){
 }
 function gearLabel(c, label){
   var t=0;
-  (c.eq||[]).forEach(function(id){ var g=GEAR[id]; if(g && g.b && g.b[label]) t += g.b[label]; });
+  equipsOf(c).forEach(function(x){
+    if(x.g.b && x.g.b[label]) t += x.g.b[label];
+    x.enh.forEach(function(e){ if(ENH[e.k]===label) t += (e.v||0); });
+  });
   return t;
 }
 function statOf(c, label){ return ((c.ab&&c.ab[label])||0) + jobLabel(c,label) + gearLabel(c,label); }

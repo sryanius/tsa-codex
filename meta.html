@@ -720,11 +720,13 @@ function scAgiFloor(a){
   var n = a<=8 ? 3 : (a<=30 ? (a*171>>9) : (a<=99 ? (a*205>>11) : (a>>4)));
   return n<=0 ? a : Math.max(0, a-(n-1));
 }
+function scCrewRoot(){
+  try{ return JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){ return null; }
+}
 /* 은퇴자(status 6)는 다시 못 쓴다 — 목록에 둘 이유가 없다. */
 function scCrew(){
-  try{ var c=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null");
-       return (c && c.chars) ? c.chars.filter(function(x){ return x.st!==6; }) : []; }
-  catch(e){ return []; }
+  var c=scCrewRoot();
+  return (c && c.chars) ? c.chars.filter(function(x){ return x.st!==6; }) : [];
 }
 function scLoad(id){
   var c=scCrew().filter(function(x){ return x.id===id; })[0];
@@ -741,9 +743,14 @@ function scLoad(id){
   var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
   sc.elf = !!(rc && rc.race==="엘프");
   sc.slot={};
+  // ★ c.eq 는 장비 «파일 GUID» 다 — D.gear 는 «에셋 이름» 으로 키를 쓴다.
+  //   CREW.equips 를 거쳐야 한다. 안 거치면 장비가 하나도 안 실린다.
   (c.eq||[]).forEach(function(id2){
-    var g=D.gear[id2]; if(!g) return;
-    sc.slot[g.c==="무기" ? "무기" : g.k] = id2;
+    var root=scCrewRoot();
+    var e=(root&&root.equips)?root.equips[id2]:null;
+    var key=e? e.i : id2;
+    var g=D.gear[key]; if(!g) return;
+    sc.slot[g.c==="무기" ? "무기" : g.k] = key;
   });
 }
 function scName(i){ var g=D.gear[i]; return g? g.n+" (Lv"+g.lv+" "+g.k+")" : i; }
