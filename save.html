@@ -120,6 +120,14 @@ input[type="search"]{flex:1 1 240px}
 .lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
 .row.locked{opacity:.62}
+.monlist{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.monchip{display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;border-radius:4px;
+  background:var(--raised);border:1px solid var(--line);font-size:12px;text-decoration:none;
+  color:var(--text)}
+.monchip:hover{border-color:var(--f-heal)}
+.monchip i{font-style:normal;font-size:11px;color:var(--faint)}
+.row .pt{min-width:78px;text-align:right;font-size:11.5px}
+.row .pt.on{color:var(--f-heal);font-weight:600}
 button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px
 }

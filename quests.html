@@ -119,6 +119,14 @@ input[type="search"]{flex:1 1 240px}
 .lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
 .row.locked{opacity:.62}
+.monlist{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.monchip{display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;border-radius:4px;
+  background:var(--raised);border:1px solid var(--line);font-size:12px;text-decoration:none;
+  color:var(--text)}
+.monchip:hover{border-color:var(--f-heal)}
+.monchip i{font-style:normal;font-size:11px;color:var(--faint)}
+.row .pt{min-width:78px;text-align:right;font-size:11.5px}
+.row .pt.on{color:var(--f-heal);font-weight:600}
 button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px
 }
@@ -290,6 +298,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       </div>
       <input type="search" id="q" placeholder="퀘스트명 · 내용 · 장소 검색" aria-label="검색">
       <select id="town" aria-label="도시 선택"><option value="">모든 도시</option></select>
+      <select id="party" aria-label="파티 조건">
+        <option value="">파티 조건 무관</option>
+        <option value="any">조건 있는 것만</option>
+        <option value="num">인원 제한만</option>
+        <option value="남성만">남성만</option>
+        <option value="여성만">여성만</option>
+        <option value="혼성 필요">혼성 필요</option>
+      </select>
+      <select id="sort" aria-label="정렬">
+        <option value="">기본 순서</option>
+        <option value="lv">레벨 낮은 순</option>
+        <option value="lv-">레벨 높은 순</option>
+        <option value="tm">소요시간 짧은 순</option>
+        <option value="tm-">소요시간 긴 순</option>
+        <option value="xp-">경험치 많은 순</option>
+        <option value="xph-">시간당 경험치 순</option>
+        <option value="gd-">보상 골드 많은 순</option>
+        <option value="rep">요구 평판 낮은 순</option>
+      </select>
       <label class="toggle"><input type="checkbox" id="undone"> 안 깬 것만</label>
       <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
       <span class="count" id="count"></span>
@@ -328,7 +355,7 @@ function saveLv(){ try{ localStorage.setItem(LKEY,JSON.stringify(lv)); }catch(e)
 
 var LKEY2="tsa.showlocked.v1";
 var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{},
-           showLocked:false};
+           party:"",sort:"",showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function el(id){ return document.getElementById(id); }
 /* 깬 것인지는 «세이브만» 본다. 손으로 체크하는 길이 있었는데, 줄을 누르다
@@ -488,6 +515,18 @@ function dlTxt(m){
 function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
 function anyFac(){ return FORD.concat(["__job"]).some(function(f){ return state.facs[f]; }); }
 function facMatch(x){ return (x.g && state.facs[x.g]) || (x.u && state.facs["__job"]); }
+/* 파티 조건 표찰 — 인원 제한 23건 · 성별 제한 19건뿐이라
+   목록에서 바로 보여야 «이건 못 받는다» 를 알아챈다. */
+function monNames(x){ return (x.mon||[]).map(function(m){ return m.n; }).join(" "); }
+function partyTag(x){
+  var t=[];
+  var lo=(x.mem&&x.mem[0])||0, hi=(x.mem&&x.mem[1])||0;
+  if(lo||hi) t.push(lo===hi ? lo+"명" : (lo&&hi ? lo+"–"+hi+"명" : (lo ? lo+"명+" : "~"+hi+"명")));
+  if(x.sx) t.push(x.sx);
+  if(!t.length) return '<span class="num dim pt"></span>';
+  return '<span class="num pt on" title="파티 조건">'+esc(t.join(" · "))+'</span>';
+}
+function hasParty(x){ return !!(x.sx || (x.mem&&(x.mem[0]||x.mem[1]))); }
 function members(m){
   var lo=m[0]||0, hi=m[1]||0;
   if(!lo && !hi) return "제한 없음";
@@ -496,16 +535,46 @@ function members(m){
   return lo===hi ? lo+"명" : lo+"–"+hi+"명";
 }
 
+/* 정렬 — 「기본 순서」 는 각 묶음이 스스로 정한 차례다(평판 뚫는 순 등).
+   그래서 고르지 않았을 때는 손대지 않는다. */
+function tmMin(x){
+  var m=/^(\d+)h(\d+)m$/.exec(x.tm||"");
+  return m ? (+m[1])*60 + (+m[2]) : 0;
+}
+var SORT={
+  lv:   function(a,b){ return a.lv-b.lv; },
+  "lv-":function(a,b){ return b.lv-a.lv; },
+  tm:   function(a,b){ return tmMin(a)-tmMin(b); },
+  "tm-":function(a,b){ return tmMin(b)-tmMin(a); },
+  "xp-":function(a,b){ return (b.xp||0)-(a.xp||0); },
+  "xph-":function(a,b){ var t=function(z){ var m=tmMin(z); return m?(z.xp||0)/m*60:0; };
+                        return t(b)-t(a); },
+  "gd-":function(a,b){ return (b.gd||0)-(a.gd||0); },
+  rep:  function(a,b){ return a.pk-b.pk; }
+};
+function sorted(rows){
+  var f=SORT[state.sort];
+  return f ? rows.slice().sort(function(a,b){ return f(a,b) || a.lv-b.lv; }) : rows;
+}
+function partyMatch(x){
+  var p=state.party;
+  if(!p) return true;
+  if(p==="any") return hasParty(x);
+  if(p==="num") return !!(x.mem&&(x.mem[0]||x.mem[1]));
+  return x.sx===p;
+}
 function match(x){
   if(!state.showLocked && LOCKED[x.t]) return false;
   if(state.town && x.t!==state.town) return false;
   if(state.undone && isDone(x)) return false;
   if(state.neg && x.rep>=0) return false;
   if(state.evil && (x.rp||0)>=0) return false;
+  if(!partyMatch(x)) return false;
   if(anyFac() && !facMatch(x)) return false;
   if(state.q){
     var s=state.q.toLowerCase();
-    var hay=(x.n+" "+x.o+" "+x.d+" "+x.p+" "+x.t+" "+x.i+" "+(x.u||"")+" "+(x.g||"")).toLowerCase();
+    var hay=(x.n+" "+x.o+" "+x.d+" "+x.p+" "+x.t+" "+x.i+" "+(x.u||"")+" "+(x.g||"")
+             +" "+monNames(x)+" "+(x.ch||[]).map(function(c){ return c.item||""; }).join(" ")).toLowerCase();
     if(hay.indexOf(s)<0) return false;
   }
   return true;
@@ -535,6 +604,7 @@ function rowHTML(x){
     +(function(){var c=curLv(x);
       return '<span class="num dim lv" title="현재 레벨 (기본 '+x.lv+' + 클리어 보너스)">Lv'+c[0]
         +(c[1]>0?'<i class="up">+'+c[1]+'</i>':'')+'</span>';})()
+    +partyTag(x)
     +'<span class="num dim tm">'+esc(x.tm)+'</span>'
   +'</div>';
 }
@@ -579,12 +649,24 @@ function detailHTML(x){
     + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp+'</dd></div>'
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
+    + monHTML(x)
     + chestHTML(x)
     + chain
     + (x.d ? '<div class="story">'+esc(x.d)+'</div>' : "")
   + '</div>';
 }
 function hhmm(min){ var h=Math.floor(min/60), m=min%60; return (h?h+"시간 ":"")+m+"분"; }
+/* 퀘스트 전투에 나오는 몬스터.
+   368종 가운데 80종은 탐색지에 안 나오고 여기에만 나온다 — 발키리가 그렇다.
+   그것 때문에 퀘스트에서만 얻는 장비의 출처가 도감에서 비어 있었다. */
+function monHTML(x){
+  if(!x.mon || !x.mon.length) return "";
+  return '<div class="chain mons"><h4>나오는 몬스터 '+x.mon.length+'종</h4><p class="monlist">'
+    + x.mon.map(function(m){
+        return '<a class="monchip" href="codex.html?v=mon&q='+encodeURIComponent(m.n)+'">'
+          + esc(m.n)+'<i>Lv'+m.lv+'</i></a>'; }).join("")
+    + '</p></div>';
+}
 // questEvents 의 chest / foundItem. eventTime 은 10초 단위라 6으로 나눠 분으로 환산했다.
 function chestHTML(x){
   if(!x.ch || !x.ch.length) return "";
@@ -609,7 +691,7 @@ function groupBlock(title,sub,rows,color,extra){
   return '<section class="group"><div class="ghead">'
     +'<h2'+(color?' style="color:'+color+'"':"")+'>'+esc(title)+'</h2>'
     +'<span class="sub">'+esc(sub)+'</span>'+(extra||"")+'<span class="rule"></span></div>'
-    +'<div class="list">'+rows.map(rowHTML).join("")+'</div></section>';
+    +'<div class="list">'+sorted(rows).map(rowHTML).join("")+'</div></section>';
 }
 // 남은 의뢰 수는 세이브(clearCount)에서 그대로 나온다.
 // 예전엔 게임 갱신창의 숫자를 손으로 넣게 했는데, 세이브를 붙인 뒤로는
@@ -779,6 +861,8 @@ function pushSoon(){
 window.__TSA_PUSH_SOON=pushSoon;
 el("town").addEventListener("change",function(e){ state.town=e.target.value; render(); });
 el("undone").addEventListener("change",function(e){ state.undone=e.target.checked; render(); });
+el("party").addEventListener("change",function(e){ state.party=e.target.value; render(); });
+el("sort").addEventListener("change",function(e){ state.sort=e.target.value; render(); });
 el("showlocked").checked=state.showLocked;
 el("showlocked").addEventListener("change",function(e){
   state.showLocked=e.target.checked;

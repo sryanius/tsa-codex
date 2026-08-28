@@ -313,6 +313,17 @@ try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || !isLockedRegion(p.r); }
 function visPlaces(){ return D.places.filter(okPlace); }
 function monPlaces(m){ return (m.places||[]).filter(okPlace); }
+function monQuestBlock(m){
+  var qs=m.quests||[];
+  if(!qs.length) return "";
+  var head = (monPlaces(m).length ? '나오는 퀘스트' : '탐색지에는 없습니다 — 퀘스트 전투에서만');
+  return '<div class="blk"><h4>'+head+' ('+qs.length+')</h4><ul>'
+    + qs.slice(0,12).map(function(q){
+        return '<li><a href="quests.html?q='+encodeURIComponent(q.n)+'">'+esc(q.n)+'</a>'
+          +'<span class="meta"> — '+esc(q.t)+' · Lv'+(q.lv||0)+'</span></li>'; }).join("")
+    + (qs.length>12 ? '<li class="meta">… 그 밖에 '+(qs.length-12)+'건</li>' : "")
+    + '</ul></div>';
+}
 
 el("s-p").textContent=visPlaces().length;
 el("s-m").textContent=D.monsters.length;
@@ -477,6 +488,20 @@ var MONBY={}; D.monsters.forEach(function(m){ MONBY[m.n||m.i]=m; });
 var ITEMBY={}; D.items.forEach(function(x){ ITEMBY[x.n||x.i]=x; });
 // 아이템을 «어디서 잡으면 나오는가». 떨구는 몬스터를 거쳐 탐색지까지 간다.
 // showLocked 에 따라 달라지므로 미리 굳혀 두지 않는다.
+/* 떨구는 몬스터가 나오는 퀘스트. 탐색지에 안 나오는 몬스터가 80종이라
+   이걸 안 이으면 「하늘을 뚫는 창」 처럼 출처가 통째로 빈다. */
+function itemQuests(x){
+  var seen={}, out=[];
+  (x.drop||[]).forEach(function(d){
+    var m=MONBY[d.m]; if(!m) return;
+    (m.quests||[]).forEach(function(q){
+      var k=q.t+"/"+q.n;
+      if(seen[k]){ if(seen[k].m.indexOf(d.m)<0) seen[k].m.push(d.m); return; }
+      seen[k]={n:q.n,t:q.t,lv:q.lv,m:[d.m]}; out.push(seen[k]);
+    });
+  });
+  return out.sort(function(a,b){ return (a.lv||0)-(b.lv||0); });
+}
 function itemPlaces(x){
   var seen={}, out=[];
   (x.drop||[]).forEach(function(d){
@@ -720,7 +745,7 @@ function monDetail(m){
     +'<div class="dcell"><dt>명중 <span class="fld">고정값</span></dt><dd class="mono" style="color:var(--accent)">'+(m.hit||0)+'</dd></div>'
     +'<div class="dcell"><dt>회피 <span class="fld">고정값</span></dt><dd class="mono">'+(m.avo||0)+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(m.i)+'</dd></div>'
-    +'</dl>'+dr+pl+sk+(m.d?'<div class="story">'+esc(m.d)+'</div>':"")+'</div>';
+    +'</dl>'+dr+pl+monQuestBlock(m)+sk+(m.d?'<div class="story">'+esc(m.d)+'</div>':"")+'</div>';
 }
 
 /* ---------- 아이템 ---------- */
@@ -760,6 +785,15 @@ function itemDetail(x){
         return '<li><button type="button" class="jump" data-go="p:'+esc(z.n)+'">'+esc(z.n)+'</button>'
           +'<span class="meta"> — '+esc(z.r)+' · Lv'+(z.lv||0)+' · '+esc(z.m.join(", "))+'</span></li>';
       }).join("")+'</ul></div>' : "";
+  // 탐색지에 안 나오는 몬스터는 퀘스트로 이어 준다
+  var iq=itemQuests(x);
+  var qmon = iq.length ? '<div class="blk"><h4>이 퀘스트 전투에서 나옵니다 ('+iq.length+')</h4><ul>'
+    + iq.slice(0,12).map(function(z){
+        return '<li><a href="quests.html?q='+encodeURIComponent(z.n)+'">'+esc(z.n)+'</a>'
+          +'<span class="meta"> — '+esc(z.t)+' · Lv'+(z.lv||0)+' · '+esc(z.m.join(", "))+'</span></li>';
+      }).join("")
+    + (iq.length>12 ? '<li class="meta">… 그 밖에 '+(iq.length-12)+'건</li>' : "")
+    + '</ul></div>' : "";
   // 퀘스트 보물금고/습득물에서 나오는 것
   var qd=x.qd.length? '<div class="blk"><h4>퀘스트에서 획득 ('+x.qd.length+')</h4><ul>'
     + x.qd.map(function(z){
@@ -800,7 +834,7 @@ function itemDetail(x){
     +'<div class="dcell"><dt>가격</dt><dd class="mono">'+esc(x.price||"-")+'G</dd></div>'
     +'<div class="dcell"><dt>판매처</dt><dd>'+(esc(x.shop)||"—")+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
-    +'</dl>'+sp+qd+dr+pw+(x.d?'<div class="story">'+esc(x.d)+'</div>':"")+'</div>';
+    +'</dl>'+sp+qd+dr+pw+qmon+(x.d?'<div class="story">'+esc(x.d)+'</div>':"")+'</div>';
 }
 
 function block(title,sub,rows,color){
