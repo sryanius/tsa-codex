@@ -119,14 +119,15 @@ input[type="search"]{flex:1 1 240px}
 .lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
 .row.locked{opacity:.62}
+.party{font-style:normal;font-size:10px;font-weight:600;color:var(--f-heal);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
 .monlist{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
 .monchip{display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;border-radius:4px;
   background:var(--raised);border:1px solid var(--line);font-size:12px;text-decoration:none;
   color:var(--text)}
 .monchip:hover{border-color:var(--f-heal)}
 .monchip i{font-style:normal;font-size:11px;color:var(--faint)}
-.row .pt{min-width:78px;text-align:right;font-size:11.5px}
-.row .pt.on{color:var(--f-heal);font-weight:600}
 button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px
 }
@@ -519,12 +520,11 @@ function facMatch(x){ return (x.g && state.facs[x.g]) || (x.u && state.facs["__j
    목록에서 바로 보여야 «이건 못 받는다» 를 알아챈다. */
 function monNames(x){ return (x.mon||[]).map(function(m){ return m.n; }).join(" "); }
 function partyTag(x){
-  var t=[];
-  var lo=(x.mem&&x.mem[0])||0, hi=(x.mem&&x.mem[1])||0;
-  if(lo||hi) t.push(lo===hi ? lo+"명" : (lo&&hi ? lo+"–"+hi+"명" : (lo ? lo+"명+" : "~"+hi+"명")));
+  var lo=(x.mem&&x.mem[0])||0, hi=(x.mem&&x.mem[1])||0, t=[];
+  if(lo||hi) t.push(lo===hi ? lo+"명" : (lo&&hi ? lo+"–"+hi+"명" : (lo ? lo+"명 이상" : hi+"명 이하")));
   if(x.sx) t.push(x.sx);
-  if(!t.length) return '<span class="num dim pt"></span>';
-  return '<span class="num pt on" title="파티 조건">'+esc(t.join(" · "))+'</span>';
+  if(!t.length) return "";
+  return '<em class="party" title="파티 조건 — 못 맞추면 받을 수 없습니다">'+esc(t.join(" · "))+'</em>';
 }
 function hasParty(x){ return !!(x.sx || (x.mem&&(x.mem[0]||x.mem[1]))); }
 function members(m){
@@ -590,7 +590,8 @@ function rowHTML(x){
               + (x.rep<0 ? '<em class="negrep" title="요구 평판이 '+x.rep+' — 도시 평판이 마이너스일 때만 뜹니다">평판− 전용</em>' : '')
               + (x.nc ? '<em class="negpre" title="선행 퀘스트 '+x.nc+'개가 요구 평판 음수(최저 '+x.nm+'). 평판을 한 번 떨어뜨렸어야 합니다">선행 평판−</em>' : '')
               + (x.si>=99 ? '<em class="rare" title="questSpawnInterval = QUEST_SPAWN_INTERVAL_ONLY_ONCE — 한 번만 등장합니다">1회성</em>' : '')
-              + (x.ch && x.ch.length ? '<em class="chesttag" title="보물금고·습득물 '+x.ch.length+'건">금고 '+x.ch.length+'</em>' : '');
+              + (x.ch && x.ch.length ? '<em class="chesttag" title="보물금고·습득물 '+x.ch.length+'건">금고 '+x.ch.length+'</em>' : '')
+              + partyTag(x);
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
     +'<span class="qn"><b>'+lockTag+esc(x.n||x.i)
     +(clearsOf(x)>0?'<i class="cc" title="세이브 기준 클리어 횟수">×'+clearsOf(x)+'</i>':'')+'</b><span>'+esc(x.t)+(x.p?" · "+esc(x.p):"")+" · "+esc(x.o)+'</span></span>'
@@ -604,7 +605,6 @@ function rowHTML(x){
     +(function(){var c=curLv(x);
       return '<span class="num dim lv" title="현재 레벨 (기본 '+x.lv+' + 클리어 보너스)">Lv'+c[0]
         +(c[1]>0?'<i class="up">+'+c[1]+'</i>':'')+'</span>';})()
-    +partyTag(x)
     +'<span class="num dim tm">'+esc(x.tm)+'</span>'
   +'</div>';
 }
