@@ -232,6 +232,10 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .statbox{display:flex;flex-wrap:wrap;gap:6px}
 .statbox .lvin{font-size:11.5px}
 .statbox .lvin input{width:44px}
+.crow .lvin input{width:54px}
+.crow .lvin input.wide{width:96px;text-align:right}
+.sumline{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:12px 0 8px}
+.sumline b{color:var(--accent);font-size:16px}
 .lvin .rg{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
   color:var(--faint);letter-spacing:-.02em;margin:0 0 0 3px}
 .empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
@@ -915,13 +919,12 @@ function statHTML(){
             +'<span class="meta"> — Lv'+r.from+' → '+r.to+' · '
             +Math.round(r.cost).toLocaleString()+' 경험치</span></li>'; }).join("")
       + '</ul>'
-      + '<div class="crow" style="margin:8px 0 0"><span class="lvlabel">시간당 경험치</span>'
-      + '<label class="lvin"><input type="number" min="0" step="100" id="sc-xph" value="'+(sc.xph||"")+'" placeholder="예: 5000"></label>'
-      + '<span class="meta">'+(hrs>0
-          ? '합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> → 약 <b>'
-            + (hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일') + '</b>'
-          : '합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치 — 시간당 얻는 양을 넣으면 걸리는 시간을 계산합니다')
-      + '</span></div>'
+      + '<div class="sumline">합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치</div>'
+      + '<div class="crow"><span class="lvlabel">시간당 경험치</span>'
+      + '<label class="lvin"><input type="number" min="0" step="1000" id="sc-xph" class="wide" value="'+(sc.xph||"")+'" placeholder="50000"></label>'
+      + (hrs>0 ? '<span class="meta">→ 약 <b>'+(hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일')+'</b></span>'
+               : '<span class="meta">넣으면 걸리는 시간을 계산합니다</span>')
+      + '</div>'
       + '<details class="fine"><summary>순서에 따라 총합이 달라집니다</summary>'
       + '<p>한 직업을 올리면 <code>1.05^(다른 직업 레벨 합)</code> 때문에 나머지가 즉시 비싸집니다. '
       + '위 목록 <b>순서대로</b> 올린다고 보고 계산했습니다.</p></details>'
@@ -930,9 +933,10 @@ function statHTML(){
   var sol = sc.goal>0 ? solveAvoid(sc.goal) : null;
   var solBlock='<div class="blk"><h4>목표 회피로 부직업 짜기</h4>'
     +'<div class="crow"><span class="lvlabel">목표 회피값</span>'
-    +'<label class="lvin"><input type="number" min="0" max="99" id="sc-goal" value="'+(sc.goal||"")+'" placeholder="예: 40"></label>'
-    +'<span class="meta">지금 갈 수 있는 곳의 최고 명중은 <b>44</b> 입니다 &mdash; '
-    +'<code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ 44</code> 면 물리는 다 피합니다</span></div>';
+    +'<label class="lvin"><input type="number" min="0" max="99" id="sc-goal" class="wide" value="'+(sc.goal||"")+'" placeholder="40"></label>'
+    +'</div>'
+    +'<p class="meta" style="margin:0 0 6px">지금 갈 수 있는 곳의 최고 명중은 <b>44</b> 입니다 &mdash; '
+    +'<code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ 44</code> 면 물리 공격은 다 피합니다.</p>';
   if(sol && !sol.ok){
     solBlock += '<p class="meta" style="color:var(--f-heal)">이 주직업·장비로는 못 채웁니다 &mdash; '
       +'부직업을 전부 최대로 올려도 '+sol.short+' 모자랍니다.</p>';
