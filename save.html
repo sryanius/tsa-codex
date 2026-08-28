@@ -164,6 +164,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .row{display:grid;gap:12px;align-items:center;padding:10px 14px;border-top:1px solid var(--line-soft);
   cursor:pointer;font-size:13.5px}
 .row:first-child{border-top:0}
+.spells{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.spell{font-style:normal;display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;
+  border-radius:4px;background:var(--raised);border:1px solid var(--line);font-size:12px}
+.spell b{font-weight:600;font-size:11px;color:var(--faint)}
 .row:hover,.row.open{background:var(--raised)}
 .nm{min-width:0}
 .nm b{display:block;color:var(--ink);font-weight:600;font-size:14px}
@@ -875,11 +879,28 @@ function crewDetail(c){
     +'<div class="dcell"><dt>민첩 <span class="fld">기본+직업+장비</span></dt><dd class="mono">'+statOf(c,"민첩")
       +' <span class="meta">(기본 '+((c.ab&&c.ab["민첩"])||0)
       +' + 직업 '+jobLabel(c,"민첩")+' + 장비 '+gearLabel(c,"민첩")+')</span></dd></div>'
-    +'<div class="dcell"><dt>회피값</dt><dd class="mono" style="color:var(--accent)">'+avoidValue(c)+'</dd></div>'
-    +'<div class="dcell"><dt>명중값</dt><dd class="mono">'+hitValue(c)+'</dd></div>'
+    +'<div class="dcell"><dt>공격력</dt><dd class="mono">'+atkRange(c).join(' – ')+'</dd></div>'
+    +'<div class="dcell"><dt>방어력</dt><dd class="mono">'+defRange(c).join(' – ')+'</dd></div>'
+    +'<div class="dcell"><dt>명중률</dt><dd class="mono">'+hitValue(c)+'</dd></div>'
+    +'<div class="dcell"><dt>크리티컬 확률</dt><dd class="mono">'+critRate(c)+'</dd></div>'
+    +'<div class="dcell"><dt>회피 능력</dt><dd class="mono" style="color:var(--accent)">'+avoidValue(c)+'</dd></div>'
+    +'<div class="dcell"><dt>마법 방어</dt><dd class="mono">'+magicDef(c)+'</dd></div>'
+    +'<div class="dcell"><dt>방패 차단 확률</dt><dd class="mono">'+shieldAvoid(c)+'</dd></div>'
+    +'<div class="dcell"><dt>방패 방어</dt><dd class="mono">'+shieldRange(c).join(' – ')+'</dd></div>'
+    +'<div class="dcell"><dt>크리티컬 저항</dt><dd class="mono">'+critDef(c)+'</dd></div>'
     +'<div class="dcell"><dt>완봉 가능한 최대 명중 <span class="fld">회피값+⌊민첩최소/3⌋</span></dt>'
       +'<dd class="mono" style="color:var(--f-lodge)">'+maxDodge(c)+'</dd></div>'
-    + ab + '</dl>' + jobs + gear + eb + '</div>';
+    + ab + '</dl>' + spellBlock(c) + jobs + gear + eb + '</div>';
+}
+
+function spellBlock(c){
+  var sp=spellsOf(c);
+  if(!sp.length) return "";
+  return '<div class="blk"><h4>배운 마법 '+sp.length+'</h4><p class="spells">'
+    + sp.map(function(x){
+        return '<i class="spell" title="'+esc(x.from)+' Lv'+x.lv+' 에서">'+esc(x.n)
+             +'<b>'+x.lv+'</b></i>'; }).join("")
+    + '</p></div>';
 }
 
 var RET=[];
@@ -1007,6 +1028,65 @@ function gearSum(c, key){
 }
 function avoidValue(c){ return jobBonus(c,"av") + gearSum(c,"av"); }
 function hitValue(c){ return jobBonus(c,"hr") + gearSum(c,"hr"); }
+
+/* ── 게임 상세 화면과 같은 수치들 ──────────────────────────────────
+   전부 «장비 합(강화 포함) + 직업 몫» 이다. 장비의 실제 수치는
+   meta.json 의 dm/df/sd/cr/ht/md/cd/sv 에 있다(마스터의 _damage·_defense
+   는 게임 화면과 같은 값이고, 마법 방어와 치명 저항은 계산해 넣었다). */
+function gearField(c, key, idx){
+  var t=0;
+  equipsOf(c).forEach(function(x){
+    var v=x.g[key];
+    if(v==null) return;
+    t += (idx==null) ? v : ((v[idx]||0));
+  });
+  return t;
+}
+function enhSum(c, label){
+  var t=0;
+  equipsOf(c).forEach(function(x){
+    x.enh.forEach(function(e){ if(ENH[e.k]===label) t += (e.v||0); });
+  });
+  return t;
+}
+function atkRange(c){
+  var j=jobBonus2(c,"공격력"), e=enhSum(c,"공격력");
+  return [gearField(c,"dm",0)+j+e, gearField(c,"dm",1)+j+e];
+}
+function defRange(c){
+  var j=jobBonus2(c,"방어력"), e=enhSum(c,"방어력");
+  return [gearField(c,"df",0)+j+e, gearField(c,"df",1)+j+e];
+}
+function shieldRange(c){
+  var e=enhSum(c,"방패 방어");
+  return [gearField(c,"sd",0)+e, gearField(c,"sd",1)+e];
+}
+function critRate(c){ return gearField(c,"cr")+jobBonus2(c,"치명타")+enhSum(c,"치명타"); }
+function critDef(c){ return gearField(c,"cd")+jobBonus2(c,"치명 저항")+enhSum(c,"치명 저항"); }
+function magicDef(c){ return gearField(c,"md")+jobBonus2(c,"마법 방어")+enhSum(c,"마법 방어"); }
+function shieldAvoid(c){ return gearField(c,"sv")+jobBonus(c,"sav")+enhSum(c,"방패 회피"); }
+/* main/sub 이 [주,부] 배열이 아니라 이름표 사전(main{}/sub{})인 것들 */
+function jobBonus2(c, label){
+  var main=0, sub=0;
+  (c.jobs||[]).forEach(function(j){
+    var jm=JOB[j.i]; if(!jm) return;
+    if(j.cur) main += (j.lv||0)*((jm.main&&jm.main[label])||0);
+    else      sub  += (j.lv||0)*((jm.sub &&jm.sub[label]) ||0);
+  });
+  return ceilDiv10(main)+ceilDiv10(sub);
+}
+/* 마법 클래스는 레벨을 올리며 마법을 배운다 — 지금 레벨까지의 것을 모은다. */
+function spellsOf(c){
+  var out=[], seen={};
+  (c.jobs||[]).forEach(function(j){
+    var jm=JOB[j.i]; if(!jm||!jm.sk) return;
+    jm.sk.forEach(function(s){
+      if(s.lv>(j.lv||0) || seen[s.n]) return;
+      seen[s.n]=1; out.push({n:s.n, lv:s.lv, from:jm.n});
+    });
+  });
+  return out.sort(function(a,b){ return a.lv-b.lv; });
+}
 /* 능력치는 «기본 + 직업 몫 + 장비» 다. 세이브의 ab{} 는 기본값만 들고 있어서
    그대로 쓰면 회피 계산이 어긋난다 — 실제로 그랬다. */
 function jobLabel(c, label){
