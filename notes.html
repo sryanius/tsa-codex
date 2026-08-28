@@ -200,7 +200,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#unknown">모르는 것</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a>
     </div>
   </header>
 
@@ -605,16 +605,6 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note warn"><b>일곱 중 다섯은 «잘 맞음»과 «안 맞음»의 목록이 완전히 같습니다.</b> <code>IsGood</code> 을 먼저 보기 때문에, 그 다섯 성격에게 <code>IsBad</code> 는 한 번도 실행되지 않습니다. 합리적의 «안 맞음»(신중한·신경질적)도 «잘 맞음»에 통째로 들어 있어서 마찬가지입니다. <b>실제로 «안 맞음»이 도는 건 무모한과 이기적, 둘뿐입니다.</b> 두 함수의 <code>switch</code> 가지가 한 칸씩 어긋나 있는 모양이라, 게임 쪽 실수로 보입니다.</div>
   <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
-
-  <h2 id="unknown"><span class="n">10</span>확인하지 못한 것</h2>
-  <p>둘 다 풀려서 비었습니다. 무엇이었는지와 답은 아래에 있습니다.</p>
-  <ul>
-    <li><b>대장간이 한 번에 몇 단계를 굴리는지</b> &mdash; §5 의 「몇 단계가 걸리나」 로 옮겼습니다.
-        <code>n</code> 은 <b>대장간 레벨 − 장비 레벨</b> 이었습니다.</li>
-    <li><b>금고에서 나오는 아이템 일부가 마스터에 없다</b> &mdash; 지금 다시 세니
-        금고·습득물 <b>1140개 중 이름을 못 찾는 것이 0</b> 입니다.
-        무기와 방어구를 따로 훑던 시절의 흔적이었습니다.</li>
-  </ul>
 
   </div>
 
