@@ -254,11 +254,17 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
 
   <h2 id="chest"><span class="n">3</span>금고 &mdash; 발견과 해제</h2>
   <p>살아 있는 파티원을 <b>차례로 굴려 한 명만 통과하면 성공</b>입니다. <b>발견</b>과 <b>해제</b> 두 판정을 모두 넘겨야 물건을 얻고, 해제 난이도가 0이면 해제 판정은 건너뜁니다.</p>
-  <div class="eq">목표  = 퀘스트 레벨 + 금고값(발견값 또는 해제 난이도)
-내 값 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + <b>도적 직업레벨</b> + <b>리더 보너스</b> + <b>통찰력/3</b>
-성공  = 내 값 &gt;= 목표 + <b>2d6</b></div>
+  <div class="note warn"><b>발견과 해제는 쓰는 능력치가 다릅니다.</b>
+  발견은 <b>통찰력</b>, 해제는 <b>재주</b> 입니다. 그리고 <b>리더 보너스는 발견에만</b> 붙습니다.</div>
+  <div class="eq"><b>발견</b>  <span class="cmt">Party.FoundItem</span>
+  내 값 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + 도적레벨 + <b>리더 보너스</b> + <b>&lfloor;통찰력/3&rfloor;</b>
+  성공  = 내 값 &gt;= 퀘스트 레벨 + 발견값 + <b>2d6</b>
+
+<b>해제</b>  <span class="cmt">AdventureMain.UnlockChest</span>
+  내 값 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + 도적레벨 + <b>&lfloor;재주/3&rfloor;</b>   <span class="cmt">// 리더 보너스 없음</span>
+  성공  = 내 값 &gt;= 난이도 + <b>2d6</b></div>
   <div class="note warn"><b>함정이 둘 있습니다.</b><br>
-  · 통찰력 보너스는 «도적레벨 + 리더보너스»가 <b>1 이상일 때만</b> 붙습니다. 도적을 안 키운 파티원은 통찰이 아무리 높아도 0으로 굴립니다.<br>
+  · 발견의 통찰력 보너스는 «도적레벨 + 리더보너스»가 <b>1 이상일 때만</b> 붙습니다. 도적을 안 키운 파티원은 통찰이 아무리 높아도 0으로 굴립니다.<br>
   · 첫 2d6이 1+1이면 <b>−100(대실패)</b> 입니다. 1/36은 어떤 능력치로도 못 막습니다 &mdash; <b>한 명 기준 천장이 97.22%</b> 입니다.</div>
   <h3>리더 보너스는 성격이 정합니다</h3>
   <table><thead><tr><th>성격</th><th class="num">보너스</th><th>성격</th><th class="num">보너스</th></tr></thead><tbody>
@@ -267,11 +273,12 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <tr><td>이기적</td><td class="num">+2</td><td>신경질적</td><td class="num">−1</td></tr>
   <tr><td>감정적</td><td class="num">+1</td><td></td><td class="num"></td></tr>
   </tbody></table>
-  <p>리더 <b>한 명에게만</b> 붙습니다. 통찰이 높은데 도적 레벨이 없는 파티원을 리더로 두면, 그 사람의 통찰이 판정에 살아납니다.</p>
+  <p>리더 <b>한 명에게만</b> 붙고, <b>발견 판정에만</b> 들어갑니다. 통찰이 높은데 도적 레벨이 없는 파티원을 리더로 두면, 그 사람의 통찰이 발견에 살아납니다.</p>
   <h3>사실상 확정을 만드는 조건</h3>
-  <div class="eq">도적레벨 + 리더보너스 + 통찰력/3  &gt;=  퀘스트 레벨 + 금고값 + 9</div>
+  <div class="eq">발견  도적레벨 + 리더보너스 + &lfloor;통찰력/3&rfloor;  &gt;=  퀘스트 레벨 + 발견값 + 9
+해제  도적레벨 + &lfloor;재주/3&rfloor;             &gt;=  난이도 + 9</div>
   <p>이걸 채운 캐릭터는 대실패(1/36)를 빼고 확정입니다. <b>두 명이 채우면</b> 판정당 실패가 1/1296이라 사실상 100%입니다.</p>
-  <p class="src">Party.OpenTreasureBox · Party.FoundItem · 리더 보너스 표 @0xF89F2C</p>
+  <p class="src">AdventureMain.OpenTreasureBox / FoundItem / UnlockChest · 리더 보너스 표 @0xF89F2C</p>
 
   <h2 id="trap"><span class="n">4</span>함정 &mdash; 금고와는 다른 규칙</h2>
   <p>함정마다 <code>TrapMaster.jobKind</code> 가 <b>어느 직업이 탐지하는지</b>를 따로 정합니다. 금고와 달리 도적 전용이 아닙니다.</p>
