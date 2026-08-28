@@ -630,7 +630,7 @@ function block(title,sub,rows){
    주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
 var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
-var sc={main:"", mainLv:1, subs:[], eq:[], base:{}, from:""};
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false};
 
 function scJobs(){ return D.jobs.slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
@@ -650,7 +650,7 @@ function scJobPart(label){
 }
 function scGearPart(label){
   var t=0;
-  sc.eq.forEach(function(id){ var g=D.gear[id]; if(g && g.b && g.b[label]) t += g.b[label]; });
+  scEquipped().forEach(function(id){ var g=D.gear[id]; if(g && g.b && g.b[label]) t += g.b[label]; });
   return t;
 }
 function scRows(){
@@ -665,9 +665,11 @@ function scAgiFloor(a){
   var n = a<=8 ? 3 : (a<=30 ? (a*171>>9) : (a<=99 ? (a*205>>11) : (a>>4)));
   return n<=0 ? a : Math.max(0, a-(n-1));
 }
+/* 은퇴자(status 6)는 다시 못 쓴다 — 목록에 둘 이유가 없다. */
 function scCrew(){
   try{ var c=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null");
-       return (c && c.chars) ? c.chars : []; }catch(e){ return []; }
+       return (c && c.chars) ? c.chars.filter(function(x){ return x.st!==6; }) : []; }
+  catch(e){ return []; }
 }
 function scLoad(id){
   var c=scCrew().filter(function(x){ return x.id===id; })[0];
@@ -679,9 +681,51 @@ function scLoad(id){
   sc.mainLv = mj ? (mj.lv||0) : 0;
   sc.subs = (c.jobs||[]).filter(function(j){ return j!==mj && (j.lv||0)>0; })
               .map(function(j){ return {i:j.i, lv:j.lv||0}; });
-  sc.eq = (c.eq||[]).filter(function(id2){ return D.gear[id2]; });
+  var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
+  sc.elf = !!(rc && rc.race==="엘프");
+  sc.slot={};
+  (c.eq||[]).forEach(function(id2){
+    var g=D.gear[id2]; if(!g) return;
+    sc.slot[g.c==="무기" ? "무기" : g.k] = id2;
+  });
 }
 function scName(i){ var g=D.gear[i]; return g? g.n+" (Lv"+g.lv+" "+g.k+")" : i; }
+/* Character.CanEquipArmors / CanEquipWeapons — «주직업 하나» 만 본다.
+   부직업은 관계없다. 엘프는 주직업과 무관하게 부적이 하나 더 붙는다. */
+function scMainJob(){ return D.jobs.filter(function(j){ return j.i===sc.main; })[0] || null; }
+function scCanKinds(){
+  var mj=scMainJob();
+  var arm = mj ? mj.a.slice() : [], wep = mj ? mj.w.slice() : [];
+  if(sc.elf && arm.indexOf("부적")<0) arm.push("부적");
+  return {arm:arm, wep:wep};
+}
+function scCanEquip(id){
+  var g=D.gear[id]; if(!g) return true;
+  var k=scCanKinds();
+  return (g.c==="무기" ? k.wep : k.arm).indexOf(g.k) >= 0;
+}
+/* 장비는 부위마다 하나씩이다. 무기는 한 칸, 방어구는 종류가 곧 부위다. */
+function scSlots(){
+  var k=scCanKinds();
+  return [{key:"무기", kinds:k.wep, cat:"무기"}]
+    .concat(k.arm.map(function(a){ return {key:a, kinds:[a], cat:"방어구"}; }));
+}
+function scPick(slot){
+  return Object.keys(D.gear).filter(function(id){
+    var g=D.gear[id]; return g.c===slot.cat && slot.kinds.indexOf(g.k)>=0; })
+    .sort(function(a,b){ var x=D.gear[a], y=D.gear[b];
+      return (x.lv-y.lv) || x.n.localeCompare(y.n); });
+}
+function scBonusText(id){
+  var g=D.gear[id]; if(!g || !g.b) return "";
+  var ks=Object.keys(g.b);
+  return ks.length ? ks.map(function(k){ return k+" "+(g.b[k]>0?"+":"")+g.b[k]; }).join(" · ") : "";
+}
+function scEquipped(){
+  var out=[];
+  scSlots().forEach(function(sl){ var id=sc.slot[sl.key]; if(id) out.push(id); });
+  return out;
+}
 
 function statHTML(){
   var crew=scCrew();
@@ -689,6 +733,7 @@ function statHTML(){
     + scJobs().map(function(j){ return '<option value="'+esc(j.i)+'"'+(j.i===sel?" selected":"")
         +'>'+esc(j.n)+'</option>'; }).join(""); };
   var rows=scRows();
+  var kinds=scCanKinds();
   var agi=rows.filter(function(r){ return r.k==="민첩"; })[0].sum;
   var avo=rows.filter(function(r){ return r.k==="회피"; })[0].sum;
   var dodge=avo + Math.floor(scAgiFloor(agi)/3);
@@ -703,15 +748,19 @@ function statHTML(){
     return '<div class="crow"><span class="lvlabel">부직업 '+(i+1)+'</span>'
       +'<select data-sub="'+i+'">'+jobOpts(s2.i)+'</select>'
       +'<label class="lvin">Lv<input type="number" min="0" max="30" data-sublv="'+i+'" value="'+(s2.lv||0)+'"></label>'
+      +'<button type="button" class="mini" data-submain="'+i+'" title="지금 주직업과 자리를 맞바꿉니다 — 착용 가능 부위도 같이 바뀝니다">&#9650; 주직업으로</button>'
       +'<button type="button" class="mini" data-subdel="'+i+'">빼기</button></div>'; }).join("");
 
-  var eqRows = sc.eq.map(function(id,i){
-    return '<div class="crow"><span class="lvlabel">장비 '+(i+1)+'</span>'
-      +'<span class="meta" style="flex:1">'+esc(scName(id))
-      + (D.gear[id]&&D.gear[id].b&&Object.keys(D.gear[id].b).length
-          ? ' — '+Object.keys(D.gear[id].b).map(function(k){ return k+" "+(D.gear[id].b[k]>0?"+":"")+D.gear[id].b[k]; }).join(", ")
-          : ' — 보너스 없음')+'</span>'
-      +'<button type="button" class="mini" data-eqdel="'+i+'">빼기</button></div>'; }).join("");
+  var eqRows = scSlots().map(function(sl){
+    var cur=sc.slot[sl.key]||"";
+    var opts='<option value="">— 없음 —</option>'
+      + scPick(sl).map(function(id){
+          var g=D.gear[id], bn=scBonusText(id);
+          return '<option value="'+esc(id)+'"'+(id===cur?" selected":"")+'>'
+            +esc(g.n)+' · Lv'+g.lv+(bn? ' · '+esc(bn) : '')+'</option>'; }).join("");
+    return '<div class="crow"><span class="lvlabel">'+esc(sl.key)+'</span>'
+      +'<select data-slot="'+esc(sl.key)+'">'+opts+'</select>'
+      +'<span class="meta">'+(cur? esc(scBonusText(cur)||"보너스 없음") : "")+'</span></div>'; }).join("");
 
   var baseRow = SC_BASE.map(function(k){
     return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-base="'+esc(k)+'" value="'
@@ -737,18 +786,18 @@ function statHTML(){
     +'<div class="crow"><span class="lvlabel"></span><button type="button" class="mini" id="sc-subadd">부직업 추가</button></div>'
     +'<div class="crow"><span class="lvlabel">기본 능력치</span><div class="statbox">'+baseRow+'</div></div>'
     + eqRows
-    +'<div class="crow"><span class="lvlabel">장비 추가</span>'
-      +'<select id="sc-eqadd"><option value="">— 고르기 —</option>'
-      +'<optgroup label="무기">'+scGear("무기").map(function(x){
-          return '<option value="'+esc(x.i)+'">'+esc(x.g.n)+' (Lv'+x.g.lv+' '+esc(x.g.k)+')</option>'; }).join("")+'</optgroup>'
-      +'<optgroup label="방어구">'+scGear("방어구").map(function(x){
-          return '<option value="'+esc(x.i)+'">'+esc(x.g.n)+' (Lv'+x.g.lv+' '+esc(x.g.k)+')</option>'; }).join("")+'</optgroup>'
-      +'</select><span class="meta">보너스가 붙은 장비는 757종 중 79종뿐입니다</span></div>'
+    +'<div class="crow"><span class="lvlabel"></span><span class="meta">'
+      +(kinds.wep.length||kinds.arm.length
+          ? '주직업이 <b>'+esc(kinds.wep.concat(kinds.arm).join(" · "))+'</b> 만 허락합니다'
+            +(sc.elf? ' (엘프라 부적이 하나 더)' : '')
+          : '주직업을 먼저 고르세요')+'</span></div>'
     +'</div>'
     + table
     +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
       +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
-    +'<p class="meta">강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p>'
+    +'<p class="meta"><b>착용 가능 부위는 주직업 하나로만 정해집니다</b> &mdash; 부직업은 관계없습니다. '
+      +'엘프는 주직업과 무관하게 부적을 하나 더 낍니다. '
+      +'강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p>'
     +'</section>';
 }
 
@@ -1170,8 +1219,14 @@ el("out").addEventListener("click",function(e){
   var b=e.target.closest("button.mini");
   if(b){
     if(b.id==="sc-subadd"){ sc.subs.push({i:"",lv:1}); render(); return; }
+    if(b.dataset.submain!=null){
+      // 주직업과 자리를 맞바꾼다. 지금 주직업이 비어 있으면 그냥 올린다.
+      var k=+b.dataset.submain, was={i:sc.main, lv:sc.mainLv};
+      sc.main=sc.subs[k].i; sc.mainLv=sc.subs[k].lv;
+      if(was.i) sc.subs[k]=was; else sc.subs.splice(k,1);
+      render(); return;
+    }
     if(b.dataset.subdel!=null){ sc.subs.splice(+b.dataset.subdel,1); render(); return; }
-    if(b.dataset.eqdel!=null){ sc.eq.splice(+b.dataset.eqdel,1); render(); return; }
   }
   var g=e.target.closest("[data-go]"); if(!g) return;
   e.stopPropagation();
@@ -1185,7 +1240,10 @@ el("out").addEventListener("change",function(e){
   if(t.name==="c-sex"){ calc.sex=t.dataset.x; render(); return; }
   if(t.id==="sc-crew"){ if(t.value) scLoad(t.value); else { sc.from=""; } render(); return; }
   if(t.id==="sc-main"){ sc.main=t.value; render(); return; }
-  if(t.id==="sc-eqadd"){ if(t.value) sc.eq.push(t.value); render(); return; }
+  if(t.dataset && t.dataset.slot!=null){
+    if(t.value) sc.slot[t.dataset.slot]=t.value; else delete sc.slot[t.dataset.slot];
+    render(); return;
+  }
   if(t.dataset && t.dataset.sub!=null){ sc.subs[+t.dataset.sub].i=t.value; render(); return; }
   if(t.dataset && t.dataset.p!=null){
     if(t.checked) calc.pers[t.dataset.p]=1; else delete calc.pers[t.dataset.p];
