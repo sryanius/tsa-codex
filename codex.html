@@ -312,6 +312,18 @@ var state={view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:fals
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || !isLockedRegion(p.r); }
 function visPlaces(){ return D.places.filter(okPlace); }
+/* 드랍은 «가중치» 가 아니라 확률로 나온다.
+   MonsterMaster::GetReward 는 ① 등급을 하나 굴리고 ② 그 등급이거나 «항상»
+   인 보상을 다 모아 ③ 그중 하나를 무작위로 준다. 하나도 없으면 안 떨군다.
+   그래서 같은 등급의 보상이 여럿이면 서로 확률을 나눠 갖는다. */
+var FREQN={5:"항상",10:"자주",11:"곧잘",12:"가끔",13:"이따금",14:"드물게",15:"희귀",16:"초희귀"};
+function freqName(f){ return FREQN[f] || ("등급 "+(f||0)); }
+function pct(p){
+  if(p==null) return "—";
+  if(p>=1) return p.toFixed(1)+"%";
+  if(p>=0.01) return p.toFixed(2)+"%";
+  return p.toFixed(3)+"%";
+}
 function monPlaces(m){ return (m.places||[]).filter(okPlace); }
 function monQuestBlock(m){
   var qs=m.quests||[];
@@ -654,7 +666,7 @@ function placeDetail(p){
       var mo=MONBY[mm.n]; if(!mo) return;
       (mo.drops||[]).forEach(function(d){
         if(dseen[d.n]) return; dseen[d.n]=1;
-        dl.push(itemLink(d.n)+'<span class="meta"> ('+esc(mm.n)+' · 가중치 '+(d.f||0)+')</span>');
+        dl.push(itemLink(d.n)+'<span class="meta"> ('+esc(mm.n)+' · '+pct(d.p)+')</span>');
       });
     });
     // 마법을 쓰는 놈이 섞여 있으면 회피만으로는 못 막는다 — 무슨 마법인지 적는다
@@ -714,14 +726,17 @@ function monRow(m){
     +'<span class="nm"><b>'+tags+esc(m.n||m.i)+'</b><span>'
     +(mp.length? esc(mp.slice(0,3).map(function(p){return p.n}).join(", "))
       +(mp.length>3?" 외 "+(mp.length-3):"")
-      : (m.places.length?"출현지는 미출시 지역뿐":"출현지 미확인"))+'</span></span>'
+      : (m.places.length ? "출현지는 미출시 지역뿐"
+         : ((m.quests||[]).length ? "탐색지에는 없음 — 퀘스트 전투 "+m.quests.length+"곳"
+                                  : "출현지 미확인")))+'</span></span>'
     +'<span class="num">Lv'+(m.lv||0)+'</span>'
     +'<span class="num dim r3">명중 '+(m.hit||0)+'</span></div>';
 }
 function monDetail(m){
   var dr=m.drops.length? '<div class="blk"><h4>드랍</h4><ul>'+m.drops.map(function(d){
       return '<li>'+itemLink(d.n)
-        +'<span class="meta"> — '+esc(d.cat)+' · 가중치 '+(d.f||0)+' · 제작등급 '+(d.cl||0)+'</span>'
+        +'<span class="meta"> — '+esc(d.cat)+' · '+freqName(d.f)+' <b>'+pct(d.p)+'</b>'
+        +(d.cl?' · 제작등급 '+d.cl:'')+'</span>'
         +itemGist(d.n)+'</li>';
     }).join("")+'</ul></div>' : "";
   var mp=monPlaces(m);
@@ -738,7 +753,8 @@ function monDetail(m){
     +'<div class="dcell"><dt>레벨</dt><dd class="mono">'+(m.lv||0)+'</dd></div>'
     +'<div class="dcell"><dt>경험치</dt><dd class="mono">'+(m.exp||0).toLocaleString()+'</dd></div>'
     +'<div class="dcell"><dt>골드</dt><dd class="mono">'+(m.gold||0).toLocaleString()+'</dd></div>'
-    +'<div class="dcell"><dt>HP / MP</dt><dd class="mono">'+(m.hp||0)+' / '+(m.mp||0)+'</dd></div>'
+    +'<div class="dcell"><dt>HP / MP</dt><dd class="mono">'+(m.hp||0)
+      +(m.hpj?'<span class="fld"> ±'+m.hpj+'</span>':'')+' / '+(m.mp||0)+'</dd></div>'
     +'<div class="dcell"><dt>공격 / 방어</dt><dd class="mono">'+(m.atk||0)+' / '+(m.df||0)+'</dd></div>'
     +'<div class="dcell"><dt>마방 / 마력</dt><dd class="mono">'+(m.mdf||0)+' / '+(m.mag||0)+'</dd></div>'
     +'<div class="dcell"><dt>민첩 / 치명</dt><dd class="mono">'+(m.agi||0)+' / '+(m.crit||0)+'</dd></div>'
@@ -775,7 +791,8 @@ function itemRow(x){
 function itemDetail(x){
   var dr=x.drop.length? '<div class="blk"><h4>이 아이템을 떨구는 몬스터</h4><ul>'+x.drop.map(function(d){
       return '<li><button type="button" class="jump" data-go="m:'+esc(d.m)+'">'+esc(d.m)+'</button>'
-        +'<span class="meta"> — 가중치 '+(d.f||0)+' · 제작등급 '+(d.cl||0)+'</span></li>';
+        +'<span class="meta"> — '+freqName(d.f)+' <b>'+pct(d.p)+'</b>'
+        +(d.cl?' · 제작등급 '+d.cl:'')+'</span></li>';
     }).join("")+'</ul></div>' : "";
   // 어디를 돌면 되는지. 떨구는 몬스터를 거쳐 탐색지까지 이어 준다.
   var ipl=itemPlaces(x);
