@@ -200,7 +200,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#tank">근접이 죽는 이유</a>
     </div>
   </header>
 
@@ -605,6 +605,59 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note warn"><b>일곱 중 다섯은 «잘 맞음»과 «안 맞음»의 목록이 완전히 같습니다.</b> <code>IsGood</code> 을 먼저 보기 때문에, 그 다섯 성격에게 <code>IsBad</code> 는 한 번도 실행되지 않습니다. 합리적의 «안 맞음»(신중한·신경질적)도 «잘 맞음»에 통째로 들어 있어서 마찬가지입니다. <b>실제로 «안 맞음»이 도는 건 무모한과 이기적, 둘뿐입니다.</b> 두 함수의 <code>switch</code> 가지가 한 칸씩 어긋나 있는 모양이라, 게임 쪽 실수로 보입니다.</div>
   <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
+
+  <h2 id="tank"><span class="n">10</span>근접은 왜 맞아죽는가 &mdash; 구조입니다</h2>
+  <p>「방어를 올려도, 회복을 붙여도 근접이 죽는다」 는 느낌은 맞습니다.
+     <b>방어로는 못 버티게 돼 있습니다.</b> 세 줄이면 끝납니다.</p>
+  <div class="eq">몬스터 공격력 = <b>3L + (L&gt;4 ? 2L&minus;8 : 0)</b> + 조정   <span class="cmt">// 주사위 없음 — 고정값</span>
+피해          = 공격력 &minus; <b>&lfloor;대상 방어 &divide; 2&rfloor;</b>, 최소 1
+방어구 방어    = <b>2 &times; 장비 레벨</b></div>
+  <div class="note warn"><b>방어는 절반만 깎습니다.</b> 그런데 몬스터 공격력은 레벨에
+     <code>5L&minus;8</code> 로 붙습니다. 방어를 최대로 껴도 <b>깎이는 몫이 공격력의 절반도 안 됩니다</b>.
+     레벨이 오를수록 격차가 <b>벌어집니다</b> &mdash; 좁혀지지 않습니다.</div>
+
+  <h3>지금 낄 수 있는 최고 방어</h3>
+  <table class="t"><thead><tr><th>부위</th><th>장비</th><th>방어</th></tr></thead><tbody>
+    <tr><td>갑옷</td><td>왕단의 갑옷 (Lv30 · 요구 힘 35)</td><td>60~63</td></tr>
+    <tr><td>투구</td><td>짐승의 눈의 투구 (Lv29)</td><td>5~35</td></tr>
+    <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29 · 요구 힘 41)</td><td>8~31</td></tr>
+    <tr><td>부적</td><td>&mdash;</td><td>0</td></tr>
+    <tr class="hi"><td colspan="2"><b>합계</b></td><td><b>73~129</b></td></tr>
+  </tbody></table>
+  <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다. 최대로 굴러도 깎이는 건 <b>64</b> 뿐입니다.</p>
+
+  <h3>그래서 몇 대 버티나</h3>
+  <p>세이브의 용병 87명 중 <b>가장 HP가 높은 것이 61</b> 입니다
+     (중앙값 31). 직업을 최대로 짜도 <b>110 언저리</b>가 천장입니다
+     &mdash; 무장병 30 이 +39, 부직업을 최대로 채워도 +47 입니다.</p>
+  <table class="t"><thead><tr><th>몬스터 Lv</th><th>공격력</th><th>피해 (방어 최대)</th><th>피해 (방어 최소)</th></tr></thead><tbody>
+    <tr><td>20</td><td>92</td><td>28</td><td>56</td></tr>
+    <tr><td>25</td><td>117</td><td>53</td><td>81</td></tr>
+    <tr class="hi"><td>30</td><td>142</td><td><b>78</b></td><td><b>106</b></td></tr>
+    <tr><td>35</td><td>167</td><td>103</td><td>131</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>방어를 최대로 껴도 레벨 27 몬스터부터는 한 방입니다</b>
+     (HP 61 기준). 방어가 낮게 굴면 레벨 21 부터 그렇습니다.
+     HP 를 천장인 110 까지 끌어올려도 <b>Lv30 상대로 두 대</b>입니다.</div>
+
+  <h3>회복으로도 못 메웁니다</h3>
+  <p>가장 센 회복이 <b>바이탈라이즈 28~48</b>(단일 · Lv30 · MP9), 전체 회복은
+     <b>살바 16~24</b> 입니다. Lv30 몬스터 <b>한 대가 78~106</b> 이니
+     <b>한 대 맞은 걸 되돌리는 데 두세 번</b>이 듭니다. 몬스터는 매 턴 때리고,
+     여럿이 때립니다.</p>
+
+  <h3>그래서 회피뿐입니다</h3>
+  <p>회피는 <b>확률이 아니라 결정</b>입니다 &mdash; <code>명중 &minus; 회피 &ge; &minus;1</code>
+     이면 맞고, 아니면 <b>안 맞습니다</b>. 몬스터의 명중은 주사위 없이 고정이라,
+     회피값이 충분하면 <b>물리 공격은 100% 안 맞습니다</b>(§8).
+     방어는 «덜 맞기» 인데 회피는 «안 맞기» 라, 격차가 벌어지는 판에서는
+     후자만 답이 됩니다.</p>
+  <div class="note"><b>다만 회피는 물리 전용입니다.</b> <code>AvoidRate</code> 는
+     <code>PhysicsAttack</code> 에서만 불립니다. 마법과 광역 마법은 회피탱도 그대로 맞습니다
+     &mdash; 그쪽은 <b>마법 방어</b>와 HP 로 버텨야 합니다.</div>
+  <p class="src">GameBalanceCalculator.CalculateMonsterAttackPower / CalculateHumanDefense &middot;
+     BattleCreature.DamagePoint / DefensePoint &middot; BattlePhysicalAttackExecutor.PhysicsAttack &middot;
+     세이브 Character 87건</p>
 
   </div>
 
