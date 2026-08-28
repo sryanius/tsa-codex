@@ -752,6 +752,14 @@ function needNextExp(jobId, lv, others){
   if(!j) return 0;
   return Math.floor(Math.pow(lv+1, 2.5) * 14 * (((j.exp||1)-1)/4 + 1) * Math.pow(1.05, others));
 }
+/* ★ 현자(Job.Kind 202)와 모험가(0)는 «다른 직업 레벨 합» 에 안 들어간다.
+   Character.SumOtherJobLevels 의 술어가 이 둘을 빼고 센다. 그래서 이 둘은
+   아무리 올려도 다른 직업의 경험치를 안 비싸게 만든다. */
+function expCounts(jobId){
+  var j=D.jobs.filter(function(x){ return x.i===jobId; })[0];
+  if(!j) return false;
+  return !(j.k===202 || j.k===0 || j.k==null);
+}
 /* 지금 상태에서 지금 입력한 레벨까지 올리는 데 드는 총 경험치.
    목록 순서대로 한 직업씩 올린다고 보고, 올릴 때마다 «다른 직업 합» 을 갱신한다. */
 function expPlan(){
@@ -765,7 +773,7 @@ function expPlan(){
     var from=now[r.i], cost=0;
     for(var L=from; L<r.to; L++){
       var others=0;
-      for(var k in now) if(k!==r.i) others+=now[k];
+      for(var k in now) if(k!==r.i && expCounts(k)) others+=now[k];
       cost += needNextExp(r.i, L, others);
       now[r.i]=L+1;
     }
