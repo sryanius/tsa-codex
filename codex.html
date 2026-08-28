@@ -240,7 +240,6 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
     </div>
     <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
-    <select id="kind" aria-label="종류"><option value="">모든 종류</option></select>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
     <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
     <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
@@ -251,6 +250,12 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
       <label class="toggle" style="font-size:11.5px"><input type="checkbox" id="mtand"> 모두 만족(AND)</label>
       <button type="button" id="mtclear" class="mini">전체 해제</button></div>
     <div class="abils-box" id="mtbox"></div>
+  </div>
+  <div class="abils" id="kindtags" hidden>
+    <div class="abils-head"><b>장비 종류로 걸러보기</b>
+      <button type="button" id="kdclear" class="mini">전체 해제</button></div>
+    <div class="abils-box" id="kdbox"></div>
+    <input type="checkbox" id="kdand" hidden aria-hidden="true">
   </div>
   <div class="abils" id="itemtags" hidden>
     <div class="abils-head"><b>아이템 태그로 걸러보기</b>
@@ -336,15 +341,24 @@ function fillRegs(){
 }
 fillRegs();
 
-// 무기/방어구 종류
-var kinds=[];
-D.items.forEach(function(x){ if(kinds.indexOf(x.kind)<0) kinds.push(x.kind); });
-kinds.forEach(function(k){ var o=document.createElement("option"); o.value=k; o.textContent=k; el("kind").appendChild(o); });
+// 무기/방어구 종류 — 무기 먼저, 그 안에서는 개수 많은 순
+var kindCat={}, kindCnt={};
+D.items.forEach(function(x){ kindCat[x.kind]=x.cat; kindCnt[x.kind]=(kindCnt[x.kind]||0)+1; });
+var KTAG=Object.keys(kindCnt).sort(function(a,b){
+  if(kindCat[a]!==kindCat[b]) return kindCat[a]==="무기" ? -1 : 1;
+  return kindCnt[b]-kindCnt[a];
+}).map(function(k){ return {k:k, l:k, t:function(x){ return x.kind===k; }}; });
 
+/* 지금 화면에 나올 수 있는 장비 — 표찰의 개수는 전부 이걸 센다.
+   미출시를 숨겨 둔 채 «122» 라고 적으면 거짓말이 된다. */
+function visibleItems(){
+  return D.items.filter(function(x){ return !x.lock || state.showLocked; });
+}
 // 특수능력 체크박스 — 실제로 존재하는 능력만, 많은 순으로
 var abCount={};
 D.items.forEach(function(x){ x.sp.forEach(function(a){ abCount[a.k]=(abCount[a.k]||0)+1; }); });
 var abNames=Object.keys(abCount).sort(function(a,b){ return abCount[b]-abCount[a]; });
+var abLabels=[];
 abNames.forEach(function(name){
   var lab=document.createElement("label"); lab.className="ab";
   var cb=document.createElement("input"); cb.type="checkbox";
@@ -357,7 +371,16 @@ abNames.forEach(function(name){
   var n=document.createElement("i"); n.className="n"; n.textContent=abCount[name];
   lab.appendChild(n);
   el("abbox").appendChild(lab);
+  abLabels.push({name:name, lab:lab, cb:cb, n:n});
 });
+function abRefresh(){
+  var list=visibleItems();
+  abLabels.forEach(function(L){
+    var c=list.filter(function(x){ return x.sp.some(function(a){ return a.k===L.name; }); }).length;
+    L.n.textContent=c;
+    L.lab.hidden = !c && !L.cb.checked;
+  });
+}
 el("abclear").onclick=function(){
   state.abils={};
   Array.prototype.forEach.call(el("abbox").querySelectorAll("input"),function(c){ c.checked=false; });
@@ -479,9 +502,12 @@ var ITAG=[
   // 예전 «획득처 없음» 은 상점 판매와 145개나 겹쳐 같은 말처럼 보였다.
   {k:"craft", l:"제작 전용",   t:function(x){ return !x.drop.length && !x.qd.length && !x.shop; }}
 ];
+state.kinds={};
+var KD=makeTagBox("kdbox","kdand","kdclear",KTAG,
+                  function(){ return visibleItems(); }, state.kinds, {on:false});
 state.itags={};
 var IT=makeTagBox("itbox","itand","itclear",ITAG,
-                  function(){ return D.items; }, state.itags, {on:false});
+                  function(){ return visibleItems(); }, state.itags, {on:false});
 
 function maxCl(x){
   var m=-99; (x.drop||[]).forEach(function(d){ if((d.cl||0)>m) m=d.cl||0; });
@@ -810,7 +836,7 @@ function render(){
       var rows=D.items.filter(function(x){
         if(x.lock && !state.showLocked) return false;
         if(x.cat!==cat) return false;
-        if(state.kind && x.kind!==state.kind) return false;
+        if(KD.any() && !KD.match(x)) return false;
         if(state.only && !x.drop.length && !x.qd.length) return false;
         if(IT.any() && !IT.match(x)) return false;
         if(anyAbil() && !abilMatch(x)) return false;
@@ -833,8 +859,9 @@ function render(){
   el("abils").hidden = !isItem;
   el("itemtags").hidden = !isItem;
   el("montags").hidden = state.view!=="mon";
-  if(isItem) IT.refresh(); else if(state.view==="mon") MT.refresh();
-  el("kind").style.display = isItem ? "" : "none";
+  el("kindtags").hidden = !isItem;
+  if(isItem){ KD.refresh(); IT.refresh(); abRefresh(); }
+  else if(state.view==="mon") MT.refresh();
   el("reg").style.display = isItem ? "none" : "";
 }
 
@@ -918,7 +945,6 @@ el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("reg").addEventListener("change",function(e){ state.reg=e.target.value; render(); });
 el("callonly").addEventListener("change",function(e){ state.callOnly=e.target.checked; render(); });
-el("kind").addEventListener("change",function(e){ state.kind=e.target.value; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
 el("showlocked").checked=state.showLocked;
 el("showlocked").addEventListener("change",function(e){
