@@ -304,12 +304,28 @@ window.__TSA_BOOT=function(D){
 "use strict";
 
 var el=function(id){return document.getElementById(id)};
+/* 아직 못 가는 지역 — 규칙은 lockrule.md 에 있다.
+   ① 세이브에 열린 지역 목록이 있으면 그게 진실이다 (업데이트되면 저절로 풀린다)
+   ② 없으면 데이터의 locked 를 쓴다 (빌드가 정한 것: 빈 지역 + 손으로 적은 한 줄) */
+var LOCKED_SET = (function(){
+  var open=null;
+  try{ open=JSON.parse(localStorage.getItem("tsa.maps.v1")||"null"); }catch(e){}
+  var out={}; (D.locked||[]).forEach(function(r){ out[r]=1; });
+  if(open && open.length && D.maps){
+    var got={}; open.forEach(function(i){ got[i]=1; });
+    out={};
+    D.maps.forEach(function(m){ if(!got[m.i]) out[m.n]=1; });
+  }
+  return out;
+})();
+function isLockedRegion(r){ return !!LOCKED_SET[r]; }
+
 // 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
 // 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
 var LKEY2="tsa.showlocked.v1";
 var state={view:"job",q:"",wk:"",showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
-function okTown(t){ return state.showLocked || !t.lock; }
+function okTown(t){ return state.showLocked || !(t.lock || isLockedRegion(t.r)); }
 function visTowns(){ return D.towns.filter(okTown); }
 
 /* 퀘스트 색인에서 세이브를 넣으면 도시별 주점·상점 레벨과 훈련소 레벨이
@@ -730,7 +746,9 @@ function scSlots(){
 }
 function scPick(slot){
   return Object.keys(D.gear).filter(function(id){
-    var g=D.gear[id]; return g.c===slot.cat && slot.kinds.indexOf(g.k)>=0; })
+    var g=D.gear[id];
+    if(g.lock && !state.showLocked) return false;   // 아직 못 가는 지역에서만 나오는 것
+    return g.c===slot.cat && slot.kinds.indexOf(g.k)>=0; })
     .sort(function(a,b){ var x=D.gear[a], y=D.gear[b];
       return (x.lv-y.lv) || x.n.localeCompare(y.n); });
 }
@@ -776,7 +794,8 @@ function statHTML(){
           var g=D.gear[id], bn=scBonusText(id), why=scWhyNot(id);
           return '<option value="'+esc(id)+'"'+(id===cur?" selected":"")+'>'
             +(why? "✕ " : "")+esc(g.n)+' · Lv'+(g.nl||g.lv)+' 힘'+(g.pw||0)
-            +(bn? ' · '+esc(bn) : '')+(why? ' — '+esc(why)+' 모자람' : '')+'</option>'; }).join("");
+            +(bn? ' · '+esc(bn) : '')+(why? ' — '+esc(why)+' 모자람' : '')
+            +(g.lock? ' [미출시]' : '')+'</option>'; }).join("");
     return '<div class="crow"><span class="lvlabel">'+esc(sl.key)+'</span>'
       +'<select data-slot="'+esc(sl.key)+'">'+opts+'</select>'
       +'<span class="meta"'+(cur&&scWhyNot(cur)?' style="color:var(--f-heal)"':'')+'>'

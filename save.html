@@ -672,6 +672,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     return pt;
   }
 
+  /* 내가 «연» 지역. GameData.Maps() 에 들어간 것만 세이브에 남는다.
+     이걸 읽으면 «미출시» 를 손으로 못 박을 필요가 없다 —
+     게임이 업데이트돼 새 지역이 열리면 세이브에 저절로 나타난다. */
+  function readMap(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "Map") return null;
+    return assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"])) || null;
+  }
+
   function readEquipment(plain, fileName){
     var p = parseNrbf(plain), R = p.root;
     if (!R || !R["Equipment+assetName"]) return null;
@@ -698,11 +707,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     _version: extractVersion,
     _char: readCharacter,
     _equip: readEquipment,
+    _map: readMap,
     _nrbf: parseNrbf,
     DATA_VERSION: DATA_VERSION,
     ingest: async function (files, onProgress) {
       var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
-      var chars = [], equips = {};
+      var chars = [], equips = {}, openMaps = {};
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         if (!/\.data$/i.test(f.name)) continue;
@@ -718,7 +728,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
           try {
             var c = readCharacter(plain);
             if (c) chars.push(c);
-            else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+            else {
+              var mp = readMap(plain);
+              if (mp) openMaps[mp] = 1;
+              else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+            }
           } catch (e4) { }
         } catch (e) {
           bad++;
@@ -728,9 +742,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       }
       var payload = {
         at: new Date().toISOString().slice(0, 16).replace("T", " "),
-        q: into, files: ok
+        q: into, files: ok, maps: Object.keys(openMaps)
       };
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
+      // 열린 지역은 모든 페이지가 본다 — 한 곳에 따로 둔다.
+      try { localStorage.setItem("tsa.maps.v1", JSON.stringify(payload.maps)); } catch (e) { }
       // 용병·장비는 따로 둔다. 퀘스트 진행도(SKEY)보다 크고, 쓰는 페이지도 다르다.
       try {
         localStorage.setItem("tsa.crew.v1", JSON.stringify(
@@ -739,7 +755,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
                payload: payload, buildings: blds,
                version: ver, dataVersion: DATA_VERSION,
-               chars: chars, equips: equips };
+               chars: chars, equips: equips, maps: payload.maps };
     }
   };
 })();

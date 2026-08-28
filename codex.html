@@ -283,10 +283,28 @@ window.__TSA_BOOT=function(D){
 
 var el=function(id){return document.getElementById(id)};
 // 칼레바스 고원은 아직 출시 전이라 기본으로 감춘다. 출시되면 토글만 켜면 된다.
-var LOCKED_REGION="칼레바스 고원", LKEY2="tsa.showlocked.v1";
+var LKEY2="tsa.showlocked.v1";
+/* 아직 못 가는 지역 — 규칙은 lockrule.md 에 있다.
+   ① 세이브에 열린 지역 목록이 있으면 그게 진실이다 (업데이트되면 저절로 풀린다)
+   ② 없으면 데이터의 locked 를 쓴다 (빌드가 정한 것: 빈 지역 + 손으로 적은 한 줄) */
+var LOCKED_SET = (function(){
+  var open=null;
+  try{ open=JSON.parse(localStorage.getItem("tsa.maps.v1")||"null"); }catch(e){}
+  var byData={}; (D.locked||[]).forEach(function(r){ byData[r]=1; });
+  if(open && open.length && null){
+    // 세이브에 있는 지역 id 로 «안 열린 지역» 을 다시 만든다
+    var got={}; open.forEach(function(i){ got[i]=1; });
+    var out={};
+    null.forEach(function(m){ if(!got[m.i]) out[m.n]=1; });
+    return out;
+  }
+  return byData;
+})();
+function isLockedRegion(r){ return !!LOCKED_SET[r]; }
+
 var state={view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
-function okPlace(p){ return state.showLocked || p.r!==LOCKED_REGION; }
+function okPlace(p){ return state.showLocked || !isLockedRegion(p.r); }
 function visPlaces(){ return D.places.filter(okPlace); }
 function monPlaces(m){ return (m.places||[]).filter(okPlace); }
 
@@ -305,7 +323,7 @@ function fillRegs(){
     if(lo[p.r]==null || p.lv<lo[p.r]) lo[p.r]=p.lv;
     if(hi[p.r]==null || p.lv>hi[p.r]) hi[p.r]=p.lv;
     if(seen.indexOf(p.r)>=0) return;
-    if(!state.showLocked && p.r===LOCKED_REGION) return;
+    if(!state.showLocked && isLockedRegion(p.r)) return;
     seen.push(p.r);
   });
   seen.forEach(function(r){
@@ -903,7 +921,7 @@ el("showlocked").checked=state.showLocked;
 el("showlocked").addEventListener("change",function(e){
   state.showLocked=e.target.checked;
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
-  if(!state.showLocked && state.reg===LOCKED_REGION) state.reg="";
+  if(!state.showLocked && isLockedRegion(state.reg)) state.reg="";
   fillRegs(); render();
 });
 var TABNOTE={
