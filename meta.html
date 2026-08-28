@@ -209,6 +209,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .crow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
 .crow:last-child{margin:0}
 .crow .lvlabel{min-width:82px;padding-top:5px}
+button.mini{font:inherit;font-size:12px;padding:4px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--muted);cursor:pointer}
+button.mini:hover{color:var(--ink);border-color:var(--accent)}
+table.sct{width:100%;max-width:520px;border-collapse:collapse;margin:0 0 14px;
+  font-variant-numeric:tabular-nums}
+table.sct th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--faint);
+  font-weight:600;padding:0 12px 6px 0;border-bottom:1px solid var(--line)}
+table.sct td{padding:6px 12px 6px 0;border-bottom:1px solid var(--line-soft);color:var(--body);font-size:13px}
+table.sct th.num,table.sct td.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+table.sct tr.zero td{color:var(--faint)}
 .crow select{font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);
   border-radius:7px;background:var(--raised);color:var(--ink)}
 .statbox{display:flex;flex-wrap:wrap;gap:6px}
@@ -271,6 +281,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <span class="seglab">도구</span>
       <div class="seg" role="group" aria-label="도구 보기 전환">
       <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
+      <button id="v-stat" type="button" aria-pressed="false">능력치 계산기</button>
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
@@ -611,6 +622,136 @@ function block(title,sub,rows){
     +'<div class="list">'+rows.join("")+'</div></section>';
 }
 
+
+/* ── 능력치 계산기 ───────────────────────────────────────────────────
+   Character 의 각 수치는 이렇게 쌓인다.
+     기본 능력치 + 직업 몫 + 무기 + Σ방어구   (+ 상태이상 보정은 여기선 뺀다)
+   직업 몫 = ⌈주직업레벨 × 주보너스 ÷ 10⌉ + ⌈Σ(부직업레벨 × 부보너스) ÷ 10⌉
+   주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
+var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
+var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
+var sc={main:"", mainLv:1, subs:[], eq:[], base:{}, from:""};
+
+function scJobs(){ return D.jobs.slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
+function scGear(cat){
+  return Object.keys(D.gear).map(function(k){ var g=D.gear[k]; return {i:k,g:g}; })
+    .filter(function(x){ return x.g.c===cat; })
+    .sort(function(a,b){ return (a.g.lv-b.g.lv) || a.g.n.localeCompare(b.g.n); });
+}
+function scJobPart(label){
+  var main=0, sub=0;
+  var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+  if(mj && mj.main[label]) main += (sc.mainLv||0) * mj.main[label];
+  sc.subs.forEach(function(s2){
+    var j=D.jobs.filter(function(x){ return x.i===s2.i; })[0];
+    if(j && j.sub[label]) sub += (s2.lv||0) * j.sub[label];
+  });
+  return Math.ceil(main/10) + Math.ceil(sub/10);
+}
+function scGearPart(label){
+  var t=0;
+  sc.eq.forEach(function(id){ var g=D.gear[id]; if(g && g.b && g.b[label]) t += g.b[label]; });
+  return t;
+}
+function scRows(){
+  return SC_BASE.concat(SC_DERIV).map(function(label){
+    var base = SC_BASE.indexOf(label)>=0 ? (sc.base[label]||0) : 0;
+    var jb=scJobPart(label), gp=scGearPart(label);
+    return {k:label, base:base, job:jb, gear:gp, sum:base+jb+gp};
+  });
+}
+function scAgiFloor(a){
+  if(a<1) return 0;
+  var n = a<=8 ? 3 : (a<=30 ? (a*171>>9) : (a<=99 ? (a*205>>11) : (a>>4)));
+  return n<=0 ? a : Math.max(0, a-(n-1));
+}
+function scCrew(){
+  try{ var c=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null");
+       return (c && c.chars) ? c.chars : []; }catch(e){ return []; }
+}
+function scLoad(id){
+  var c=scCrew().filter(function(x){ return x.id===id; })[0];
+  if(!c) return;
+  sc.from=c.n||id;
+  sc.base={}; SC_BASE.forEach(function(k){ sc.base[k]=(c.ab&&c.ab[k])||0; });
+  var mj=(c.jobs||[]).filter(function(j){ return j.cur; })[0] || (c.jobs||[])[0];
+  sc.main = mj ? mj.i : "";
+  sc.mainLv = mj ? (mj.lv||0) : 0;
+  sc.subs = (c.jobs||[]).filter(function(j){ return j!==mj && (j.lv||0)>0; })
+              .map(function(j){ return {i:j.i, lv:j.lv||0}; });
+  sc.eq = (c.eq||[]).filter(function(id2){ return D.gear[id2]; });
+}
+function scName(i){ var g=D.gear[i]; return g? g.n+" (Lv"+g.lv+" "+g.k+")" : i; }
+
+function statHTML(){
+  var crew=scCrew();
+  var jobOpts=function(sel){ return '<option value="">—</option>'
+    + scJobs().map(function(j){ return '<option value="'+esc(j.i)+'"'+(j.i===sel?" selected":"")
+        +'>'+esc(j.n)+'</option>'; }).join(""); };
+  var rows=scRows();
+  var agi=rows.filter(function(r){ return r.k==="민첩"; })[0].sum;
+  var avo=rows.filter(function(r){ return r.k==="회피"; })[0].sum;
+  var dodge=avo + Math.floor(scAgiFloor(agi)/3);
+
+  var crewSel = crew.length
+    ? '<select id="sc-crew"><option value="">— 직접 입력 —</option>'
+      + crew.map(function(c){ return '<option value="'+esc(c.id)+'"'+(sc.from===(c.n||c.id)?" selected":"")
+          +'>'+esc(c.n||c.id)+' (Lv'+(c.mainLv||0)+')</option>'; }).join("")+'</select>'
+    : '<span class="meta"><a href="save.html">세이브를 넣으면</a> 내 용병을 불러올 수 있습니다</span>';
+
+  var subRows = sc.subs.map(function(s2,i){
+    return '<div class="crow"><span class="lvlabel">부직업 '+(i+1)+'</span>'
+      +'<select data-sub="'+i+'">'+jobOpts(s2.i)+'</select>'
+      +'<label class="lvin">Lv<input type="number" min="0" max="30" data-sublv="'+i+'" value="'+(s2.lv||0)+'"></label>'
+      +'<button type="button" class="mini" data-subdel="'+i+'">빼기</button></div>'; }).join("");
+
+  var eqRows = sc.eq.map(function(id,i){
+    return '<div class="crow"><span class="lvlabel">장비 '+(i+1)+'</span>'
+      +'<span class="meta" style="flex:1">'+esc(scName(id))
+      + (D.gear[id]&&D.gear[id].b&&Object.keys(D.gear[id].b).length
+          ? ' — '+Object.keys(D.gear[id].b).map(function(k){ return k+" "+(D.gear[id].b[k]>0?"+":"")+D.gear[id].b[k]; }).join(", ")
+          : ' — 보너스 없음')+'</span>'
+      +'<button type="button" class="mini" data-eqdel="'+i+'">빼기</button></div>'; }).join("");
+
+  var baseRow = SC_BASE.map(function(k){
+    return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-base="'+esc(k)+'" value="'
+      +(sc.base[k]||0)+'"></label>'; }).join("");
+
+  var table='<table class="sct"><thead><tr><th>수치</th><th class="num">기본</th><th class="num">직업</th><th class="num">장비</th><th class="num">합계</th></tr></thead><tbody>'
+    + rows.map(function(r){
+        var z=(!r.base&&!r.job&&!r.gear);
+        return '<tr'+(z?' class="zero"':'')+'><td>'+esc(r.k)+'</td>'
+          +'<td class="num">'+(SC_BASE.indexOf(r.k)>=0?r.base:"—")+'</td>'
+          +'<td class="num">'+(r.job||"")+'</td><td class="num">'+(r.gear||"")+'</td>'
+          +'<td class="num"><b>'+r.sum+'</b></td></tr>'; }).join("")
+    + '</tbody></table>';
+
+  return '<section class="group"><div class="ghead"><h2>능력치 계산기</h2>'
+    +'<span class="sub">주/부 직업과 장비를 바꿔 가며 수치를 봅니다</span><span class="rule"></span></div>'
+    +'<div class="calc">'
+    +'<div class="crow"><span class="lvlabel">불러오기</span>'+crewSel+'</div>'
+    +'<div class="crow"><span class="lvlabel">주직업</span><select id="sc-main">'+jobOpts(sc.main)+'</select>'
+      +'<label class="lvin">Lv<input type="number" min="0" max="30" id="sc-mainlv" value="'+(sc.mainLv||0)+'"></label>'
+      +'<span class="meta">주직업은 하나만 셉니다 &mdash; 부직업과 계수가 다릅니다</span></div>'
+    + subRows
+    +'<div class="crow"><span class="lvlabel"></span><button type="button" class="mini" id="sc-subadd">부직업 추가</button></div>'
+    +'<div class="crow"><span class="lvlabel">기본 능력치</span><div class="statbox">'+baseRow+'</div></div>'
+    + eqRows
+    +'<div class="crow"><span class="lvlabel">장비 추가</span>'
+      +'<select id="sc-eqadd"><option value="">— 고르기 —</option>'
+      +'<optgroup label="무기">'+scGear("무기").map(function(x){
+          return '<option value="'+esc(x.i)+'">'+esc(x.g.n)+' (Lv'+x.g.lv+' '+esc(x.g.k)+')</option>'; }).join("")+'</optgroup>'
+      +'<optgroup label="방어구">'+scGear("방어구").map(function(x){
+          return '<option value="'+esc(x.i)+'">'+esc(x.g.n)+' (Lv'+x.g.lv+' '+esc(x.g.k)+')</option>'; }).join("")+'</optgroup>'
+      +'</select><span class="meta">보너스가 붙은 장비는 757종 중 79종뿐입니다</span></div>'
+    +'</div>'
+    + table
+    +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
+      +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
+    +'<p class="meta">강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p>'
+    +'</section>';
+}
+
 /* ── 용병 뽑기 계산기 ───────────────────────────────────────────────
    시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 이렇다.
      1) 종족   — 주점의 barCharacters 에서 균등 추출
@@ -883,7 +1024,8 @@ var TABNOTE = {
   skill:"어느 클래스가 몇 레벨에 배우는지. 회복 주문은 시전자 성격이 시점을 바꿉니다.",
   town: "도시마다 어떤 시설이 몇 레벨까지 있고, 올리는 데 얼마가 드는지.",
   calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
-  map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다."
+  map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다.",
+  stat: "주/부 직업과 장비를 바꿔 가며 수치를 봅니다. 내 용병을 불러와 거기서 고칠 수 있습니다."
 };
 function headStats(){
   var out=[];
@@ -900,6 +1042,9 @@ function headStats(){
   } else if(state.view==="town"){
     var ts=visTowns();
     out=[[ts.length,"도시"],[ts.reduce(function(a,t){return a+t.b.length},0),"시설"]];
+  } else if(state.view==="stat"){
+    var nb=0; Object.keys(D.gear).forEach(function(k){ if(D.gear[k].b && Object.keys(D.gear[k].b).length) nb++; });
+    out=[[D.jobs.length,"클래스"],[nb,"보너스 붙은 장비"],[scCrew().length,"불러올 용병"]];
   } else if(state.view==="calc"){
     var bt2=barTowns();
     out=[[bt2.length,"주점"],[D.races.length,"종족·성별"],[7,"성격"]];
@@ -948,6 +1093,11 @@ function render(){
     el("count").textContent=ms.length+" 지역";
     el("wk").style.display="none";
     fillMapImages();
+    return;
+  } else if(state.view==="stat"){
+    el("out").innerHTML=statHTML();
+    el("count").textContent="";
+    el("wk").style.display="none";
     return;
   } else if(state.view==="calc"){
     el("out").innerHTML=calcHTML();
@@ -1003,7 +1153,7 @@ el("showlocked").addEventListener("change",function(e){
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
 });
-var VIEWS=["job","race","skill","town","calc","map"];
+var VIEWS=["job","race","skill","town","calc","map","stat"];
 function setView(v){
   state.view=v;
   VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
@@ -1017,6 +1167,12 @@ setView(state.view);
 // 계산기 입력 — 결과가 바뀔 때마다 화면을 다시 그리므로 위임으로 받는다
 // 지도에서 도시·탐색지를 누르면 그 자료로 보낸다
 el("out").addEventListener("click",function(e){
+  var b=e.target.closest("button.mini");
+  if(b){
+    if(b.id==="sc-subadd"){ sc.subs.push({i:"",lv:1}); render(); return; }
+    if(b.dataset.subdel!=null){ sc.subs.splice(+b.dataset.subdel,1); render(); return; }
+    if(b.dataset.eqdel!=null){ sc.eq.splice(+b.dataset.eqdel,1); render(); return; }
+  }
   var g=e.target.closest("[data-go]"); if(!g) return;
   e.stopPropagation();
   var v=g.getAttribute("data-go"), kind=v.slice(0,1), name=v.slice(2);
@@ -1027,6 +1183,10 @@ el("out").addEventListener("change",function(e){
   var t=e.target;
   if(t.id==="c-bar"){ calc.bar=t.value; render(); return; }
   if(t.name==="c-sex"){ calc.sex=t.dataset.x; render(); return; }
+  if(t.id==="sc-crew"){ if(t.value) scLoad(t.value); else { sc.from=""; } render(); return; }
+  if(t.id==="sc-main"){ sc.main=t.value; render(); return; }
+  if(t.id==="sc-eqadd"){ if(t.value) sc.eq.push(t.value); render(); return; }
+  if(t.dataset && t.dataset.sub!=null){ sc.subs[+t.dataset.sub].i=t.value; render(); return; }
   if(t.dataset && t.dataset.p!=null){
     if(t.checked) calc.pers[t.dataset.p]=1; else delete calc.pers[t.dataset.p];
     render();
@@ -1035,6 +1195,22 @@ el("out").addEventListener("change",function(e){
 var ct;
 el("out").addEventListener("input",function(e){
   var t=e.target;
+  if(t.id==="sc-mainlv" || (t.dataset && (t.dataset.sublv!=null || t.dataset.base!=null))){
+    clearTimeout(ct);
+    var el2=t, v2=t.value;
+    ct=setTimeout(function(){
+      var n3=Math.max(0,parseInt(v2,10)||0);
+      if(el2.id==="sc-mainlv") sc.mainLv=n3;
+      else if(el2.dataset.sublv!=null) sc.subs[+el2.dataset.sublv].lv=n3;
+      else sc.base[el2.dataset.base]=n3;
+      render();
+      var sel = el2.id ? "#"+el2.id
+        : (el2.dataset.sublv!=null ? '[data-sublv="'+el2.dataset.sublv+'"]' : '[data-base="'+el2.dataset.base+'"]');
+      var again=el("out").querySelector(sel);
+      if(again){ again.focus(); try{ again.setSelectionRange(again.value.length, again.value.length); }catch(err){} }
+    }, 350);
+    return;
+  }
   if(t.id!=="c-pt" && !(t.dataset && t.dataset.s!=null)) return;
   clearTimeout(ct);
   var isPt=(t.id==="c-pt"), key=isPt?null:t.dataset.s, v=t.value;
