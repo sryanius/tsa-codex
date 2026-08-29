@@ -657,7 +657,9 @@ function avoidNote(p){
     + tbl
     + '<span class="meta">민첩 30→31 에서 두 칸 내려가는 건 <code>CreateRandomValue</code> 의 흔들림 폭이 거기서 확 줄기 때문입니다. 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</span>'
     + (warn.length? '<br><span class="meta">다만 '+warn.join(", ")+'이 있습니다.</span>' : '')
-    + '<br><span class="meta">마법·상태이상은 회피 판정을 하지 않습니다.</span></div>';
+    + '<br><span class="meta">마법·상태이상은 회피 판정을 하지 않습니다. '
+    + '<b>상태이상이 걸리면 회피가 깎입니다</b> — 넘어짐 −2 · 실명 −4 · 잡힘 −4, '
+    + '혼란·수면·마비는 회피를 <b>0</b> 으로 만듭니다. 딱 맞추지 말고 <b>5 는 여유</b>를 두세요.</span></div>';
 }
 function placeDetail(p){
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;

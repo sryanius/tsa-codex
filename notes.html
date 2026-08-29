@@ -541,6 +541,33 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>회피에 실패해도 방패가 남아 있습니다. <code>방패 회피값 &minus; 공격자 명중 &ge; 1</code> 이면 막습니다 &mdash; 이때는 <b>명중 계산에 재주 굴림이 다시 들어가므로</b> 회피 판정과는 다른 굴림입니다.</p>
   <p class="src">BattleCreature.HitRate / AvoidRate / ShieldAvoidRate · BattlePhysicalAttackExecutor.PhysicsAttack · Terrain.GetHitRateModifier / GetAvoidRateModifier · Util.Dice2DAvg = 7</p>
 
+  <h3>상태이상이 명중·회피를 깎습니다 &mdash; 숨은 표</h3>
+  <p><code>EffectOnCreature</code> 의 <b>정적 사전 네 벌</b>입니다. 게임 어디에도 안 나오고
+     마스터 데이터에도 없습니다 &mdash; 바이너리의 <code>.cctor</code> 에서 읽었습니다.</p>
+  <table class="t"><thead><tr><th>상태이상</th><th class="num">명중</th><th class="num">회피</th><th class="num">방어</th><th class="num">치명 저항</th></tr></thead><tbody>
+    <tr><td>Hug 잡힘</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
+    <tr><td>Eating 삼켜짐</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
+    <tr><td>Blind 실명</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
+    <tr><td>VeryHardToMove 매우 곤란</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&minus;4</td></tr>
+    <tr><td>TripWire 걸려 넘어짐</td><td class="num">&middot;</td><td class="num">&minus;4</td><td class="num">&minus;2</td><td class="num">&minus;3</td></tr>
+    <tr><td>Dance 춤</td><td class="num">&minus;4</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&minus;2</td></tr>
+    <tr class="hi"><td><b>Fell 넘어짐</b> <span class="sm">(카샨의 Slimy)</span></td><td class="num">&middot;</td><td class="num"><b>&minus;2</b></td><td class="num">&minus;2</td><td class="num">&minus;2</td></tr>
+    <tr><td>HardToMove 이동 곤란</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&minus;2</td></tr>
+    <tr><td>Hold 붙잡힘</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&minus;2</td></tr>
+    <tr><td>LifeDrain 생명 흡수</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
+    <tr><td>BeSurprised 놀람</td><td class="num">&middot;</td><td class="num">&minus;2</td><td class="num">&minus;1</td><td class="num">&minus;2</td></tr>
+    <tr><td>Fanaticism 광신</td><td class="num"><b>+2</b></td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
+    <tr><td>MentalDisturbance 정신 교란</td><td class="num">&minus;1</td><td class="num">&minus;1</td><td class="num">&minus;1</td><td class="num">&minus;1</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>그리고 셋은 회피를 아예 0 으로 만듭니다.</b>
+     <code>AvoidRate</code> 맨 앞에서 <b>혼란(7) &middot; 수면(16) &middot; 마비(17)</b> 중 하나라도
+     걸려 있으면 <b>계산 없이 0 을 돌려줍니다.</b> 회피값이 얼마든 무조건 맞습니다.</div>
+  <p><b>그래서 「딱 맞는 회피」는 위험합니다.</b> 넘어짐 하나에 &minus;2, 실명이면 &minus;4 입니다.
+     완방을 노린다면 <b>필요치보다 5 는 여유를 두세요.</b>
+     상태이상 저항은 <b>힘</b>(정신계는 마법 방어)이므로, 회피탱이라도 힘을 버리면 안 됩니다.</p>
+  <p class="src">EffectOnCreature.HitRateModifiers / AvoidRateModifiers / DefensePointModifiers /
+     CriticalDefensePointModifiers (.cctor @0x26FAB74) &middot; BattleCreature.AvoidRate</p>
+
   <h2 id="pers"><span class="n">9</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
   <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
   <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
