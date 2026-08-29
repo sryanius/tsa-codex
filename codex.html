@@ -662,7 +662,7 @@ function avoidNote(p){
 function placeDetail(p){
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;
   var gh=p.g.map(function(g){
-    var pct=Math.round((g.f||0)/tot*100);
+    var share=Math.round((g.f||0)/tot*100);   // ★ pct() 함수와 이름이 겹치면 상세가 통째로 터진다
     // 이 그룹에서 나오는 드랍을 한데 모은다 — «여기 돌면 뭐가 나오나» 가 궁금한 것이다
     var dseen={}, dl=[];
     g.m.forEach(function(mm){
@@ -685,7 +685,7 @@ function placeDetail(p){
       return '<button type="button" class="jump" data-go="m:'+esc(m.n)+'">'+esc(m.n)+'</button>'
         +(mo?'<span class="meta"> 명중'+(mo.hit||0)+'</span>':'')
         +(m.v?'':'<span class="meta"> (후위)</span>'); }).join(" + ")+'</b>'
-      +'<span class="meta"> — 가중치 '+(g.f||0)+' (약 '+pct+'%)'+(g.q?' · 퀘스트 전용':'')+'</span>'
+      +'<span class="meta"> — 가중치 '+(g.f||0)+' (약 '+share+'%)'+(g.q?' · 퀘스트 전용':'')+'</span>'
       +(sk.length?'<div class="drops"><b style="color:var(--f-arch)">마법</b> '+sk.join('<i class="sep">·</i>')+'</div>':'')
       +(dl.length?'<div class="drops">드랍 '+dl.join('<i class="sep">·</i>')+'</div>':'')
       +'</li>'; }).join("");
@@ -935,6 +935,20 @@ function findBy(kind,name){
   for(var i=0;i<arr.length;i++){ if((arr[i].n||arr[i].i)===name || arr[i].i===name) return arr[i]; }
   return null;
 }
+/* 상세는 화면보다 클 수 있다(모바일에서 900px 넘음). 아래쪽 줄을 누르면
+   상세가 화면 밖에 열려 «안 열린 것» 처럼 보인다 — 줄을 위로 올려 준다. */
+function revealDetail(row){
+  var d=row.nextElementSibling;
+  if(!d || !d.classList.contains("detail")) return;
+  // rAF 는 탭이 안 보이면 안 돈다 — setTimeout 이 안전하다
+  setTimeout(function(){
+    var r=row.getBoundingClientRect(), b=d.getBoundingClientRect();
+    if(r.top < 0 || b.bottom > innerHeight){
+      // behavior:"smooth" 가 안 먹는 브라우저가 있어 즉시 옮긴다
+      scrollTo(0, Math.max(0, r.top+scrollY-8));
+    }
+  }, 0);
+}
 function openRow(row){
   var nx=row.nextElementSibling;
   if(nx&&nx.classList.contains("detail")){ nx.remove(); row.classList.remove("open"); return; }
@@ -946,6 +960,7 @@ function openRow(row){
   if(!o) return;
   row.insertAdjacentHTML("afterend", k==="p"?placeDetail(o) : k==="m"?monDetail(o) : itemDetail(o));
   row.classList.add("open");
+  revealDetail(row);
 }
 function goTo(spec){
   var k=spec.slice(0,1), name=spec.slice(2);

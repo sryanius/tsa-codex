@@ -909,6 +909,21 @@ function spellBlock(c){
 }
 
 var RET=[];
+
+/* 상세는 화면보다 클 수 있다(모바일에서 900px 넘음). 아래쪽 줄을 누르면
+   상세가 화면 밖에 열려 «안 열린 것» 처럼 보인다 — 줄을 위로 올려 준다. */
+function revealDetail(row){
+  var d=row.nextElementSibling;
+  if(!d || !d.classList.contains("detail")) return;
+  // rAF 는 탭이 안 보이면 안 돈다 — setTimeout 이 안전하다
+  setTimeout(function(){
+    var r=row.getBoundingClientRect(), b=d.getBoundingClientRect();
+    if(r.top < 0 || b.bottom > innerHeight){
+      // behavior:"smooth" 가 안 먹는 브라우저가 있어 즉시 옮긴다
+      scrollTo(0, Math.max(0, r.top+scrollY-8));
+    }
+  }, 0);
+}
 function render(){
   if(!CREW||!CREW.chars) return;
   RET=CREW.chars.filter(function(c){ return c.st===6; });
@@ -937,6 +952,7 @@ el("out").addEventListener("click",function(e){
   CREW.chars.forEach(function(x){ if(x.id===id) c=x; });
   if(!c) return;
   row.insertAdjacentHTML("afterend", crewDetail(c));
+  revealDetail(row);
   row.classList.add("open");
 });
 var t;

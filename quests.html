@@ -870,6 +870,21 @@ function render(){
   el("out").innerHTML=html;
 }
 
+
+/* 상세는 화면보다 클 수 있다(모바일에서 900px 넘음). 아래쪽 줄을 누르면
+   상세가 화면 밖에 열려 «안 열린 것» 처럼 보인다 — 줄을 위로 올려 준다. */
+function revealDetail(row){
+  var d=row.nextElementSibling;
+  if(!d || !d.classList.contains("detail")) return;
+  // rAF 는 탭이 안 보이면 안 돈다 — setTimeout 이 안전하다
+  setTimeout(function(){
+    var r=row.getBoundingClientRect(), b=d.getBoundingClientRect();
+    if(r.top < 0 || b.bottom > innerHeight){
+      // behavior:"smooth" 가 안 먹는 브라우저가 있어 즉시 옮긴다
+      scrollTo(0, Math.max(0, r.top+scrollY-8));
+    }
+  }, 0);
+}
 function toggleRow(row){
   var nx=row.nextElementSibling;
   if(nx && nx.classList.contains("detail")){ nx.remove(); row.classList.remove("open"); row.setAttribute("aria-expanded","false"); return; }
@@ -879,6 +894,7 @@ function toggleRow(row){
   for(var i=0;i<D.quests.length;i++){ if(D.quests[i].i===id){ x=D.quests[i]; break; } }
   if(!x) return;
   row.insertAdjacentHTML("afterend",detailHTML(x));
+  revealDetail(row);
   row.classList.add("open"); row.setAttribute("aria-expanded","true");
 }
 
