@@ -119,6 +119,10 @@ input[type="search"]{flex:1 1 240px}
 .lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
   border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
 .row.locked{opacity:.62}
+.nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+.chain.nextc h4{color:var(--f-arch)}
 .gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
   background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
 .gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
@@ -391,6 +395,15 @@ window.TSA_QUEST_IDS=D.quests.map(function(x){return x.i;});
 var SAVE=(window.TSA_SAVE&&window.TSA_SAVE.load())||null;
 function sq(x){ return SAVE&&SAVE.q?SAVE.q[x.i]:null; }   // 브라우저에서 읽은 세이브 우선
 var BYTOWN={}; D.quests.forEach(function(x){ (BYTOWN[x.t]=BYTOWN[x.t]||[]).push(x); });
+/* 자료에는 «선행»(pre) 만 있다 — 뒤집어 «이걸 깨면 뭐가 열리나» 를 만든다. */
+var NEXT={};
+D.quests.forEach(function(x){
+  (x.pre||[]).forEach(function(id){ (NEXT[id]=NEXT[id]||[]).push(x); });
+});
+function nextOf(x){
+  return (NEXT[x.i]||[]).filter(function(n){ return state.showLocked || !LOCKED[n.t]; })
+                        .sort(function(a,b){ return a.lv-b.lv; });
+}
 // 자정 리롤 1회에서 이 퀘스트가 뽑힐 확률.
 // 같은 도시에서 "내 평판이 이 퀘스트를 열어줄 만큼 됐을 때" 함께 후보인 것들과
 // questFrequency 가중치를 나눠 갖는다고 본 근사치.
@@ -603,7 +616,9 @@ function rowHTML(x){
               + (x.nc ? '<em class="negpre" title="선행 퀘스트 '+x.nc+'개가 요구 평판 음수(최저 '+x.nm+'). 평판을 한 번 떨어뜨렸어야 합니다">선행 평판−</em>' : '')
               + (x.si>=99 ? '<em class="rare" title="questSpawnInterval = QUEST_SPAWN_INTERVAL_ONLY_ONCE — 한 번만 등장합니다">1회성</em>' : '')
               + (x.ch && x.ch.length ? '<em class="chesttag" title="보물금고·습득물 '+x.ch.length+'건">금고 '+x.ch.length+'</em>' : '')
-              + partyTag(x);
+              + partyTag(x)
+              + (function(){ var n=nextOf(x).length;
+                  return n ? '<em class="nextq" title="이 퀘스트를 깨야 뜨는 퀘스트가 '+n+'건 있습니다">연계 '+n+'</em>' : ''; })();
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
     +'<span class="qn"><b>'+lockTag+esc(x.n||x.i)
     +(clearsOf(x)>0?'<i class="cc" title="세이브 기준 클리어 횟수">×'+clearsOf(x)+'</i>':'')+'</b><span>'+esc(x.t)+(x.p?" · "+esc(x.p):"")+" · "+esc(x.o)+'</span></span>'
@@ -661,6 +676,7 @@ function detailHTML(x){
     + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp+'</dd></div>'
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
+    + nextHTML(x)
     + monHTML(x)
     + chestHTML(x)
     + chain
@@ -671,6 +687,24 @@ function hhmm(min){ var h=Math.floor(min/60), m=min%60; return (h?h+"시간 ":""
 /* 퀘스트 전투에 나오는 몬스터.
    368종 가운데 80종은 탐색지에 안 나오고 여기에만 나온다 — 발키리가 그렇다.
    그것 때문에 퀘스트에서만 얻는 장비의 출처가 도감에서 비어 있었다. */
+/* 이걸 깨면 열리는 퀘스트. «선행 체인» 의 반대 방향이다. */
+function nextHTML(x){
+  var ns=nextOf(x);
+  if(!ns.length) return "";
+  return '<div class="chain nextc"><h4>이어지는 퀘스트 '+ns.length+'건</h4><ul>'
+    + ns.map(function(p){
+        var tags = (isDone(p)?'<em class="okmark" title="클리어함">✔</em>':'<em class="nomark" title="아직 안 깸">✖</em>')
+          + (LOCKED[p.t]?'<em class="lock">미출시</em> ':'')
+          + (p.rp<0?'<em class="evil">악행 '+p.rp+'</em>':'')
+          + (p.si>=99?'<em class="rare">1회성</em>':'');
+        return '<li'+(isDone(p)?'':' class="undone"')+'><b>'+tags
+          + '<button type="button" class="goto" data-goto="'+esc(p.i)+'" title="이 퀘스트로 이동">'
+          + esc(p.n||p.i)+'</button></b>'
+          + '<span class="cdesc">'+esc(p.o)+'</span>'
+          + '<span class="cmeta">'+esc(p.t)+(p.p?" · "+esc(p.p):"")+' · Lv'+p.lv
+          + ' · '+gateText(p)+' · '+esc(p.tm)+'</span></li>'; }).join("")
+    + '</ul></div>';
+}
 function monHTML(x){
   if(!x.mon || !x.mon.length) return "";
   return '<div class="chain mons"><h4>나오는 몬스터 '+x.mon.length+'종</h4><p class="monlist">'
