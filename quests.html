@@ -122,16 +122,31 @@ input[type="search"]{flex:1 1 240px}
 .nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
   border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
   vertical-align:1px;white-space:nowrap}
+/* 퀴스트 라인 — 깊이만큼 세로 안내선을 깔아 «어느 가지에 붙은 것인가» 를 보인다.
+   ★ 아래쪽 .chain li.undone 이 padding 단축으로 들여쓰기를 통째 먹었다
+     — 같은 우선순위에 뒤에 있어 이겼다. 그래서 여기서 다시 잡는다. */
+.chain.qline{--step:18px}
 .chain.qline ul{padding-left:0}
-.chain.qline li{padding-left:calc(14px + var(--d,0)*14px);margin:0 0 6px}
-.chain.qline li::before{left:calc(var(--d,0)*14px);content:"│"}
+.chain.qline li,
+.chain.qline li.undone{position:relative;margin:0 0 7px;border-radius:0;
+  padding:0 0 0 calc(var(--d,0)*var(--step) + var(--step));
+  background:repeating-linear-gradient(to right,var(--line-soft) 0 1px,transparent 1px var(--step))
+             left top/calc(var(--d,0)*var(--step)) 100% no-repeat}
+.chain.qline li::before{left:calc(var(--d,0)*var(--step) + 2px);content:"│"}
 .chain.qline li.up::before{content:"↑";color:var(--f-lodge)}
 .chain.qline li.down::before{content:"↓";color:var(--f-arch)}
-.chain.qline li.now{background:var(--raised);border:1px solid var(--accent);
-  border-radius:6px;padding-top:5px;padding-bottom:5px}
-.chain.qline li.now::before{content:"▶";color:var(--accent)}
+.chain.qline li.now,
+.chain.qline li.now.undone{background:var(--raised);border:1px solid var(--accent);
+  border-radius:6px;margin-bottom:9px;
+  padding:6px 8px 6px calc(var(--d,0)*var(--step) + var(--step))}
+.chain.qline li.now::before{content:"▶";color:var(--accent);
+  left:calc(var(--d,0)*var(--step) + 8px)}
 .chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
 .chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+.qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
+.qkey b{font-weight:700}
+.qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
+@media (max-width:560px){ .chain.qline{--step:12px} }
 .gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
   background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
 .gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
@@ -672,7 +687,8 @@ function qLine(x){
       : (up.length ? '이걸 열려면 앞의 '+up.length+'건을 깨야 합니다.'
                    : '이걸 깨면 '+down.length+'건이 열립니다.');
   var html='<div class="chain qline"><h4>퀘스트 라인</h4>'
-    +'<span class="meta">'+cap+'</span><ul>';
+    +'<span class="meta">'+cap
+    +' <span class="qkey"><b class="ku">↑</b> 선행 · <b class="kn">▶</b> 지금 · <b class="kd">↓</b> 이후</span></span><ul>';
   /* d 는 «x 에서 몇 칸 위인가» 다 — 가장 먼 조상이 0 칸 들여쓰기가 되게 뒤집는다.
      목록 길이로 세면 갈래가 있을 때 어긋난다. */
   var top=0; up.forEach(function(n){ if(n.d>top) top=n.d; });
