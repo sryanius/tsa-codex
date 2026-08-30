@@ -123,7 +123,16 @@ input[type="search"]{flex:1 1 240px}
 .nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
   border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
   vertical-align:1px;white-space:nowrap}
-.chain.nextc h4{color:var(--f-arch)}
+.chain.qline ul{padding-left:0}
+.chain.qline li{padding-left:calc(14px + var(--d,0)*14px);margin:0 0 6px}
+.chain.qline li::before{left:calc(var(--d,0)*14px);content:"│"}
+.chain.qline li.up::before{content:"↑";color:var(--f-lodge)}
+.chain.qline li.down::before{content:"↓";color:var(--f-arch)}
+.chain.qline li.now{background:var(--raised);border:1px solid var(--accent);
+  border-radius:6px;padding-top:5px;padding-bottom:5px}
+.chain.qline li.now::before{content:"▶";color:var(--accent)}
+.chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
+.chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
 .gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
   background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
 .gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}

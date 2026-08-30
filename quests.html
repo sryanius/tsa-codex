@@ -122,7 +122,16 @@ input[type="search"]{flex:1 1 240px}
 .nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
   border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
   vertical-align:1px;white-space:nowrap}
-.chain.nextc h4{color:var(--f-arch)}
+.chain.qline ul{padding-left:0}
+.chain.qline li{padding-left:calc(14px + var(--d,0)*14px);margin:0 0 6px}
+.chain.qline li::before{left:calc(var(--d,0)*14px);content:"│"}
+.chain.qline li.up::before{content:"↑";color:var(--f-lodge)}
+.chain.qline li.down::before{content:"↓";color:var(--f-arch)}
+.chain.qline li.now{background:var(--raised);border:1px solid var(--accent);
+  border-radius:6px;padding-top:5px;padding-bottom:5px}
+.chain.qline li.now::before{content:"▶";color:var(--accent)}
+.chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
+.chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
 .gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
   background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
 .gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
@@ -424,35 +433,6 @@ function refreshes(x){
   return {p:p, n:n, exp:n/p};
 }
 function gateText(x){ return x.rep<0 ? "요구 ≤"+x.rep : "요구 "+x.pk; }
-function chainHTML(x,seen,depth){
-  if(!x.pre||!x.pre.length||depth>12) return "";
-  var out="";
-  x.pre.forEach(function(id){
-    if(seen[id]) return; seen[id]=1;
-    var p=BYID[id]; if(!p) return;
-    var tags="";
-    tags += isDone(p) ? '<em class="okmark" title="클리어함">✔</em>' : '<em class="nomark" title="아직 안 깸">✖</em>';
-    if(LOCKED[p.t]) tags+='<em class="lock">미출시</em> ';
-    if(p.rp<0) tags+='<em class="evil">악행 '+p.rp+'</em>';
-    if(p.rep<0) tags+='<em class="negrep" title="도시 평판이 '+p.rep+' 이하일 때만 뜹니다">평판− 전용</em>';
-    if(p.si>=99) tags+='<em class="rare">1회성</em>';
-    var eff = p.g ? '<span class="cbadge" style="color:var('+FAC[p.g]+')">'+esc(p.g)+' +1</span>'
-            : (p.u ? '<span class="cbadge" style="color:var(--f-train)">'+esc(p.u)+'</span>' : '');
-    out+='<li'+(isDone(p)?'':' class="undone"')+'>'
-       +'<b>'+tags+'<button type="button" class="goto" data-goto="'+esc(p.i)+'" title="이 퀘스트로 이동">'+esc(p.n||id)+'</button>'+eff+'</b>'
-       +'<span class="cdesc">'+esc(p.o)+'</span>'
-       +'<span class="cmeta">'+esc(p.t)+(p.p?" · "+esc(p.p):"")+'</span>'
-       +'<span class="cmeta">'+(clearsOf(p)>0?'클리어 '+clearsOf(p)+'회 · ':'<b class="nomark">미클리어</b> · ')
-         +gateText(p)+(p.rep>=0&&p.pk>p.rep?' (자체 '+p.rep+')':'')
-         +' · 보상 평판 '+(p.rp>0?"+":"")+p.rp
-         +' · 등장 '+spawnText(p.si)+' · 가중치 '+p.fr
-         +' · '+esc(p.tm)+' · Lv'+p.lv
-         +' · '+p.gd.toLocaleString()+'G/'+p.xp.toLocaleString()+'xp</span>'
-       +(p.pre&&p.pre.length?'<ul>'+chainHTML(p,seen,depth+1)+'</ul>':'')
-       +'</li>';
-  });
-  return out;
-}
 
 var JOB="__job", NEG="__neg";
 var chipBox=el("chips");
@@ -642,12 +622,68 @@ function spawnText(si){
   if(si>=99) return "1회성 — 한 번 깨면 끝";
   return si+"일 주기 (클리어 후 재등장 대기)";
 }
+/* ── 퀘스트 라인 ────────────────────────────────────────────────────
+   선행을 거슬러 올라가고 이어지는 것을 따라 내려가, 한 줄기로 보여 준다.
+   따로 두면 «내가 이 줄기 어디에 서 있는지» 가 안 보인다. */
+function qNode(p, cls, depth){
+  var tags = (isDone(p)?'<em class="okmark" title="클리어함">✔</em>':'<em class="nomark" title="아직 안 깸">✖</em>')
+    + (LOCKED[p.t]?'<em class="lock">미출시</em> ':'')
+    + (p.rp<0?'<em class="evil">악행 '+p.rp+'</em>':'')
+    + (p.rep<0?'<em class="negrep" title="도시 평판이 '+p.rep+' 이하일 때만 뜹니다">평판− 전용</em>':'')
+    + (p.si>=99?'<em class="rare">1회성</em>':'');
+  var eff = p.g ? '<span class="cbadge" style="color:var('+FAC[p.g]+')">'+esc(p.g)+' +1</span>'
+          : (p.u ? '<span class="cbadge" style="color:var(--f-train)">'+esc(p.u)+'</span>' : '');
+  var name = cls==="now"
+    ? '<b class="nowname">'+esc(p.n||p.i)+'</b>'
+    : '<button type="button" class="goto" data-goto="'+esc(p.i)+'" title="이 퀘스트로 이동">'+esc(p.n||p.i)+'</button>';
+  return '<li class="'+cls+(isDone(p)?'':' undone')+'" style="--d:'+Math.min(depth,6)+'"><b>'+tags+name+eff+'</b>'
+    + '<span class="cdesc">'+esc(p.o)+'</span>'
+    + '<span class="cmeta">'+esc(p.t)+(p.p?" · "+esc(p.p):"")+' · Lv'+p.lv
+    + ' · '+(clearsOf(p)>0?'클리어 '+clearsOf(p)+'회':'<b class="nomark">미클리어</b>')
+    + ' · '+gateText(p)+(p.rep>=0&&p.pk>p.rep?' (자체 '+p.rep+')':'')
+    + ' · 보상 평판 '+(p.rp>0?"+":"")+p.rp
+    + ' · 등장 '+spawnText(p.si)
+    + ' · '+esc(p.tm)+' · '+p.gd.toLocaleString()+'G/'+p.xp.toLocaleString()+'xp</span></li>';
+}
+function qLine(x){
+  var seen={}, up=[], down=[];
+  seen[x.i]=1;
+  (function climb(q, d){
+    if(d>20) return;
+    (q.pre||[]).forEach(function(id){
+      if(seen[id]) return; seen[id]=1;
+      var p=BYID[id]; if(!p) return;
+      climb(p, d+1);                       // 뿌리부터 담기게 먼저 올라간다
+      up.push({p:p, d:d});
+    });
+  })(x, 0);
+  (function walk(q, d){
+    if(d>20) return;
+    nextOf(q).forEach(function(p){
+      if(seen[p.i]) return; seen[p.i]=1;
+      down.push({p:p, d:d});
+      walk(p, d+1);
+    });
+  })(x, 0);
+  if(!up.length && !down.length) return "";
+  // 한쪽만 있는 줄기가 훨씬 많다 — 0 건을 «0건을 깨야» 로 적지 않는다.
+  var cap = up.length && down.length
+      ? '앞에 '+up.length+'건, 이 뒤로 '+down.length+'건이 이어집니다.'
+      : (up.length ? '이걸 열려면 앞의 '+up.length+'건을 깨야 합니다.'
+                   : '이걸 깨면 '+down.length+'건이 열립니다.');
+  var html='<div class="chain qline"><h4>퀘스트 라인</h4>'
+    +'<span class="meta">'+cap+'</span><ul>';
+  /* d 는 «x 에서 몇 칸 위인가» 다 — 가장 먼 조상이 0 칸 들여쓰기가 되게 뒤집는다.
+     목록 길이로 세면 갈래가 있을 때 어긋난다. */
+  var top=0; up.forEach(function(n){ if(n.d>top) top=n.d; });
+  var here = up.length ? top+1 : 0;
+  up.forEach(function(n){ html+=qNode(n.p,"up",top-n.d); });
+  html += qNode(x,"now",here);
+  down.forEach(function(n){ html+=qNode(n.p,"down",here+1+n.d); });
+  return html+'</ul></div>';
+}
 function detailHTML(x){
-  var chain="";
-  if(x.pre && x.pre.length){
-    var seen={}; seen[x.i]=1;
-    chain='<div class="chain"><h4>선행 퀘스트 체인</h4><ul>'+chainHTML(x,seen,0)+'</ul></div>';
-  }
+  var chain=qLine(x);
   var repCell = (x.rep<0)
     ? '<div class="dcell"><dt>등장 조건</dt><dd class="mono warn">평판 '+x.rep+' <b>이하</b> <span class="sm">(마이너스일 때만)</span></dd></div>'
     : '<div class="dcell"><dt>등장 조건</dt><dd class="mono'+(x.pk>x.rep?" hi":"")+'">평판 '+x.pk+' <b>이상</b>'
@@ -676,7 +712,6 @@ function detailHTML(x){
     + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp+'</dd></div>'
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
-    + nextHTML(x)
     + monHTML(x)
     + chestHTML(x)
     + chain
@@ -687,24 +722,6 @@ function hhmm(min){ var h=Math.floor(min/60), m=min%60; return (h?h+"시간 ":""
 /* 퀘스트 전투에 나오는 몬스터.
    368종 가운데 80종은 탐색지에 안 나오고 여기에만 나온다 — 발키리가 그렇다.
    그것 때문에 퀘스트에서만 얻는 장비의 출처가 도감에서 비어 있었다. */
-/* 이걸 깨면 열리는 퀘스트. «선행 체인» 의 반대 방향이다. */
-function nextHTML(x){
-  var ns=nextOf(x);
-  if(!ns.length) return "";
-  return '<div class="chain nextc"><h4>이어지는 퀘스트 '+ns.length+'건</h4><ul>'
-    + ns.map(function(p){
-        var tags = (isDone(p)?'<em class="okmark" title="클리어함">✔</em>':'<em class="nomark" title="아직 안 깸">✖</em>')
-          + (LOCKED[p.t]?'<em class="lock">미출시</em> ':'')
-          + (p.rp<0?'<em class="evil">악행 '+p.rp+'</em>':'')
-          + (p.si>=99?'<em class="rare">1회성</em>':'');
-        return '<li'+(isDone(p)?'':' class="undone"')+'><b>'+tags
-          + '<button type="button" class="goto" data-goto="'+esc(p.i)+'" title="이 퀘스트로 이동">'
-          + esc(p.n||p.i)+'</button></b>'
-          + '<span class="cdesc">'+esc(p.o)+'</span>'
-          + '<span class="cmeta">'+esc(p.t)+(p.p?" · "+esc(p.p):"")+' · Lv'+p.lv
-          + ' · '+gateText(p)+' · '+esc(p.tm)+'</span></li>'; }).join("")
-    + '</ul></div>';
-}
 function monHTML(x){
   if(!x.mon || !x.mon.length) return "";
   return '<div class="chain mons"><h4>나오는 몬스터 '+x.mon.length+'종</h4><p class="monlist">'
