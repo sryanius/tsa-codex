@@ -790,8 +790,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      예전에 여기 «방어는 절반만 깎는다» 고 적혀 있었습니다. 그건 <b>치명타 갈래</b>였습니다
      &mdash; <code>sub w8, w27, w28, lsr #1</code> 만 보고 바로 아래의 평타 갈래
      <code>subs w24, w27, w28</code> 를 놓쳤습니다. <b>평타는 방어를 전액 뺍니다.</b>
-     그리고 <b>갑옷과 의복은 서로 다른 칸</b>인데 예전 표는 둘을 대안으로 놓고
-     방패를 방어에 더했습니다. 표도 결론도 전부 바뀝니다.</div>
+     그리고 <b>방패 방어를 빼 놓은 것</b>도 고쳤습니다 &mdash; 방패는 방어에 더해지고,
+     막기에 성공하면 그 위에 한 번 더 깎습니다. 표도 결론도 전부 바뀝니다.
+     <span class="sm">(하루 뒤 한 번 더 고쳤습니다 &mdash; 갑옷과 의복이 «다른 칸» 인 줄 알았는데
+     몸 한 칸을 나눠 씁니다. 아래 «지금 낄 수 있는 최고 방어» 를 보세요.)</span></div>
 
   <h3>한 대가 얼마인가</h3>
   <div class="eq">몬스터 공격력 = <b>3L + (L&gt;4 ? 2L&minus;8 : 0)</b> + 조정   <span class="cmt">// 주사위 없음 — 고정값</span>
@@ -826,30 +828,51 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      그건 «막기 몫만 따로 뽑는» 함수였습니다.)</span></div>
 
   <h3>지금 낄 수 있는 최고 방어</h3>
-  <p><b>갑옷 · 의복 · 투구 · 부적 · 방패는 다섯 개의 다른 칸입니다.</b>
-     갑옷과 의복을 <b>같이</b> 낍니다 &mdash; <code>Character.MinDefensePoint</code> 는
-     끼고 있는 방어구를 <b>전부 더합니다</b>.</p>
-  <table class="t"><thead><tr><th>부위</th><th>장비</th><th>요구 힘</th><th>방어</th><th>치명타 저항</th></tr></thead><tbody>
-    <tr><td>갑옷</td><td>왕단의 갑옷 (Lv30)</td><td>30</td><td>60~63</td><td>3</td></tr>
-    <tr><td>의복</td><td>왕단의 옷 (Lv30)</td><td>30</td><td>55~61</td><td>0</td></tr>
+  <div class="note warn"><b>★ 갑옷과 의복은 «같은 칸» 입니다 (2026-09-01 정정).</b>
+     <code>JobMaster.canEquipArmors</code> 에 모험가만 둘 다 들어 있어서
+     «다섯 칸» 으로 읽고 방어 <b>128~190</b> 이라고 적었는데, 게임에서 확인해 보니
+     <b>몸 한 칸에 갑옷이나 의복 중 하나</b>만 들어갑니다. 실제 칸은 <b>넷</b>입니다.
+     아래 숫자는 전부 다시 잰 것입니다.</div>
+  <table class="t"><thead><tr><th>칸</th><th>장비</th><th>요구 힘</th><th>방어</th><th>치명타 저항</th></tr></thead><tbody>
+    <tr><td rowspan="2">몸 <span class="sm">(둘 중 하나)</span></td><td>왕단의 갑옷 (Lv30)</td><td>30</td><td><b>60~63</b></td><td>3</td></tr>
+    <tr><td>왕단의 옷 (Lv30)</td><td>30</td><td>55~61</td><td>0</td></tr>
     <tr><td>투구</td><td>짐승의 눈의 투구 (Lv29)</td><td>29</td><td>5~35</td><td>1</td></tr>
     <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29)</td><td>29</td><td>8~31</td><td>8</td></tr>
-    <tr><td>부적</td><td>&mdash;</td><td>&mdash;</td><td>0</td><td>0</td></tr>
-    <tr class="hi"><td colspan="3"><b>DefensePoint 합계</b></td><td><b>128~190</b></td><td><b>12</b></td></tr>
+    <tr><td>부적</td><td>늪왕의 부적 (Lv29)</td><td>29</td><td>0</td><td>0</td></tr>
+    <tr class="hi"><td colspan="3"><b>장비 합계</b></td><td><b>73~129</b></td><td><b>12</b></td></tr>
   </tbody></table>
-  <p class="meta">방패는 여기에 더해진 뒤, «막기» 에 성공한 대에서 <b>8~31 을 한 번 더</b> 깎습니다.</p>
+  <p class="meta">방패는 여기에 더해진 뒤, «막기» 에 성공한 대에서 <b>8~31 을 한 번 더</b> 깎습니다.
+     부적은 방어가 0 이라 «공짜 칸» 입니다 &mdash; 늪왕의 부적이면 마법 방어 39 와 HP 자동회복 8 이 그냥 붙습니다.</p>
 
-  <h3>★ 그런데 다섯 칸을 다 쓰는 직업이 하나뿐입니다</h3>
-  <p>여기가 진짜 갈림길입니다. 직업마다 <b>낄 수 있는 부위 자체가 다릅니다</b>
-     (<code>JobMaster.canEquipArmors</code>).</p>
-  <table class="t"><thead><tr><th>직업</th><th>쓸 수 있는 칸</th><th>최고 방어</th>
-    <th>Lv30 평타</th><th>Lv30 치명타</th></tr></thead><tbody>
-    <tr class="hi"><td><b>모험가</b></td><td>의복·갑옷·투구·방패·부적 <span class="sm">(다섯)</span></td>
-      <td><b>128~190</b></td><td><b>0~2</b></td><td>35~66</td></tr>
-    <tr><td>가드 · 무장병 계열</td><td>갑옷·방패·투구</td><td>73~129</td><td>1~57</td><td>66~94</td></tr>
-    <tr><td>도둑 · 마검사</td><td>의복·부적·방패</td><td>63~92</td><td><b>38~67</b></td><td>84~99</td></tr>
-    <tr><td>법사 · 레인저</td><td>의복·부적</td><td>55~61</td><td><b>69~75</b></td><td>100~103</td></tr>
+  <div class="note warn"><b>장비만으로는 아무도 Lv30 평타를 0 으로 못 만듭니다.</b>
+     최고로 껴도 73~129 라 Lv30 몬스터(공격 130)에게 <b>1~57</b> 을 맞습니다.
+     <b>여기서부터는 직업 몫이 주인공입니다</b> &mdash; 방어력이 붙는 부직업이
+     <b>중도사 부 8</b> · 가드 부 6 · 무장병 부 4 로 아주 큽니다.
+     셋만 최대로 올려도 <code>⌈(25&times;8 + 15&times;6 + 30&times;4) &divide; 10⌉ = <b>41</b></code> 이
+     통째로 더해져 <b>114~170</b> 이 됩니다.</div>
+
+  <h3>직업마다 쓸 수 있는 칸이 다릅니다</h3>
+  <p>여기가 진짜 갈림길입니다 (<code>JobMaster.canEquipArmors</code>, 주직업만 봅니다).
+     아래는 <b>장비만</b> 이고 직업 몫은 뺐습니다.</p>
+  <table class="t"><thead><tr><th>주직업</th><th>쓸 수 있는 칸</th><th>장비 방어</th>
+    <th class="num">치명타 저항</th><th class="num">Lv30 평타</th></tr></thead><tbody>
+    <tr class="hi"><td><b>모험가</b></td><td>몸·투구·방패·<b>부적</b> <span class="sm">(넷)</span></td>
+      <td class="num"><b>73~129</b></td><td class="num">12</td><td class="num">1~57</td></tr>
+    <tr class="hi"><td><b>중도사 · 가드</b></td><td>갑옷·투구·방패 <span class="sm">(셋)</span></td>
+      <td class="num"><b>73~129</b></td><td class="num">12</td><td class="num">1~57</td></tr>
+    <tr><td>전술병 · 랜서</td><td>갑옷·투구·부적</td><td class="num">65~98</td><td class="num">4</td><td class="num">32~65</td></tr>
+    <tr><td>검투사 · 블레이드브레이커 · 대검전사 · 파쇄병</td><td>갑옷·투구</td><td class="num">65~98</td><td class="num">4</td><td class="num">32~65</td></tr>
+    <tr><td>무장병 · 검술사 · 베테랑 파이터</td><td>갑옷·방패</td><td class="num">68~94</td><td class="num">11</td><td class="num">36~62</td></tr>
+    <tr><td>마검사 · 숨은 칼날의 궁사</td><td>의복·방패·부적</td><td class="num">63~92</td><td class="num">8</td><td class="num">38~67</td></tr>
+    <tr><td>도둑</td><td>의복·방패</td><td class="num">63~92</td><td class="num">8</td><td class="num">38~67</td></tr>
+    <tr><td>법사 · 레인저 · 현자 외 9</td><td>의복·부적</td><td class="num">55~61</td><td class="num"><b>0</b></td><td class="num">69~75</td></tr>
   </tbody></table>
+  <div class="note"><b>방어만 보면 모험가와 중도사·가드가 같습니다.</b>
+     모험가가 하나 더 가진 «부적» 은 방어가 0 이기 때문입니다.
+     <b>모험가의 값어치는 방어가 아니라 다른 데 있습니다</b> &mdash;
+     부적 칸(마법 방어 39 · 자동회복 8) · 최대 레벨 31 ·
+     경험치 지수 면제 · 모든 무기. 그리고 중도사는 최대 25, 가드는 15 라
+     <b>주직업으로 쓰면 레벨이 모자랍니다</b> &mdash; 둘은 부직업으로 넣을 때 값이 큽니다.</div>
 
   <h3>그래서 방어가 정확히 몇이면 되나</h3>
   <p>평타는 <code>공격력 &minus; 방어</code> 이고 방어는 매 대
@@ -866,26 +889,31 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>바람의 거친 경계</td><td class="num">Lv23</td><td class="num">108</td><td class="num"><b>108</b></td><td class="num">11%</td></tr>
     <tr class="hi"><td>발두나의 황야</td><td class="num">Lv29</td><td class="num">135 <span class="sm">(다크엘프 리더)</span></td><td class="num"><b>135</b></td><td class="num">11%</td></tr>
   </tbody></table>
-  <div class="note"><b>지금 갈 수 있는 어디서든 안 아프려면 방어 최소값이 135 입니다.</b>
-     왕단 풀세트가 <b>128~190</b> 이니 <b>7 이 모자랍니다</b> &mdash;
-     방어가 낮게 굴면 발두나의 최상위 몬스터에게만 1~7 을 맞습니다.
-     방어력이 붙는 부직업(중도사 부 8 · 가드 부 6 · 무장병 부 4)을
-     <b>레벨 9 어치</b>만 더 넣으면 넘깁니다.</div>
+  <div class="note"><b>지금 갈 수 있는 어디서든 안 아프려면 방어 최소 굴림이 135 입니다.</b>
+     장비 최고가 <b>73</b>(최소 굴림)이니 <b>직업에서 62 를 채워야</b> 합니다.
+     방어력 부직업을 전부 최대로 올리면 <b>61</b> 이라 아슬아슬하게 모자랍니다 &mdash;
+     즉 <b>발두나의 최상위 몬스터를 완전히 0 으로 만드는 것은 지금 불가능합니다</b>.
+     현실적인 목표는 <b>중도사 25 · 가드 15 · 무장병 30</b> 으로 <b>41</b> 을 채워
+     <b>114~170</b> 을 만드는 것입니다 &mdash; 그러면 Lv30 상대 평타가 <b>0~16</b>,
+     최강(공격 135) 상대로도 <b>0~21</b> 입니다.</div>
 
   <h3>레벨별로 한 대가 얼마인가</h3>
   <p>열린 지역 몬스터 242종의 <b>실제 공격력 중앙값</b>으로 잰 값입니다.
      평타는 «방어 최대 굴림 ~ 최소 굴림» 순입니다.</p>
-  <table class="t"><thead><tr><th>몬스터</th><th>모험가</th><th>가드 계열</th>
-    <th>도둑 · 마검사</th><th>법사 · 레인저</th></tr></thead><tbody>
-    <tr><td>Lv15 <span class="sm">(공격 68)</span></td><td><b>0</b> <span class="sm">/ 치명 1~4</span></td><td>0 <span class="sm">/ 치명 4~32</span></td><td>0~5 <span class="sm">/ 치명 22~37</span></td><td>7~13 <span class="sm">/ 치명 38~41</span></td></tr>
-    <tr><td>Lv20 <span class="sm">(공격 88)</span></td><td><b>0</b> <span class="sm">/ 치명 1~24</span></td><td>0~15 <span class="sm">/ 치명 24~52</span></td><td>0~25 <span class="sm">/ 치명 42~57</span></td><td>27~33 <span class="sm">/ 치명 58~61</span></td></tr>
-    <tr><td>Lv25 <span class="sm">(공격 119)</span></td><td><b>0</b> <span class="sm">/ 치명 24~55</span></td><td>0~46 <span class="sm">/ 치명 55~83</span></td><td>27~56 <span class="sm">/ 치명 73~88</span></td><td>58~64 <span class="sm">/ 치명 89~92</span></td></tr>
-    <tr class="hi"><td>Lv30 <span class="sm">(공격 130)</span></td><td><b>0~2</b> <span class="sm">/ 치명 35~66</span></td><td>1~57 <span class="sm">/ 치명 66~94</span></td><td><b>38~67</b> <span class="sm">/ 치명 84~99</span></td><td><b>69~75</b> <span class="sm">/ 치명 100~103</span></td></tr>
+  <table class="t"><thead><tr><th>몬스터</th><th>모험가 · 중도사 · 가드<br><span class="sm">73~129</span></th>
+    <th>무장병 · 검술사<br><span class="sm">68~94</span></th>
+    <th>도둑 · 마검사<br><span class="sm">63~92</span></th>
+    <th>법사 · 레인저<br><span class="sm">55~61</span></th></tr></thead><tbody>
+    <tr><td>Lv15 <span class="sm">(공격 68)</span></td><td><b>0</b> <span class="sm">/ 치명 4~32</span></td><td>0 <span class="sm">/ 치명 21~34</span></td><td>0~5 <span class="sm">/ 치명 22~37</span></td><td>7~13 <span class="sm">/ 치명 38~41</span></td></tr>
+    <tr><td>Lv20 <span class="sm">(공격 88)</span></td><td>0~15 <span class="sm">/ 치명 24~52</span></td><td>0~20 <span class="sm">/ 치명 41~54</span></td><td>0~25 <span class="sm">/ 치명 42~57</span></td><td>27~33 <span class="sm">/ 치명 58~61</span></td></tr>
+    <tr><td>Lv25 <span class="sm">(공격 119)</span></td><td>0~46 <span class="sm">/ 치명 55~83</span></td><td>25~51 <span class="sm">/ 치명 72~85</span></td><td>27~56 <span class="sm">/ 치명 73~88</span></td><td>58~64 <span class="sm">/ 치명 89~92</span></td></tr>
+    <tr class="hi"><td>Lv30 <span class="sm">(공격 130)</span></td><td><b>1~57</b> <span class="sm">/ 치명 66~94</span></td><td>36~62 <span class="sm">/ 치명 83~96</span></td><td>38~67 <span class="sm">/ 치명 84~99</span></td><td>69~75 <span class="sm">/ 치명 100~103</span></td></tr>
   </tbody></table>
-  <div class="note"><b>다섯 칸을 다 쓰면 평타가 거의 안 들어옵니다.</b>
-     Lv30 몬스터를 상대로도 <b>0~2</b> 입니다 &mdash; 방어가 공격력을 넘는 대는
-     35% 로 1 피해, 나머지는 0 입니다. 예전 글의 «레벨이 오를수록 격차가 벌어진다» 는
-     절반 공식에서 나온 말이고, 사실이 아닙니다.</div>
+  <div class="note"><b>장비만 놓고 보면 아무도 Lv30 평타를 0 으로 못 만듭니다.</b>
+     0 을 만드는 것은 <b>방어력 부직업</b>입니다 &mdash; 중도사 25 · 가드 15 · 무장병 30 이면
+     <b>+41</b> 이 붙어 모험가·중도사·가드 계열이 <b>114~170</b> 이 되고,
+     그때 Lv30 평타가 <b>0~16</b> 으로 떨어집니다.
+     예전 글의 «레벨이 오를수록 격차가 벌어진다» 는 절반 공식에서 나온 말이고, 사실이 아닙니다.</div>
 
   <h3>그러면 치명타는</h3>
   <p>치명타만 방어를 반으로 봅니다. 그런데 확률이 <b>공격자 치명타 &minus; 내 치명타 저항</b>
@@ -909,10 +937,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <h3>그럼 왜 죽었나</h3>
   <p>방어로 버티는 길이 막혀 있는 게 아니라, <b>그 길에 들어가는 조건이 좁습니다</b>.</p>
   <ul>
-    <li><b>다섯 칸을 다 쓰는 직업이 모험가 하나뿐입니다.</b> 마검사 · 도둑은
+    <li><b>칸이 셋 이상인 직업이 몇 안 됩니다.</b> 마검사 · 도둑은
         <b>갑옷도 투구도 못 낍니다</b> &mdash; Lv30 상대로 평타가 <b>38~67</b>,
         법사 · 레인저는 <b>69~75</b> 씩 들어옵니다. 이쪽은 정말로 방어로 못 버팁니다.
-        치명타 저항도 거의 못 올려서 치명타를 그대로 맞습니다.</li>
+        치명타 저항도 법사 계열은 <b>0</b> 이라 치명타를 그대로 맞습니다.</li>
     <li><b>요구 힘 30 이 듭니다.</b> 왕단 한 벌이 갑옷 30 · 의복 30 · 투구 29 입니다.
         힘을 안 준 캐릭터는 애초에 이 표에 못 들어갑니다.</li>
     <li><b>마법은 방어를 안 탑니다.</b> 명중 굴림도 없어서 쏘면 들어갑니다 &mdash;
@@ -939,20 +967,23 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   </tbody></table>
   <p><b>현실적인 천장은 HP 80~90</b> 입니다. 그 위는
      <code>1.05^(다른 직업 레벨 합)</code> 때문에 벽에 부딪힙니다(§능력치 계산기).
-     다섯 칸을 다 쓰면 Lv30 평타가 0~2 이니 <b>이 HP 로 넉넉히 넘칩니다</b>.
-     도둑·마검사는 38~67 이라 <b>두 대</b>, 법사는 69~75 라 <b>한 대</b>입니다.</p>
+     방어 부직업까지 채우면 Lv30 평타가 0~16 이니 <b>이 HP 로 넉넉히 넘칩니다</b>.
+     도둑·마검사는 38~67 이라 <b>두 대</b>, 법사는 69~75 라 <b>한 대</b>입니다.
+     다만 <b>치명타는 2% 로 계속 들어옵니다</b> &mdash; 방어 114~170 이어도 한 방이 <b>45~73</b> 이라
+     HP 가 낮으면 그것 하나로 죽습니다.</p>
 
   <h3>회복은 따라갑니다 &mdash; 갑옷을 낄 수 있으면</h3>
   <p>가장 센 회복이 <b>바이탈라이즈 28~48</b>(단일 · Lv30 · MP9), 전체 회복은
-     <b>살바 16~24</b> 입니다. Lv30 평타가 <b>0~2</b> 면 힐 한 번이 여러 대를 덮습니다.
+     <b>살바 16~24</b> 입니다. Lv30 평타가 <b>0~16</b> 이면 힐 한 번이 여러 대를 덮습니다.
+     자동회복 장비를 섞으면 <b>매 턴 27</b> 이 그냥 붙어서 힐을 안 써도 됩니다.
      예전 글의 «한 대 되돌리는 데 두세 번» 은 절반 공식에서 나온 수였습니다.
      다만 <b>갑옷 없는 캐릭터에게는 그 말이 그대로 맞습니다</b> &mdash;
      38~67 은 힐 한 번으로 안 메워집니다.</p>
 
   <h3>모험가 주직업이 나쁘지 않은 이유</h3>
-  <p><b>방어구 다섯 부위를 전부 끼는 직업은 모험가 하나뿐</b>입니다.
-     위 표의 왼쪽 칸이 통째로 모험가 것이고, 그 자체가 큰 값입니다 &mdash;
-     둘째인 가드 계열보다도 방어가 <b>55~61 더</b> 붙습니다(의복 한 칸 차이).</p>
+  <p><b>방어만 보면 모험가와 중도사·가드가 같습니다</b>(둘 다 73~129).
+     모험가가 하나 더 가진 부적은 방어가 0 이기 때문입니다.
+     그런데도 모험가를 주직업으로 쓸 이유가 넷 있습니다.</p>
   <ul>
     <li><b>최대 레벨 31</b> &mdash; 지금 서비스에서 유일하게 30 을 넘습니다.</li>
     <li><b>주직업이면 방어에 보정이 더 붙습니다</b>
@@ -990,32 +1021,40 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      세이브의 실제 장비·직업 값으로 계산했습니다. 아직 못 얻는 직업
      (참수형 · 순례자 · 마도병)은 뺐습니다.</p>
   <table class="t"><thead><tr><th>빌드</th><th class="num">HP</th><th class="num">방어</th>
-    <th class="num">Lv30 평타</th><th class="num">자동회복</th><th class="num">힘</th>
-    <th class="num">공격력</th><th class="num">누적 경험치</th></tr></thead><tbody>
+    <th class="num">Lv30 평타</th><th class="num">치명타 <span class="sm">2%</span></th>
+    <th class="num">자동회복</th><th class="num">공격력</th><th class="num">누적 경험치</th></tr></thead><tbody>
     <tr><td>회피탱 도둑 30 <span class="sm">(마검사·레인저·현자·검술사·궁사)</span></td>
       <td class="num">57</td><td class="num">31~50</td>
-      <td class="num">0 <span class="sm">/ 뚫리면 <b>80~99</b></span></td><td class="num">0</td>
-      <td class="num">35</td><td class="num">80~107</td><td class="num">152M <span class="sm">(63일)</span></td></tr>
-    <tr><td>방어탱 모험가 31 <span class="sm">드워프 · 부직업 다섯</span></td>
-      <td class="num">93</td><td class="num">168~219</td><td class="num"><b>0</b></td>
-      <td class="num">37/턴</td><td class="num">49</td><td class="num">82~117</td>
-      <td class="num">19M <span class="sm">(8일)</span></td></tr>
-    <tr class="hi"><td>방어탱 모험가 31 <span class="sm">드워프 · <b>부직업 둘</b>(무장병 30 · 중도사 25)</span></td>
-      <td class="num">69</td><td class="num">155~206</td><td class="num"><b>0</b></td>
-      <td class="num">37/턴</td><td class="num">36</td><td class="num">66~101</td>
-      <td class="num"><b>4.3M</b> <span class="sm">(1.8일)</span></td></tr>
+      <td class="num">0 <span class="sm">/ 뚫리면 <b>80~99</b></span></td><td class="num">105~115</td>
+      <td class="num">0</td><td class="num">80~107</td><td class="num">152M <span class="sm">(63일)</span></td></tr>
+    <tr class="hi"><td>방어탱 모험가 31 <span class="sm">드워프 · 부직업 다섯 · 갑옷</span></td>
+      <td class="num">93</td><td class="num">118~174</td><td class="num"><b>0~12</b></td>
+      <td class="num">43~71</td><td class="num">8/턴</td><td class="num">82~117</td>
+      <td class="num">22M <span class="sm">(9일)</span></td></tr>
+    <tr><td>같은 빌드 · <span class="sm">자동회복 장비로 바꿈</span></td>
+      <td class="num">93</td><td class="num">115~160</td><td class="num">0~15</td>
+      <td class="num">50~73</td><td class="num"><b>27/턴</b></td><td class="num">82~117</td>
+      <td class="num">22M <span class="sm">(9일)</span></td></tr>
+    <tr><td>방어탱 모험가 31 <span class="sm">· <b>부직업 둘</b>(중도사 25 · 무장병 30)</span></td>
+      <td class="num">69</td><td class="num">102~147</td><td class="num">0~28</td>
+      <td class="num">57~79</td><td class="num">27/턴</td><td class="num">66~101</td>
+      <td class="num"><b>5.0M</b> <span class="sm">(2.1일)</span></td></tr>
   </tbody></table>
-  <p class="meta">자동회복 세트 = 리젠플레이트(HP+9) · 폐천의 왕의복(+10) · 반조의 투구(+10) ·
-     늪왕의 부적(+8, 마법 방어 39) · 송곳니왕의 호세방패(치명 저항 8).
-     시간당 10만 경험치 기준. 회피탱 쪽 «뚫리면» 은 혼란·수면·마비로 회피가 0 이 됐을 때입니다.</p>
-  <div class="note warn"><b>회피탱이 더 낫다고 볼 근거를 못 찾았습니다.</b>
-     <b>35배 싼</b> 빌드가 Lv30 평타를 0 으로 만들고, HP 는 더 높고,
-     자동회복이 매 턴 37 이고, 딜도 비슷합니다. 그리고 결정적으로 &mdash;
-     <b>회피는 혼란·수면·마비 한 번에 통째로 0 이 되지만 방어는 안 무너집니다</b>.
-     상태이상 저항도 <code>힘</code>으로 굴리는 것이 많은데(§11)
-     방어탱 쪽 힘이 <b>36~49</b>, 회피탱이 <b>35</b> 입니다.</div>
+  <p class="meta">방어탱 장비 = 왕단의 갑옷 · 짐승의 눈의 투구 · 송곳니왕의 호세방패 · 늪왕의 부적.
+     «자동회복» 판은 갑옷을 리젠플레이트(+9), 투구를 반조의 투구(+10)로 바꾼 것 &mdash;
+     부적(+8)까지 합쳐 27/턴, 대신 방어를 3~14 잃습니다.
+     시간당 10만 경험치 기준. 회피탱의 «뚫리면» 은 혼란·수면·마비로 회피가 0 이 됐을 때입니다.</p>
+  <div class="note warn"><b>그래도 방어 쪽이 낫다고 봅니다.</b>
+     <b>7배 싼</b> 빌드가 Lv30 평타를 0~12 로 누르고, HP 는 <b>93 대 57</b> 이고,
+     자동회복이 매 턴 27 이고, 딜도 더 셉니다.
+     그리고 결정적으로 &mdash; <b>회피는 혼란·수면·마비 한 번에 통째로 0 이 되지만
+     방어는 안 무너집니다</b>. 상태이상 저항을 굴리는 <code>힘</code>도
+     방어탱이 <b>49</b>, 회피탱이 <b>35</b> 입니다.</div>
+  <div class="note"><b>다만 «완봉» 은 방어로도 회피로도 안 됩니다.</b>
+     치명타가 <b>2% 하한</b>으로 계속 들어오고(위), 마법은 방어를 아예 안 탑니다.
+     회피탱이 «24시간 돌아도 안 죽는» 것은 그 구역에 마법 쓰는 몬스터가 없어서입니다.</div>
   <p>회피가 여전히 이기는 자리는 <b>갑옷을 못 끼는 직업으로 이미 키워 놨을 때</b>와
-     <b>다섯 칸을 다 못 쓰는 파티원</b>입니다. 새로 뽑는다면 방어 쪽이 훨씬 쌉니다.</p>
+     <b>몸·투구·방패를 다 못 쓰는 파티원</b>입니다. 새로 뽑는다면 방어 쪽이 훨씬 쌉니다.</p>
   <div class="note"><b>드워프의 민첩 0 은 명중과 상관없습니다.</b>
      명중은 <code>2d6 + &lfloor;재주 흔들림 &divide; 3&rfloor; + 직업 명중률 몫</code> 이고
      &mdash; <b>재주</b>지 민첩이 아닙니다(<code>Character.Dexterity</code>, <code>0x26b6230</code>).
@@ -1089,7 +1128,8 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b>부적 하나로 절반이 해결됩니다.</b> 회피처럼 «완전히 0» 은 아니지만
      &mdash; <code>2d6 &gt; 9</code> 로 <b>1/6 씩 터지는 굴림</b>이 있어 최댓값 위로도 올라갑니다 &mdash;
      <b>마방 96 이면 대부분의 마법이 0~2 로 떨어집니다.</b>
-     물리도 다섯 칸을 다 쓰면 평타가 0 이 되지만(§10), <b>거기엔 네 자리가 듭니다</b> &mdash;
+     물리도 방어를 끝까지 올리면 평타가 0 에 가까워지지만(§10),
+     <b>거기엔 장비 세 칸과 방어 부직업 셋이 듭니다</b> &mdash;
      마법은 <b>부적 한 자리</b>로 그만큼을 합니다.</div>
   <p>정리하면 <b>물리는 회피로 0 을 만들 수 있고, 마법은 못 만듭니다.</b>
      마법 쓰는 몬스터가 나오는 곳은 회피탱으로도 안전해지지 않습니다 &mdash;
