@@ -683,11 +683,15 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
         방어가 더 크면 &rarr; <b>35% 로 1, 아니면 0</b>     <span class="cmt">// RandSuccess(35)</span>
 <b>치명타</b> 피해 = 공격력 &minus; <b>&lfloor;대상 방어 &divide; 2&rfloor;</b>, 최소 1
         확률 = <b>공격자 치명타 &minus; 대상 치명타 저항</b> (100 중)
-<b>방패</b>   막기는 <b>따로 굴립니다</b>. 성공하면 <b>공격력</b>에서 방패 방어를 뺍니다
+<b>방패</b>   방어에 <b>더해지고</b>, 막기에 성공하면 <b>또</b> 상대 공격력에서 빠집니다
 공통    피해 &minus;= Protect 보정 ; <b>1 미만이면 없던 일</b></div>
-  <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.
-     <b>방패 방어는 <code>DefensePoint</code> 에 들어가지 않습니다</b> &mdash;
-     막기에 성공한 대에서만, 그것도 «내 방어» 가 아니라 «상대 공격력» 쪽에서 빠집니다.</p>
+  <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.</p>
+  <div class="note"><b>방패는 두 번 셉니다.</b> <code>Armor::MinDefense</code> 에는
+     종류 가드가 없어서 방패 방어는 <code>DefensePoint</code> 에 <b>그냥 더해집니다</b>.
+     그리고 «막기» 판정에 성공하면 그 위에 <b>한 번 더</b> 상대 공격력에서 빠집니다.
+     <span class="sm">(2026-08-30 에 여기 «방패는 DefensePoint 에 안 들어간다» 고 적었습니다.
+     <code>Armor::ShieldMinDefense</code> 가 따로 있는 것만 보고 그렇게 읽었는데,
+     그건 «막기 몫만 따로 뽑는» 함수였습니다.)</span></div>
 
   <h3>지금 낄 수 있는 최고 방어</h3>
   <p><b>갑옷 · 의복 · 투구 · 부적 · 방패는 다섯 개의 다른 칸입니다.</b>
@@ -697,25 +701,36 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>갑옷</td><td>왕단의 갑옷 (Lv30)</td><td>30</td><td>60~63</td><td>3</td></tr>
     <tr><td>의복</td><td>왕단의 옷 (Lv30)</td><td>30</td><td>55~61</td><td>0</td></tr>
     <tr><td>투구</td><td>짐승의 눈의 투구 (Lv29)</td><td>29</td><td>5~35</td><td>1</td></tr>
+    <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29)</td><td>29</td><td>8~31</td><td>8</td></tr>
     <tr><td>부적</td><td>&mdash;</td><td>&mdash;</td><td>0</td><td>0</td></tr>
-    <tr class="hi"><td colspan="3"><b>DefensePoint 합계</b></td><td><b>120~159</b></td><td><b>4</b></td></tr>
-    <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29)</td><td>29</td><td><span class="sm">막기 성공 시</span> 8~31</td><td>8</td></tr>
+    <tr class="hi"><td colspan="3"><b>DefensePoint 합계</b></td><td><b>128~190</b></td><td><b>12</b></td></tr>
+  </tbody></table>
+  <p class="meta">방패는 여기에 더해진 뒤, «막기» 에 성공한 대에서 <b>8~31 을 한 번 더</b> 깎습니다.</p>
+
+  <h3>★ 그런데 다섯 칸을 다 쓰는 직업이 하나뿐입니다</h3>
+  <p>여기가 진짜 갈림길입니다. 직업마다 <b>낄 수 있는 부위 자체가 다릅니다</b>
+     (<code>JobMaster.canEquipArmors</code>).</p>
+  <table class="t"><thead><tr><th>직업</th><th>쓸 수 있는 칸</th><th>최고 방어</th>
+    <th>Lv30 평타</th><th>Lv30 치명타</th></tr></thead><tbody>
+    <tr class="hi"><td><b>모험가</b></td><td>의복·갑옷·투구·방패·부적 <span class="sm">(다섯)</span></td>
+      <td><b>128~190</b></td><td><b>0~2</b></td><td>35~66</td></tr>
+    <tr><td>가드 · 무장병 계열</td><td>갑옷·방패·투구</td><td>73~129</td><td>1~57</td><td>66~94</td></tr>
+    <tr><td>도둑 · 마검사</td><td>의복·부적·방패</td><td>63~92</td><td><b>38~67</b></td><td>84~99</td></tr>
+    <tr><td>법사 · 레인저</td><td>의복·부적</td><td>55~61</td><td><b>69~75</b></td><td>100~103</td></tr>
   </tbody></table>
 
-  <h3>그래서 한 대에 얼마나 아픈가</h3>
+  <h3>레벨별로 한 대가 얼마인가</h3>
   <p>열린 지역 몬스터 242종의 <b>실제 공격력 중앙값</b>으로 잰 값입니다.
      평타는 «방어 최대 굴림 ~ 최소 굴림» 순입니다.</p>
-  <table class="t"><thead><tr><th>몬스터</th>
-    <th>모험가 풀세트<br><span class="sm">갑옷+의복+투구 · 요구 힘 30</span></th>
-    <th>갑옷 없이<br><span class="sm">의복+투구 · 마검사·도둑</span></th>
-    <th>가벼운 한 벌<br><span class="sm">요구 힘 15 안팎</span></th></tr></thead><tbody>
-    <tr><td>Lv15 <span class="sm">(공격 68)</span></td><td><b>0</b> <span class="sm">/ 치명 1~8</span></td><td>0~8 <span class="sm">/ 치명 20~38</span></td><td>20~44 <span class="sm">/ 치명 44~56</span></td></tr>
-    <tr><td>Lv20 <span class="sm">(공격 88)</span></td><td><b>0</b> <span class="sm">/ 치명 9~28</span></td><td>0~28 <span class="sm">/ 치명 40~58</span></td><td>40~64 <span class="sm">/ 치명 64~76</span></td></tr>
-    <tr><td>Lv25 <span class="sm">(공격 119)</span></td><td><b>0</b> <span class="sm">/ 치명 40~59</span></td><td>23~59 <span class="sm">/ 치명 71~89</span></td><td>71~95 <span class="sm">/ 치명 95~107</span></td></tr>
-    <tr class="hi"><td>Lv30 <span class="sm">(공격 130)</span></td><td><b>0~10</b> <span class="sm">/ 치명 51~70</span></td><td><b>34~70</b> <span class="sm">/ 치명 82~100</span></td><td>82~106 <span class="sm">/ 치명 106~118</span></td></tr>
+  <table class="t"><thead><tr><th>몬스터</th><th>모험가</th><th>가드 계열</th>
+    <th>도둑 · 마검사</th><th>법사 · 레인저</th></tr></thead><tbody>
+    <tr><td>Lv15 <span class="sm">(공격 68)</span></td><td><b>0</b> <span class="sm">/ 치명 1~4</span></td><td>0 <span class="sm">/ 치명 4~32</span></td><td>0~5 <span class="sm">/ 치명 22~37</span></td><td>7~13 <span class="sm">/ 치명 38~41</span></td></tr>
+    <tr><td>Lv20 <span class="sm">(공격 88)</span></td><td><b>0</b> <span class="sm">/ 치명 1~24</span></td><td>0~15 <span class="sm">/ 치명 24~52</span></td><td>0~25 <span class="sm">/ 치명 42~57</span></td><td>27~33 <span class="sm">/ 치명 58~61</span></td></tr>
+    <tr><td>Lv25 <span class="sm">(공격 119)</span></td><td><b>0</b> <span class="sm">/ 치명 24~55</span></td><td>0~46 <span class="sm">/ 치명 55~83</span></td><td>27~56 <span class="sm">/ 치명 73~88</span></td><td>58~64 <span class="sm">/ 치명 89~92</span></td></tr>
+    <tr class="hi"><td>Lv30 <span class="sm">(공격 130)</span></td><td><b>0~2</b> <span class="sm">/ 치명 35~66</span></td><td>1~57 <span class="sm">/ 치명 66~94</span></td><td><b>38~67</b> <span class="sm">/ 치명 84~99</span></td><td><b>69~75</b> <span class="sm">/ 치명 100~103</span></td></tr>
   </tbody></table>
-  <div class="note"><b>방어를 다 낄 수 있으면 평타는 거의 안 들어옵니다.</b>
-     Lv30 몬스터를 상대로도 <b>0~10</b> 입니다 &mdash; 방어가 공격력을 넘는 대는
+  <div class="note"><b>다섯 칸을 다 쓰면 평타가 거의 안 들어옵니다.</b>
+     Lv30 몬스터를 상대로도 <b>0~2</b> 입니다 &mdash; 방어가 공격력을 넘는 대는
      35% 로 1 피해, 나머지는 0 입니다. 예전 글의 «레벨이 오를수록 격차가 벌어진다» 는
      절반 공식에서 나온 말이고, 사실이 아닙니다.</div>
 
@@ -730,14 +745,17 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b>위의 «방어 최고» 한 벌은 치명타 저항 12 를 이미 들고 있습니다</b>
      (갑옷 3 + 방패 8 + 투구 1). <b>열린 지역 몬스터의 최대 치명타가 11%</b> 이니
      <code>공격자 치명타 &minus; 12 &le; 0</code> &mdash; <b>치명타가 아예 안 납니다</b>.
-     치명타 저항만 노리고 짜면 <b>17</b> 까지 갑니다(소호의 갑옷 Lv11 이 혼자 8).</div>
+     치명타 저항만 노리고 짜면 <b>17</b> 까지 갑니다(소호의 갑옷 Lv11 이 혼자 8).
+     <b>단, 이것도 세 부위(갑옷·방패·투구)에 붙습니다</b> &mdash; 의복과 부적에는 없습니다.
+     도둑·마검사는 방패 8 이 전부고, 법사는 <b>0</b> 입니다.</div>
 
   <h3>그럼 왜 죽었나</h3>
   <p>방어로 버티는 길이 막혀 있는 게 아니라, <b>그 길에 들어가는 조건이 좁습니다</b>.</p>
   <ul>
-    <li><b>다섯 칸을 다 쓰는 직업이 모험가 하나뿐입니다.</b> 마검사 · 도둑 · 법사 계열은
-        <b>갑옷을 못 낍니다</b> &mdash; 위 표의 가운데 칸이 그들의 몫이고,
-        Lv30 상대로 평타가 <b>34~70</b> 씩 들어옵니다. 이쪽은 정말로 방어로 못 버팁니다.</li>
+    <li><b>다섯 칸을 다 쓰는 직업이 모험가 하나뿐입니다.</b> 마검사 · 도둑은
+        <b>갑옷도 투구도 못 낍니다</b> &mdash; Lv30 상대로 평타가 <b>38~67</b>,
+        법사 · 레인저는 <b>69~75</b> 씩 들어옵니다. 이쪽은 정말로 방어로 못 버팁니다.
+        치명타 저항도 거의 못 올려서 치명타를 그대로 맞습니다.</li>
     <li><b>요구 힘 30 이 듭니다.</b> 왕단 한 벌이 갑옷 30 · 의복 30 · 투구 29 입니다.
         힘을 안 준 캐릭터는 애초에 이 표에 못 들어갑니다.</li>
     <li><b>마법은 방어를 안 탑니다.</b> 명중 굴림도 없어서 쏘면 들어갑니다 &mdash;
@@ -764,19 +782,20 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   </tbody></table>
   <p><b>현실적인 천장은 HP 80~90</b> 입니다. 그 위는
      <code>1.05^(다른 직업 레벨 합)</code> 때문에 벽에 부딪힙니다(§능력치 계산기).
-     갑옷을 낄 수 있으면 Lv30 평타가 0~10 이니 <b>이 HP 로 넉넉히 넘칩니다</b>.
-     갑옷을 못 끼면 34~70 이라 <b>두 대</b>입니다.</p>
+     다섯 칸을 다 쓰면 Lv30 평타가 0~2 이니 <b>이 HP 로 넉넉히 넘칩니다</b>.
+     도둑·마검사는 38~67 이라 <b>두 대</b>, 법사는 69~75 라 <b>한 대</b>입니다.</p>
 
   <h3>회복은 따라갑니다 &mdash; 갑옷을 낄 수 있으면</h3>
   <p>가장 센 회복이 <b>바이탈라이즈 28~48</b>(단일 · Lv30 · MP9), 전체 회복은
-     <b>살바 16~24</b> 입니다. Lv30 평타가 <b>0~10</b> 이면 힐 한 번이 여러 대를 덮습니다.
+     <b>살바 16~24</b> 입니다. Lv30 평타가 <b>0~2</b> 면 힐 한 번이 여러 대를 덮습니다.
      예전 글의 «한 대 되돌리는 데 두세 번» 은 절반 공식에서 나온 수였습니다.
      다만 <b>갑옷 없는 캐릭터에게는 그 말이 그대로 맞습니다</b> &mdash;
-     34~70 은 힐 한 번으로 안 메워집니다.</p>
+     38~67 은 힐 한 번으로 안 메워집니다.</p>
 
   <h3>모험가 주직업이 나쁘지 않은 이유</h3>
   <p><b>방어구 다섯 부위를 전부 끼는 직업은 모험가 하나뿐</b>입니다.
-     위 표의 왼쪽 칸이 통째로 모험가 것이고, 그 자체가 큰 값입니다.</p>
+     위 표의 왼쪽 칸이 통째로 모험가 것이고, 그 자체가 큰 값입니다 &mdash;
+     둘째인 가드 계열보다도 방어가 <b>55~61 더</b> 붙습니다(의복 한 칸 차이).</p>
   <ul>
     <li><b>최대 레벨 31</b> &mdash; 지금 서비스에서 유일하게 30 을 넘습니다.</li>
     <li><b>주직업이면 방어에 보정이 더 붙습니다</b>
@@ -813,6 +832,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <code>PhysicsAttack</code> 에서만 불립니다. 마법과 광역 마법은 회피탱도 그대로 맞습니다
      &mdash; 그쪽은 <b>마법 방어</b>와 HP 로 버텨야 합니다.</div>
   <p class="src">BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c7990 치명타 · 0x26c79a8 평타)</span> &middot;
+     ArmorMaster.MinDefense/MaxDefense <span class="sm">(0x2704ecc · 0x2704fd0 — 311개 중 308개가 _defense 문자열과 일치, 나머지 3개는 문자열 쪽이 낡음)</span> &middot;
      BattleCreature.DefensePoint / CriticalRate / CriticalDefense &middot;
      Character.MinDefensePoint &middot; MonsterMaster.Critical &middot;
      열린 지역 몬스터 242종 &middot; 세이브 Character 87건</p>

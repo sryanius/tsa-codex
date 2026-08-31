@@ -907,13 +907,14 @@ function crewDetail(c){
     +'<div class="dcell"><dt>민첩 <span class="fld">기본+직업+장비</span></dt><dd class="mono">'+statOf(c,"민첩")
       +' <span class="meta">(기본 '+((c.ab&&c.ab["민첩"])||0)
       +' + 직업 '+jobLabel(c,"민첩")+' + 장비 '+gearLabel(c,"민첩")+')</span></dd></div>'
-    /* ★ 공격력과 크리티컬 확률은 아직 게임 화면과 안 맞는다 — 직업 몫이
-       각각 +17 · +8 높게 나온다(혜주로 대조). 틀린 숫자를 띄우느니
-       확실한 «무기 몫(강화 포함)» 만 보여 준다. */
-    +'<div class="dcell"><dt>무기 공격력 <span class="fld">직업 몫 제외</span></dt>'
-      +'<dd class="mono">'+weaponRange(c).join(' – ')+'</dd></div>'
-    +'<div class="dcell"><dt>장비 방어력 <span class="fld">직업 몫 제외</span></dt>'
-      +'<dd class="mono">'+gearDefRange(c).join(' – ')+'</dd></div>'
+    +'<div class="dcell"><dt>공격력 <span class="fld">무기+직업+장비</span></dt>'
+      +'<dd class="mono">'+attackRange(c).join(' – ')
+      +' <span class="meta">(무기 '+weaponSelf(c).join('–')
+      +' + 직업 '+jobBonusW(c,"공격력")+')</span></dd></div>'
+    +'<div class="dcell"><dt>방어력 <span class="fld">장비+직업</span></dt>'
+      +'<dd class="mono">'+defenseRange(c).join(' – ')
+      +' <span class="meta">(장비 '+gearDefRange(c).join('–')
+      +' + 직업 '+jobBonus2(c,"방어력")+')</span></dd></div>'
     +'<div class="dcell"><dt>명중률</dt><dd class="mono">'+hitValue(c)+'</dd></div>'
     +'<div class="dcell"><dt>크리티컬 확률</dt><dd class="mono">'+critRate(c)+'</dd></div>'
     +'<div class="dcell"><dt>회피 능력</dt><dd class="mono" style="color:var(--accent)">'+avoidValue(c)+'</dd></div>'
@@ -1104,6 +1105,56 @@ function weaponRange(c){
   return [gearField(c,"dm",0)+e+enhSum(c,"최소 공격"),
           gearField(c,"dm",1)+e+enhSum(c,"최대 공격")];
 }
+/* ── 공격력 · 방어력 ────────────────────────────────────────────────
+   ★ 공격력의 직업 몫은 «지금 든 무기를 들 수 있는 직업» 만 셉니다.
+     Character.<MinAttackPoint>b__153_1/2 가 canEquipWeapons 를 먼저 봅니다.
+     이걸 몰라서 혜주가 +17 높게 나왔고, 그동안 «직업 몫 제외» 로 적어 뒀습니다.
+     방어력 쪽 람다에는 그 조건이 없습니다 — 전 직업이 다 셉니다. */
+function weaponOf(c){
+  var w=null; equipsOf(c).forEach(function(x){ if(x.g.c==="무기") w=x.g; }); return w;
+}
+/* 한 갈래(무기만/방어구만)의 강화 몫을 따로 센다 */
+function enhPart(c, isWeapon, label){
+  var t=0;
+  equipsOf(c).forEach(function(x){
+    if((x.g.c==="무기") !== isWeapon) return;
+    x.enh.forEach(function(e){ if(ENH[e.k]===label) t += (e.v||0); });
+  });
+  return t;
+}
+function weaponSelf(c){                       // Weapon::MinDamage / MaxDamage
+  var e=enhPart(c,true,"공격력");
+  return [gearField(c,"dm",0)+e+enhPart(c,true,"최소 공격"),
+          gearField(c,"dm",1)+e+enhPart(c,true,"최대 공격")];
+}
+function jobBonusW(c, label){                 // 무기 조건이 붙는 직업 몫
+  var w=weaponOf(c); if(!w) return 0;
+  var main=0, sub=0;
+  (c.jobs||[]).forEach(function(j){
+    var jm=JOB[j.i]; if(!jm) return;
+    if((jm.w||[]).indexOf(w.k)<0) return;     // 이 무기를 못 드는 직업은 0
+    if(j.cur) main += (j.lv||0)*((jm.main&&jm.main[label])||0);
+    else      sub  += (j.lv||0)*((jm.sub &&jm.sub[label]) ||0);
+  });
+  return Math.ceil(main/10)+Math.ceil(sub/10);
+}
+function attackRange(c){
+  var w=weaponOf(c), ws=weaponSelf(c), mj=JOB[c.main];
+  // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다
+  if(mj && mj.k===200 && w && w.k==="활") ws=[Math.floor(ws[0]/2), Math.floor(ws[1]/2)];
+  var jb=jobBonusW(c,"공격력"), ad=enhPart(c,false,"공격력");
+  return [ws[0]+jb+ad, ws[1]+jb+ad];
+}
+function defenseRange(c){
+  var dr=gearDefRange(c), jb=jobBonus2(c,"방어력"), wd=enhPart(c,true,"방어력");
+  var mj=JOB[c.main], cut=[0,0];
+  // 주직업이 참수형(Kind 26)이면 방패 몫의 절반이 깎인다
+  if(mj && mj.k===26){ var sr=shieldRange(c); cut=[sr[0]>>1, sr[1]>>1]; }
+  return [dr[0]+jb+wd-cut[0], dr[1]+jb+wd-cut[1]];
+}
+/* ★ 방패도 여기 들어간다. Armor::MinDefense 에 종류 가드가 없어서
+   방패 방어는 DefensePoint 에 그대로 더해지고, «막기» 에 성공하면
+   그 위에 한 번 더 상대 공격력에서 빠진다(두 번 센다). */
 function gearDefRange(c){
   return [gearField(c,"df",0)+enhSum(c,"방어력")+enhSum(c,"최소 방어"),
           gearField(c,"df",1)+enhSum(c,"방어력")+enhSum(c,"최대 방어")];

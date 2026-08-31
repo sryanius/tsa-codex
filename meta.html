@@ -736,11 +736,55 @@ function scGearPart(label){
   scEquipped().forEach(function(id){ var g=D.gear[id]; if(g && g.b && g.b[label]) t += g.b[label]; });
   return t;
 }
+/* ── 공격력 · 방어력만 셈이 다릅니다 ──────────────────────────────
+   ★ 공격력의 직업 몫은 «지금 든 무기를 들 수 있는 직업» 만 셉니다
+     (Character.<MinAttackPoint>b__153_1/2 가 canEquipWeapons 를 봅니다).
+     방어력 쪽에는 그 조건이 없습니다.
+   ★ 장비 몫도 g.b 가 아니라 dm/df 범위에서 옵니다 — g.b 의 «방어력» 은
+     ability.addDefense 라 거의 다 0 입니다. */
+function scWeaponKind(){
+  var id=sc.slot["무기"], g=id?D.gear[id]:null; return g?g.k:null;
+}
+function scJobPartW(label){
+  var wk=scWeaponKind(); if(!wk) return 0;
+  var main=0, sub=0;
+  var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+  if(mj && (mj.w||[]).indexOf(wk)>=0 && mj.main[label]) main += (sc.mainLv||0)*mj.main[label];
+  sc.subs.forEach(function(s2){
+    var j=D.jobs.filter(function(x){ return x.i===s2.i; })[0];
+    if(j && (j.w||[]).indexOf(wk)>=0 && j.sub[label]) sub += (s2.lv||0)*j.sub[label];
+  });
+  return Math.ceil(main/10)+Math.ceil(sub/10);
+}
+function scGearRange(key){
+  var lo=0, hi=0;
+  scEquipped().forEach(function(id){
+    var g=D.gear[id]; if(!g||!g[key]) return;
+    lo += g[key][0]||0; hi += g[key][1]||0;
+  });
+  return [lo,hi];
+}
 function scRows(){
   return SC_BASE.concat(SC_DERIV).map(function(label){
+    if(label==="공격력"){
+      var r=scGearRange("dm"), jb=scJobPartW(label);
+      var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+      // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다
+      if(mj && mj.k===200 && scWeaponKind()==="활") r=[r[0]>>1, r[1]>>1];
+      return {k:label, base:0, job:jb, gear:r[0], gear2:r[1], sum:r[0]+jb, sum2:r[1]+jb};
+    }
+    if(label==="방어력"){
+      var r2=scGearRange("df"), jb2=scJobPart(label);
+      var mj2=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+      var cut=[0,0];
+      // 주직업이 참수형(Kind 26)이면 방패 몫의 절반이 깎인다
+      if(mj2 && mj2.k===26){ var sr=scGearRange("sd"); cut=[sr[0]>>1, sr[1]>>1]; }
+      return {k:label, base:0, job:jb2, gear:r2[0], gear2:r2[1],
+              sum:r2[0]+jb2-cut[0], sum2:r2[1]+jb2-cut[1]};
+    }
     var base = SC_BASE.indexOf(label)>=0 ? (sc.base[label]||0) : 0;
-    var jb=scJobPart(label), gp=scGearPart(label);
-    return {k:label, base:base, job:jb, gear:gp, sum:base+jb+gp};
+    var jb3=scJobPart(label), gp=scGearPart(label);
+    return {k:label, base:base, job:jb3, gear:gp, sum:base+jb3+gp};
   });
 }
 function scAgiFloor(a){
@@ -1053,11 +1097,12 @@ function statHTML(){
     +'셋을 10 안팎으로 올리는 쪽이 훨씬 쌉니다.</p></details></div>';
   var table='<table class="sct"><thead><tr><th>수치</th><th class="num">기본</th><th class="num">직업</th><th class="num">장비</th><th class="num">합계</th></tr></thead><tbody>'
     + rows.map(function(r){
-        var z=(!r.base&&!r.job&&!r.gear);
+        var z=(!r.base&&!r.job&&!r.gear&&!r.gear2);
         return '<tr'+(z?' class="zero"':'')+'><td>'+esc(r.k)+'</td>'
           +'<td class="num">'+(SC_BASE.indexOf(r.k)>=0?r.base:"—")+'</td>'
-          +'<td class="num">'+(r.job||"")+'</td><td class="num">'+(r.gear||"")+'</td>'
-          +'<td class="num"><b>'+r.sum+'</b></td></tr>'; }).join("")
+          +'<td class="num">'+(r.job||"")+'</td>'
+          +'<td class="num">'+(r.gear2!=null ? r.gear+'&ndash;'+r.gear2 : (r.gear||""))+'</td>'
+          +'<td class="num"><b>'+(r.sum2!=null ? r.sum+'&ndash;'+r.sum2 : r.sum)+'</b></td></tr>'; }).join("")
     + '</tbody></table>';
 
   return '<section class="group"><div class="ghead"><h2>능력치 계산기</h2>'
