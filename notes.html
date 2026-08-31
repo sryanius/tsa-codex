@@ -375,7 +375,59 @@ RunCraft(craftIndex)</div>
   <div class="note warn"><b>회피는 «확률» 이 아니라 «2단계 이상이면 붙는 것» 입니다.</b> 무기의 추가 공격처럼 5% 관문 뒤에 숨어 있지 않습니다. 2단계 이상으로 강화되면 회피 +1~2 가 <b>반드시</b> 붙고, 5% 묶음에 걸리면 거기서 +1 이 더 붙습니다. <b>옷은 1·3 단계에서도 붙어서</b>, 3단계 강화면 회피가 세 번(i=3·2·1) 들어갑니다.</div>
   <p>거꾸로, <b>1단계 강화로는 회피가 5%로만 붙습니다</b> &mdash; 상점 무기·방어구가 대부분 여기입니다(20%로 +1, 5%로 +2). 대장간 다이아 강화는 최소 3단계가 보장되므로 <b>회피는 사실상 딸려 옵니다.</b></p>
   <p><b>부적은 방어력이 0 이라</b> 위 표의 첫 두 줄(5% 묶음 포함)을 통째로 건너뜁니다. 대신 i=2 의 회피와 매 단계 민첩은 그대로 받습니다.</p>
-  <p class="src">Armor.Craft · Equipment.RunCraft · ArmorMaster.Ability.isMagic</p>
+
+  <h3>단계마다 «바깥에서» 붙는 두 줄</h3>
+  <p>위 표는 <code>Armor.Craft</code> 안의 이야기입니다. 그걸 부르는
+     <code>Equipment.RunCraft</code> 가 <b>매 단계 먼저</b> 두 줄을 더 굴립니다 &mdash;
+     장비 종류와 무관하게 무기·방어구 모두에 붙습니다.</p>
+  <table class="t"><thead><tr><th>언제</th><th>붙는 것</th><th class="num">확률</th></tr></thead><tbody>
+    <tr><td>요구 근력이 <b>3 이상</b>인 장비</td><td>요구 근력 <b>+1</b> <span class="sm">(대가)</span></td><td class="num">10%</td></tr>
+    <tr class="hi"><td>요구 레벨이 <b>5 이상</b>인 장비</td><td>요구 레벨 감소 <b>+1</b></td>
+      <td class="num"><b>5&times;(요구레벨 &minus; 대장간레벨) + 50</b> %</td></tr>
+    <tr><td>강화 단계가 <b>음수</b>일 때 <span class="sm">(몬스터 드랍)</span></td><td>요구 근력 <b>&minus;1</b></td><td class="num">확정</td></tr>
+  </tbody></table>
+  <div class="note"><b>요구 레벨 감소는 대장간이 낮을수록 잘 붙습니다.</b>
+     식이 <code>요구레벨 &minus; 대장간레벨</code> 이라, 대장간보다 높은 장비를 강화할수록
+     확률이 올라갑니다 &mdash; 같으면 50%, 10 높으면 100% 입니다.
+     그리고 이건 <b>실제로 요구 레벨을 내립니다</b>:
+     <code>GetNeedLevel()</code> 이 마스터 요구 레벨에서 이 몫의 합을 뺍니다.
+     단계가 많이 걸린 저레벨 장비가 «요구 레벨 0» 이 되는 길이 이것입니다.</div>
+  <div class="note"><b>강화 단계는 음수일 수도 있습니다.</b>
+     <code>MonsterMaster.GetReward</code> 는 보상표의 craft 값에 몬스터 보정을 더해
+     그대로 <code>RunCraft</code> 에 넘깁니다. 음수면 <b>깎는 방향</b>으로 돌아서
+     최소·최대 수치가 내려가는 대신 <b>요구 근력이 단계마다 1씩 내려갑니다</b>.
+     방패는 그 경우 방패 방어 &minus;1 · 방패 회피 &minus;1 을 받습니다.</div>
+
+  <h3>굴림 함수 — 상한을 포함하지 않습니다</h3>
+  <div class="eq"><b>Rand(a, b)</b>        = Random.Range(a, b)   <span class="cmt">// a … b−1 — ★ b 는 안 나온다</span>
+<b>Rand(n)</b>           = 0 … n−1
+<b>RandSuccess(v)</b>    = Random.Range(0,100) &lt; v         <span class="cmt">// 그대로 v %</span>
+<b>RandSuccess100(v)</b> = 같지만 v 를 <b>2~98 로 자른다</b>   <span class="cmt">// 0% 도 100% 도 없다</span></div>
+  <p>위 표들의 «+1~2» 는 전부 <code>Rand(1,3)</code> 입니다 &mdash; 3 은 안 나옵니다.
+     세이브로 확인했습니다.</p>
+
+  <h3>세이브로 대조</h3>
+  <p>세이브의 장비 370개 가운데 <b>강화가 붙은 것이 246개</b>, 강화 항목이 <b>717개</b> 입니다.
+     위 규칙이 내놓을 수 있는 값과 실제 값을 맞춰 봤습니다.</p>
+  <table class="t"><thead><tr><th>항목</th><th class="num">개수</th><th class="num">관측값</th><th>규칙이 내놓는 값</th></tr></thead><tbody>
+    <tr><td>공격력</td><td class="num">59</td><td class="num">전부 +1</td><td>상수 +1 &mdash; 맞음</td></tr>
+    <tr><td>방어력</td><td class="num">13</td><td class="num">전부 +1</td><td>상수 +1 &mdash; 맞음</td></tr>
+    <tr><td>최대 공격</td><td class="num">102</td><td class="num">&minus;1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
+    <tr><td>최대 방어</td><td class="num">49</td><td class="num">&minus;1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
+    <tr><td>회피</td><td class="num">10</td><td class="num">+1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
+    <tr><td>민첩</td><td class="num">96</td><td class="num">&minus;2 ~ +4</td><td><code>Rand(2,5)</code> = 2~4 가 상한 &mdash; 맞음</td></tr>
+    <tr><td>생명점 · 마나 · 지능 · 마법 방어</td><td class="num">71</td><td class="num">&minus;1 ~ +9</td><td><code>Rand(⌊레벨/2⌋)+1</code> &mdash; Lv18+ 장비면 9 가 나옴</td></tr>
+    <tr class="hi"><td>요구 근력</td><td class="num">141</td><td class="num">&minus;1 이 133 · +1 이 8</td><td>깎는 강화가 훨씬 흔합니다 &mdash; 대부분 드랍</td></tr>
+    <tr><td>요구 레벨 감소</td><td class="num">24</td><td class="num">+1 이 21 · <b>+2 가 3</b></td><td>상수는 +1 뿐 &mdash; <b>+2 는 아직 출처를 못 찾았습니다</b></td></tr>
+  </tbody></table>
+  <div class="note warn"><b>5% 묶음이 세이브에서는 한 번도 안 걸렸습니다.</b>
+     걸렸다면 방어력이 +1~4, 최대 공격이 +1~5 로 나와야 하는데
+     방어력 13개가 전부 +1 이고 최대 공격 102개가 전부 2 이하입니다.
+     무기 쪽만 봐도 기댓값이 세 번쯤이라 <b>0 회는 약 5% 확률</b>입니다 &mdash;
+     운일 수도 있고, 제가 못 본 조건이 더 있을 수도 있습니다. 그대로 적어 둡니다.</div>
+  <p class="src">Armor.Craft · Weapon.Craft · Equipment.RunCraft <span class="sm">(0x2702a14 요구 근력 10% · 0x2702b60 요구 레벨)</span> ·
+     Equipment.GetNeedLevel · MonsterMaster.GetReward · Util.Rand / RandSuccess ·
+     세이브 장비 370개 · 강화 항목 717개</p>
 
   <h3>몇 단계가 걸리나 &mdash; 대장간 레벨이 정합니다</h3>
   <p>강화가 «몇 단계» 로 들어가는지는 위의 두 옵션을 가르는 가장 중요한 값입니다
