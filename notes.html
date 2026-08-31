@@ -799,7 +799,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 <b>평타</b>   피해 = 공격력 &minus; <b>대상 방어</b>              <span class="cmt">// ★ 전액</span>
         방어가 더 크면 &rarr; <b>35% 로 1, 아니면 0</b>     <span class="cmt">// RandSuccess(35)</span>
 <b>치명타</b> 피해 = 공격력 &minus; <b>&lfloor;대상 방어 &divide; 2&rfloor;</b>, 최소 1
-        확률 = <b>공격자 치명타 &minus; 대상 치명타 저항</b> (100 중)
+        확률 = <b>공격자 치명타 &minus; 대상 치명타 저항</b> (100 중, <b>2~98 로 잘린다</b>)
 <b>방패</b>   방어에 <b>더해지고</b>, 막기에 성공하면 <b>또</b> 상대 공격력에서 빠집니다
 공통    피해 &minus;= Protect 보정 ; <b>1 미만이면 없던 일</b></div>
   <div class="note"><b>«1 미만» 은 정말로 없던 일이 됩니다.</b>
@@ -808,6 +808,13 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      &mdash; 무기가 붙이는 <b>상태이상도, 반사도 안 돕니다</b>.
      방어로 0 을 만드는 것은 회피와 같은 값어치가 있습니다.
      <span class="sm">(마법으로 거는 상태이상은 이 경로가 아니라 그대로 들어옵니다 &mdash; §11)</span></div>
+  <div class="note warn"><b>그래서 «반사» 장비는 방어탱과 상극입니다.</b>
+     반사 피해는 <code>&lfloor;받은 피해 &times; 반사율 &divide; 100&rfloor;</code> 인데
+     (<code>BattleCreature.DamageReflectionRate</code>, <code>0x26c7be4</code>),
+     이것도 <b>피해가 1 이상인 경로에만</b> 있습니다.
+     <b>피해를 0 으로 만들면 반사도 0 입니다.</b>
+     데이터에 반사가 붙은 장비는 <b>10종</b>(반사율 10~50%)인데,
+     제대로 짠 방어탱에게는 <b>아무 일도 안 합니다</b>.</div>
   <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.</p>
   <div class="note"><b>방패는 두 번 셉니다.</b> <code>Armor::MinDefense</code> 에는
      종류 가드가 없어서 방패 방어는 <code>DefensePoint</code> 에 <b>그냥 더해집니다</b>.
@@ -844,6 +851,27 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>법사 · 레인저</td><td>의복·부적</td><td>55~61</td><td><b>69~75</b></td><td>100~103</td></tr>
   </tbody></table>
 
+  <h3>그래서 방어가 정확히 몇이면 되나</h3>
+  <p>평타는 <code>공격력 &minus; 방어</code> 이고 방어는 매 대
+     <code>Rand(최소, 최대)</code> 로 굴립니다. 그러니 기준은 <b>최대값이 아니라 최소값</b>입니다
+     &mdash; <b>방어 최소 굴림이 그 지역 몬스터의 최고 공격력 이상</b>이면
+     평타는 <b>언제나 0 또는 1</b>(35% 로 1)입니다.</p>
+  <table class="t"><thead><tr><th>지역</th><th class="num">최고 몬스터</th>
+    <th class="num">최고 공격력</th><th class="num">필요한 방어 <span class="sm">(최소 굴림)</span></th>
+    <th class="num">최고 치명타</th></tr></thead><tbody>
+    <tr><td>미스토리아 반도</td><td class="num">Lv5</td><td class="num">18</td><td class="num"><b>18</b></td><td class="num">5%</td></tr>
+    <tr><td>바르디아 평원</td><td class="num">Lv9</td><td class="num">38</td><td class="num"><b>38</b></td><td class="num">5%</td></tr>
+    <tr><td>뤼미에르 힐스</td><td class="num">Lv11</td><td class="num">49</td><td class="num"><b>49</b></td><td class="num">11%</td></tr>
+    <tr><td>아르디오스 왕국</td><td class="num">Lv16</td><td class="num">70</td><td class="num"><b>70</b></td><td class="num">11%</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">Lv23</td><td class="num">108</td><td class="num"><b>108</b></td><td class="num">11%</td></tr>
+    <tr class="hi"><td>발두나의 황야</td><td class="num">Lv29</td><td class="num">135 <span class="sm">(다크엘프 리더)</span></td><td class="num"><b>135</b></td><td class="num">11%</td></tr>
+  </tbody></table>
+  <div class="note"><b>지금 갈 수 있는 어디서든 안 아프려면 방어 최소값이 135 입니다.</b>
+     왕단 풀세트가 <b>128~190</b> 이니 <b>7 이 모자랍니다</b> &mdash;
+     방어가 낮게 굴면 발두나의 최상위 몬스터에게만 1~7 을 맞습니다.
+     방어력이 붙는 부직업(중도사 부 8 · 가드 부 6 · 무장병 부 4)을
+     <b>레벨 9 어치</b>만 더 넣으면 넘깁니다.</div>
+
   <h3>레벨별로 한 대가 얼마인가</h3>
   <p>열린 지역 몬스터 242종의 <b>실제 공격력 중앙값</b>으로 잰 값입니다.
      평타는 «방어 최대 굴림 ~ 최소 굴림» 순입니다.</p>
@@ -867,12 +895,16 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>Lv25 이상 최대 <span class="sm">(어쌔신 Lv30)</span></td><td>6%</td></tr>
     <tr><td>전체 최대 <span class="sm">(검술사 · 시체 브로커 · 나이프 러너)</span></td><td>11% <span class="sm">&mdash; 5종뿐</span></td></tr>
   </tbody></table>
-  <div class="note"><b>위의 «방어 최고» 한 벌은 치명타 저항 12 를 이미 들고 있습니다</b>
-     (갑옷 3 + 방패 8 + 투구 1). <b>열린 지역 몬스터의 최대 치명타가 11%</b> 이니
-     <code>공격자 치명타 &minus; 12 &le; 0</code> &mdash; <b>치명타가 아예 안 납니다</b>.
-     치명타 저항만 노리고 짜면 <b>17</b> 까지 갑니다(소호의 갑옷 Lv11 이 혼자 8).
-     <b>단, 이것도 세 부위(갑옷·방패·투구)에 붙습니다</b> &mdash; 의복과 부적에는 없습니다.
-     도둑·마검사는 방패 8 이 전부고, 법사는 <b>0</b> 입니다.</div>
+  <div class="note warn"><b>★ 0 으로는 못 만듭니다 &mdash; 2% 는 남습니다.</b>
+     판정이 <code>RandSuccess100</code> 인데 이 함수는 값을 <b>2~98 로 자릅니다</b>
+     (<code>0x276b544</code>). 치명타 저항을 아무리 올려도
+     <b>매 대 2% 로 치명타가 납니다</b>. 여기에 «치명타가 아예 안 난다» 고
+     적어 뒀던 것을 고칩니다 &mdash; 하한을 못 봤습니다.</div>
+  <p>그래도 저항의 값어치는 큽니다. «방어 최고» 한 벌은 치명타 저항 <b>12</b> 를
+     이미 들고 있고(갑옷 3 + 방패 8 + 투구 1), 열린 지역 최대 치명타가 11% 이니
+     <b>11% → 2% 로 내려갑니다</b>. 저항만 노리고 짜면 <b>17</b> 까지 갑니다
+     (소호의 갑옷 Lv11 이 혼자 8). <b>다만 세 부위(갑옷·방패·투구)에만 붙습니다</b>
+     &mdash; 의복과 부적에는 없어서, 도둑·마검사는 방패 8 이 전부고 법사는 <b>0</b> 입니다.</p>
 
   <h3>그럼 왜 죽었나</h3>
   <p>방어로 버티는 길이 막혀 있는 게 아니라, <b>그 길에 들어가는 조건이 좁습니다</b>.</p>
@@ -984,6 +1016,20 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      방어탱 쪽 힘이 <b>36~49</b>, 회피탱이 <b>35</b> 입니다.</div>
   <p>회피가 여전히 이기는 자리는 <b>갑옷을 못 끼는 직업으로 이미 키워 놨을 때</b>와
      <b>다섯 칸을 다 못 쓰는 파티원</b>입니다. 새로 뽑는다면 방어 쪽이 훨씬 쌉니다.</p>
+  <div class="note"><b>드워프의 민첩 0 은 명중과 상관없습니다.</b>
+     명중은 <code>2d6 + &lfloor;재주 흔들림 &divide; 3&rfloor; + 직업 명중률 몫</code> 이고
+     &mdash; <b>재주</b>지 민첩이 아닙니다(<code>Character.Dexterity</code>, <code>0x26b6230</code>).
+     민첩이 하는 일은 <b>회피</b>와 <b>행동 순서</b> 둘뿐입니다.
+     <ul>
+       <li><b>명중</b> &mdash; 부직업 다섯이면 <b>46~57</b> 입니다. 발두나의 최고 회피가 42 이니
+           <code>명중 &ge; 회피 &minus; 1</code> 을 늘 넘깁니다. <b>다 맞힙니다.</b></li>
+       <li><b>부직업 둘짜리 싼 빌드는 명중이 29~40</b> 이라
+           <b>회피 42 짜리에게는 못 맞힙니다</b> &mdash; 딜을 기대하려면
+           명중률이 붙는 부직업(무장병 부 4 · 검술사 부 4)을 더 넣어야 합니다.</li>
+       <li><b>행동 순서는 꼴찌</b>입니다. 몬스터 민첩 중앙값이 12 인데 드워프는 0 입니다.
+           탱커라면 «맞고 나서 움직인다» 는 뜻이라 손해가 작지만,
+           <b>먼저 때려서 끝내는 역할은 못 합니다.</b></li>
+     </ul></div>
   <div class="note"><b>다만 회피는 물리 전용입니다.</b> <code>AvoidRate</code> 는
      <code>PhysicsAttack</code> 에서만 불립니다. 마법과 광역 마법은 회피탱도 그대로 맞습니다
      &mdash; 그쪽은 <b>마법 방어</b>와 HP 로 버텨야 합니다.</div>
