@@ -595,6 +595,74 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td>숲 <code>Forest</code></td><td class="num">+1</td><td class="num">활 &minus;1 · 그 외 0</td></tr>
   </tbody></table>
   <p>근접끼리는 서로 깎여 상쇄되지만, <b>거친 지형에서 활에게 맞을 때는 내 회피만 깎입니다</b> &mdash; 이동 곤란에서 &minus;2, 매우 곤란에서 &minus;4. 그리고 <b>활은 비행 몬스터에게 명중 +2</b> 를 받습니다.</p>
+  <h3>방패 막기 &mdash; 회피가 뚫린 뒤에 한 번 더</h3>
+  <p>회피 판정에 져서 «맞는다» 로 정해진 다음, <b>방패가 한 번 더 굴립니다</b>.
+     같은 판정의 일부가 아니라 <b>완전히 따로</b> 굴리는 두 번째 관문입니다.</p>
+  <div class="eq">방패 회피값 = <b>2d6</b> + &Sigma;방어구.ShieldAvoid()
+             + &lceil;주Lv&times;주방패회피&divide;10&rceil; + &lceil;&Sigma;(부Lv&times;부방패회피)&divide;10&rceil;
+             + <b>&lfloor;지형 회피 보정 &divide; 2&rfloor;</b>   <span class="cmt">// ★ 지형은 절반만</span>
+
+막는다  &hArr;  <b>방패 회피값 &minus; 공격자 명중 &ge; 1</b>
+막으면  공격력 &minus;= <b>Rand(방패 최소 방어, 방패 최대 방어)</b>   <span class="cmt">// 그 뒤 평소대로 방어를 뺀다</span></div>
+  <div class="note"><b>방패 회피값이 0 이 되는 자리가 넷 있습니다.</b>
+     방패를 안 꼈을 때 · <b>혼란</b>(7) · <b>망각</b>(11) ·
+     그리고 <b>행동할 수 없게 만드는 상태이상이 하나라도 걸려 있을 때</b>
+     (<code>effects.Count(e =&gt; !e.CanAction()) &gt; 0</code> &mdash; 수면·마비 따위).
+     회피가 0 이 되는 자리(혼란·수면·마비)와 겹치지만 <b>같지는 않습니다</b>.</div>
+  <p><b>회피와 다른 점이 셋</b>입니다.</p>
+  <ul>
+    <li><b>민첩이 안 들어갑니다.</b> 회피는 <code>&lfloor;민첩 흔들림 &divide; 3&rfloor;</code> 가 큰 몫인데,
+        방패 회피는 <b>장비와 직업뿐</b>입니다.</li>
+    <li><b>지형 보정이 절반</b>만 들어갑니다.</li>
+    <li><b>문턱이 1 낮습니다.</b> 회피는 <code>명중 &minus; 회피 &ge; &minus;1</code> 이면 맞으니
+        <b>회피 &ge; 명중 + 2</b> 라야 피하는데, 막기는 <b>방패 회피 &ge; 명중 + 1</b> 이면 됩니다.</li>
+  </ul>
+  <p><b>공격자 명중은 새로 부릅니다</b> &mdash; 회피 판정 때와 같은 <code>HitRate</code> 를
+     한 번 더 부르되 이번엔 <code>addHitRate = 0</code> 입니다. 공격자가 사람이면
+     <code>Dice2D + &lfloor;재주 흔들림 &divide; 3&rfloor;</code> 가 <b>다시 굴려지고</b>,
+     몬스터면 주사위가 없어 늘 같은 값입니다(§위). 그래서 몬스터에게 맞을 때
+     새로 굴리는 건 <b>내 쪽 2d6 하나뿐</b>입니다.</p>
+
+  <h4>방패 회피값은 어디까지 오르나</h4>
+  <p><b>방패 회피가 붙은 장비가 열린 지역에 둘뿐입니다.</b> 나머지는 전부 직업 몫입니다.</p>
+  <table class="t"><thead><tr><th>출처</th><th class="num">값</th><th>비고</th></tr></thead><tbody>
+    <tr><td>테라 버클러 (Lv16 · 요구 힘 16)</td><td class="num">5</td><td>방어는 5~18 로 낮습니다</td></tr>
+    <tr><td>바위왕의 대방패 (Lv15)</td><td class="num">2</td><td>방어 4~19</td></tr>
+    <tr><td>송곳니왕의 호세방패 (Lv29)</td><td class="num">0</td><td><b>방어 최고(8~31)지만 막기에는 안 보탭니다</b></td></tr>
+    <tr><td>주직업 검술사 15</td><td class="num">8</td><td>주 보너스 5 &mdash; 가장 큽니다</td></tr>
+    <tr><td>부직업 전부 <span class="sm">(가드·베테랑 파이터·마검사·마도병·무장병·중도사)</span></td><td class="num">17</td><td>합쳐서 한 번만 올림</td></tr>
+    <tr class="hi"><td colspan="2"><b>천장 &mdash; 30</b></td><td>2d6 을 더하면 <b>32~42</b></td></tr>
+  </tbody></table>
+  <div class="note warn"><b>방어가 좋은 방패와 막기가 되는 방패가 다릅니다.</b>
+     송곳니왕의 호세방패는 방어 8~31 에 치명타 저항 8 이지만 방패 회피가 <b>0</b> 이고,
+     테라 버클러는 방패 회피 5 지만 방어가 5~18 입니다.
+     <b>막기를 노릴 값어치는 직업 쪽에 있습니다</b> &mdash; 장비로는 최대 5 뿐입니다.</div>
+
+  <h4>그래서 얼마나 막나</h4>
+  <p>열린 지역 몬스터의 명중 중앙값으로 잰 «한 대를 막을 확률» 입니다.</p>
+  <table class="t"><thead><tr><th>방패 회피값</th>
+    <th class="num">Lv1~9<br><span class="sm">명중 12</span></th>
+    <th class="num">Lv10~14<br><span class="sm">명중 18</span></th>
+    <th class="num">Lv15~19<br><span class="sm">명중 23</span></th>
+    <th class="num">Lv20~24<br><span class="sm">명중 30</span></th>
+    <th class="num">Lv25~33<br><span class="sm">명중 34</span></th></tr></thead><tbody>
+    <tr><td>6 <span class="sm">(마검사 30 만)</span></td><td class="num">58%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+    <tr><td>11 <span class="sm">(+ 테라 버클러)</span></td><td class="num">100%</td><td class="num">42%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+    <tr><td>16</td><td class="num">100%</td><td class="num">97%</td><td class="num">42%</td><td class="num">0%</td><td class="num">0%</td></tr>
+    <tr><td>21</td><td class="num">100%</td><td class="num">100%</td><td class="num">97%</td><td class="num">17%</td><td class="num">0%</td></tr>
+    <tr><td>26</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">83%</td><td class="num">28%</td></tr>
+    <tr class="hi"><td><b>30</b> <span class="sm">(천장)</span></td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num"><b>83%</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>천장까지 짜도 상위 지역에서는 다 못 막습니다.</b> 그리고 막아도
+     «안 맞은» 게 아니라 <b>공격력에서 방패 방어를 뺀 채로 평소대로 맞습니다</b> &mdash;
+     회피처럼 0 이 되는 게 아닙니다. 방패 회피에 직업을 쏟는 것보다
+     <b>같은 노력을 회피에 쓰는 쪽이 낫습니다</b>(§10).</div>
+  <p class="src">BattleCreature.ShieldAvoidRate <span class="sm">(0x26b75e8)</span> ·
+     Character.ShieldAvoidValue · Armor.ShieldAvoid ·
+     BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c73e4~0x26c7418 · 0x26c745c)</span> ·
+     BattleCreature.HitRate / AvoidRate · Terrain.GetHitRateModifier / GetAvoidRateModifier ·
+     Util.Dice2D = 2d6 · Util.Dice2DAvg = 7 · 열린 지역 몬스터 242종</p>
+
   <h3>활이 절대 안 통하는 몬스터가 있습니다</h3>
   <p><code>invalidBow</code> 가 켜진 몬스터에게 활로 때리면 <b>회피에 999 가 더해집니다</b> &mdash; 어떤 수치로도 못 맞힙니다. 전체 368종 중 <b>5종</b>입니다.</p>
   <table><thead><tr><th>몬스터</th><th class="num">레벨</th></tr></thead><tbody>
@@ -617,9 +685,6 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note warn"><b>마검사는 «주직업» 일 때만 통합니다.</b> <code>IsUseMagicWeapon()</code> 이 보는 건 <code>Character.MainJob()</code> 이고, 그건 <code>Job.isCurrent</code> 가 켜진 직업 &mdash; 게임에서 <b>지금 지정해 둔 직업</b> 하나뿐입니다. 마검사를 부직업으로 달아 두면 단검을 들어도 물리 공격 그대로입니다. 그리고 마검사가 들 수 있는 무기는 <b>단검뿐</b>이라(최대 레벨 30), 다른 무기로는 이 길이 없습니다.</div>
   <p><b>강화로는 마법 속성을 못 붙입니다.</b> 처음부터 마법인 무기를 구해야 합니다 &mdash; 물리 무효 몬스터가 36종이나 되니, 파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</p>
   <p>도감의 몬스터 줄에 <b>«활 무효» · «물리 무효»</b> 표를 붙여 뒀습니다.</p>
-  <h3>방패는 따로 한 번 더 막습니다</h3>
-  <p>회피에 실패해도 방패가 남아 있습니다. <code>방패 회피값 &minus; 공격자 명중 &ge; 1</code> 이면 막습니다 &mdash; 이때는 <b>명중 계산에 재주 굴림이 다시 들어가므로</b> 회피 판정과는 다른 굴림입니다.</p>
-  <p class="src">BattleCreature.HitRate / AvoidRate / ShieldAvoidRate · BattlePhysicalAttackExecutor.PhysicsAttack · Terrain.GetHitRateModifier / GetAvoidRateModifier · Util.Dice2DAvg = 7</p>
 
   <h3>상태이상이 명중·회피를 깎습니다 &mdash; 숨은 표</h3>
   <p><code>EffectOnCreature</code> 의 <b>정적 사전 네 벌</b>입니다. 게임 어디에도 안 나오고
@@ -740,7 +805,9 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.</p>
   <div class="note"><b>방패는 두 번 셉니다.</b> <code>Armor::MinDefense</code> 에는
      종류 가드가 없어서 방패 방어는 <code>DefensePoint</code> 에 <b>그냥 더해집니다</b>.
-     그리고 «막기» 판정에 성공하면 그 위에 <b>한 번 더</b> 상대 공격력에서 빠집니다.
+     그리고 «막기» 판정에 성공하면 그 위에 <b>한 번 더</b> 상대 공격력에서 빠집니다
+     (막기 판정식은 <a href="#avoid">§8</a>에 있습니다 &mdash;
+     <code>방패 회피 &ge; 명중 + 1</code>, 천장이 30 이라 상위 지역에서는 다 못 막습니다).
      <span class="sm">(2026-08-30 에 여기 «방패는 DefensePoint 에 안 들어간다» 고 적었습니다.
      <code>Armor::ShieldMinDefense</code> 가 따로 있는 것만 보고 그렇게 읽었는데,
      그건 «막기 몫만 따로 뽑는» 함수였습니다.)</span></div>
