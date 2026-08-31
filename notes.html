@@ -802,6 +802,12 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
         확률 = <b>공격자 치명타 &minus; 대상 치명타 저항</b> (100 중)
 <b>방패</b>   방어에 <b>더해지고</b>, 막기에 성공하면 <b>또</b> 상대 공격력에서 빠집니다
 공통    피해 &minus;= Protect 보정 ; <b>1 미만이면 없던 일</b></div>
+  <div class="note"><b>«1 미만» 은 정말로 없던 일이 됩니다.</b>
+     피해가 1 미만이면 <code>ReflectAfterPhysicsAttack</code> 과
+     <code>ReflectEffectAfterPhysicsAttack</code> 을 <b>둘 다 건너뜁니다</b>
+     &mdash; 무기가 붙이는 <b>상태이상도, 반사도 안 돕니다</b>.
+     방어로 0 을 만드는 것은 회피와 같은 값어치가 있습니다.
+     <span class="sm">(마법으로 거는 상태이상은 이 경로가 아니라 그대로 들어옵니다 &mdash; §11)</span></div>
   <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.</p>
   <div class="note"><b>방패는 두 번 셉니다.</b> <code>Armor::MinDefense</code> 에는
      종류 가드가 없어서 방패 방어는 <code>DefensePoint</code> 에 <b>그냥 더해집니다</b>.
@@ -947,6 +953,37 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p><b>무장병 계열은 회피 장비를 아예 못 낍니다</b> &mdash; 회피가 붙는 것은
      의복·부적·단검인데, 무장병은 갑옷·방패만 끼고 단검을 안 듭니다.
      대신 <b>갑옷은 낍니다</b> &mdash; 그쪽은 방어로 가는 게 맞습니다.</p>
+  <h3>그래서 무엇을 키울 것인가 &mdash; 나란히 재 봤습니다</h3>
+  <p>같은 «물리를 안 맞는» 목표를 회피로 가는 길과 방어로 가는 길을
+     세이브의 실제 장비·직업 값으로 계산했습니다. 아직 못 얻는 직업
+     (참수형 · 순례자 · 마도병)은 뺐습니다.</p>
+  <table class="t"><thead><tr><th>빌드</th><th class="num">HP</th><th class="num">방어</th>
+    <th class="num">Lv30 평타</th><th class="num">자동회복</th><th class="num">힘</th>
+    <th class="num">공격력</th><th class="num">누적 경험치</th></tr></thead><tbody>
+    <tr><td>회피탱 도둑 30 <span class="sm">(마검사·레인저·현자·검술사·궁사)</span></td>
+      <td class="num">57</td><td class="num">31~50</td>
+      <td class="num">0 <span class="sm">/ 뚫리면 <b>80~99</b></span></td><td class="num">0</td>
+      <td class="num">35</td><td class="num">80~107</td><td class="num">152M <span class="sm">(63일)</span></td></tr>
+    <tr><td>방어탱 모험가 31 <span class="sm">드워프 · 부직업 다섯</span></td>
+      <td class="num">93</td><td class="num">168~219</td><td class="num"><b>0</b></td>
+      <td class="num">37/턴</td><td class="num">49</td><td class="num">82~117</td>
+      <td class="num">19M <span class="sm">(8일)</span></td></tr>
+    <tr class="hi"><td>방어탱 모험가 31 <span class="sm">드워프 · <b>부직업 둘</b>(무장병 30 · 중도사 25)</span></td>
+      <td class="num">69</td><td class="num">155~206</td><td class="num"><b>0</b></td>
+      <td class="num">37/턴</td><td class="num">36</td><td class="num">66~101</td>
+      <td class="num"><b>4.3M</b> <span class="sm">(1.8일)</span></td></tr>
+  </tbody></table>
+  <p class="meta">자동회복 세트 = 리젠플레이트(HP+9) · 폐천의 왕의복(+10) · 반조의 투구(+10) ·
+     늪왕의 부적(+8, 마법 방어 39) · 송곳니왕의 호세방패(치명 저항 8).
+     시간당 10만 경험치 기준. 회피탱 쪽 «뚫리면» 은 혼란·수면·마비로 회피가 0 이 됐을 때입니다.</p>
+  <div class="note warn"><b>회피탱이 더 낫다고 볼 근거를 못 찾았습니다.</b>
+     <b>35배 싼</b> 빌드가 Lv30 평타를 0 으로 만들고, HP 는 더 높고,
+     자동회복이 매 턴 37 이고, 딜도 비슷합니다. 그리고 결정적으로 &mdash;
+     <b>회피는 혼란·수면·마비 한 번에 통째로 0 이 되지만 방어는 안 무너집니다</b>.
+     상태이상 저항도 <code>힘</code>으로 굴리는 것이 많은데(§11)
+     방어탱 쪽 힘이 <b>36~49</b>, 회피탱이 <b>35</b> 입니다.</div>
+  <p>회피가 여전히 이기는 자리는 <b>갑옷을 못 끼는 직업으로 이미 키워 놨을 때</b>와
+     <b>다섯 칸을 다 못 쓰는 파티원</b>입니다. 새로 뽑는다면 방어 쪽이 훨씬 쌉니다.</p>
   <div class="note"><b>다만 회피는 물리 전용입니다.</b> <code>AvoidRate</code> 는
      <code>PhysicsAttack</code> 에서만 불립니다. 마법과 광역 마법은 회피탱도 그대로 맞습니다
      &mdash; 그쪽은 <b>마법 방어</b>와 HP 로 버텨야 합니다.</div>
@@ -1006,7 +1043,8 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b>부적 하나로 절반이 해결됩니다.</b> 회피처럼 «완전히 0» 은 아니지만
      &mdash; <code>2d6 &gt; 9</code> 로 <b>1/6 씩 터지는 굴림</b>이 있어 최댓값 위로도 올라갑니다 &mdash;
      <b>마방 96 이면 대부분의 마법이 0~2 로 떨어집니다.</b>
-     물리는 방어를 최대로 껴도 78 을 맞는데, 마법은 부적 한 자리로 그보다 훨씬 잘 막힙니다.</div>
+     물리도 다섯 칸을 다 쓰면 평타가 0 이 되지만(§10), <b>거기엔 네 자리가 듭니다</b> &mdash;
+     마법은 <b>부적 한 자리</b>로 그만큼을 합니다.</div>
   <p>정리하면 <b>물리는 회피로 0 을 만들 수 있고, 마법은 못 만듭니다.</b>
      마법 쓰는 몬스터가 나오는 곳은 회피탱으로도 안전해지지 않습니다 &mdash;
      도감의 탐색지에 <b>출현 몬스터의 마법</b>을 적어 둔 것이 그래서입니다.</p>
