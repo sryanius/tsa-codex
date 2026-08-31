@@ -668,29 +668,87 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
 
-  <h2 id="tank"><span class="n">10</span>근접은 왜 맞아죽는가 &mdash; 구조입니다</h2>
-  <p>「방어를 올려도, 회복을 붙여도 근접이 죽는다」 는 느낌은 맞습니다.
-     <b>방어로는 못 버티게 돼 있습니다.</b> 세 줄이면 끝납니다.</p>
+  <h2 id="tank"><span class="n">10</span>근접은 왜 맞아죽는가 &mdash; 구조가 아니라 «장비 칸» 입니다</h2>
+  <div class="note warn"><b>이 절은 통째로 고쳐 썼습니다 (2026-08-31).</b>
+     예전에 여기 «방어는 절반만 깎는다» 고 적혀 있었습니다. 그건 <b>치명타 갈래</b>였습니다
+     &mdash; <code>sub w8, w27, w28, lsr #1</code> 만 보고 바로 아래의 평타 갈래
+     <code>subs w24, w27, w28</code> 를 놓쳤습니다. <b>평타는 방어를 전액 뺍니다.</b>
+     그리고 <b>갑옷과 의복은 서로 다른 칸</b>인데 예전 표는 둘을 대안으로 놓고
+     방패를 방어에 더했습니다. 표도 결론도 전부 바뀝니다.</div>
+
+  <h3>한 대가 얼마인가</h3>
   <div class="eq">몬스터 공격력 = <b>3L + (L&gt;4 ? 2L&minus;8 : 0)</b> + 조정   <span class="cmt">// 주사위 없음 — 고정값</span>
-피해          = 공격력 &minus; <b>&lfloor;대상 방어 &divide; 2&rfloor;</b>, 최소 1
-방어구 방어    = <b>2 &times; 장비 레벨</b></div>
-  <div class="note warn"><b>방어는 절반만 깎습니다.</b> 그런데 몬스터 공격력은 레벨에
-     <code>5L&minus;8</code> 로 붙습니다. 방어를 최대로 껴도 <b>깎이는 몫이 공격력의 절반도 안 됩니다</b>.
-     레벨이 오를수록 격차가 <b>벌어집니다</b> &mdash; 좁혀지지 않습니다.</div>
+
+<b>평타</b>   피해 = 공격력 &minus; <b>대상 방어</b>              <span class="cmt">// ★ 전액</span>
+        방어가 더 크면 &rarr; <b>35% 로 1, 아니면 0</b>     <span class="cmt">// RandSuccess(35)</span>
+<b>치명타</b> 피해 = 공격력 &minus; <b>&lfloor;대상 방어 &divide; 2&rfloor;</b>, 최소 1
+        확률 = <b>공격자 치명타 &minus; 대상 치명타 저항</b> (100 중)
+<b>방패</b>   막기는 <b>따로 굴립니다</b>. 성공하면 <b>공격력</b>에서 방패 방어를 뺍니다
+공통    피해 &minus;= Protect 보정 ; <b>1 미만이면 없던 일</b></div>
+  <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.
+     <b>방패 방어는 <code>DefensePoint</code> 에 들어가지 않습니다</b> &mdash;
+     막기에 성공한 대에서만, 그것도 «내 방어» 가 아니라 «상대 공격력» 쪽에서 빠집니다.</p>
 
   <h3>지금 낄 수 있는 최고 방어</h3>
-  <table class="t"><thead><tr><th>부위</th><th>장비</th><th>방어</th></tr></thead><tbody>
-    <tr><td>갑옷</td><td>왕단의 갑옷 (Lv30 · 요구 힘 35)</td><td>60~63</td></tr>
-    <tr><td>투구</td><td>짐승의 눈의 투구 (Lv29)</td><td>5~35</td></tr>
-    <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29 · 요구 힘 41)</td><td>8~31</td></tr>
-    <tr><td>부적</td><td>&mdash;</td><td>0</td></tr>
-    <tr class="hi"><td colspan="2"><b>합계</b></td><td><b>73~129</b></td></tr>
+  <p><b>갑옷 · 의복 · 투구 · 부적 · 방패는 다섯 개의 다른 칸입니다.</b>
+     갑옷과 의복을 <b>같이</b> 낍니다 &mdash; <code>Character.MinDefensePoint</code> 는
+     끼고 있는 방어구를 <b>전부 더합니다</b>.</p>
+  <table class="t"><thead><tr><th>부위</th><th>장비</th><th>요구 힘</th><th>방어</th><th>치명타 저항</th></tr></thead><tbody>
+    <tr><td>갑옷</td><td>왕단의 갑옷 (Lv30)</td><td>30</td><td>60~63</td><td>3</td></tr>
+    <tr><td>의복</td><td>왕단의 옷 (Lv30)</td><td>30</td><td>55~61</td><td>0</td></tr>
+    <tr><td>투구</td><td>짐승의 눈의 투구 (Lv29)</td><td>29</td><td>5~35</td><td>1</td></tr>
+    <tr><td>부적</td><td>&mdash;</td><td>&mdash;</td><td>0</td><td>0</td></tr>
+    <tr class="hi"><td colspan="3"><b>DefensePoint 합계</b></td><td><b>120~159</b></td><td><b>4</b></td></tr>
+    <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29)</td><td>29</td><td><span class="sm">막기 성공 시</span> 8~31</td><td>8</td></tr>
   </tbody></table>
-  <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다. 최대로 굴러도 깎이는 건 <b>64</b> 뿐입니다.</p>
 
-  <h3>그래서 몇 대 버티나</h3>
-  <p>세이브의 용병 87명 중 <b>가장 HP가 높은 것이 61</b> 입니다 (중앙값 31).
-     HP 는 이렇게 붙습니다.</p>
+  <h3>그래서 한 대에 얼마나 아픈가</h3>
+  <p>열린 지역 몬스터 242종의 <b>실제 공격력 중앙값</b>으로 잰 값입니다.
+     평타는 «방어 최대 굴림 ~ 최소 굴림» 순입니다.</p>
+  <table class="t"><thead><tr><th>몬스터</th>
+    <th>모험가 풀세트<br><span class="sm">갑옷+의복+투구 · 요구 힘 30</span></th>
+    <th>갑옷 없이<br><span class="sm">의복+투구 · 마검사·도둑</span></th>
+    <th>가벼운 한 벌<br><span class="sm">요구 힘 15 안팎</span></th></tr></thead><tbody>
+    <tr><td>Lv15 <span class="sm">(공격 68)</span></td><td><b>0</b> <span class="sm">/ 치명 1~8</span></td><td>0~8 <span class="sm">/ 치명 20~38</span></td><td>20~44 <span class="sm">/ 치명 44~56</span></td></tr>
+    <tr><td>Lv20 <span class="sm">(공격 88)</span></td><td><b>0</b> <span class="sm">/ 치명 9~28</span></td><td>0~28 <span class="sm">/ 치명 40~58</span></td><td>40~64 <span class="sm">/ 치명 64~76</span></td></tr>
+    <tr><td>Lv25 <span class="sm">(공격 119)</span></td><td><b>0</b> <span class="sm">/ 치명 40~59</span></td><td>23~59 <span class="sm">/ 치명 71~89</span></td><td>71~95 <span class="sm">/ 치명 95~107</span></td></tr>
+    <tr class="hi"><td>Lv30 <span class="sm">(공격 130)</span></td><td><b>0~10</b> <span class="sm">/ 치명 51~70</span></td><td><b>34~70</b> <span class="sm">/ 치명 82~100</span></td><td>82~106 <span class="sm">/ 치명 106~118</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>방어를 다 낄 수 있으면 평타는 거의 안 들어옵니다.</b>
+     Lv30 몬스터를 상대로도 <b>0~10</b> 입니다 &mdash; 방어가 공격력을 넘는 대는
+     35% 로 1 피해, 나머지는 0 입니다. 예전 글의 «레벨이 오를수록 격차가 벌어진다» 는
+     절반 공식에서 나온 말이고, 사실이 아닙니다.</div>
+
+  <h3>그러면 치명타는</h3>
+  <p>치명타만 방어를 반으로 봅니다. 그런데 확률이 <b>공격자 치명타 &minus; 내 치명타 저항</b>
+     이고(<code>MonsterMaster.Critical() = criticalPoint &minus; 2</code>), 몬스터 쪽 값이 아주 낮습니다.</p>
+  <table class="t"><thead><tr><th>열린 지역 몬스터 242종</th><th>치명타 확률</th></tr></thead><tbody>
+    <tr><td>중앙값</td><td><b>1%</b></td></tr>
+    <tr><td>Lv25 이상 최대 <span class="sm">(어쌔신 Lv30)</span></td><td>6%</td></tr>
+    <tr><td>전체 최대 <span class="sm">(검술사 · 시체 브로커 · 나이프 러너)</span></td><td>11% <span class="sm">&mdash; 5종뿐</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>위의 «방어 최고» 한 벌은 치명타 저항 12 를 이미 들고 있습니다</b>
+     (갑옷 3 + 방패 8 + 투구 1). <b>열린 지역 몬스터의 최대 치명타가 11%</b> 이니
+     <code>공격자 치명타 &minus; 12 &le; 0</code> &mdash; <b>치명타가 아예 안 납니다</b>.
+     치명타 저항만 노리고 짜면 <b>17</b> 까지 갑니다(소호의 갑옷 Lv11 이 혼자 8).</div>
+
+  <h3>그럼 왜 죽었나</h3>
+  <p>방어로 버티는 길이 막혀 있는 게 아니라, <b>그 길에 들어가는 조건이 좁습니다</b>.</p>
+  <ul>
+    <li><b>다섯 칸을 다 쓰는 직업이 모험가 하나뿐입니다.</b> 마검사 · 도둑 · 법사 계열은
+        <b>갑옷을 못 낍니다</b> &mdash; 위 표의 가운데 칸이 그들의 몫이고,
+        Lv30 상대로 평타가 <b>34~70</b> 씩 들어옵니다. 이쪽은 정말로 방어로 못 버팁니다.</li>
+    <li><b>요구 힘 30 이 듭니다.</b> 왕단 한 벌이 갑옷 30 · 의복 30 · 투구 29 입니다.
+        힘을 안 준 캐릭터는 애초에 이 표에 못 들어갑니다.</li>
+    <li><b>마법은 방어를 안 탑니다.</b> 명중 굴림도 없어서 쏘면 들어갑니다 &mdash;
+        그쪽은 <b>마법 방어</b>가 따로 막습니다(§11).</li>
+    <li><b>상태이상도 방어와 무관합니다.</b> 저항 굴림은 <b>마법 방어 또는 힘</b>으로 굴립니다(§11).</li>
+    <li><b>여럿이 때립니다.</b> 한 대가 0 이어도 전열에 몰리면 대수가 늘고,
+        <code>attackCount</code> 가 붙은 무기는 한 행동에 여러 대를 칩니다.</li>
+  </ul>
+
+  <h3>HP 는 어디까지 오르나</h3>
+  <p>세이브의 용병 87명 중 <b>가장 HP가 높은 것이 61</b> 입니다 (중앙값 31).</p>
   <div class="eq">HP = 생명점 + <b>&lceil;주Lv&times;주생명&divide;10&rceil;</b> + <b>&lceil;&Sigma;(부Lv&times;부생명)&divide;10&rceil;</b>
      + <b>&Sigma;&lfloor;직업Lv&divide;10&rfloor;</b> + 장비</div>
   <p>부직업 몫은 <b>전부 더한 뒤 한 번만 올림</b>하므로 직업을 많이 키울수록 계속 붙습니다.
@@ -704,70 +762,60 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>20</td><td>118</td><td>20억</td><td>2,300년</td></tr>
     <tr><td>31 (전부)</td><td>222</td><td>1000경</td><td>&mdash;</td></tr>
   </tbody></table>
-  <div class="note warn"><b>현실적인 천장은 HP 80~90 입니다.</b> 그 위는 경험치가
+  <p><b>현실적인 천장은 HP 80~90</b> 입니다. 그 위는
      <code>1.05^(다른 직업 레벨 합)</code> 때문에 벽에 부딪힙니다(§능력치 계산기).
-     <b>Lv30 몬스터의 한 대가 78~106</b> 이니, <b>제대로 짜도 두 대</b>입니다.</div>
-  <table class="t"><thead><tr><th>몬스터 Lv</th><th>공격력</th><th>피해 (방어 최대)</th><th>피해 (방어 최소)</th></tr></thead><tbody>
-    <tr><td>20</td><td>92</td><td>28</td><td>56</td></tr>
-    <tr><td>25</td><td>117</td><td>53</td><td>81</td></tr>
-    <tr class="hi"><td>30</td><td>142</td><td><b>78</b></td><td><b>106</b></td></tr>
-    <tr><td>35</td><td>167</td><td>103</td><td>131</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>방어를 최대로 껴도 레벨 27 몬스터부터는 한 방입니다</b>
-     (HP 61 기준). 방어가 낮게 굴면 레벨 21 부터 그렇습니다.
-     HP 를 현실적인 천장까지 끌어올려도 <b>Lv30 상대로 두 대</b>입니다.</div>
+     갑옷을 낄 수 있으면 Lv30 평타가 0~10 이니 <b>이 HP 로 넉넉히 넘칩니다</b>.
+     갑옷을 못 끼면 34~70 이라 <b>두 대</b>입니다.</p>
+
+  <h3>회복은 따라갑니다 &mdash; 갑옷을 낄 수 있으면</h3>
+  <p>가장 센 회복이 <b>바이탈라이즈 28~48</b>(단일 · Lv30 · MP9), 전체 회복은
+     <b>살바 16~24</b> 입니다. Lv30 평타가 <b>0~10</b> 이면 힐 한 번이 여러 대를 덮습니다.
+     예전 글의 «한 대 되돌리는 데 두세 번» 은 절반 공식에서 나온 수였습니다.
+     다만 <b>갑옷 없는 캐릭터에게는 그 말이 그대로 맞습니다</b> &mdash;
+     34~70 은 힐 한 번으로 안 메워집니다.</p>
 
   <h3>모험가 주직업이 나쁘지 않은 이유</h3>
   <p><b>방어구 다섯 부위를 전부 끼는 직업은 모험가 하나뿐</b>입니다.
-     다만 방어만 보면 <b>중도사·가드도 129 를 찍습니다</b>(갑옷+투구+방패) &mdash;
-     부적은 방어가 0 이고, 의복은 갑옷보다 낮아서 자리가 늘어도 방어는 안 늘어납니다.
-     모험가의 값은 다른 데 있습니다.</p>
+     위 표의 왼쪽 칸이 통째로 모험가 것이고, 그 자체가 큰 값입니다.</p>
   <ul>
     <li><b>최대 레벨 31</b> &mdash; 지금 서비스에서 유일하게 30 을 넘습니다.</li>
+    <li><b>주직업이면 방어에 보정이 더 붙습니다</b>
+        (<code>MinDefensePoint</code> 가 <code>MainJob().GetKind()</code> 를 봅니다).</li>
     <li><b>부적 자리</b> &mdash; 방어는 0 이지만 <b>회피 +5</b>(세라믹스틸 오멘워드 탈리스만 Lv27)
         같은 것이 붙습니다. 회피 빌드에서는 이 한 자리가 큽니다.</li>
     <li><b>경험치 지수에 안 들어갑니다</b> &mdash; 현자와 모험가만
-        <code>1.05^(다른 직업 레벨 합)</code> 의 지수에서 빠집니다.
-        <b>부직업을 여럿 키우는 빌드일수록 주직업으로 값이 큽니다</b> &mdash;
-        아무리 올려도 나머지를 비싸게 만들지 않습니다.</li>
+        <code>1.05^(다른 직업 레벨 합)</code> 의 지수에서 빠집니다.</li>
     <li>모든 무기를 씁니다.</li>
   </ul>
   <p>대신 <b>주직업 생명점 보너스가 2</b> 로 낮습니다(무장병 13 · 중도사 14).
      31레벨을 다 채워도 +7 뿐입니다. 그래도 위 표대로 <b>HP 는 부직업 쪽이 대부분</b>이라
-     손해가 작고, 대신 <b>투구·부적 자리와 싼 경험치</b>를 얻습니다.</p>
+     손해가 작습니다.</p>
 
-  <h3>회복으로도 못 메웁니다</h3>
-  <p>가장 센 회복이 <b>바이탈라이즈 28~48</b>(단일 · Lv30 · MP9), 전체 회복은
-     <b>살바 16~24</b> 입니다. Lv30 몬스터 <b>한 대가 78~106</b> 이니
-     <b>한 대 맞은 걸 되돌리는 데 두세 번</b>이 듭니다. 몬스터는 매 턴 때리고,
-     여럿이 때립니다.</p>
-
-  <h3>그래서 회피뿐입니다</h3>
+  <h3>회피는 여전히 최고입니다 &mdash; 다만 «유일한 답» 은 아니었습니다</h3>
   <p>회피는 <b>확률이 아니라 결정</b>입니다 &mdash; <code>명중 &minus; 회피 &ge; &minus;1</code>
      이면 맞고, 아니면 <b>안 맞습니다</b>. 몬스터의 명중은 주사위 없이 고정이라,
      회피값이 충분하면 <b>물리 공격은 100% 안 맞습니다</b>(§8).
-     방어는 «덜 맞기» 인데 회피는 «안 맞기» 라, 격차가 벌어지는 판에서는
-     후자만 답이 됩니다.</p>
-  <h3>그러면 근접을 하지 말라는 건가</h3>
-  <p>아닙니다. 안 되는 건 <b>근접 무기</b>가 아니라 <b>«방어로 버티는 근접»</b> 입니다.
-     근접 무기를 들면서 회피로 가는 길은 열려 있습니다.
-     민첩 20(흔들림 최솟값 15 → +5)이면 <b>회피값 39</b> 면 물리를 다 피합니다.</p>
+     방어를 다 껴도 «0 또는 1» 인데 회피는 «판정 자체가 없음» 이라 여전히 위입니다.
+     <b>바뀐 것은 «방어로는 아예 안 된다» 가 틀렸다는 것</b>입니다 &mdash;
+     갑옷을 낄 수 있는 캐릭터에게는 방어도 답입니다.</p>
+  <p>갑옷을 <b>못 끼는</b> 직업에게 회피 말고 길이 없다는 결론은 그대로입니다.
+     민첩 20(흔들림 최솟값 15 &rarr; +5)이면 <b>회피값 39</b> 면 물리를 다 피합니다.</p>
   <table class="t"><thead><tr><th>주직업</th><th>주직업 몫</th><th>낄 수 있는 회피 장비</th><th>부직업에서 더 필요한 몫</th></tr></thead><tbody>
     <tr class="hi"><td>도둑 30</td><td>21</td><td>7 <span class="sm">(단검·의복)</span></td><td><b>&Sigma; &ge; 101</b> &mdash; 쉽습니다</td></tr>
     <tr><td>마검사 30</td><td>12</td><td>12 <span class="sm">(단검·의복·부적)</span></td><td>&Sigma; &ge; 141 &mdash; 됩니다</td></tr>
     <tr><td>숨은 칼날의 궁사 20</td><td>8</td><td>12</td><td>&Sigma; &ge; 181</td></tr>
     <tr><td>무장병 30 · 검술사 15</td><td>6</td><td><b>0</b></td><td>&Sigma; &ge; 321 &mdash; <b>사실상 불가</b></td></tr>
   </tbody></table>
-  <p><b>탱커형 직업은 회피 장비를 아예 못 낍니다</b> &mdash; 회피가 붙는 것은
+  <p><b>무장병 계열은 회피 장비를 아예 못 낍니다</b> &mdash; 회피가 붙는 것은
      의복·부적·단검인데, 무장병은 갑옷·방패만 끼고 단검을 안 듭니다.
-     방어로도 못 버티고 회피로도 못 가는 자리입니다.
-     반대로 <b>도둑은 주직업 몫만으로 21</b> 이라 부직업을 조금만 보태면 닿습니다.</p>
+     대신 <b>갑옷은 낍니다</b> &mdash; 그쪽은 방어로 가는 게 맞습니다.</p>
   <div class="note"><b>다만 회피는 물리 전용입니다.</b> <code>AvoidRate</code> 는
      <code>PhysicsAttack</code> 에서만 불립니다. 마법과 광역 마법은 회피탱도 그대로 맞습니다
      &mdash; 그쪽은 <b>마법 방어</b>와 HP 로 버텨야 합니다.</div>
-  <p class="src">GameBalanceCalculator.CalculateMonsterAttackPower / CalculateHumanDefense &middot;
-     BattleCreature.DamagePoint / DefensePoint &middot; BattlePhysicalAttackExecutor.PhysicsAttack &middot;
-     세이브 Character 87건</p>
+  <p class="src">BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c7990 치명타 · 0x26c79a8 평타)</span> &middot;
+     BattleCreature.DefensePoint / CriticalRate / CriticalDefense &middot;
+     Character.MinDefensePoint &middot; MonsterMaster.Critical &middot;
+     열린 지역 몬스터 242종 &middot; 세이브 Character 87건</p>
 
   <h2 id="magic"><span class="n">11</span>마법 &mdash; 명중 굴림이 아예 없습니다</h2>
   <p>물리는 <code>명중 &minus; 회피</code> 를 견주고 안 맞으면 그만입니다(§8).
@@ -779,8 +827,9 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 피해 &minus;= <b>대상 마법 방어</b>          <span class="cmt">// ★ 전액 &mdash; 물리처럼 반으로 안 나눈다</span>
 <b>if</b> 피해 &le; 0: 피해 = <b>Rand(3)</b>       <span class="cmt">// 0 ~ 2 &mdash; 물리의 「최소 1」 과 다르다</span></div>
   <div class="note"><b>규칙만 보면 마법 방어가 물리 방어보다 낫습니다.</b>
-     물리 방어는 <code>&lfloor;방어&divide;2&rfloor;</code> 만 깎이는데 마법 방어는 <b>전액</b> 깎이고,
-     넘어서면 피해가 <b>0 까지</b> 내려갑니다(물리는 아무리 막아도 최소 1).
+     물리도 평타는 방어를 전액 뺍니다(§10). 다른 점은 <b>넘어섰을 때</b>입니다 &mdash;
+     마법은 피해가 <b>0~2</b> 로 내려가고, 물리는 <b>35% 로 1</b> 이 남습니다.
+     그리고 <b>마법에는 치명타 갈래가 없어서</b> 방어가 반으로 깎이는 대가 없습니다.
      <b>문제는 올릴 수단이 없다는 것입니다.</b></div>
 
   <h3>마법 방어는 부적이 정합니다</h3>
