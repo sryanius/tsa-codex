@@ -395,14 +395,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="role">
     <h3>암흑마법사</h3>
     <dl class="kv">
+      <dt>종족</dt><dd><b>휴먼</b> <span class="meta">— 마법 직업을 하나도 안 막습니다(엘프는 성직 계열 셋을 못 합니다)</span></dd>
       <dt>주직업</dt><dd><b>암흑마법사 30</b> <span class="meta">— 마나 15 · 지능 8 · 마법 방어 6</span></dd>
-      <dt>부직업</dt><dd>정령사 20 · 숙련된 마법사 10 · 마궁사 25 · 현자 30 <span class="meta">(현자는 경험치 지수 면제)</span></dd>
+      <dt>부직업</dt><dd><b>견습 마법사 6 · 견습 성직자 6 · 숙련된 마법사 10 · 정령사 20 · 숙련된 성직자 15</b>
+        <span class="meta">— 싼 것부터. 여기까지 7.7M 이고 지능 51 입니다(아래)</span></dd>
       <dt>무기</dt><dd>송곳니왕의 전역 지팡이 <span class="meta">Lv29 · <b>힘 2</b> · 55~90 · <b>모든 적/전체 공격</b> · 대지 속성 · 비마법</span></dd>
       <dt>몸</dt><dd>왕단의 옷 <span class="meta">힘 2</span></dd>
       <dt>부적</dt><dd>늪왕의 부적 <span class="meta">마법 방어 39</span></dd>
     </dl>
-    <div class="chips"><span>평타 57~92</span><span><b>모든 적 · 전체 공격</b></span><span>요구 힘 <b>2</b></span>
-      <span>마법 피해는 <b>회피도 방어도 안 탐</b></span></div>
+    <div class="chips"><span>지능 <b>51</b></span><span>마법 방어 <b>70</b></span><span>마나 몫 75</span>
+      <span>다크페인 <b>82</b></span><span>평타 57~92</span><span><b>모든 적 · 전체 공격</b></span>
+      <span>요구 힘 <b>2</b></span><span>경험치 <b>7.7M</b></span></div>
   </div>
   <div class="note"><b>마법사는 «비마법» 무기를 들어도 됩니다.</b> 물리 무효 몬스터는
      <b>마법 스킬</b>로 때리면 되기 때문입니다. 그래서 지팡이는
@@ -412,6 +415,61 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>마법에는 명중 굴림이 아예 없습니다.</b> 쏘면 들어갑니다.
      거꾸로 <b>내가 맞을 때도 회피가 안 통합니다</b> &mdash; 마법 방어와 HP 로만 버팁니다.
      그래서 <b>마법사에게 늪왕의 부적(마법 방어 39)은 사실상 필수</b>입니다.</div>
+
+  <h3>★ 마법 부직업을 쌓으면 딜이 그대로 오릅니다</h3>
+  <p>마법 피해는 <code>Rand(스킬 최소, 최대) + <b>시전자 마력(지능)</b></code> 입니다.
+     그런데 <b>스킬 쪽 기본값이 작습니다</b> &mdash; 암흑마법사의 최고 피해 마법
+     <b>다크페인이 31</b> 입니다. 즉 <b>지능이 딜의 3분의 2</b> 입니다.</p>
+  <table class="t"><thead><tr><th class="num">지능</th><th class="num">다크페인 실제 피해</th></tr></thead><tbody>
+    <tr><td class="num">32</td><td class="num">63</td></tr>
+    <tr class="hi"><td class="num">51</td><td class="num"><b>82</b> <span class="sm">(+30%)</span></td></tr>
+    <tr><td class="num">58</td><td class="num">89</td></tr>
+  </tbody></table>
+  <div class="note"><b>그리고 그게 거의 그대로 들어갑니다.</b>
+     열린 지역 몬스터 242종 가운데 <b>194종이 마법 방어 0</b> 입니다
+     (중앙값 0 · 최대 30, 안티매직 골렘). 물리와 달리 <b>깎일 것이 거의 없습니다.</b>
+     거기에 <b>상태이상 성공 굴림에도 마력이 그대로 더해집니다</b>(<a href="notes.html#magic">§11</a>)
+     &mdash; 지능은 딜과 상태이상을 동시에 올립니다.</div>
+  <div class="note"><b>부직업도 마법을 가르칩니다.</b>
+     <code>Character.ApplyAdventureExp</code> 가 <b>가진 직업을 전부 돌면서</b>
+     <code>JobMaster.CanLearnSkills(그 직업 레벨)</code> 을 부릅니다.
+     그래서 마법 부직업 하나를 넣으면 <b>지능 · 새 마법 · 마나 · 마법 방어</b>가 한꺼번에 옵니다.</div>
+
+  <h4>다만 «싼 것부터» 담아야 합니다</h4>
+  <p>효율은 <b>부 지능 &divide; 최대 레벨</b> 입니다. 경험치가
+     <code>1.05^(다른 직업 레벨 합)</code> 로 붙기 때문에,
+     <b>같은 지능이면 레벨이 낮은 직업이 압도적으로 쌉니다</b>.</p>
+  <table class="t"><thead><tr><th>부직업</th><th class="num">부 지능</th><th class="num">최대</th>
+    <th class="num">효율</th><th class="num">마나</th><th class="num">마법 방어</th></tr></thead><tbody>
+    <tr class="hi"><td>견습 마법사</td><td class="num">3</td><td class="num">6</td><td class="num"><b>0.50</b></td><td class="num">7</td><td class="num">3</td></tr>
+    <tr class="hi"><td>견습 성직자</td><td class="num">2</td><td class="num">6</td><td class="num"><b>0.33</b></td><td class="num">5</td><td class="num">2</td></tr>
+    <tr class="hi"><td>숙련된 마법사</td><td class="num">3</td><td class="num">10</td><td class="num"><b>0.30</b></td><td class="num">7</td><td class="num">3</td></tr>
+    <tr><td>정령사</td><td class="num">4</td><td class="num">20</td><td class="num">0.20</td><td class="num">4</td><td class="num">2</td></tr>
+    <tr><td>숙련된 성직자</td><td class="num">3</td><td class="num">15</td><td class="num">0.20</td><td class="num">5</td><td class="num">2</td></tr>
+    <tr style="color:var(--faint)"><td>마궁사</td><td class="num">3</td><td class="num">25</td><td class="num">0.12</td><td class="num">5</td><td class="num">1</td></tr>
+    <tr style="color:var(--faint)"><td>성창사</td><td class="num">2</td><td class="num">25</td><td class="num">0.08</td><td class="num">2</td><td class="num">1</td></tr>
+    <tr style="color:var(--faint)"><td>마검사</td><td class="num">1</td><td class="num">30</td><td class="num"><b>0.03</b></td><td class="num">0</td><td class="num">1</td></tr>
+  </tbody></table>
+  <p>싼 것부터 하나씩 얹으면 이렇게 됩니다 (휴먼 · 기본 지능 5 · 마천의 지팡이 +3 · 늪왕의 부적).</p>
+  <table class="t"><thead><tr><th>여기까지 얹으면</th><th class="num">지능</th><th class="num">마법 방어</th>
+    <th class="num">마나 몫</th><th class="num">누적 경험치</th><th class="num">지능 1 당</th></tr></thead><tbody>
+    <tr><td>암흑마법사 30 만</td><td class="num">32</td><td class="num">57</td><td class="num">45</td><td class="num">1.1M</td><td class="num">&mdash;</td></tr>
+    <tr><td>+ 견습 마법사 6</td><td class="num">34</td><td class="num">59</td><td class="num">50</td><td class="num">1.1M</td><td class="num">0.01M</td></tr>
+    <tr><td>+ 견습 성직자 6</td><td class="num">35</td><td class="num">60</td><td class="num">53</td><td class="num">1.1M</td><td class="num">0.02M</td></tr>
+    <tr><td>+ 숙련된 마법사 10</td><td class="num">38</td><td class="num">63</td><td class="num">60</td><td class="num">1.3M</td><td class="num">0.07M</td></tr>
+    <tr><td>+ 정령사 20</td><td class="num">46</td><td class="num">67</td><td class="num">68</td><td class="num">4.8M</td><td class="num">0.43M</td></tr>
+    <tr class="hi"><td><b>+ 숙련된 성직자 15</b> <span class="sm">← 여기까지</span></td><td class="num"><b>51</b></td><td class="num"><b>70</b></td><td class="num"><b>75</b></td><td class="num"><b>7.7M</b> <span class="sm">(3.2일)</span></td><td class="num">0.59M</td></tr>
+    <tr style="color:var(--faint)"><td>+ 마궁사 25</td><td class="num">58</td><td class="num">73</td><td class="num">88</td><td class="num">54M</td><td class="num"><b>6.7M</b></td></tr>
+    <tr style="color:var(--faint)"><td>+ 성창사 25</td><td class="num">63</td><td class="num">75</td><td class="num">93</td><td class="num">193M</td><td class="num">27.7M</td></tr>
+    <tr style="color:var(--faint)"><td>+ 마검사 30</td><td class="num">66</td><td class="num">78</td><td class="num">93</td><td class="num">1,195M</td><td class="num">334M</td></tr>
+  </tbody></table>
+  <div class="note"><b>정지선은 «숙련된 성직자 15» 입니다.</b> 거기까지가 <b>7.7M</b>
+     &mdash; 방어탱(22M)의 3분의 1인데 <b>지능 32 → 51, 마법 방어 57 → 70, 마나 45 → 75</b> 를 얻습니다.
+     그다음 마궁사에서 <b>지능 1 당 경험치가 11배</b>로 뜁니다. 마검사는 부 지능 1 에 레벨 30 이라
+     <b>지수만 키우는 최악의 선택</b>입니다.</div>
+  <div class="note warn"><b>종족은 휴먼이어야 합니다.</b> <b>엘프는 성직 계열 셋</b>
+     (견습 성직자 · 숙련된 성직자 · 성창사)<b>을 못 합니다</b> &mdash; 기본 지능이 2 높은 대신
+     위 표에서 <b>지능 46 (4.8M)에서 멈춥니다</b>. 드워프는 마법 직업을 다섯이나 못 해서 아예 안 됩니다.</div>
 
   <h2 id="weapons"><span class="n">7</span>무기 총정리 &mdash; 상시 착용 기준</h2>
   <p>바꿔 낄 수 없다는 전제로, <b>종류별 «그냥 계속 들 무기»</b> 입니다.
