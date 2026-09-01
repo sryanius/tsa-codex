@@ -630,7 +630,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <h4>방패 회피값은 어디까지 오르나</h4>
   <p><b>방패 회피가 붙은 장비가 열린 지역에 둘뿐입니다.</b> 나머지는 전부 직업 몫입니다.</p>
   <table class="t"><thead><tr><th>출처</th><th class="num">값</th><th>비고</th></tr></thead><tbody>
-    <tr><td>테라 버클러 (Lv16 · 요구 힘 16)</td><td class="num">5</td><td>방어는 5~18 로 낮습니다</td></tr>
+    <tr><td>테라 버클러 (Lv16 · 요구 힘 20)</td><td class="num">5</td><td>방어는 5~18 로 낮습니다</td></tr>
     <tr><td>바위왕의 대방패 (Lv15)</td><td class="num">2</td><td>방어 4~19</td></tr>
     <tr><td>송곳니왕의 호세방패 (Lv29)</td><td class="num">0</td><td><b>방어 최고(8~31)지만 막기에는 안 보탭니다</b></td></tr>
     <tr><td>주직업 검술사 15</td><td class="num">8</td><td>주 보너스 5 &mdash; 가장 큽니다</td></tr>
@@ -837,14 +837,21 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      «다섯 칸» 으로 읽고 방어 <b>128~190</b> 이라고 적었는데, 게임에서 확인해 보니
      <b>몸 한 칸에 갑옷이나 의복 중 하나</b>만 들어갑니다. 실제 칸은 <b>넷</b>입니다.
      아래 숫자는 전부 다시 잰 것입니다.</div>
-  <table class="t"><thead><tr><th>칸</th><th>장비</th><th>요구 힘</th><th>방어</th><th>치명타 저항</th></tr></thead><tbody>
-    <tr><td rowspan="2">몸 <span class="sm">(둘 중 하나)</span></td><td>왕단의 갑옷 (Lv30)</td><td>30</td><td><b>60~63</b></td><td>3</td></tr>
-    <tr><td>왕단의 옷 (Lv30)</td><td>30</td><td>55~61</td><td>0</td></tr>
-    <tr><td>투구</td><td>짐승의 눈의 투구 (Lv29)</td><td>29</td><td>5~35</td><td>1</td></tr>
-    <tr><td>방패</td><td>송곳니왕의 호세방패 (Lv29)</td><td>29</td><td>8~31</td><td>8</td></tr>
-    <tr><td>부적</td><td>늪왕의 부적 (Lv29)</td><td>29</td><td>0</td><td>0</td></tr>
-    <tr class="hi"><td colspan="3"><b>장비 합계</b></td><td><b>73~129</b></td><td><b>12</b></td></tr>
+  <table class="t"><thead><tr><th>칸</th><th>장비</th><th class="num">요구 힘</th>
+    <th class="num">요구 레벨</th><th class="num">방어</th><th class="num">치명타 저항</th></tr></thead><tbody>
+    <tr><td rowspan="2">몸 <span class="sm">(둘 중 하나)</span></td><td>왕단의 갑옷</td><td class="num"><b>35</b></td><td class="num">30</td><td class="num"><b>60~63</b></td><td class="num">3</td></tr>
+    <tr><td>왕단의 옷</td><td class="num">2</td><td class="num">30</td><td class="num">55~61</td><td class="num">0</td></tr>
+    <tr><td>투구</td><td>짐승의 눈의 투구</td><td class="num">28</td><td class="num">29</td><td class="num">5~35</td><td class="num">1</td></tr>
+    <tr><td>방패</td><td>송곳니왕의 호세방패</td><td class="num"><b>41</b></td><td class="num">29</td><td class="num">8~31</td><td class="num">8</td></tr>
+    <tr><td>부적</td><td>늪왕의 부적</td><td class="num">1</td><td class="num">29</td><td class="num">0</td><td class="num">0</td></tr>
+    <tr class="hi"><td colspan="4"><b>장비 합계</b></td><td class="num"><b>73~129</b></td><td class="num"><b>12</b></td></tr>
   </tbody></table>
+  <div class="note warn"><b>«요구 힘» 과 «요구 레벨» 은 다른 값입니다.</b>
+     둘 다 넘어야 낍니다 &mdash; 요구 레벨은 <b>최고 직업 레벨</b>로 봅니다.
+     meta 의 <code>pw</code> 가 힘, <code>nl</code> 이 레벨인데
+     여기 한동안 <b>레벨을 힘이라고 적어 뒀습니다</b>. 특히
+     <b>송곳니왕의 호세방패는 요구 힘이 29 가 아니라 41</b> 이라,
+     힘을 안 준 캐릭터는 이 방패를 못 낍니다.</div>
   <p class="meta">방패는 여기에 더해진 뒤, «막기» 에 성공한 대에서 <b>8~31 을 한 번 더</b> 깎습니다.
      부적은 방어가 0 이라 «공짜 칸» 입니다 &mdash; 늪왕의 부적이면 마법 방어 39 와 HP 자동회복 8 이 그냥 붙습니다.</p>
 
@@ -945,8 +952,11 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
         <b>갑옷도 투구도 못 낍니다</b> &mdash; Lv30 상대로 평타가 <b>38~67</b>,
         법사 · 레인저는 <b>69~75</b> 씩 들어옵니다. 이쪽은 정말로 방어로 못 버팁니다.
         치명타 저항도 법사 계열은 <b>0</b> 이라 치명타를 그대로 맞습니다.</li>
-    <li><b>요구 힘 30 이 듭니다.</b> 왕단 한 벌이 갑옷 30 · 의복 30 · 투구 29 입니다.
-        힘을 안 준 캐릭터는 애초에 이 표에 못 들어갑니다.</li>
+    <li><b>요구 힘이 41 까지 듭니다.</b> 갑옷 35 · 투구 28 · <b>방패 41</b> 입니다
+        (부적과 의복은 1~2 로 거의 안 듭니다).
+        힘을 안 준 캐릭터는 애초에 이 표에 못 들어갑니다 &mdash;
+        드워프 남(기본 힘 9)에 힘이 붙는 부직업(무장병 부 4 · 중도사 부 3)을
+        얹어야 닿습니다.</li>
     <li><b>마법은 방어를 안 탑니다.</b> 명중 굴림도 없어서 쏘면 들어갑니다 &mdash;
         그쪽은 <b>마법 방어</b>가 따로 막습니다(§11).</li>
     <li><b>상태이상도 방어와 무관합니다.</b> 저항 굴림은 <b>마법 방어 또는 힘</b>으로 굴립니다(§11).</li>
