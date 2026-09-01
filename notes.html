@@ -139,6 +139,19 @@ input[type="search"]{flex:1 1 240px}
   left:calc(var(--d,0)*var(--step) + 8px)}
 .chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
 .chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+/* 즐겨찾기 별과 «다시 가능» 표시 */
+.row{position:relative}
+.star{position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+  border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:6px;
+  color:var(--line);transition:color .1s}
+.star:hover{color:var(--f-vault)}
+.star.on{color:var(--f-vault)}
+.row .qn{padding-left:18px}
+.again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+.again{color:var(--f-heal);border-color:currentColor}
+.chain.again-box h4{color:var(--f-vault)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}

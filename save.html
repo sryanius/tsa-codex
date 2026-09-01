@@ -144,6 +144,19 @@ input[type="search"]{flex:1 1 240px}
   left:calc(var(--d,0)*var(--step) + 8px)}
 .chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
 .chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+/* 즐겨찾기 별과 «다시 가능» 표시 */
+.row{position:relative}
+.star{position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+  border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:6px;
+  color:var(--line);transition:color .1s}
+.star:hover{color:var(--f-vault)}
+.star.on{color:var(--f-vault)}
+.row .qn{padding-left:18px}
+.again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+.again{color:var(--f-heal);border-color:currentColor}
+.chain.again-box h4{color:var(--f-vault)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
@@ -578,7 +591,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       case "I": return this.dv.getUint32(i,true);
       case "f": return this.dv.getFloat32(i,true);
       case "d": return this.dv.getFloat64(i,true);
-      default:  return Number(this.dv.getBigInt64(i,true));   // q / Q — 정확도는 필요 없다
+      default: {
+        // ★ DateTime 틱이 2^53 을 넘는다. 안전 범위를 벗어나면 BigInt 로 돌려준다.
+        var q = this.dv.getBigInt64(i,true), qn = Number(q);
+        return (qn >= -9007199254740991 && qn <= 9007199254740991) ? qn : q;
+      }
     }
   };
   Reader.prototype.typeInfo = function(cnt){
@@ -737,6 +754,47 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     return assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"])) || null;
   }
 
+  /* .NET DateTime.ToBinary() — 위 2비트가 Kind, 나머지 62비트가 0001-01-01 부터의 100ns 틱. */
+  function dotnetDate(v){
+    if (v === null || v === undefined) return null;
+    var b;
+    try { b = (typeof v === "bigint") ? v : BigInt(Math.round(v)); } catch (e) { return null; }
+    var t = b & 0x3fffffffffffffffn;
+    if (t === 0n) return null;
+    var ms = Number(t / 10000n - 62135596800000n);
+    return (ms > 0 && ms < 4102444800000) ? new Date(ms) : null;   // 1970 ~ 2100 밖은 버린다
+  }
+  function iso(d){ return d ? d.toISOString() : null; }
+
+  /* 마을 하나가 들고 있는 퀘스트 상태.
+       status 0 NotListed · 10 게시 중 · 11 진행 중 · 12 완료 · 13 실패
+       d      며칠 뒤에 다시 게시되는가 (Quest::Finish 가 등장 주기로 채우고
+              Town::UpdateQuestStatus 가 하루에 하나씩 깎는다. 99 는 1회성) */
+  function readTown(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "Town") return null;
+    var out = {};
+    listOf(p, R.quests).forEach(function(q){
+      var n = deref(p, q.masterName);
+      if (!n) return;
+      out[n] = { cc: q.clearCount || 0, st: enumVal(p, q.status),
+                 d: q.daysUntilAvailable || 0, s: iso(dotnetDate(q.startedAt)) };
+    });
+    return { t: assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"])),
+             rep: R.reputation || 0, q: out };
+  }
+
+  /* 모험 한 번의 기록. createdAt 이 «끝난 시각» 이다. */
+  function readAdventure(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "AdventureHistory") return null;
+    var at = dotnetDate(R.createdAt) || dotnetDate(R["Model+createdAt"]);
+    if (!at) return null;
+    return { q: deref(p, R.questMasterName) || "", c: deref(p, R.caveMasterName) || "",
+             ok: !!R.isCompleteQuest, lv: R.level || 0, g: R.rewardGold || 0,
+             at: iso(at) };
+  }
+
   function readEquipment(plain, fileName){
     var p = parseNrbf(plain), R = p.root;
     if (!R || !R["Equipment+assetName"]) return null;
@@ -764,11 +822,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     _char: readCharacter,
     _equip: readEquipment,
     _map: readMap,
+    _town: readTown,
+    _adventure: readAdventure,
+    _date: dotnetDate,
     _nrbf: parseNrbf,
     DATA_VERSION: DATA_VERSION,
     ingest: async function (files, onProgress) {
       var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
       var chars = [], equips = {}, openMaps = {};
+      var qstate = {}, hist = [];
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         if (!/\.data$/i.test(f.name)) continue;
@@ -787,7 +849,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
             else {
               var mp = readMap(plain);
               if (mp) openMaps[mp] = 1;
-              else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+              else {
+                var tw = readTown(plain);
+                if (tw) { for (var qn in tw.q) qstate[qn] = tw.q[qn]; }
+                else {
+                  var ah = readAdventure(plain);
+                  if (ah) hist.push(ah);
+                  else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+                }
+              }
             }
           } catch (e4) { }
         } catch (e) {
@@ -803,6 +873,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
       // 열린 지역은 모든 페이지가 본다 — 한 곳에 따로 둔다.
       try { localStorage.setItem("tsa.maps.v1", JSON.stringify(payload.maps)); } catch (e) { }
+      // 퀘스트 상태(게시 중인가 · 며칠 뒤에 뜨나)와 모험 기록(마지막 클리어 날짜).
+      // 퀘스트 색인이 쓴다. 세이브를 뜬 시각을 같이 적어 둔다 — 남은 일수의 기준점이다.
+      hist.sort(function(a,b){ return a.at < b.at ? 1 : -1; });
+      try {
+        localStorage.setItem("tsa.qstate.v1", JSON.stringify(
+          { at: payload.at, saveAt: hist.length ? hist[0].at : null,
+            q: qstate, hist: hist.slice(0, 300) }));
+      } catch (e) { }
       // 용병·장비는 따로 둔다. 퀘스트 진행도(SKEY)보다 크고, 쓰는 페이지도 다르다.
       try {
         localStorage.setItem("tsa.crew.v1", JSON.stringify(
@@ -811,7 +889,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
                payload: payload, buildings: blds,
                version: ver, dataVersion: DATA_VERSION,
-               chars: chars, equips: equips, maps: payload.maps };
+               chars: chars, equips: equips, maps: payload.maps,
+               qstate: qstate, hist: hist };
     }
   };
 })();

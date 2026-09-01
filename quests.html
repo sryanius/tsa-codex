@@ -143,6 +143,19 @@ input[type="search"]{flex:1 1 240px}
   left:calc(var(--d,0)*var(--step) + 8px)}
 .chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
 .chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+/* 즐겨찾기 별과 «다시 가능» 표시 */
+.row{position:relative}
+.star{position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+  border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:6px;
+  color:var(--line);transition:color .1s}
+.star:hover{color:var(--f-vault)}
+.star.on{color:var(--f-vault)}
+.row .qn{padding-left:18px}
+.again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+.again{color:var(--f-heal);border-color:currentColor}
+.chain.again-box h4{color:var(--f-vault)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
@@ -400,7 +413,55 @@ function saveLv(){ try{ localStorage.setItem(LKEY,JSON.stringify(lv)); }catch(e)
 
 var LKEY2="tsa.showlocked.v1";
 var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{},
-           party:"",sort:"",showLocked:false};
+           party:"",sort:"",showLocked:false,fav:false};
+
+/* ── 즐겨찾기 ────────────────────────────────────────────────────────
+   퀘스트가 1364건이라 «내가 도는 것» 만 따로 보고 싶다. 브라우저에만 둔다. */
+var FAVKEY="tsa.fav.v1", FAV={};
+try{ (JSON.parse(localStorage.getItem(FAVKEY)||"[]")||[]).forEach(function(i){ FAV[i]=1; }); }catch(e){}
+function saveFav(){
+  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(FAV))); }catch(e){}
+}
+function favCount(){ return Object.keys(FAV).length; }
+function toggleFav(id){
+  if(FAV[id]) delete FAV[id]; else FAV[id]=1;
+  saveFav();
+}
+
+/* ── 세이브가 아는 퀘스트 상태 ────────────────────────────────────── */
+var QS=null;
+try{ QS=JSON.parse(localStorage.getItem("tsa.qstate.v1")||"null"); }catch(e){}
+var LASTCLEAR={};
+if(QS && QS.hist) QS.hist.forEach(function(h){
+  if(h.ok && h.q && !LASTCLEAR[h.q]) LASTCLEAR[h.q]=h.at;   // hist 는 최신순이다
+});
+function qstate(x){ return (QS&&QS.q)?QS.q[x.i]:null; }
+function dayStr(d){
+  return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
+}
+function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
+/* «언제 다시 할 수 있나». 돌려주는 것: {txt, ready, when} */
+function again(x){
+  var st=qstate(x);
+  if(x.si>=99) return {txt:"1회성 — 다시 안 뜹니다", ready:false};
+  var now=new Date();
+  var last=LASTCLEAR[x.i];
+  if(last){
+    var d=new Date(new Date(last).getTime()+x.si*86400000);
+    var left=daysBetween(now,d)+ (d>now?1:0);
+    return d<=now ? {txt:"지금 뜹니다", ready:true, when:d, last:last}
+                  : {txt:dayStr(d)+" 이후 ("+left+"일 남음)", ready:false, when:d, last:last};
+  }
+  if(!st) return null;
+  if(st.st===10) return {txt:"세이브 시점에 게시 중이었습니다", ready:true};
+  if(st.d>0 && QS && QS.at){
+    var base=new Date(QS.at.replace(" ","T")+":00");
+    var d2=new Date(base.getTime()+st.d*86400000);
+    return d2<=now ? {txt:"지금쯤 떴을 것입니다", ready:true, when:d2}
+                   : {txt:dayStr(d2)+" 무렵 (세이브 기준 "+st.d+"일)", ready:false, when:d2};
+  }
+  return null;
+}
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function el(id){ return document.getElementById(id); }
 /* 깬 것인지는 «세이브만» 본다. 손으로 체크하는 길이 있었는데, 줄을 누르다
@@ -463,6 +524,16 @@ FORD.concat([JOB]).forEach(function(f){
   b.onclick=function(){ state.facs[f]=!state.facs[f]; b.setAttribute("aria-pressed",state.facs[f]?"true":"false"); render(); };
   chipBox.appendChild(b);
 });
+(function(){
+  var b=document.createElement("button");
+  b.className="chip fav"; b.type="button"; b.id="chip-fav";
+  b.setAttribute("aria-pressed","false");
+  b.title="★ 를 눌러 담아 둔 퀘스트만 봅니다";
+  function label(){ b.innerHTML='<i class="dot"></i>즐겨찾기'+(favCount()?" "+favCount():""); }
+  label(); window.__favLabel=label;
+  b.onclick=function(){ state.fav=!state.fav; b.setAttribute("aria-pressed",state.fav?"true":"false"); render(); };
+  chipBox.appendChild(b);
+})();
 [["neg","평판− 전용","var(--f-vault)","요구 평판이 음수 — 도시 평판을 마이너스로 내려야만 게시판에 뜹니다"],
   ["evil","악행 (평판↓)","var(--f-arch)","깨면 도시 평판이 떨어지는 퀘스트"]].forEach(function(c){
   var b=document.createElement("button");
@@ -591,6 +662,7 @@ function match(x){
   if(!state.showLocked && LOCKED[x.t]) return false;
   if(state.town && x.t!==state.town) return false;
   if(state.undone && isDone(x)) return false;
+  if(state.fav && !FAV[x.i]) return false;
   if(state.neg && x.rep>=0) return false;
   if(state.evil && (x.rp||0)>=0) return false;
   if(!partyMatch(x)) return false;
@@ -618,8 +690,16 @@ function rowHTML(x){
               + partyTag(x)
               + (function(){ var n=nextOf(x).length;
                   return n ? '<em class="nextq" title="이 퀘스트를 깨야 뜨는 퀘스트가 '+n+'건 있습니다">연계 '+n+'</em>' : ''; })();
+  /* ★ «지금 뜬다» 는 기본값이라 안 적는다. 1184줄 중 865줄이 그것이었다.
+     아직 못 하는 것만 «D-N» 으로 보여 준다. */
+  var ag=again(x);
+  var agTag = (ag && !ag.ready && ag.when)
+    ? '<em class="again" title="'+esc(ag.txt)+'">D-'+Math.max(1,daysBetween(new Date(),ag.when)+1)+'</em>'
+    : '';
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
-    +'<span class="qn"><b>'+lockTag+esc(x.n||x.i)
+    +'<button type="button" class="star'+(FAV[x.i]?" on":"")+'" data-fav="'+esc(x.i)+'"'
+      +' aria-pressed="'+(FAV[x.i]?"true":"false")+'" title="즐겨찾기">★</button>'
+    +'<span class="qn"><b>'+agTag+lockTag+esc(x.n||x.i)
     +(clearsOf(x)>0?'<i class="cc" title="세이브 기준 클리어 횟수">×'+clearsOf(x)+'</i>':'')+'</b><span>'+esc(x.t)+(x.p?" · "+esc(x.p):"")+" · "+esc(x.o)+'</span></span>'
     +badge
     +'<span class="num'+(x.rep<0?" neg":(x.pk>0?"":" dim"))+'" title="'
@@ -704,6 +784,17 @@ function qLine(x){
 }
 function detailHTML(x){
   var chain=qLine(x);
+  var ag=again(x);
+  var agBlock="";
+  if(ag){
+    agBlock='<div class="chain again-box"><h4>다시 할 수 있는 날</h4><ul>'
+      +(ag.last?'<li><b>마지막 클리어</b> '+esc(String(ag.last).slice(0,16).replace("T"," "))+'</li>':"")
+      +'<li><b>등장 주기</b> '+esc(spawnText(x.si))+'</li>'
+      +'<li><b'+(ag.ready?' class="okmark"':"")+'>'+esc(ag.txt)+'</b></li>'
+      +(ag.last?"":'<li class="meta">모험 기록(최근 '+((QS&&QS.hist)?QS.hist.length:0)+'건)에 없어 '
+        +'세이브의 «남은 일수» 로 어림한 값입니다</li>')
+      +'</ul></div>';
+  }
   var repCell = (x.rep<0)
     ? '<div class="dcell"><dt>등장 조건</dt><dd class="mono warn">평판 '+x.rep+' <b>이하</b> <span class="sm">(마이너스일 때만)</span></dd></div>'
     : '<div class="dcell"><dt>등장 조건</dt><dd class="mono'+(x.pk>x.rep?" hi":"")+'">평판 '+x.pk+' <b>이상</b>'
@@ -732,7 +823,7 @@ function detailHTML(x){
     + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp+'</dd></div>'
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
-    + monHTML(x)
+    + agBlock + monHTML(x)
     + chestHTML(x)
     + chain
     + (x.d ? '<div class="story">'+esc(x.d)+'</div>' : "")
@@ -978,6 +1069,17 @@ function gotoQuest(id){
   if(r){ toggleRow(r); r.scrollIntoView({block:"center"}); }
 }
 el("out").addEventListener("click",function(e){
+  var st=e.target.closest(".star");
+  if(st){
+    e.stopPropagation();
+    var id=st.getAttribute("data-fav");
+    toggleFav(id);
+    st.classList.toggle("on", !!FAV[id]);
+    st.setAttribute("aria-pressed", FAV[id]?"true":"false");
+    if(window.__favLabel) window.__favLabel();
+    if(state.fav) render();
+    return;
+  }
   var g=e.target.closest(".goto");
   if(g){ e.stopPropagation(); gotoQuest(g.getAttribute("data-goto")); return; }
   var row=e.target.closest(".row");
@@ -1337,7 +1439,11 @@ render();
       case "I": return this.dv.getUint32(i,true);
       case "f": return this.dv.getFloat32(i,true);
       case "d": return this.dv.getFloat64(i,true);
-      default:  return Number(this.dv.getBigInt64(i,true));   // q / Q — 정확도는 필요 없다
+      default: {
+        // ★ DateTime 틱이 2^53 을 넘는다. 안전 범위를 벗어나면 BigInt 로 돌려준다.
+        var q = this.dv.getBigInt64(i,true), qn = Number(q);
+        return (qn >= -9007199254740991 && qn <= 9007199254740991) ? qn : q;
+      }
     }
   };
   Reader.prototype.typeInfo = function(cnt){
@@ -1496,6 +1602,47 @@ render();
     return assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"])) || null;
   }
 
+  /* .NET DateTime.ToBinary() — 위 2비트가 Kind, 나머지 62비트가 0001-01-01 부터의 100ns 틱. */
+  function dotnetDate(v){
+    if (v === null || v === undefined) return null;
+    var b;
+    try { b = (typeof v === "bigint") ? v : BigInt(Math.round(v)); } catch (e) { return null; }
+    var t = b & 0x3fffffffffffffffn;
+    if (t === 0n) return null;
+    var ms = Number(t / 10000n - 62135596800000n);
+    return (ms > 0 && ms < 4102444800000) ? new Date(ms) : null;   // 1970 ~ 2100 밖은 버린다
+  }
+  function iso(d){ return d ? d.toISOString() : null; }
+
+  /* 마을 하나가 들고 있는 퀘스트 상태.
+       status 0 NotListed · 10 게시 중 · 11 진행 중 · 12 완료 · 13 실패
+       d      며칠 뒤에 다시 게시되는가 (Quest::Finish 가 등장 주기로 채우고
+              Town::UpdateQuestStatus 가 하루에 하나씩 깎는다. 99 는 1회성) */
+  function readTown(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "Town") return null;
+    var out = {};
+    listOf(p, R.quests).forEach(function(q){
+      var n = deref(p, q.masterName);
+      if (!n) return;
+      out[n] = { cc: q.clearCount || 0, st: enumVal(p, q.status),
+                 d: q.daysUntilAvailable || 0, s: iso(dotnetDate(q.startedAt)) };
+    });
+    return { t: assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"])),
+             rep: R.reputation || 0, q: out };
+  }
+
+  /* 모험 한 번의 기록. createdAt 이 «끝난 시각» 이다. */
+  function readAdventure(plain){
+    var p = parseNrbf(plain), R = p.root;
+    if (!R || R.__ !== "AdventureHistory") return null;
+    var at = dotnetDate(R.createdAt) || dotnetDate(R["Model+createdAt"]);
+    if (!at) return null;
+    return { q: deref(p, R.questMasterName) || "", c: deref(p, R.caveMasterName) || "",
+             ok: !!R.isCompleteQuest, lv: R.level || 0, g: R.rewardGold || 0,
+             at: iso(at) };
+  }
+
   function readEquipment(plain, fileName){
     var p = parseNrbf(plain), R = p.root;
     if (!R || !R["Equipment+assetName"]) return null;
@@ -1523,11 +1670,15 @@ render();
     _char: readCharacter,
     _equip: readEquipment,
     _map: readMap,
+    _town: readTown,
+    _adventure: readAdventure,
+    _date: dotnetDate,
     _nrbf: parseNrbf,
     DATA_VERSION: DATA_VERSION,
     ingest: async function (files, onProgress) {
       var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
       var chars = [], equips = {}, openMaps = {};
+      var qstate = {}, hist = [];
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
         if (!/\.data$/i.test(f.name)) continue;
@@ -1546,7 +1697,15 @@ render();
             else {
               var mp = readMap(plain);
               if (mp) openMaps[mp] = 1;
-              else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+              else {
+                var tw = readTown(plain);
+                if (tw) { for (var qn in tw.q) qstate[qn] = tw.q[qn]; }
+                else {
+                  var ah = readAdventure(plain);
+                  if (ah) hist.push(ah);
+                  else { var q = readEquipment(plain, f.name); if (q && q.id) equips[q.id] = q; }
+                }
+              }
             }
           } catch (e4) { }
         } catch (e) {
@@ -1562,6 +1721,14 @@ render();
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
       // 열린 지역은 모든 페이지가 본다 — 한 곳에 따로 둔다.
       try { localStorage.setItem("tsa.maps.v1", JSON.stringify(payload.maps)); } catch (e) { }
+      // 퀘스트 상태(게시 중인가 · 며칠 뒤에 뜨나)와 모험 기록(마지막 클리어 날짜).
+      // 퀘스트 색인이 쓴다. 세이브를 뜬 시각을 같이 적어 둔다 — 남은 일수의 기준점이다.
+      hist.sort(function(a,b){ return a.at < b.at ? 1 : -1; });
+      try {
+        localStorage.setItem("tsa.qstate.v1", JSON.stringify(
+          { at: payload.at, saveAt: hist.length ? hist[0].at : null,
+            q: qstate, hist: hist.slice(0, 300) }));
+      } catch (e) { }
       // 용병·장비는 따로 둔다. 퀘스트 진행도(SKEY)보다 크고, 쓰는 페이지도 다르다.
       try {
         localStorage.setItem("tsa.crew.v1", JSON.stringify(
@@ -1570,7 +1737,8 @@ render();
       return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
                payload: payload, buildings: blds,
                version: ver, dataVersion: DATA_VERSION,
-               chars: chars, equips: equips, maps: payload.maps };
+               chars: chars, equips: equips, maps: payload.maps,
+               qstate: qstate, hist: hist };
     }
   };
 })();

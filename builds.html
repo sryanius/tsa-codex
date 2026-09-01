@@ -139,6 +139,19 @@ input[type="search"]{flex:1 1 240px}
   left:calc(var(--d,0)*var(--step) + 8px)}
 .chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
 .chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+/* 즐겨찾기 별과 «다시 가능» 표시 */
+.row{position:relative}
+.star{position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+  border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:6px;
+  color:var(--line);transition:color .1s}
+.star:hover{color:var(--f-vault)}
+.star.on{color:var(--f-vault)}
+.row .qn{padding-left:18px}
+.again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+.again{color:var(--f-heal);border-color:currentColor}
+.chain.again-box h4{color:var(--f-vault)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
@@ -356,18 +369,36 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h3>레인저 활잡이</h3>
     <dl class="kv">
       <dt>주직업</dt><dd><b>레인저 30</b> <span class="meta">— 주 명중률 7 · 재주 6 · 생명점 4</span></dd>
-      <dt>부직업</dt><dd>숨은 칼날의 궁사 20 · 스커미셔 15 · 숙련된 사냥꾼 10 · 도둑 30 · 마궁사 25</dd>
+      <dt>부직업</dt><dd><b>견습 사냥꾼 6 · 숙련된 사냥꾼 10 · 스커미셔 15 · 숨은 칼날의 궁사 20</b>
+        <span class="meta">— 싼 것부터. 여기까지 6.2M 이고 공격력 79~115 입니다(아래)</span></dd>
       <dt>무기</dt><dd><b class="mag">명천궁</b> <span class="meta">Lv30 · <b>힘 18</b> · 58~94 · 마법 · <b>원거리/관통</b> · 어둠 속성</span></dd>
       <dt>몸</dt><dd>왕단의 옷 <span class="meta">Lv30 · <b>힘 2</b> · 방어 55~61</span></dd>
       <dt>부적</dt><dd>늪왕의 부적 <span class="meta">마법 방어 39 · HP+8/턴</span></dd>
     </dl>
-    <div class="chips"><span>공격력 <b>91~127</b></span><span>관통 <b>앞뒤 둘</b></span><span>요구 힘 <b>18</b></span>
-      <span class="mag">마법 무기</span></div>
+    <div class="chips"><span>공격력 <b>79~115</b></span><span>명중 몫 40</span><span>관통 <b>앞뒤 둘</b></span>
+      <span>요구 힘 <b>18</b></span><span class="mag">마법 무기</span><span>경험치 <b>6.2M</b></span></div>
   </div>
   <div class="note"><b>명천궁이 이 게임 최고의 «상시» 무기입니다.</b> Lv30 마법 무기이면서
      <b>요구 힘이 18</b> 밖에 안 되고 <b>관통(앞뒤 둘)</b> 이라 한 번에 둘을 때립니다.
      비마법 최고(송곳니왕의 활 56~91)보다 오히려 셉니다 &mdash; <b>바꿔 낄 이유가 없습니다.</b>
      <span class="sm">대안: 라이프드레인보우(Lv28 · 마법 · HP 흡수 30)는 자급용입니다.</span></div>
+  <h4>부직업도 «싼 것부터» 입니다</h4>
+  <p>공격력의 직업 몫에는 조건이 하나 붙습니다 &mdash; <b>지금 든 무기를 들 수 있는 직업만</b> 셉니다
+     (<a href="notes.html#job">§7</a>). 그 안에서 효율은 <b>부 공격력 &divide; 최대 레벨</b> 입니다.</p>
+  <table class="t"><thead><tr><th>여기까지 얹으면</th><th class="num">공격 몫</th><th class="num">공격력</th>
+    <th class="num">명중 몫</th><th class="num">누적 경험치</th><th class="num">공격 1 당</th></tr></thead><tbody>
+    <tr><td>레인저 30 만</td><td class="num">3</td><td class="num">61~97</td><td class="num">21</td><td class="num">1.6M</td><td class="num">&mdash;</td></tr>
+    <tr><td>+ 견습 사냥꾼 6 · 숙련된 사냥꾼 10</td><td class="num">8</td><td class="num">66~102</td><td class="num">28</td><td class="num">1.7M</td><td class="num">0.04M</td></tr>
+    <tr><td>+ 스커미셔 15</td><td class="num">13</td><td class="num">71~107</td><td class="num">34</td><td class="num">2.4M</td><td class="num">0.14M</td></tr>
+    <tr class="hi"><td><b>+ 숨은 칼날의 궁사 20</b> <span class="sm">← 여기까지</span></td><td class="num"><b>21</b></td><td class="num"><b>79~115</b></td><td class="num"><b>40</b></td><td class="num"><b>6.2M</b> <span class="sm">(2.6일)</span></td><td class="num">0.48M</td></tr>
+    <tr style="color:var(--faint)"><td>+ 도둑 30</td><td class="num">30</td><td class="num">88~124</td><td class="num">52</td><td class="num">96M</td><td class="num"><b>9.96M</b></td></tr>
+    <tr style="color:var(--faint)"><td>+ 마궁사 25</td><td class="num">35</td><td class="num">93~129</td><td class="num">57</td><td class="num">246M</td><td class="num">30M</td></tr>
+  </tbody></table>
+  <div class="note"><b>정지선은 «숨은 칼날의 궁사 20» 입니다 &mdash; 6.2M.</b>
+     그다음 도둑 30 은 공격력 1 당 <b>21배</b>로 뜁니다
+     (레벨 30 인데다 경험치 계수가 <b>8</b> 로 전 직업 최고입니다).
+     명중 몫 40 이면 발두나 최고 회피 42 도 <code>명중 &ge; 회피 &minus; 1</code> 로 늘 맞힙니다.</div>
+
   <p><b>활이 안 통하는 몬스터가 4종</b> 있습니다(본 하운드 · 데스 할로우 · 서리 망령 · 본베일).
      <code>invalidBow</code> 가 켜지면 회피에 999 가 더해져 <b>어떤 수치로도 못 맞힙니다</b> &mdash;
      활 하나로 파티를 채우면 안 되는 이유입니다.</p>
@@ -378,14 +409,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <dl class="kv">
       <dt>주직업</dt><dd><b>무장병 30</b> <span class="meta">— 생명점 13 · 방어력 8 · 힘 8. 튼튼한 딜러가 됩니다</span><br>
         <b>성창사 25</b> <span class="meta">— 칸이 의복·부적·투구라 더 가볍고 마나가 붙습니다</span></dd>
-      <dt>부직업</dt><dd>전술병 20 · 랜서 15 · 성창사 25 <span class="meta">(또는 무장병 30)</span> · 수습 랜서 8</dd>
+      <dt>부직업</dt><dd><b>수습 랜서 8 · 랜서 15 · 전술병 20</b>
+        <span class="meta">— 여기까지 5.3M 이고 공격력 93~128 입니다(아래)</span></dd>
       <dt>무기</dt><dd><b class="mag">하늘을 뚫는 창</b> <span class="meta">Lv30 · 힘 34 · 59~94 · 마법 · <b>모든 적/관통</b></span></dd>
       <dt>몸</dt><dd>왕단의 갑옷 <span class="meta">무장병 주</span> / 왕단의 옷 <span class="meta">성창사 주</span></dd>
       <dt>방패</dt><dd>송곳니왕의 방패 <span class="meta">Lv29 · 힘 32 · 방어 8~31 · 무장병만</span></dd>
     </dl>
-    <div class="chips"><span>공격력 <b>97~132</b></span><span><b>모든 적</b> 사거리</span><span>관통 앞뒤 둘</span>
-      <span>요구 힘 34</span><span class="mag">마법 무기</span></div>
+    <div class="chips"><span>공격력 <b>93~128</b></span><span>명중 몫 44</span><span><b>모든 적</b> 사거리</span>
+      <span>관통 앞뒤 둘</span><span>요구 힘 34</span><span class="mag">마법 무기</span><span>경험치 <b>5.3M</b></span></div>
   </div>
+  <h4>창도 같습니다</h4>
+  <table class="t"><thead><tr><th>여기까지 얹으면</th><th class="num">공격 몫</th><th class="num">공격력</th>
+    <th class="num">명중 몫</th><th class="num">누적 경험치</th><th class="num">공격 1 당</th></tr></thead><tbody>
+    <tr><td>무장병 30 만</td><td class="num">18</td><td class="num">77~112</td><td class="num">24</td><td class="num">1.1M</td><td class="num">&mdash;</td></tr>
+    <tr><td>+ 수습 랜서 8 · 랜서 15</td><td class="num">28</td><td class="num">87~122</td><td class="num">34</td><td class="num">1.7M</td><td class="num">0.09M</td></tr>
+    <tr class="hi"><td><b>+ 전술병 20</b> <span class="sm">← 여기까지</span></td><td class="num"><b>34</b></td><td class="num"><b>93~128</b></td><td class="num"><b>44</b></td><td class="num"><b>5.3M</b> <span class="sm">(2.2일)</span></td><td class="num">0.60M</td></tr>
+    <tr style="color:var(--faint)"><td>+ 성창사 25</td><td class="num">41</td><td class="num">100~135</td><td class="num">51</td><td class="num">26M</td><td class="num">2.95M</td></tr>
+  </tbody></table>
+  <div class="note"><b>주직업은 무장병이 낫습니다.</b> 성창사 주로 가면 조금 싸지만(3.9M)
+     공격력이 3 낮고 <b>갑옷·방패를 못 낍니다</b>. 무장병은 주 공격력 6 에 최대 30 이라
+     주직업만으로 <b>18</b> 이 나옵니다 &mdash; 시작점이 다릅니다.
+     정지선은 <b>전술병 20</b> 이고, 그다음 성창사는 공격력 1 당 <b>5배</b>입니다.</div>
+
   <div class="note"><b>창은 사거리가 «모든 적» 입니다.</b> 활이 «원거리», 검이 «근접» 인데
      창만 전열·후열을 가리지 않습니다. 거기에 관통까지 붙어서
      <b>파티에서 가장 많은 적을 때리는 자리</b>입니다.
