@@ -182,6 +182,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
 .ptxt .sm{color:var(--faint);font-weight:400}
 
+/* 읽는 페이지의 표에서 «이 줄이 요점» 표시. 여태 클래스만 있고 규칙이 없었다. */
+.doc tr.hi{background:var(--raised)}
+.doc tr.hi td{border-bottom-color:var(--line)}
+.doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
 
 /* ── 읽는 페이지 ─────────────────────────────────────────────── */
 .doc{max-width:74ch;padding-bottom:80px}
@@ -221,7 +225,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 </style>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a><a href="builds.html">빌드</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>

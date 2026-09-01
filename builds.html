@@ -1,0 +1,488 @@
+<title>침묵의 기록자 빌드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --f-lodge:#3F8F63; --f-ware:#C2762E; --f-heal:#BC4F68;
+  --f-vault:#B08A16; --f-forge:#3B7FA8; --f-arch:#7160B8; --f-train:#5A6470;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+    --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+  --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px
+}
+.mast h1{
+  font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
+  margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em
+}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
+}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
+
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--ground);
+  padding:14px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px
+}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
+}
+.seg button+button,.seg a+a,.seg button+a,.seg a+button{border-left:1px solid var(--line)}
+.seg a.xtab{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;
+  color:var(--muted);text-decoration:none;white-space:nowrap;display:flex;align-items:center}
+.seg a.xtab:hover{color:var(--ink);background:var(--raised)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type="search"],select{
+  font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink);min-width:0
+}
+input[type="search"]{flex:1 1 240px}
+.chip{
+  font:inherit;font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex:none}
+.chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
+.filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
+.filebtn:hover{border-color:var(--accent)}
+.filebtn.alt{color:var(--muted)}
+.mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
+  border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
+.hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
+.lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+  border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
+.lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lvin input{-moz-appearance:textfield}
+.lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
+.row.locked{opacity:.62}
+.nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+/* 퀴스트 라인 — 깊이만큼 세로 안내선을 깔아 «어느 가지에 붙은 것인가» 를 보인다.
+   ★ 아래쪽 .chain li.undone 이 padding 단축으로 들여쓰기를 통째 먹었다
+     — 같은 우선순위에 뒤에 있어 이겼다. 그래서 여기서 다시 잡는다. */
+.chain.qline{--step:18px}
+.chain.qline ul{padding-left:0}
+.chain.qline li,
+.chain.qline li.undone{position:relative;margin:0 0 7px;border-radius:0;
+  padding:0 0 0 calc(var(--d,0)*var(--step) + var(--step));
+  background:repeating-linear-gradient(to right,var(--line-soft) 0 1px,transparent 1px var(--step))
+             left top/calc(var(--d,0)*var(--step)) 100% no-repeat}
+.chain.qline li::before{left:calc(var(--d,0)*var(--step) + 2px);content:"│"}
+.chain.qline li.up::before{content:"↑";color:var(--f-lodge)}
+.chain.qline li.down::before{content:"↓";color:var(--f-arch)}
+.chain.qline li.now,
+.chain.qline li.now.undone{background:var(--raised);border:1px solid var(--accent);
+  border-radius:6px;margin-bottom:9px;
+  padding:6px 8px 6px calc(var(--d,0)*var(--step) + var(--step))}
+.chain.qline li.now::before{content:"▶";color:var(--accent);
+  left:calc(var(--d,0)*var(--step) + 8px)}
+.chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
+.chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+.qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
+.qkey b{font-weight:700}
+.qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
+@media (max-width:560px){ .chain.qline{--step:12px} }
+.gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
+.gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
+.gnote p.meta{margin:10px 0 0;font-size:12.5px}
+.gnote table{width:100%;max-width:560px;border-collapse:collapse;font-size:12.5px}
+.gnote th,.gnote td{padding:4px 8px;border-bottom:1px solid var(--line-soft);text-align:left}
+.gnote th{color:var(--faint);font-weight:600}
+.gnote td.num,.gnote th.num{text-align:right;font-variant-numeric:tabular-nums}
+.gnote td.plus{color:var(--f-heal);font-weight:600}
+.gnote td.minus{color:var(--f-vault)}
+.gnote tr.zero td{color:var(--faint)}
+.party{font-style:normal;font-size:10px;font-weight:600;color:var(--f-heal);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+.monlist{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.monchip{display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;border-radius:4px;
+  background:var(--raised);border:1px solid var(--line);font-size:12px;text-decoration:none;
+  color:var(--text)}
+.monchip:hover{border-color:var(--f-heal)}
+.monchip i{font-style:normal;font-size:11px;color:var(--faint)}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+
+.group{margin-top:34px}
+.ghead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ghead h2{
+  font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  color:var(--ink);margin:0;letter-spacing:-.01em
+}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
+
+/* 읽는 페이지의 표에서 «이 줄이 요점» 표시. 여태 클래스만 있고 규칙이 없었다. */
+.doc tr.hi{background:var(--raised)}
+.doc tr.hi td{border-bottom-color:var(--line)}
+.doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+
+/* ── 읽는 페이지 ─────────────────────────────────────────────── */
+.doc{max-width:74ch;padding-bottom:80px}
+.doc h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
+  color:var(--ink);margin:46px 0 4px;scroll-margin-top:16px}
+.doc h2 .n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--faint);
+  margin-right:10px;font-weight:400}
+.doc h3{font-size:15px;font-weight:600;color:var(--ink);margin:26px 0 6px}
+.doc p{margin:10px 0;color:var(--body)}
+.doc b{color:var(--ink);font-weight:600}
+.doc code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--raised);
+  padding:1px 5px;border-radius:4px;color:var(--muted)}
+.doc ul{margin:10px 0;padding-left:18px}
+.doc li{margin:5px 0;color:var(--body)}
+.doc a{color:var(--accent)}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.85;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin:14px 0;color:var(--body);overflow-x:auto;white-space:pre}
+.eq b{color:var(--accent);font-weight:600}
+.eq i{font-style:normal;color:var(--faint)}
+.note{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin:16px 0;font-size:13.5px;color:var(--body)}
+.note.warn{border-left-color:var(--f-heal)}
+.doc table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13px;
+  font-variant-numeric:tabular-nums;display:block;overflow-x:auto}
+.doc th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--faint);
+  font-weight:600;padding:0 12px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.doc td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line-soft);
+  color:var(--body);vertical-align:top}
+.doc td.num,.doc th.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+.doc td b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0}
+.toc a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 12px;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.toc a:hover{color:var(--ink);border-color:var(--accent)}
+.src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:8px 0 0}
+
+/* 빌드 카드 */
+.role{border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  padding:16px 18px;margin:18px 0}
+.role > h3{margin:0 0 2px;font-size:16px}
+.role .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;
+  padding:2px 8px;border-radius:99px;border:1px solid currentColor;margin-left:8px;vertical-align:2px}
+.role .lede2{margin:2px 0 10px;font-size:13px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:2px 10px;font-size:13px;margin:8px 0}
+.kv dt{color:var(--faint);font-size:11.5px;letter-spacing:.04em;padding-top:2px}
+.kv dd{margin:0;color:var(--body)}
+.kv dd b{color:var(--ink)}
+.doc .mag, .doc b.mag{color:var(--f-arch);font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
+.chips span{font-size:11.5px;border:1px solid var(--line);border-radius:6px;
+  padding:2px 7px;background:var(--raised);color:var(--body);white-space:nowrap}
+.chips span b{color:var(--ink);font-weight:600}
+@media (max-width:560px){ .kv{grid-template-columns:1fr} .kv dt{padding-top:8px} }
+</style>
+<div class="wrap">
+  <nav class="topnav">
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a class="here" href="builds.html">빌드</a>
+  </nav>
+  <header class="mast">
+    <p class="eyebrow">The Silent Archivist &middot; 뽑고 입히기</p>
+    <h1>역할별 빌드와 장비</h1>
+    <p class="lede">계산식은 <a href="notes.html">원리</a> 에 있고, 여기는 <b>그래서 무엇을 뽑고 무엇을 입힐 것인가</b> 입니다.
+      숫자는 전부 지금 갈 수 있는 지역의 장비·몬스터로 계산했습니다.
+      <b>요구 힘</b>과 <b>요구 레벨</b>(최고 직업 레벨)은 따로 표시했습니다 &mdash; 둘 다 넘어야 낍니다.</p>
+    <div class="toc">
+      <a href="#why">전제 셋</a><a href="#deftank">방어탱</a><a href="#healtank">회복탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#weapons">무기 총정리</a><a href="#party">파티 조합</a><a href="#halls">훈련소 지도</a>
+    </div>
+  </header>
+  <main class="doc">
+
+  <h2 id="why"><span class="n">0</span>먼저, 전제 셋</h2>
+  <p>빌드를 가르는 것은 이 셋입니다. 근거는 <a href="notes.html#tank">원리 §10</a> 에 있습니다.</p>
+  <div class="eq"><b>①</b> 평타 피해 = 공격력 &minus; <b>방어(전액)</b>       <span class="cmt">// 넘어서면 35% 로 1, 아니면 0</span>
+<b>②</b> 치명타는 방어를 <b>반만</b> 보고, 확률에 <b>2% 하한</b>이 있다   <span class="cmt">// 완봉은 없다</span>
+<b>③</b> 마법은 방어도 회피도 안 탄다 &mdash; <b>마법 방어</b>로만 막는다</div>
+
+  <div class="note warn"><b>★ 갑옷과 의복은 «같은 칸» 입니다.</b>
+     몸 한 칸에 둘 중 하나만 들어갑니다. 그래서 실제 방어구 칸은
+     <b>몸 · 투구 · 방패 · 부적</b> 넷이고, 이 넷을 다 쓰는 직업은 <b>모험가</b>뿐입니다.
+     &mdash; 그런데 <b>부적은 방어가 0</b> 이라, <b>방어만 보면 모험가와 중도사·가드가 같습니다</b>(73~129).</div>
+
+  <h3>그리고 &mdash; 마법 무기가 필요합니다</h3>
+  <p><b>물리 무효 몬스터가 열린 지역에 17종</b> 있고, 지금 갈 수 있는 <b>모든 지역에 퍼져</b> 있습니다.
+     보통 무기로는 <b>한 대도 안 들어갑니다</b>. 뚫는 길은 <b>마법 무기</b>이거나 <b>마법 스킬</b>입니다.</p>
+  <table class="t"><thead><tr><th>지역</th><th class="num">물리 무효</th><th>예</th></tr></thead><tbody>
+    <tr><td>바르디아 평원</td><td class="num">1</td><td>레서 뱀파이어</td></tr>
+    <tr><td>뤼미에르 힐스</td><td class="num">6</td><td>섀도우 랜서 · 죽음의 처녀 · 늑대인간</td></tr>
+    <tr><td>아르디오스 왕국</td><td class="num">3</td><td>섀도우 위스프 · Wight</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">5</td><td>애쉬 · 렘레이스 · 가스 스토커</td></tr>
+    <tr class="hi"><td>발두나의 황야</td><td class="num">6</td><td>리치 · 할로우세인트 · 본베일 · 룬 애쉬</td></tr>
+  </tbody></table>
+  <div class="note"><b>장비를 계속 바꿔 낄 수 없으니, 상시 마법 무기를 들 사람이 파티에 하나는 있어야 합니다.</b>
+     문제는 <b>단검</b>입니다 &mdash; 단검 마법 무기의 천장이 <b>Lv14 (26~44)</b> 인데
+     비마법 최고는 <b>Lv30 (58~92)</b> 입니다. <b>회피탱(도둑·마검사)은 이 역할을 못 맡습니다.</b>
+     검·활·창은 Lv30 마법 무기가 있어서 손해가 거의 없습니다.</div>
+
+  <h2 id="deftank"><span class="n">1</span>방어탱 &mdash; 평타를 0 으로 누른다</h2>
+  <div class="role">
+    <h3>모험가 방어탱 <span class="tag" style="color:var(--f-lodge)">추천</span></h3>
+    <p class="lede2">종족은 <b>드워프 남</b>(생명점 12 · 힘 9)이 가장 좋습니다. 요구 힘 41 을 넘겨야 방패가 껴집니다.</p>
+    <dl class="kv">
+      <dt>주직업</dt><dd><b>모험가 31</b> <span class="meta">— 유일하게 30 을 넘고, 경험치 지수에서 빠지고, 모든 무기를 듭니다</span></dd>
+      <dt>부직업</dt><dd><b>중도사 25</b>(부 방어력 8) · <b>무장병 30</b>(4) · <b>가드 15</b>(6) · 블레이드브레이커 20 · 검술사 15</dd>
+      <dt>무기</dt><dd><b class="mag">세포 소용돌이의 검</b> <span class="meta">Lv30 · 힘 33 · 60~95 · 마법 · 독 속성</span></dd>
+      <dt>몸</dt><dd>왕단의 갑옷 <span class="meta">Lv30 · 힘 35 · 방어 60~63 · 치저 3</span></dd>
+      <dt>투구</dt><dd>짐승의 눈의 투구 <span class="meta">Lv29 · 힘 28 · 방어 5~35 · 회피 +5</span></dd>
+      <dt>방패</dt><dd>송곳니왕의 호세방패 <span class="meta">Lv29 · 힘 41 · 방어 8~31 · <b>치저 8</b></span></dd>
+      <dt>부적</dt><dd>늪왕의 부적 <span class="meta">Lv29 · 힘 1 · <b>마법 방어 39</b> · HP 자동회복 8</span></dd>
+    </dl>
+    <div class="chips"><span>HP <b>93</b></span><span>방어 <b>118~174</b></span><span>Lv30 평타 <b>0~12</b></span>
+      <span>치명타 43~71 <b>@2%</b></span><span>마법 방어 39</span><span>치명 저항 32</span>
+      <span>힘 49 <span class="meta">/요구 41</span></span><span>공격력 82~117</span><span>경험치 <b>22M</b></span></div>
+  </div>
+  <div class="note"><b>방어력은 장비보다 부직업에서 옵니다.</b> 장비 최고가 73~129 인데
+     <b>중도사 25 · 가드 15 · 무장병 30</b> 셋만 올려도 <code>+41</code> 이 통째로 붙습니다
+     (중도사 부 8 이 압도적입니다). 그 셋이 이 빌드의 뼈대이고, 나머지는 곁가지입니다.</div>
+  <p><b>중도사·가드를 주직업으로 쓰면 안 됩니다</b> &mdash; 최대 레벨이 25·15 라
+     레벨이 모자랍니다. 방어 칸은 모험가와 같지만(갑옷·투구·방패), <b>부적을 못 낍니다</b>.</p>
+
+  <h2 id="healtank"><span class="n">2</span>회복탱 &mdash; 같은 뼈대, 장비만 바꾼다</h2>
+  <div class="role">
+    <h3>모험가 자동회복판</h3>
+    <p class="lede2">직업 트리는 방어탱과 <b>완전히 같습니다</b>. 갑옷과 투구만 자동회복판으로 바꿉니다.</p>
+    <dl class="kv">
+      <dt>몸</dt><dd>리젠플레이트 <span class="meta">Lv28 · 힘 33 · 방어 56~59 · <b>HP+9/턴</b></span></dd>
+      <dt>투구</dt><dd>반조의 투구 <span class="meta">Lv24 · 힘 27 · 방어 6~25 · <b>HP+10/턴</b> · 마법 방어 9</span></dd>
+      <dt>방패</dt><dd>송곳니왕의 호세방패 <span class="meta">그대로</span></dd>
+      <dt>부적</dt><dd>늪왕의 부적 <span class="meta">HP+8/턴 · 마법 방어 39</span></dd>
+    </dl>
+    <div class="chips"><span>HP <b>93</b></span><span>방어 115~160</span><span>Lv30 평타 0~15</span>
+      <span><b>자동회복 27/턴</b></span><span>마법 방어 <b>48</b></span><span>경험치 22M</span></div>
+  </div>
+  <div class="note"><b>방어를 3~14 잃고 매 턴 27 을 얻습니다.</b> Lv30 평타가 어차피 0~15 라
+     그 방어는 안 아쉽고, <b>27/턴은 치명타 한 대(43~73)를 두 턴에 지웁니다</b>.
+     회복은 <code>BattleTurnProcessor.OnTurnEnd</code> 에서 매 턴 끝에 들어갑니다.
+     <b>마법 방어도 39 → 48</b> 로 오릅니다 &mdash; 마법이 유일한 약점이니 이쪽이 더 낫습니다.</div>
+  <p class="src">자동회복 장비 전체 18종 &middot; 부위별 최고: 갑옷 리젠플레이트 +9 &middot; 투구 반조의 투구 +10 &middot;
+     의복 폐천의 왕의복 +10 <span class="sm">(갑옷과 같은 칸이라 둘 중 하나)</span> &middot; 부적 묘표의 부적 +9 / 늪왕의 부적 +8</p>
+
+  <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 물리 판정 자체를 없앤다</h2>
+  <div class="role">
+    <h3>도둑 회피탱</h3>
+    <p class="lede2">종족은 <b>풋워커</b>(민첩 8~9 · 재주 7~9). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.</p>
+    <dl class="kv">
+      <dt>주직업</dt><dd><b>도둑 30</b> <span class="meta">— 주 회피 7 로 가장 큽니다 (마검사는 4)</span></dd>
+      <dt>부직업</dt><dd>마검사 30 · 숨은 칼날의 궁사 20 · 검술사 15 · 레인저 30 · 현자 30</dd>
+      <dt>무기</dt><dd>용맥의 단검 <span class="meta">Lv25 · 힘 22 · 45~72 · <b>전체 공격</b> · 화염</span>
+        &nbsp;/&nbsp; 왕단의 단검 <span class="meta">Lv30 · 힘 15 · 58~92 · 단일</span></dd>
+      <dt>몸</dt><dd>통풍이 잘되는 옷 <span class="meta">Lv13 · 힘 2 · <b>회피 +6</b> · 민첩 +2 · 마법 방어 5</span></dd>
+      <dt>방패</dt><dd>테라 버클러 <span class="meta">Lv16 · 방패 회피 +5</span> <span class="meta">— 도둑은 부적을 못 낍니다</span></dd>
+    </dl>
+    <div class="chips"><span>회피값 <b>42</b></span><span>물리 <b>100% 회피</b></span><span>HP 57</span>
+      <span>뚫리면 <b>80~99</b></span><span>경험치 <b>152M</b></span></div>
+  </div>
+  <div class="note"><b>목표는 회피값 39 입니다.</b> 민첩 20(흔들림 최솟값 15 → +5)이면
+     <code>2 + 5 + 39 = 46</code> 이라 지금 갈 수 있는 최고 명중 44 를 항상 넘깁니다.
+     도둑 주직업만으로 직업 몫 <b>36</b> 이 나오니 통풍 옷 하나로 닿습니다.
+     <b>부적을 끼고 싶으면 마검사 주직업</b>(칸: 의복·부적·방패)인데, 직업 몫이 30 이라
+     회피 부적(+5)을 더해도 41 로 비슷합니다.</div>
+  <div class="note warn"><b>회피탱의 진짜 약점은 명중이 아니라 상태이상입니다.</b>
+     <b>혼란 · 수면 · 마비</b>가 걸리면 회피가 <b>0</b> 이 되고, 그 순간 평타가 80~99 로 들어옵니다.
+     HP 57 이면 한 대입니다. 그리고 <b>단검은 마법 무기 천장이 Lv14</b> 라
+     물리 무효 몬스터를 못 때립니다. <b>솔플에는 방어탱이 낫습니다.</b></div>
+
+  <h2 id="bow"><span class="n">4</span>활 딜러 &mdash; 관통으로 줄을 뚫는다</h2>
+  <div class="role">
+    <h3>레인저 활잡이</h3>
+    <dl class="kv">
+      <dt>주직업</dt><dd><b>레인저 30</b> <span class="meta">— 주 명중률 7 · 재주 6 · 생명점 4</span></dd>
+      <dt>부직업</dt><dd>숨은 칼날의 궁사 20 · 스커미셔 15 · 숙련된 사냥꾼 10 · 도둑 30 · 마궁사 25</dd>
+      <dt>무기</dt><dd><b class="mag">명천궁</b> <span class="meta">Lv30 · <b>힘 18</b> · 58~94 · 마법 · <b>원거리/관통</b> · 어둠 속성</span></dd>
+      <dt>몸</dt><dd>왕단의 옷 <span class="meta">Lv30 · <b>힘 2</b> · 방어 55~61</span></dd>
+      <dt>부적</dt><dd>늪왕의 부적 <span class="meta">마법 방어 39 · HP+8/턴</span></dd>
+    </dl>
+    <div class="chips"><span>공격력 <b>91~127</b></span><span>관통 <b>앞뒤 둘</b></span><span>요구 힘 <b>18</b></span>
+      <span class="mag">마법 무기</span></div>
+  </div>
+  <div class="note"><b>명천궁이 이 게임 최고의 «상시» 무기입니다.</b> Lv30 마법 무기이면서
+     <b>요구 힘이 18</b> 밖에 안 되고 <b>관통(앞뒤 둘)</b> 이라 한 번에 둘을 때립니다.
+     비마법 최고(송곳니왕의 활 56~91)보다 오히려 셉니다 &mdash; <b>바꿔 낄 이유가 없습니다.</b>
+     <span class="sm">대안: 라이프드레인보우(Lv28 · 마법 · HP 흡수 30)는 자급용입니다.</span></div>
+  <p><b>활이 안 통하는 몬스터가 4종</b> 있습니다(본 하운드 · 데스 할로우 · 서리 망령 · 본베일).
+     <code>invalidBow</code> 가 켜지면 회피에 999 가 더해져 <b>어떤 수치로도 못 맞힙니다</b> &mdash;
+     활 하나로 파티를 채우면 안 되는 이유입니다.</p>
+
+  <h2 id="spear"><span class="n">5</span>창 딜러 &mdash; 후열까지 닿는다</h2>
+  <div class="role">
+    <h3>무장병 · 성창사 창잡이</h3>
+    <dl class="kv">
+      <dt>주직업</dt><dd><b>무장병 30</b> <span class="meta">— 생명점 13 · 방어력 8 · 힘 8. 튼튼한 딜러가 됩니다</span><br>
+        <b>성창사 25</b> <span class="meta">— 칸이 의복·부적·투구라 더 가볍고 마나가 붙습니다</span></dd>
+      <dt>부직업</dt><dd>전술병 20 · 랜서 15 · 성창사 25 <span class="meta">(또는 무장병 30)</span> · 수습 랜서 8</dd>
+      <dt>무기</dt><dd><b class="mag">하늘을 뚫는 창</b> <span class="meta">Lv30 · 힘 34 · 59~94 · 마법 · <b>모든 적/관통</b></span></dd>
+      <dt>몸</dt><dd>왕단의 갑옷 <span class="meta">무장병 주</span> / 왕단의 옷 <span class="meta">성창사 주</span></dd>
+      <dt>방패</dt><dd>송곳니왕의 방패 <span class="meta">Lv29 · 힘 32 · 방어 8~31 · 무장병만</span></dd>
+    </dl>
+    <div class="chips"><span>공격력 <b>97~132</b></span><span><b>모든 적</b> 사거리</span><span>관통 앞뒤 둘</span>
+      <span>요구 힘 34</span><span class="mag">마법 무기</span></div>
+  </div>
+  <div class="note"><b>창은 사거리가 «모든 적» 입니다.</b> 활이 «원거리», 검이 «근접» 인데
+     창만 전열·후열을 가리지 않습니다. 거기에 관통까지 붙어서
+     <b>파티에서 가장 많은 적을 때리는 자리</b>입니다.
+     대신 <b>요구 힘 34</b> 라 힘을 안 준 캐릭터는 못 듭니다.</div>
+
+  <h2 id="mage"><span class="n">6</span>마법사 &mdash; 무기의 마법 여부가 안 중요하다</h2>
+  <div class="role">
+    <h3>암흑마법사</h3>
+    <dl class="kv">
+      <dt>주직업</dt><dd><b>암흑마법사 30</b> <span class="meta">— 마나 15 · 지능 8 · 마법 방어 6</span></dd>
+      <dt>부직업</dt><dd>정령사 20 · 숙련된 마법사 10 · 마궁사 25 · 현자 30 <span class="meta">(현자는 경험치 지수 면제)</span></dd>
+      <dt>무기</dt><dd>송곳니왕의 전역 지팡이 <span class="meta">Lv29 · <b>힘 2</b> · 55~90 · <b>모든 적/전체 공격</b> · 대지 속성 · 비마법</span></dd>
+      <dt>몸</dt><dd>왕단의 옷 <span class="meta">힘 2</span></dd>
+      <dt>부적</dt><dd>늪왕의 부적 <span class="meta">마법 방어 39</span></dd>
+    </dl>
+    <div class="chips"><span>평타 57~92</span><span><b>모든 적 · 전체 공격</b></span><span>요구 힘 <b>2</b></span>
+      <span>마법 피해는 <b>회피도 방어도 안 탐</b></span></div>
+  </div>
+  <div class="note"><b>마법사는 «비마법» 무기를 들어도 됩니다.</b> 물리 무효 몬스터는
+     <b>마법 스킬</b>로 때리면 되기 때문입니다. 그래서 지팡이는
+     마법 무기(마천의 지팡이 Lv24 · 근접/단일)보다
+     <b>비마법이지만 모든 적/전체 공격인 송곳니왕의 전역 지팡이</b>가 낫습니다.
+     &mdash; 지팡이는 마법 무기가 딱 <b>둘</b>뿐이고, 둘 다 사거리가 나쁩니다.</div>
+  <div class="note warn"><b>마법에는 명중 굴림이 아예 없습니다.</b> 쏘면 들어갑니다.
+     거꾸로 <b>내가 맞을 때도 회피가 안 통합니다</b> &mdash; 마법 방어와 HP 로만 버팁니다.
+     그래서 <b>마법사에게 늪왕의 부적(마법 방어 39)은 사실상 필수</b>입니다.</div>
+
+  <h2 id="weapons"><span class="n">7</span>무기 총정리 &mdash; 상시 착용 기준</h2>
+  <p>바꿔 낄 수 없다는 전제로, <b>종류별 «그냥 계속 들 무기»</b> 입니다.
+     ★ 는 마법 무기(물리 무효를 뚫습니다).</p>
+  <table class="t"><thead><tr><th>종류</th><th>추천</th><th class="num">Lv</th><th class="num">힘</th>
+    <th class="num">피해</th><th>사거리/대상</th><th>비고</th></tr></thead><tbody>
+    <tr class="hi"><td>활</td><td><b class="mag">★ 명천궁</b></td><td class="num">30</td><td class="num">18</td><td class="num">58~94</td><td>원거리/<b>관통</b></td><td>비마법 최고보다도 셉니다</td></tr>
+    <tr class="hi"><td>창</td><td><b class="mag">★ 하늘을 뚫는 창</b></td><td class="num">30</td><td class="num">34</td><td class="num">59~94</td><td><b>모든 적</b>/<b>관통</b></td><td>가장 많은 적을 때립니다</td></tr>
+    <tr class="hi"><td>검</td><td><b class="mag">★ 세포 소용돌이의 검</b></td><td class="num">30</td><td class="num">33</td><td class="num">60~95</td><td>근접/단일</td><td>근접 최고 피해</td></tr>
+    <tr><td>도끼</td><td><span class="mag">★ 성인의 도끼</span></td><td class="num">24</td><td class="num">29</td><td class="num">47~79</td><td>근접/단일</td><td>비마법 최고는 57~94 &mdash; 손해가 큽니다</td></tr>
+    <tr><td>대검</td><td><span class="mag">★ 모래날의 대검</span></td><td class="num">25</td><td class="num">32</td><td class="num">51~82</td><td>근접/<b>전체</b></td><td>비마법 최고는 59~94</td></tr>
+    <tr><td>지팡이</td><td>송곳니왕의 전역 지팡이 <span class="sm">(비마법)</span></td><td class="num">29</td><td class="num">2</td><td class="num">55~90</td><td><b>모든 적</b>/<b>전체</b></td><td>마법사는 스킬로 뚫으므로 이쪽</td></tr>
+    <tr><td>단검</td><td>왕단의 단검 <span class="sm">(비마법)</span></td><td class="num">30</td><td class="num">15</td><td class="num">58~92</td><td>근접/단일</td><td><b>마법 단검 천장이 Lv14(26~44)</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>활 · 창 · 검은 «마법 무기가 곧 최고 무기» 라 고민할 게 없습니다.</b>
+     도끼 · 대검은 마법을 택하면 피해를 10~12 손해 보고,
+     <b>단검과 지팡이는 사실상 마법 무기를 포기해야 합니다.</b>
+     그래서 파티의 «물리 무효 담당» 은 <b>활 · 창 · 검</b> 중에서 나옵니다.</div>
+
+  <h2 id="party"><span class="n">8</span>파티 조합</h2>
+  <p>넷을 채운다면 <b>탱커 1 · 원거리 2 · 마법 1</b> 이 기본입니다.
+     리더는 <b>탱커</b>가 맡습니다 &mdash; 리더는 파티 생성 때 정해지고 <b>죽어도 안 넘어갑니다</b>
+     (<a href="notes.html#chest">§3</a>). 리더의 통찰·현자 레벨이 금고 발견과 이벤트 등장을 정합니다.</p>
+  <table class="t"><thead><tr><th>자리</th><th>추천</th><th>무기</th><th>맡는 일</th></tr></thead><tbody>
+    <tr class="hi"><td><b>탱커 · 리더</b></td><td>모험가 방어탱 <span class="sm">(드워프)</span></td><td>세포 소용돌이의 검 ★</td>
+      <td>평타를 0 으로 누르고, 금고·함정·이벤트 판정을 전부 맡습니다</td></tr>
+    <tr><td>원거리 ①</td><td>레인저 활잡이</td><td>명천궁 ★</td><td>관통으로 앞뒤 둘. 물리 무효 담당</td></tr>
+    <tr><td>원거리 ②</td><td>무장병 창잡이</td><td>하늘을 뚫는 창 ★</td><td>모든 적 사거리 + 관통. 후열을 때립니다</td></tr>
+    <tr><td>마법</td><td>암흑마법사</td><td>송곳니왕의 전역 지팡이</td><td>전체 마법. 회피·방어를 무시하는 유일한 딜</td></tr>
+  </tbody></table>
+  <div class="note"><b>리더에게 통찰을 몰아주세요.</b> 금고 <b>발견</b>과 <b>이벤트 등장</b>은
+     <b>리더만</b> 굴립니다 &mdash; 이벤트 판정에 실패하면 금고가 아예 안 나옵니다.
+     반대로 금고 <b>해제</b>는 재주고 리더 보너스가 없으며, <b>함정 탐지는 파티 전원이 굴립니다</b>.
+     그래서 <b>레인저·현자는 리더 한 명에게만</b> 올리면 됩니다(<a href="notes.html#chest">§3</a>·<a href="notes.html#trap">§4</a>).</div>
+  <div class="note warn"><b>회피탱을 쓸 거면 파티에 두세요, 솔플로는 쓰지 마세요.</b>
+     혼란·수면·마비 한 번에 회피가 0 이 되고, 단검이라 물리 무효도 못 뚫습니다.
+     파티에서는 «맞아 주는 자리» 로 여전히 좋습니다 &mdash; 상태이상만 힐러가 봐 주면 됩니다.</div>
+
+  <h3>둘만 데려간다면</h3>
+  <p><b>모험가 방어탱 + 레인저 활잡이</b> 입니다. 탱커가 판정을 전부 맡고,
+     활이 관통으로 둘씩 정리하며, 둘 다 마법 무기라 물리 무효도 통과합니다.</p>
+  <h3>솔플이라면</h3>
+  <p><b>모험가 방어탱 하나</b>입니다. 평타를 0 으로 누르고, 자동회복 27/턴이 치명타를 지우고,
+     늪왕의 부적이 마법을 39 깎고, 마법 무기를 들고, 리더 판정까지 혼자 합니다.
+     회피탱보다 <b>경험치가 7배 쌉니다</b>.</p>
+
+  <h2 id="halls"><span class="n">9</span>훈련소가 어디 있나</h2>
+  <p>직업은 <b>그 훈련소를 여는 퀘스트</b>를 깨야 얻습니다. 아래는 그 퀘스트가 있는 도시입니다.</p>
+  <table class="t"><thead><tr><th>도시</th><th>여기서 열리는 직업</th></tr></thead><tbody>
+    <tr><td>윈달리온 마을</td><td>도둑 · 레인저 · 현자 · 수습 전사 · 견습 사냥꾼</td></tr>
+    <tr><td>브란샤르</td><td>견습 도끼전사 · 견습 마법사 · 견습 성직자</td></tr>
+    <tr><td>실바드 타운</td><td>견습 대검전사 · 수습 랜서</td></tr>
+    <tr><td>군벨 마을</td><td>검술사 · 대검전사 · 랜서</td></tr>
+    <tr><td>밀레아 마을</td><td>가드 · 스커미셔 · 파쇄병 · 숙련된 성직자</td></tr>
+    <tr class="hi"><td>용광로 마을</td><td><b>무장병</b> · 마검사</td></tr>
+    <tr><td>드라이레이크 헤이븐</td><td>검투사</td></tr>
+    <tr><td>사하리오</td><td>베테랑 파이터 · 숙련된 마법사 · 숙련된 사냥꾼</td></tr>
+    <tr class="hi"><td>국경을 넘는 숙소</td><td><b>중도사</b> · 마궁사</td></tr>
+    <tr><td>세라피오스</td><td>블레이드브레이커 · 전술병</td></tr>
+    <tr><td>풋워커의 마을</td><td>정령사 · 숨은 칼날의 궁사</td></tr>
+    <tr><td>리스티아</td><td>성창사</td></tr>
+    <tr><td>트레반의 마을</td><td>암흑마법사</td></tr>
+    <tr style="color:var(--faint)"><td>노르그레이 · 자르간트 <span class="sm">(칼레바스 고원)</span></td>
+      <td>마도병 · 순례 사제 · 목 베기 · 풍현사 <span class="sm">— 아직 못 갑니다</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>방어탱의 뼈대인 중도사는 «국경을 넘는 숙소» 에서 열립니다.</b>
+     부 방어력 8 로 다른 어떤 직업보다 큽니다 &mdash; 이것부터 여세요.
+     그다음이 용광로 마을의 <b>무장병</b>(부 4)과 밀레아의 <b>가드</b>(부 6)입니다.</div>
+  <p class="src">meta.json 장비 757 · codex.json 몬스터 367(열린 지역 242) &middot;
+     계산식은 <a href="notes.html">원리</a> §8 · §10 · §11 &middot;
+     경험치는 시간당 10만 기준</p>
+
+  </main>
+</div>
