@@ -457,6 +457,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      마법 무기(마천의 지팡이 Lv24 · 근접/단일)보다
      <b>비마법이지만 모든 적/전체 공격인 송곳니왕의 전역 지팡이</b>가 낫습니다.
      &mdash; 지팡이는 마법 무기가 딱 <b>둘</b>뿐이고, 둘 다 사거리가 나쁩니다.</div>
+  <div class="note"><b>마법을 «다 켜 두면» 알아서 최적화되나 &mdash; 절반만입니다.</b>
+     속성 상성(약점 &times;2 &minus; 무효)은 알아서 봅니다. 하지만 <b>피해량은 안 봐서</b>,
+     점수가 같으면 <b>레벨이 낮은 = 약한 마법</b>이 뽑힙니다.
+     그래서 <b>무속성 전체 마법은 가장 센 것 하나만 켜야</b> 합니다.
+     자세한 것은 <a href="notes.html#magic">§11</a> 에 적어 뒀습니다.</div>
   <div class="note warn"><b>마법에는 명중 굴림이 아예 없습니다.</b> 쏘면 들어갑니다.
      거꾸로 <b>내가 맞을 때도 회피가 안 통합니다</b> &mdash; 마법 방어와 HP 로만 버팁니다.
      그래서 <b>마법사에게 늪왕의 부적(마법 방어 39)은 사실상 필수</b>입니다.</div>
@@ -515,6 +520,39 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>종족은 휴먼이어야 합니다.</b> <b>엘프는 성직 계열 셋</b>
      (견습 성직자 · 숙련된 성직자 · 성창사)<b>을 못 합니다</b> &mdash; 기본 지능이 2 높은 대신
      위 표에서 <b>지능 46 (4.8M)에서 멈춥니다</b>. 드워프는 마법 직업을 다섯이나 못 해서 아예 안 됩니다.</div>
+
+  <h4>민첩은 얼마나 올릴까 &mdash; «선제공격» 은 민첩이 아닙니다</h4>
+  <div class="note warn"><b>먼저 바로잡을 것.</b> 전투 시작의 <b>선제공격</b> 판정은
+     <b>통찰</b>로 굴립니다 (<a href="notes.html#avoid">§8</a>) &mdash;
+     <code>리더 보너스 + max(도둑Lv + 2, 레인저Lv) + ⌊통찰 흔들림 ÷ 3⌋</code>.
+     <b>민첩은 한 글자도 안 들어갑니다.</b>
+     민첩이 정하는 것은 <b>같은 전투 안의 행동 순서</b>뿐입니다
+     &mdash; 매 라운드 <code>Agility()</code> 내림차순으로 다시 줄을 세웁니다.</div>
+  <p>그래도 «전체 마법을 몬스터보다 먼저» 는 값어치가 큽니다. 목표치는 이렇습니다.</p>
+  <table class="t"><thead><tr><th>지역</th><th class="num">몬스터 민첩 중앙</th>
+    <th class="num">상위 25%</th><th class="num">최대</th></tr></thead><tbody>
+    <tr><td>미스토리아 반도</td><td class="num">12</td><td class="num">14</td><td class="num">17</td></tr>
+    <tr><td>바르디아 평원</td><td class="num">12</td><td class="num">15</td><td class="num">20</td></tr>
+    <tr><td>뤼미에르 힐스 · 아르디오스 · 바람의 거친 경계</td><td class="num">12</td><td class="num">16</td><td class="num">22</td></tr>
+    <tr class="hi"><td>발두나의 황야</td><td class="num">12</td><td class="num">16</td><td class="num"><b>28</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>어느 지역이든 중앙값이 12 입니다.</b> 그래서
+     <b>민첩 13 이면 몬스터 절반보다 먼저</b> 움직이고,
+     <b>17 이면 상위 25% 까지</b> 앞섭니다. 그 위는 발두나의 몇 마리 때문인데 값이 안 나옵니다.</div>
+  <table class="t"><thead><tr><th>지능 빌드 위에 얹으면</th><th class="num">민첩</th>
+    <th class="num">지능</th><th class="num">누적 경험치</th><th class="num">민첩 1 당</th></tr></thead><tbody>
+    <tr><td>지능 빌드 그대로</td><td class="num">6</td><td class="num">51</td><td class="num">7.7M</td><td class="num">&mdash;</td></tr>
+    <tr><td>+ 견습 사냥꾼 6</td><td class="num">8</td><td class="num">51</td><td class="num">8.0M</td><td class="num">0.12M</td></tr>
+    <tr class="hi"><td><b>+ 수습 랜서 8 · 숙련된 사냥꾼 10</b></td><td class="num"><b>12</b></td><td class="num">51</td><td class="num"><b>11.4M</b></td><td class="num">0.86M</td></tr>
+    <tr><td>+ 스커미셔 15</td><td class="num"><b>17</b></td><td class="num">51</td><td class="num">27.9M</td><td class="num">3.29M</td></tr>
+    <tr style="color:var(--faint)"><td>+ 숨은 칼날의 궁사 20</td><td class="num">25</td><td class="num">51</td><td class="num">119M</td><td class="num">11.4M</td></tr>
+  </tbody></table>
+  <div class="note"><b>권장은 «민첩 12» 입니다 &mdash; 11.4M.</b>
+     견습 사냥꾼 6 · 수습 랜서 8 · 숙련된 사냥꾼 10 을 얹으면 됩니다(전부 레벨이 낮아 쌉니다).
+     <b>17 까지 밀면 27.9M</b> 이라 방어탱(22M)보다 비싸집니다 &mdash;
+     전체 마법을 확실히 먼저 쏘고 싶으면 그때 스커미셔 15 를 더합니다.
+     <span class="sm">기본 민첩 4 가정. 이 부직업들은 지능이 안 붙지만
+     <b>레벨이 낮아 1.05 지수에 거의 안 얹힙니다</b>.</span></div>
 
   <h2 id="weapons"><span class="n">7</span>무기 총정리 &mdash; 상시 착용 기준</h2>
   <p>바꿔 낄 수 없다는 전제로, <b>종류별 «그냥 계속 들 무기»</b> 입니다.

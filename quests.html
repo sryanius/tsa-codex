@@ -1077,6 +1077,7 @@ el("out").addEventListener("click",function(e){
     st.classList.toggle("on", !!FAV[id]);
     st.setAttribute("aria-pressed", FAV[id]?"true":"false");
     if(window.__favLabel) window.__favLabel();
+    pushSoon();                                   // 로그인돼 있으면 서버에도 올린다
     if(state.fav) render();
     return;
   }
@@ -1144,7 +1145,7 @@ try{
 function readFac(){ try{ return JSON.parse(localStorage.getItem(FKEY)||"null"); }catch(e){ return null; } }
 function gatherState(){
   return { q:(SAVE&&SAVE.q)||{}, at:(SAVE&&SAVE.at)||"",
-           levels:lv, fac:readFac() };
+           levels:lv, fac:readFac(), fav:Object.keys(FAV) };
 }
 function applyState(p){
   if(!p) return;
@@ -1154,6 +1155,13 @@ function applyState(p){
     Array.prototype.forEach.call(el("levels").querySelectorAll(".lvin input"),function(i,k){
       var name=FORD[k]; if(name!=null) i.value=(lv[name]==null?"":lv[name]); }); }
   if(p.fac){ try{ localStorage.setItem(FKEY, JSON.stringify(p.fac)); }catch(e){} }
+  /* 즐겨찾기는 «합친다». 폰에서 담고 PC 에서 담으면 둘 다 남아야 한다 —
+     덮어쓰면 나중에 연 쪽이 앞의 것을 지운다. */
+  if(p.fav && p.fav.length){
+    p.fav.forEach(function(i){ FAV[i]=1; });
+    saveFav();
+    if(window.__favLabel) window.__favLabel();
+  }
   render();
 }
 // 세이브·클라우드 UI 는 /save.html 이 맡는다. 여기서는 상태만 알리고,

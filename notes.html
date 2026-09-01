@@ -612,6 +612,28 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td>숲 <code>Forest</code></td><td class="num">+1</td><td class="num">활 &minus;1 · 그 외 0</td></tr>
   </tbody></table>
   <p>근접끼리는 서로 깎여 상쇄되지만, <b>거친 지형에서 활에게 맞을 때는 내 회피만 깎입니다</b> &mdash; 이동 곤란에서 &minus;2, 매우 곤란에서 &minus;4. 그리고 <b>활은 비행 몬스터에게 명중 +2</b> 를 받습니다.</p>
+  <h3>선제공격은 «통찰» 입니다 &mdash; 민첩이 아닙니다</h3>
+  <p>전투가 시작될 때 한쪽이 먼저 치고 들어가는 판정이 따로 있습니다
+     (<code>BattleContext.FirstAttack</code>). 여기 쓰이는 것은 <b>통찰</b>이고,
+     <b>민첩은 한 글자도 안 들어갑니다</b>.</p>
+  <div class="eq">파티 쪽 값(한 명) = <b>리더 보너스</b> + <b>max(도둑 레벨 + 2, 레인저 레벨)</b>
+                  + &lfloor;통찰 흔들림 &divide; 3&rfloor;
+몬스터 쪽 값      = &lfloor;몬스터 통찰 흔들림 &divide; 3&rfloor; + 조정
+
+파티가 앞서려면  <b>Dice2DWithCritical(10) + 파티 값 &ge; 몬스터 값 + 2d6 + 8</b></div>
+  <div class="note"><b>도둑과 레인저가 여기서 또 나옵니다.</b>
+     <code>GetJobLevel(Thief) + 2</code> 와 <code>GetJobLevel(Ranger)</code> 중
+     <b>큰 쪽</b>이 통째로 더해집니다 &mdash; 도둑 30 이면 <b>+32</b> 입니다.
+     금고·함정·이벤트에 이어(<a href="#chest">§3</a>·<a href="#trap">§4</a>)
+     <b>선제공격까지 통찰·도둑·레인저</b>가 정합니다.
+     <span class="sm">(몬스터 쪽 조정값과 두 번째 굴림의 정확한 갈래는 아직 다 안 풀었습니다.)</span></div>
+  <div class="note warn"><b>민첩이 정하는 것은 «행동 순서» 뿐입니다.</b>
+     <code>Battle.GetCanActionCreatures</code> 가 <b>매 라운드</b>
+     <code>Agility()</code> 내림차순으로 다시 줄을 세웁니다 &mdash; 주사위도 나눗셈도 없이
+     <b>날것 그대로</b>입니다. 선제공격과는 별개입니다.</div>
+  <p class="src">AdventureMain.ExecuteBattle <span class="sm">(0x2725bd8~0x2725c1c)</span> &middot;
+     AdventureMain.&lt;ExecuteBattle&gt;b__7_1 / b__7_0 &middot; Battle.&lt;GetCanActionCreatures&gt;b__5_3</p>
+
   <h3>방패 막기 &mdash; 회피가 뚫린 뒤에 한 번 더</h3>
   <p>회피 판정에 져서 «맞는다» 로 정해진 다음, <b>방패가 한 번 더 굴립니다</b>.
      같은 판정의 일부가 아니라 <b>완전히 따로</b> 굴리는 두 번째 관문입니다.</p>
@@ -1119,6 +1141,38 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      마법은 피해가 <b>0~2</b> 로 내려가고, 물리는 <b>35% 로 1</b> 이 남습니다.
      그리고 <b>마법에는 치명타 갈래가 없어서</b> 방어가 반으로 깎이는 대가 없습니다.
      <b>문제는 올릴 수단이 없다는 것입니다.</b></div>
+
+  <h3>★ 어떤 마법을 쓸지는 이렇게 고릅니다</h3>
+  <p>전투는 자동이고, 마법 하나하나에 <b>「사용」</b>과 <b>「보스에서만」</b> 을 켤 수 있습니다.
+     그 뒤의 고르는 순서가 이렇습니다 (<code>BattleActionSelector.SelectActions</code>).</p>
+  <div class="eq"><b>1</b> Character.EnableSkills(isBoss)   <span class="cmt">// 「사용」 켠 것만. 「보스에서만」 은 보스전에서만 들어온다</span>
+<b>2</b> 목록을 정렬한다 &mdash; <b>종류 &rarr; 사거리 &rarr; 레벨</b> (전부 <b>오름차순</b>)
+<b>3</b> 마법을 쓸 수 있으면(CanMagicAction):
+     <b>a.</b> <b>전체</b> 마법 중에서 가장 좋은 것을 고른다
+     <b>b.</b> 없으면 <b>관통</b> 마법 중에서
+     <b>c.</b> 둘 다 없으면 <b>단일 대상</b> 을 정렬 순서대로 훑어 첫 «쓸 수 있는» 것
+<b>4</b> 점수 = <b>약점인 적 &times; 2 &minus; 무효인 적</b>   <span class="cmt">// 속성이 없으면 0</span></div>
+  <div class="note"><b>속성 상성은 알아서 봅니다.</b>
+     <code>GetAllTargetDamageSkillPriority</code> 가 지금 서 있는 적을 세어
+     <b>약점 하나당 +2, 무효 하나당 &minus;1</b> 로 점수를 매기고 가장 높은 것을 씁니다.
+     이건 «다 켜 두면 알아서 한다» 가 맞습니다.</div>
+  <div class="note warn"><b>그런데 피해량은 안 봅니다 &mdash; 동점이면 «약한» 마법이 뽑힙니다.</b>
+     정렬이 <b>레벨 오름차순</b>이고 고를 때 «지금까지보다 <u>더 높은</u> 점수» 일 때만 바꾸므로,
+     점수가 같으면 <b>먼저 나온 것 = 레벨이 낮은 것 = 피해가 작은 것</b>이 이깁니다.
+     속성이 없는 전체 마법끼리는 점수가 <b>둘 다 0</b> 이라 <b>언제나 약한 쪽</b>을 씁니다.</div>
+  <div class="note warn"><b>그리고 전체 마법이 하나라도 켜져 있으면 단일 마법은 아예 안 봅니다.</b>
+     적이 하나만 남아도 전체 마법을 씁니다. 초기 최고점이 <code>int.MinValue</code> 라
+     <b>점수가 음수여도(전부 무효여도) 하나는 고릅니다.</b></div>
+  <table class="t"><thead><tr><th>그래서 이렇게 켭니다</th><th>왜</th></tr></thead><tbody>
+    <tr class="hi"><td><b>무속성 전체 마법은 «가장 센 것 하나만»</b></td><td>여럿 켜면 점수가 전부 0 이라 약한 것만 나갑니다</td></tr>
+    <tr><td>속성이 <b>다른</b> 전체 마법은 여럿 켜도 좋습니다</td><td>약점 판단을 해 줍니다 (약점 ×2 &minus; 무효)</td></tr>
+    <tr><td>단일 마법은 «전체가 없을 때» 만 나갑니다</td><td>전체를 켜 두면 단일은 사실상 죽은 칸입니다</td></tr>
+    <tr><td><b>보스에서만</b> 은 MP 아끼기용입니다</td><td>MP 는 «되면 쓴다» 로만 판단합니다 &mdash; 아끼는 로직이 없습니다</td></tr>
+  </tbody></table>
+  <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c0efc / 0x26c0f10 — 전체 → 관통 순서)</span> &middot;
+     SelectBestRangeSkillAction <span class="sm">(0x26c393c 최고점 초기값 int.MinValue)</span> &middot;
+     GetAllTargetDamageSkillPriority &middot; &lt;SelectActions&gt;b__2_1 <span class="sm">(정렬 비교자)</span> &middot;
+     Skill.enable / Skill.enableBossOnly</p>
 
   <h3>마법 방어는 부적이 정합니다</h3>
   <p>마스터의 <code>_magicDefense</code> 는 거의 다 0 이라 그것만 보면 «마법 방어가 없는 게임»
