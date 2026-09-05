@@ -644,8 +644,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr class="hi"><td rowspan="2"><b>전체</b><br><span class="meta">둘 다</span></td>
       <td><b>블리자드</b> <span class="sm">냉기</span></td><td class="num">20</td><td class="num"><b>19~20</b></td><td class="num">23</td><td>마궁사 10</td></tr>
     <tr class="hi"><td><b>그래블 버스트</b> <span class="sm">대지</span></td><td class="num">20</td><td class="num"><b>19~20</b></td><td class="num">22</td><td>마궁사 10</td></tr>
-    <tr class="hi"><td><b>단일</b><br><span class="meta">「보스에서만」</span></td><td><b>다크페인</b> <span class="sm">어둠</span></td><td class="num">30</td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 <b>1</b></td></tr>
     <tr class="hi"><td><b>부적</b></td><td><b>현맥의 부적</b> <span class="sm">MP 회복 7/턴</span></td><td class="num">&mdash;</td><td class="num">마방 34</td><td class="num">힘 1</td><td>요구 레벨 25 &mdash; 아래를 보십시오</td></tr>
+    <tr style="color:var(--f-vault)"><td><b>단일</b></td><td colspan="5"><b>하나도 켜지 않습니다</b> &mdash; 다크페인도 끕니다(아래)</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>나머지 공격 마법은 전부 «사용» 을 끕니다.</b>
       MP 폴백으로 남겨 둘 필요도 없습니다 &mdash; MP 가 모자라면 그 마법이 <b>목록에서 저절로 빠집니다</b>
       (<code>BattleSkill.CanUse</code>).</td></tr>
@@ -718,7 +718,44 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>그래블 버스트(22)가 블리자드(23)보다 1 쌉니다.</b>
      MP 가 22 인 턴에는 그래블만 나갑니다 &mdash; 둘 다 켜 두면 이 턴도 벌립니다.</div>
 
-  <h3>단일은 왜 켜는가 &mdash; «MP 잔돈» 한 칸입니다</h3>
+  <h3>단일은 켜지 않습니다 &mdash; 보스전에도 쫄이 나옵니다</h3>
+  <div class="note warn"><b>★ 이 절의 앞선 판은 틀렸습니다 (2026-09-06 고침).</b>
+     「다크페인을 <b>보스에서만</b> 으로 걸면 보스전(적 하나)에서 이득」 이라고 적었는데,
+     <b>보스전에 적이 하나인 경우가 22% 뿐</b>이었습니다. 세어 보지 않고 «보스 = 한 마리» 로 가정했습니다.</div>
+  <table class="t"><thead><tr><th>몬스터 그룹</th><th class="num">그룹 수</th><th class="num">중앙</th><th class="num">평균</th>
+    <th class="num">1마리</th><th class="num">3마리 이상</th></tr></thead><tbody>
+    <tr class="hi"><td><b>보스</b> <span class="sm">(전용 음악이 붙는 그룹)</span></td><td class="num">1125</td><td class="num"><b>3</b></td><td class="num"><b>2.80</b></td><td class="num">22%</td><td class="num"><b>60%</b></td></tr>
+    <tr><td>일반</td><td class="num">4581</td><td class="num">2</td><td class="num">2.23</td><td class="num">23%</td><td class="num">37%</td></tr>
+    <tr><td colspan="6" style="color:var(--muted)">보스 그룹의 마리 수 분포 &mdash;
+      1마리 246 · 2마리 206 · 3마리 378 · 4마리 162 · 5마리 84 · 6마리 49 (최대 6).
+      퀘스트 1364개의 전투 이벤트 전수</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>보스전이 오히려 적이 더 많습니다.</b> 중앙 3마리에 평균 2.80 이고,
+     <b>셋 이상이 60%</b> 입니다. 「보스에서만」 스위치로는 <b>적 수를 못 가릅니다</b>.</div>
+
+  <h4>그래서 어느 쪽이 나은가</h4>
+  <p>퀘스트 한 판(16턴 · 시작 MP 80 · 회복 13/턴)을 그대로 돌려 보면,
+     다크페인을 켜면 <b>전체 8발 + 다크페인 8발</b>, 끄면 <b>전체 12발 + 평타 4번</b>이 됩니다
+     (다크페인이 MP 를 10~22 에 묶어 두기 때문입니다).</p>
+  <div class="eq">켜면  8 &times; (70 &times; 적수) + 8 &times; 82
+끄면  12 &times; (70 &times; 적수) + 평타 4번
+
+손익분기 = 적 <b>1.9</b> 명   <span class="cmt">// 평타가 한 대도 안 맞는다고 쳐도 2.3명</span></div>
+  <table class="t"><thead><tr><th class="num">적 수</th><th class="num">다크페인 켬</th><th class="num">다크페인 끔</th><th>어느 쪽</th></tr></thead><tbody>
+    <tr><td class="num">1</td><td class="num"><b>1216</b></td><td class="num">900</td><td>켜는 쪽</td></tr>
+    <tr><td class="num">2</td><td class="num">1776</td><td class="num">1800</td><td>비김</td></tr>
+    <tr><td class="num">3</td><td class="num">2336</td><td class="num"><b>2700</b></td><td>끄는 쪽</td></tr>
+    <tr><td class="num">4</td><td class="num">2896</td><td class="num"><b>3600</b></td><td>끄는 쪽</td></tr>
+    <tr class="hi"><td class="num"><b>보스 평균<br>2.80</b></td><td class="num">2224</td><td class="num"><b>2520</b></td><td><b>끄는 쪽 13% 우위</b></td></tr>
+    <tr class="hi"><td class="num"><b>일반 평균<br>2.23</b></td><td class="num">1905</td><td class="num"><b>2007</b></td><td><b>끄는 쪽 5% 우위</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>결론 &mdash; 공격 마법은 전체 둘만 켭니다.</b>
+     보스전이든 일반전이든 끄는 쪽이 낫고, 켜서 이기는 것은 <b>적이 하나일 때뿐</b>인데
+     그 경우가 보스에서도 22% 밖에 안 됩니다.
+     <span class="sm">(평타 명중을 50% 로 잡았습니다. 한 대도 안 맞는다고 가정해도 손익분기가 2.3명이라
+     보스 평균 2.80 에서는 여전히 끄는 쪽입니다.)</span></div>
+
+  <h3>참고 &mdash; 단일이 어떻게 골라지나</h3>
   <p>단일 갈래는 <b>전체·관통이 하나도 못 나가는 턴에만</b> 돕니다.
      전체가 빠지는 이유는 MP 하나뿐이므로, 다크페인이 나가는 구간은 <b>딱 여기입니다</b>.</p>
   <div class="eq">MP &ge; 22   &rarr; <b>블리자드 / 그래블 버스트</b>   전원에게 <b>70~71</b>   <span class="cmt">// 19~20 + 마력 51</span>
@@ -728,35 +765,21 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr class="hi"><td><b>다크페인</b> <span class="sm">한 명</span></td><td class="num"><b>82</b> <span class="sm">− 마방(114종 중 55%가 0)</span></td><td class="num"><b>안 빗나갑니다</b></td></tr>
     <tr><td>평타 <span class="sm">(전역 지팡이면 전원)</span></td><td class="num">74.5 &minus; <b>방어 44</b> &asymp; <b>30</b></td><td class="num">회피 <b>32</b> 를 뚫어야</td></tr>
   </tbody></table>
-  <div class="note"><b>그래서 켜는 것이 맞습니다.</b> 발두나 몬스터의 <b>방어 중앙값이 44</b> 라
-     평타는 한 대에 30 밖에 못 넣고 그마저 <b>회피 32</b> 에 걸립니다.
-     다크페인은 <b>82 가 그냥 들어갑니다</b>(§11 &mdash; 마법에는 명중 굴림이 없습니다).
-     전역 지팡이라 평타가 전원을 때려도, 적 셋까지는 다크페인이 앞섭니다.</div>
-  <div class="note warn"><b>다만 «보험» 이지 주력이 아닙니다.</b> 두 가지 제약이 있습니다.
-     <b>①</b> MP 가 넉넉한 동안에는 <b>한 번도 안 나갑니다</b> &mdash; 전체가 먼저 나갑니다.
-     <b>②</b> 어둠 약점인 적(열린 지역 <b>5종</b>)도 물리 무효인 적도 없으면,
-     그 턴은 <b>50% 만 다크페인이고 50% 는 평타</b>입니다(<code>RandBool</code>).</div>
-
-  <h4>★ 그런데 회복 장비를 끼면 «상시로 켜면 손해» 가 됩니다</h4>
-  <p>MP 회복 13/턴 기준으로 <b>한 턴의 수지</b>를 보면 이렇습니다.</p>
+  <div class="note"><b>한 방만 보면 다크페인이 평타보다 셉니다.</b>
+     발두나 몬스터의 <b>방어 중앙값이 44</b> 라 평타는 한 대에 30 밖에 못 넣고 그마저 회피에 걸리는데,
+     다크페인은 <b>82 가 그냥 들어갑니다</b>. <b>적이 하나라면</b> 켜는 쪽이 맞습니다.</div>
+  <div class="note warn"><b>그런데 «그 턴 하나» 가 아니라 «퀘스트 전체» 로 보면 뒤집힙니다.</b>
+     MP 회복 13/턴 기준으로 한 턴의 수지가 이렇기 때문입니다.</div>
   <div class="eq">블리자드  23 쓰고 13 회복 &rarr; <b>순 &minus;10</b>
-다크페인  10 쓰고 13 회복 &rarr; <b>순 +3</b>
+다크페인  10 쓰고 13 회복 &rarr; <b>순 +3</b>    <span class="cmt">// MP 를 거의 안 채운다</span>
 평타       0 쓰고 13 회복 &rarr; <b>순 +13</b></div>
-  <div class="note warn"><b>다크페인은 MP 를 «거의 안 채웁니다».</b>
-     상시로 켜 두면 MP 가 10~22 에 묶여서 블리자드가 좀처럼 못 돌아옵니다 &mdash;
-     블리자드가 나가는 턴이 <b>57% 에서 20% 로</b> 떨어집니다.
-     끄면 그 턴이 평타가 되고, 평타는 MP 를 <b>13 씩 통째로</b> 채웁니다.</div>
-  <table class="t"><thead><tr><th class="num">적 수</th><th class="num">다크페인 «상시»</th><th class="num">다크페인 «끔»</th><th>어느 쪽</th></tr></thead><tbody>
-    <tr><td class="num">1 <span class="sm">(보스)</span></td><td class="num"><b>796</b></td><td class="num">460</td><td><b>켜는 쪽</b></td></tr>
-    <tr><td class="num">2</td><td class="num">936</td><td class="num">921</td><td>비김</td></tr>
-    <tr class="hi"><td class="num">3</td><td class="num">1076</td><td class="num"><b>1381</b></td><td><b>끄는 쪽</b></td></tr>
-    <tr class="hi"><td class="num">4</td><td class="num">1216</td><td class="num"><b>1841</b></td><td><b>끄는 쪽</b></td></tr>
-    <tr><td colspan="4" style="color:var(--muted)">10턴 동안 넣는 총 피해. 마력 51 · MP 회복 13/턴 · 평타 명중 50% 가정</td></tr>
-  </tbody></table>
-  <div class="note"><b>그래서 답은 「보스에서만」 입니다.</b>
-     일반전(적 셋 이상)에서는 목록에서 빠져 <b>전체 마법만</b> 돌고,
-     보스전(적 하나)에서는 MP 잔돈 구간에 <b>82 짜리 한 방</b>이 들어갑니다.
-     이 스위치가 «적 수» 를 대신 갈라 줍니다.</div>
+  <div class="note warn"><b>다크페인이 MP 를 10~22 에 묶어 둡니다.</b>
+     상시로 켜 두면 전체 마법이 나가는 턴이 <b>16턴 중 12번에서 8번으로</b> 줄어듭니다.
+     끄면 그 턴이 평타가 되고, 평타는 MP 를 <b>13 씩 통째로</b> 채워서 전체 마법을 되돌립니다
+     &mdash; 위의 손익 계산이 그래서 나옵니다.</div>
+  <div class="note"><b>그리고 실제로 나가는 것도 절반뿐입니다.</b>
+     어둠 약점인 적(열린 지역 <b>5종</b>)도 물리 무효인 적도 없으면,
+     그 턴은 <b>50% 만 다크페인이고 50% 는 평타</b>입니다(<code>RandBool</code>).</div>
   <div class="note"><b>중간을 채우려고 싼 마법을 켜면 안 됩니다.</b>
      MP 가 넉넉할 때도 그것이 나갑니다 &mdash; 얻는 것은 «잔돈 턴» 하나인데
      잃는 것은 <b>모든 턴</b>입니다.</div>
@@ -819,8 +842,8 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr><td>라이프드레인 <span class="sm">(HP 흡수)</span></td><td class="num">20</td><td>어둠</td><td class="num">21~23</td><td class="num">10</td><td>암흑마법사 20</td></tr>
     <tr><td>독성바이트</td><td class="num">25</td><td>독</td><td class="num">26~28</td><td class="num">28</td><td>암흑마법사 1</td></tr>
     <tr style="color:var(--faint)"><td>🔒 번아웃</td><td class="num">28</td><td>화염</td><td class="num">29~31</td><td class="num">25</td><td>마도병 1</td></tr>
-    <tr class="hi"><td><b>다크페인</b></td><td class="num">30</td><td>어둠</td><td class="num"><b>31~33</b></td><td class="num"><b>10</b></td><td>암흑마법사 1</td></tr>
-    <tr style="color:var(--faint)"><td>🔒 프리즈링 에지 <span class="sm">— 열리면 다크페인과 «같이» 켭니다</span></td><td class="num">30</td><td>냉기</td><td class="num">31~33</td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr><td><b>다크페인</b> <span class="sm">— 단일 중 최고지만 그래도 끕니다</span></td><td class="num">30</td><td>어둠</td><td class="num"><b>31~33</b></td><td class="num"><b>10</b></td><td>암흑마법사 1</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 프리즈링 에지</td><td class="num">30</td><td>냉기</td><td class="num">31~33</td><td class="num">25</td><td>마도병 1</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>관통</b> &mdash; 라이트닝 랜스 Lv16 · 빛 · 16~19 · MP 23 · 마궁사 8.
       <b>후열에 적이 있을 때만</b> 후보가 되고, 전체가 하나도 못 나갈 때 대신 나갑니다.
       <b>이것도 끕니다</b> &mdash; MP 23 이라 블리자드와 <b>같은 문턱</b>이어서, 블리자드가 못 나가는 턴엔 이것도 못 나갑니다.</td></tr>
@@ -840,8 +863,8 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      그래서 이 스위치는 «아끼기» 가 아니라 <b>«보스전에서만 대신 쓰게 하는»</b> 용도입니다.
      동점이면 <b>레벨 낮은 쪽</b>이 이기므로, 상시 마법보다 <b>레벨이 낮은</b> 것을 걸어야 실제로 바뀝니다.</p>
   <table class="t"><thead><tr><th>하고 싶은 것</th><th>거는 법</th></tr></thead><tbody>
-    <tr class="hi"><td><b>지금은 걸 것이 없습니다</b></td><td>상시가 <b>Lv20</b> 인데 그보다 <b>레벨이 낮은 것은 전부 더 약합니다</b>.
-      보스전에서 바꿔 끼울 만한 마법이 지금은 하나도 없습니다 &mdash; <b>전부 꺼 둡니다</b></td></tr>
+    <tr class="hi"><td><b>공격 마법에는 걸 것이 없습니다</b></td><td>상시가 <b>Lv20</b> 인데 그보다 <b>레벨이 낮은 것은 전부 더 약하고</b>,
+      <b>보스전도 중앙 3마리</b>라 단일로 바꿔 끼울 이유가 없습니다 &mdash; <b>전부 꺼 둡니다</b></td></tr>
     <tr><td>보스의 <b>MP 를 말리기</b></td><td><b>마나크러쉬(Lv25) 「보스에서만」</b> &mdash; 일반전에는 새지 않습니다.
       다만 Lv25 &gt; 20 이라 <b>보스가 어둠 약점일 때만</b> 실제로 나갑니다</td></tr>
     <tr style="color:var(--faint)"><td>🔒 칼레바스가 열리면</td><td>뇌우(Lv35) 상시 + <b>라이프 하베스트(Lv32) 「보스에서만」</b><br>
