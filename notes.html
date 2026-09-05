@@ -765,6 +765,50 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   </tbody></table>
   <p class="src">Party.GetRetreatThreshold &middot; BattleSkill.CanUse &middot; Character.GetShoutRate &middot; Party.LeaderBonus &middot; InviteAdventureDialog.TapInviteButton</p>
 
+  <h3>★ 어떤 성격이 나오는가 &mdash; 종족과 성별이 정합니다</h3>
+  <p>성격은 <b>뽑을 때 한 번</b> 정해지고 그 뒤로 바뀌지 않습니다
+     (<code>Character.personality</code> 에 쓰는 곳이 <code>CreateParam</code> 하나뿐입니다).
+     고르는 방식은 «칸 뽑기»입니다 &mdash; 캐릭터 마스터마다 <b>성격 칸 목록</b>이 있고
+     거기서 <b>균등 추첨</b>합니다.</p>
+  <div class="eq">personality = personalities[ <b>Random.Range(0, personalities.Count)</b> ]</div>
+  <div class="note"><b>같은 성격이 여러 칸 들어 있으면 그만큼 확률이 높습니다.</b>
+     마스터는 <b>18종</b>뿐이고(종족 4 &times; 성별 2, 휴먼만 5단계) 칸 수는 6 또는 7 입니다.</div>
+  <table class="t"><thead><tr><th>마스터</th><th class="num">칸</th>
+    <th class="num">무모한</th><th class="num">이기적</th><th class="num">사교적</th><th class="num">신중한</th>
+    <th class="num">합리적</th><th class="num">신경질적</th><th class="num">감정적</th></tr></thead><tbody>
+    <tr><td>휴먼 남 1~5 · 여 1~5 <span class="sm">(10종)</span></td><td class="num">7</td>
+      <td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td></tr>
+    <tr><td><b>드워프 남</b> 1·2</td><td class="num"><b>6</b></td>
+      <td class="num"><b>1/6</b></td><td class="num"><b>3/6</b></td><td class="num">&middot;</td><td class="num">1/6</td>
+      <td class="num">&middot;</td><td class="num">&middot;</td><td class="num">1/6</td></tr>
+    <tr class="hi"><td><b>드워프 여</b> 1·2</td><td class="num">7</td>
+      <td class="num"><b>&middot;</b></td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">1/7</td><td class="num">&middot;</td><td class="num"><b>3/7</b></td></tr>
+    <tr><td>엘프 남</td><td class="num">7</td>
+      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">&middot;</td><td class="num">2/7</td><td class="num">2/7</td></tr>
+    <tr><td>엘프 여</td><td class="num">7</td>
+      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">3/7</td></tr>
+    <tr><td>풋워커 남</td><td class="num">7</td>
+      <td class="num">1/7</td><td class="num">2/7</td><td class="num">&middot;</td><td class="num">&middot;</td>
+      <td class="num">1/7</td><td class="num">1/7</td><td class="num">2/7</td></tr>
+    <tr><td>풋워커 여</td><td class="num">7</td>
+      <td class="num">&middot;</td><td class="num">2/7</td><td class="num">1/7</td><td class="num">&middot;</td>
+      <td class="num">2/7</td><td class="num">1/7</td><td class="num">1/7</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>무모한이 아예 안 나오는 쪽이 넷 있습니다</b> &mdash;
+     <b>드워프 여 · 엘프 남 · 엘프 여 · 풋워커 여</b>. 칸에 없으니 0% 입니다.
+     후퇴를 안 하는 리더(무모한)를 찾는다면 <b>휴먼(1/7) · 드워프 남(1/6) · 풋워커 남(1/7)</b>
+     세 곳에서만 나옵니다.</div>
+  <div class="note"><b>드워프 남자는 절반이 이기적입니다</b> &mdash; 6칸 중 3칸.
+     드워프 여자는 <b>감정적이 3/7</b> 이고, 엘프도 감정적·신경질적으로 몰려 있습니다.
+     감정적은 후퇴 기준점을 <b>매번 7~29 로 다시 굴리는</b> 성격이라 리더로는 예측이 안 됩니다(아래).</div>
+  <p class="src">CharacterMaster.personalities <span class="sm">(마스터 18종 전수)</span> &middot;
+     Character.CreateParam <span class="sm">(0x26d2340&mdash;0x26d2358)</span> &middot;
+     ListExtensions.Random <span class="sm">(0x2cbd560 &mdash; Random.Range(0, Count))</span></p>
+
   <h3>후퇴 &mdash; 리더의 성격만 봅니다</h3>
   <p>후퇴는 <b>리더 한 명의 성격</b>으로 정해집니다. 나머지 파티원의 성격은 여기에 아무 영향이 없습니다. 방식은 «점수 적립»입니다 &mdash; 사건이 하나 끝날 때마다 파티에 <b>후퇴 점수</b>가 쌓이고, 그 합이 기준점에 닿는 순간 되돌아섭니다.</p>
   <div class="eq">A = 살아 있는 인원 &nbsp; N = 전체 인원
@@ -1135,7 +1179,29 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <span class="cmt">// 대상 약점 +2 · 저항 &minus;2</span>
 <b>while</b> 2d6 &gt; 9: 피해 += &lfloor;Rand(최소,최대) &divide; 2&rfloor;   <span class="cmt">// 1/6 로 터지고, 터지면 또 굴린다</span>
 피해 &minus;= <b>대상 마법 방어</b>          <span class="cmt">// ★ 전액 &mdash; 물리처럼 반으로 안 나눈다</span>
-<b>if</b> 피해 &le; 0: 피해 = <b>Rand(3)</b>       <span class="cmt">// 0 ~ 2 &mdash; 물리의 「최소 1」 과 다르다</span></div>
+<b>if</b> 피해 &le; 0: 피해 <b>+=</b> Rand(3)       <span class="cmt">// 0~2 를 더할 뿐이라 결과도 2 를 못 넘는다</span></div>
+
+  <h3>★ 스킬최소 · 스킬최대 · MP 는 «레벨»에서 나옵니다</h3>
+  <p>마법의 세기는 데이터에 적혀 있지 않습니다 &mdash; <b>스킬 레벨</b>에서 계산됩니다.
+     <code>minDamage</code>/<code>maxDamage</code> 는 거기에 얹는 보정일 뿐이고,
+     배울 수 있는 마법 <b>28개 중 27개가 0</b> 입니다 (성스러운 폭발만 +3).</p>
+  <div class="eq">스킬최소 = 레벨 + minDamage + <b>1</b>   <span class="cmt">// 관통이면 &minus;1 · 전체면 &minus;2</span>
+스킬최대 = 레벨 + maxDamage + <b>4</b>   <span class="cmt">//              전체면 &minus;3</span>
+소모 MP  = 레벨 + useMp    + <b>3</b>   <span class="cmt">// 물리 스킬이면 +2</span>
+
+굴림은 <b>Rand(최소, 최대)</b> 라 <b>최대는 안 나옵니다</b>.</div>
+  <div class="note"><b>그래서 «레벨이 높은 마법 = 센 마법» 이 예외 없이 성립합니다.</b>
+     다크페인(Lv30 단일)이 31~33, 뇌우(Lv35 전체)가 34~35 입니다.
+     속성이 세기를 바꾸는 일은 없습니다 &mdash; <b>속성은 약점 &plusmn;2 와 무효 0 에만</b> 씁니다.</div>
+  <div class="note warn"><b>MP 가 모자라는 마법은 «고르는 목록»에서 아예 빠집니다.</b>
+     <code>BattleSkill.CanUse</code> 가 <code>Mp &lt; 소모 MP</code> 면 <code>false</code> 를 돌려주고,
+     그 걸러진 뒤의 목록으로 정렬·선택을 합니다. 그래서 MP 가 떨어지면
+     <b>자동으로 한 단계 싼 마법으로 내려갑니다</b> &mdash; 「아껴 쓰는」 로직은 없지만
+     「못 쓰면 건너뛴다」 는 있습니다.</div>
+  <p class="src">SkillMaster.MinDamage <span class="sm">(0x2706480)</span> &middot;
+     SkillMaster.MaxDamage <span class="sm">(0x2706590)</span> &middot;
+     SkillMaster.get_UseMp <span class="sm">(0x2706294)</span> &middot;
+     BattleSkill.CanUse <span class="sm">(0x26c4a68&mdash;0x26c4a84)</span></p>
   <div class="note"><b>규칙만 보면 마법 방어가 물리 방어보다 낫습니다.</b>
      물리도 평타는 방어를 전액 뺍니다(§10). 다른 점은 <b>넘어섰을 때</b>입니다 &mdash;
      마법은 피해가 <b>0~2</b> 로 내려가고, 물리는 <b>35% 로 1</b> 이 남습니다.
@@ -1150,7 +1216,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 <b>3</b> 마법을 쓸 수 있으면(CanMagicAction):
      <b>a.</b> <b>전체</b> 마법 중에서 가장 좋은 것을 고른다
      <b>b.</b> 없으면 <b>관통</b> 마법 중에서
-     <b>c.</b> 둘 다 없으면 <b>단일 대상</b> 을 정렬 순서대로 훑어 첫 «쓸 수 있는» 것
+     <b>c.</b> 둘 다 없으면 <b>단일 대상</b> 으로 내려간다 (아래)
 <b>4</b> 점수 = <b>약점인 적 &times; 2 &minus; 무효인 적</b>   <span class="cmt">// 속성이 없으면 0</span></div>
   <div class="note"><b>속성 상성은 알아서 봅니다.</b>
      <code>GetAllTargetDamageSkillPriority</code> 가 지금 서 있는 적을 세어
@@ -1160,14 +1226,37 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      정렬이 <b>레벨 오름차순</b>이고 고를 때 «지금까지보다 <u>더 높은</u> 점수» 일 때만 바꾸므로,
      점수가 같으면 <b>먼저 나온 것 = 레벨이 낮은 것 = 피해가 작은 것</b>이 이깁니다.
      속성이 없는 전체 마법끼리는 점수가 <b>둘 다 0</b> 이라 <b>언제나 약한 쪽</b>을 씁니다.</div>
-  <div class="note warn"><b>그리고 전체 마법이 하나라도 켜져 있으면 단일 마법은 아예 안 봅니다.</b>
+  <div class="note warn"><b>그리고 전체 마법이 하나라도 «쓸 수 있으면» 단일 마법은 아예 안 봅니다.</b>
      적이 하나만 남아도 전체 마법을 씁니다. 초기 최고점이 <code>int.MinValue</code> 라
-     <b>점수가 음수여도(전부 무효여도) 하나는 고릅니다.</b></div>
+     <b>점수가 음수여도(전부 무효여도) 하나는 고릅니다.</b>
+     단일로 내려가는 것은 <b>MP 가 모자라 전체·관통이 전부 빠졌을 때</b>뿐입니다.</div>
+  <h4 style="font-size:13px;margin:20px 0 8px">단일까지 내려오면 &mdash; 규칙이 또 다릅니다</h4>
+  <p>전체·관통이 하나도 안 남았을 때만 도는 갈래입니다. 여기엔 <b>점수가 없습니다</b>.
+     정렬된 순서(= <b>레벨 낮은 것부터</b>)로 훑으면서 아래를 봅니다.</p>
+  <div class="eq"><b>1</b> 이 마법의 속성에 <b>약점인 적이 하나라도</b> 있으면 &rarr; <b>그 자리에서 확정</b>
+<b>2</b> 아니면 <b>물리가 안 통하는 적</b>(InvalidPhysics)이 하나라도 있으면 &rarr; <b>그 자리에서 확정</b>
+<b>3</b> 둘 다 아니면 후보에 담아 두고 다음 마법으로
+
+전부 훑고도 확정이 없으면 &mdash; <b>RandBool()</b> 로
+   50% : 담아 둔 후보 중 <b>무작위</b> 하나
+   50% : 그냥 <b>평타</b></div>
+  <div class="note warn"><b>1번이 «레벨 낮은 것부터» 이기 때문에 여기서 사고가 납니다.</b>
+     단일 마법을 전부 켜 두면, 적 중 하나라도 화염에 약할 때
+     <b>다크페인(31~33)이 아니라 화재(2~4)가 나갑니다</b> &mdash; 화재가 Lv1 이라 먼저 걸립니다.
+     전체 마법과 달리 여기엔 «점수 비교» 자체가 없어서, 더 센 마법이 뒤에 있어도 안 봅니다.</div>
+  <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c1154 단일 루프 · 0x26c13f8 / 0x26c1458 즉시 확정 · 0x26c1740 RandBool · 0x26c1a48 무작위)</span> &middot;
+     &lt;SelectActions&gt;b__2 <span class="sm">(약점)</span> &middot; &lt;SelectActions&gt;b__2_3 <span class="sm">(InvalidPhysics)</span></p>
+  <div class="note warn"><b>★ 이 절의 앞선 판은 여기서 틀렸습니다 (2026-09-06 고침).</b>
+     「속성이 다른 전체 마법은 여럿 켜도 좋다 &mdash; 약점 판단을 해 준다」 고 적어 뒀는데,
+     <b>약점이 주는 이득이 «+2» 뿐</b>이라는 것을 그때는 안 재 봤습니다.
+     점수는 약점 하나당 <b>+2점</b>이라 <b>레벨이 30 낮은 마법도 이깁니다</b> &mdash;
+     피해 30 을 버리고 2 를 얻는 교환입니다. 실제로 켜는 법은
+     <a href="builds.html#spells">빌드 &sect;7</a> 에 정리했습니다.</div>
   <table class="t"><thead><tr><th>그래서 이렇게 켭니다</th><th>왜</th></tr></thead><tbody>
-    <tr class="hi"><td><b>무속성 전체 마법은 «가장 센 것 하나만»</b></td><td>여럿 켜면 점수가 전부 0 이라 약한 것만 나갑니다</td></tr>
-    <tr><td>속성이 <b>다른</b> 전체 마법은 여럿 켜도 좋습니다</td><td>약점 판단을 해 줍니다 (약점 ×2 &minus; 무효)</td></tr>
-    <tr><td>단일 마법은 «전체가 없을 때» 만 나갑니다</td><td>전체를 켜 두면 단일은 사실상 죽은 칸입니다</td></tr>
-    <tr><td><b>보스에서만</b> 은 MP 아끼기용입니다</td><td>MP 는 «되면 쓴다» 로만 판단합니다 &mdash; 아끼는 로직이 없습니다</td></tr>
+    <tr class="hi"><td><b>전체 마법은 «가장 레벨 높은 것» 딱 하나만</b></td><td>동점이면 레벨 낮은 쪽이 이기고, 약점이 붙어도 <b>+2</b> 뿐입니다</td></tr>
+    <tr class="hi"><td><b>단일 마법도 «가장 센 것 하나만»</b></td><td>단일 갈래는 약점이 걸리는 <b>첫(=가장 약한)</b> 마법을 그대로 씁니다</td></tr>
+    <tr><td>MP 폴백은 <b>안 켜도 됩니다</b></td><td>MP 가 모자라면 그 마법이 목록에서 빠져 <b>저절로</b> 내려갑니다</td></tr>
+    <tr><td><b>보스에서만</b> 은 «보스전에서 대신 쓸 것» 스위치입니다</td><td>보스전에선 켠 것이 <b>전부</b> 후보라, 레벨이 <b>더 낮은</b> 것을 걸어야 바뀝니다</td></tr>
   </tbody></table>
   <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c0efc / 0x26c0f10 — 전체 → 관통 순서)</span> &middot;
      SelectBestRangeSkillAction <span class="sm">(0x26c393c 최고점 초기값 int.MinValue)</span> &middot;

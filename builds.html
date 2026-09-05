@@ -265,7 +265,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       숫자는 전부 지금 갈 수 있는 지역의 장비·몬스터로 계산했습니다.
       <b>요구 힘</b>과 <b>요구 레벨</b>(최고 직업 레벨)은 따로 표시했습니다 &mdash; 둘 다 넘어야 낍니다.</p>
     <div class="toc">
-      <a href="#why">전제 셋</a><a href="#deftank">방어탱</a><a href="#healtank">회복탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#weapons">무기 총정리</a><a href="#party">파티 조합</a><a href="#halls">훈련소 지도</a>
+      <a href="#why">전제 셋</a><a href="#deftank">방어탱</a><a href="#healtank">회복탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#spells">마법 켜기</a><a href="#weapons">무기 총정리</a><a href="#party">파티 조합</a><a href="#halls">훈련소 지도</a>
     </div>
   </header>
   <main class="doc">
@@ -597,7 +597,96 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>현자는 경험치 지수에서 빠지는 두 직업 중 하나</b>라 다른 직업을 비싸게 만들지 않습니다.
      민첩에 쓸 경험치가 있으면 이쪽이 낫습니다.</div>
 
-  <h2 id="weapons"><span class="n">7</span>무기 총정리 &mdash; 상시 착용 기준</h2>
+  <h2 id="spells"><span class="n">7</span>마법 켜기 &mdash; 다 켜면 «가장 약한 것»이 나갑니다</h2>
+  <p>마법마다 <b>「사용」</b>과 <b>「보스에서만」</b> 을 켤 수 있습니다.
+     다 켜 두면 알아서 최적을 골라 줄 것 같지만 <b>아닙니다</b>.
+     고르는 규칙(<a href="notes.html#magic">원리 &sect;11</a>)이 이렇기 때문입니다.</p>
+  <div class="eq"><b>전체 마법</b> 점수 = 약점인 적 &times; 2 &minus; 무효인 적   <span class="cmt">// 속성이 없으면 0</span>
+          동점이면 &rarr; <b>정렬이 앞선 것 = 레벨이 낮은 것 = 약한 것</b>
+<b>단일 마법</b> 점수가 <b>없다</b>. 약점이 걸리는 <b>첫(= 가장 약한)</b> 마법을 그대로 쓴다.
+<b>피해</b>     Rand(레벨+1, 레벨+4) + 마력      <span class="cmt">// 전체는 −2 / −3</span>
+<b>속성</b>     약점 <b>+2</b>  ·  내성 &minus;2  ·  무효 <b>0 (완전 차단)</b></div>
+  <div class="note warn"><b>약점을 맞히고 얻는 것은 «+2» 뿐입니다.</b>
+     그런데 점수는 약점 적 하나당 <b>+2점</b>이라, 레벨이 <b>30 낮은</b> 마법도 그 한 명 때문에 이깁니다.
+     <b>피해 30 을 버리고 2 를 얻는 교환</b>입니다 &mdash; 그래서 «속성별로 골고루 켜기» 는 손해입니다.</div>
+
+  <h3>결론 &mdash; 켤 것은 두 개입니다</h3>
+  <table class="t"><thead><tr><th>칸</th><th>켤 것</th><th class="num">피해</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
+    <tr class="hi"><td><b>전체</b></td><td><b>뇌우</b> <span class="sm">Lv35 · 번개</span></td><td class="num"><b>34~35</b></td><td class="num">38</td><td>마도병 10</td></tr>
+    <tr class="hi"><td><b>단일</b></td><td><b>다크페인</b> <span class="sm">Lv30 · 어둠</span></td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 1</td></tr>
+    <tr><td colspan="5" style="color:var(--muted)"><b>나머지 공격 마법은 전부 «사용» 을 끕니다.</b>
+      MP 폴백으로 남겨 둘 필요도 없습니다 &mdash; MP 가 모자라면 그 마법이 <b>목록에서 저절로 빠집니다</b>
+      (<code>BattleSkill.CanUse</code>).</td></tr>
+  </tbody></table>
+  <div class="note"><b>왜 뇌우인가</b> &mdash; 전체 마법 중 <b>피해가 가장 크고</b>(34~35),
+     동시에 <b>번개 무효가 열린 지역 314종 중 3종뿐</b>입니다.
+     2·3위인 프로스트 템페스트(냉기)는 무효가 <b>20종</b>, 라이프 하베스트(대지)는 <b>21종</b> 이라
+     «0 피해» 를 훨씬 자주 봅니다. 다음 맵(칼레바스 고원)에선 <b>냉기 무효가 105종 중 20종</b>으로 더 나쁩니다.</div>
+  <div class="note"><b>왜 다크페인인가</b> &mdash; 단일 중 최고 피해(31~33)이면서 <b>MP 가 10</b> 입니다.
+     같은 31~33 인 프리즈링 에지는 25, 번아웃(29~31)도 25 입니다.
+     소모 MP 가 <code>레벨 + useMp + 3</code> 인데 다크페인만 <code>useMp</code> 가 &minus;23 이라 유독 쌉니다.</div>
+
+  <h3>전체 마법 &mdash; 정렬 순서 그대로</h3>
+  <p>위에서부터 뽑힙니다. <b>두 개 이상 켜면 위쪽(약한 쪽)이 이깁니다.</b></p>
+  <table class="t"><thead><tr><th class="num">순서</th><th>마법</th><th class="num">Lv</th><th>속성</th>
+    <th class="num">피해</th><th class="num">MP</th><th class="num">약점 / 무효<br><span style="font-weight:400">열린 지역 314종</span></th><th>배우는 곳</th></tr></thead><tbody>
+    <tr><td class="num">1~4</td><td>불의 폭발 · 서리 폭발 · 썬더 블래스트 · 아쿠아 블라스트</td><td class="num">5</td><td>화염·냉기·번개·물</td><td class="num">4~5</td><td class="num">8</td><td class="num">&mdash;</td><td>숙련된 마법사 3</td></tr>
+    <tr><td class="num">5</td><td>성스러운 폭발</td><td class="num">5</td><td>신성</td><td class="num">7~8</td><td class="num">8</td><td class="num">30 / 0</td><td>숙련된 성직자 3</td></tr>
+    <tr><td class="num">6~7</td><td>어스퀘이크 · 베놈 클라우드</td><td class="num">10</td><td>대지 · 독</td><td class="num">9~10</td><td class="num">10 · 13</td><td class="num">1 / 21 &middot; 0 / 14</td><td>마궁사 1</td></tr>
+    <tr><td class="num">8</td><td>바람의 정령</td><td class="num">12</td><td>바람</td><td class="num">11~12</td><td class="num">15</td><td class="num">8 / 5</td><td>정령사 1</td></tr>
+    <tr><td class="num">9~10</td><td>그래블 버스트 · 블리자드</td><td class="num">20</td><td>대지 · 냉기</td><td class="num">19~20</td><td class="num">22 · 23</td><td class="num">1 / 21 &middot; 26 / 20</td><td>마궁사 10</td></tr>
+    <tr><td class="num">11</td><td>라이프 하베스트 <span class="sm">(HP 흡수)</span></td><td class="num">32</td><td>대지</td><td class="num">31~32</td><td class="num">45</td><td class="num">1 / 21</td><td>마도병 20</td></tr>
+    <tr><td class="num">12</td><td>프로스트 템페스트</td><td class="num">33</td><td>냉기</td><td class="num">32~33</td><td class="num">36</td><td class="num">26 / 20</td><td>마도병 10</td></tr>
+    <tr class="hi"><td class="num">13</td><td><b>뇌우</b></td><td class="num">35</td><td>번개</td><td class="num"><b>34~35</b></td><td class="num">38</td><td class="num"><b>8 / 3</b></td><td>마도병 10</td></tr>
+    <tr style="color:var(--faint)"><td class="num">14</td><td>마나크러쉬 <span class="sm">(HP 가 아니라 MP 를 깎습니다)</span></td><td class="num">25</td><td>어둠</td><td class="num">24~25</td><td class="num">20</td><td class="num">5 / 12</td><td>암흑마법사 5</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>마나크러쉬는 반드시 끕니다.</b> 종류가 «MP 피해» 라 정렬은 맨 뒤지만,
+     <b>같은 «전체» 목록에서 점수로 경쟁합니다</b> &mdash; 적 중 하나라도 어둠에 약하면
+     점수 2 로 뇌우(0)를 이기고, 그 턴은 <b>HP 대신 MP 를 깎습니다</b>.</div>
+  <div class="note"><b>같은 레벨끼리는 순서가 정해져 있지 않습니다.</b>
+     <code>List.Sort</code> 가 안정 정렬이 아니라 Lv5 다섯 개나 Lv20 두 개는
+     <b>어느 쪽이 먼저 올지 모릅니다</b>. 같은 레벨을 둘 이상 켜지 않는 것이 안전합니다.</div>
+
+  <h3>단일 마법 &mdash; 여기가 더 위험합니다</h3>
+  <p>단일 갈래에는 <b>점수 비교가 아예 없습니다</b>. 레벨 낮은 것부터 훑다가
+     <b>약점인 적이 하나라도 있으면 그 자리에서 확정</b>합니다.</p>
+  <table class="t"><thead><tr><th>마법</th><th class="num">Lv</th><th>속성</th><th class="num">피해</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
+    <tr style="color:var(--f-vault)"><td><b>화재 · 얼음 · Thunder · 빛</b></td><td class="num">1</td><td>화염·냉기·번개·빛</td><td class="num"><b>2~4</b></td><td class="num">4</td><td>견습 마법사 1 · 견습 성직자 4</td></tr>
+    <tr><td>불의 창 · 얼음 창 · 썬더 랜스</td><td class="num">7</td><td>화염·냉기·번개</td><td class="num">8~10</td><td class="num">10</td><td>숙련된 마법사 7</td></tr>
+    <tr><td>플레임 스피릿</td><td class="num">12</td><td>화염</td><td class="num">13~15</td><td class="num">15</td><td>정령사 1</td></tr>
+    <tr><td>라이프드레인 <span class="sm">(HP 흡수)</span></td><td class="num">20</td><td>어둠</td><td class="num">21~23</td><td class="num">10</td><td>암흑마법사 20</td></tr>
+    <tr><td>독성바이트</td><td class="num">25</td><td>독</td><td class="num">26~28</td><td class="num">28</td><td>암흑마법사 1</td></tr>
+    <tr><td>번아웃</td><td class="num">28</td><td>화염</td><td class="num">29~31</td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr class="hi"><td><b>다크페인</b></td><td class="num">30</td><td>어둠</td><td class="num"><b>31~33</b></td><td class="num"><b>10</b></td><td>암흑마법사 1</td></tr>
+    <tr><td>프리즈링 에지</td><td class="num">30</td><td>냉기</td><td class="num">31~33</td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr><td colspan="6" style="color:var(--muted)"><b>관통</b> &mdash; 라이트닝 랜스 Lv16 · 빛 · 16~19 · MP 23 · 마궁사 8.
+      <b>후열에 적이 있을 때만</b> 후보가 되고, 전체가 하나도 못 나갈 때 대신 나갑니다.</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>화재를 켜 둔 채로 다니면 이렇게 됩니다.</b>
+     열린 지역 몬스터 <b>314종 중 80종이 화염 약점</b>입니다.
+     전체 마법이 MP 부족으로 빠진 턴에 화염 약점인 적이 하나라도 서 있으면
+     <b>다크페인(31~33) 대신 화재(2~4)</b>가 나갑니다 &mdash; Lv1 이라 목록에서 먼저 걸립니다.</div>
+  <div class="note"><b>약점이 하나도 안 걸리면</b> 담아 둔 후보 중에서 <b>50% 로 무작위</b> 하나를 쓰고,
+     나머지 50% 는 <b>평타</b>입니다. 이때도 «가장 센 것» 을 골라 주지 않습니다 &mdash;
+     그래서 단일도 <b>하나만</b> 켜야 «항상 그것» 이 나갑니다.</div>
+
+  <h3>「보스에서만」 을 쓰는 법</h3>
+  <p>일반전에서 빠지는 쪽이 「보스에서만」 이고, <b>보스전에서는 켠 것이 전부</b> 후보가 됩니다
+     (「보스에서만」 도 <b>「사용」 이 같이 켜져 있어야</b> 합니다).
+     그래서 이 스위치는 «아끼기» 가 아니라 <b>«보스전에서만 대신 쓰게 하는»</b> 용도입니다.
+     동점이면 <b>레벨 낮은 쪽</b>이 이기므로, 상시 마법보다 <b>레벨이 낮은</b> 것을 걸어야 실제로 바뀝니다.</p>
+  <table class="t"><thead><tr><th>하고 싶은 것</th><th>거는 법</th></tr></thead><tbody>
+    <tr class="hi"><td>보스전에서 <b>HP 를 흡수</b>하며 버티기</td><td>뇌우(Lv35) 상시 + <b>라이프 하베스트(Lv32) 「보스에서만」</b><br>
+      <span class="meta">32 &lt; 35 라 보스전에선 라이프 하베스트가 이깁니다. 보스가 대지 무효면 점수가 &minus;1 이라 알아서 뇌우로 돌아갑니다</span></td></tr>
+    <tr><td>보스의 <b>MP 를 말리기</b></td><td><b>마나크러쉬(Lv25) 「보스에서만」</b> &mdash; 일반전에는 새지 않습니다</td></tr>
+    <tr style="color:var(--faint)"><td>«가장 센 것을 보스에만 아껴 쓰기»</td><td><b>안 됩니다.</b> 레벨이 높을수록 오히려 안 뽑힙니다</td></tr>
+  </tbody></table>
+  <p class="src">SkillMaster.MinDamage / MaxDamage / get_UseMp &middot;
+     BattleActionSelector.SelectActions &middot; SelectBestRangeSkillAction &middot;
+     BattleSkill.SkillAttack <span class="sm">(약점 +2 &mdash; 0x26c99b8)</span> &middot;
+     Character.EnableSkills &middot; 열린 지역 몬스터 314종 전수</p>
+
+  <h2 id="weapons"><span class="n">8</span>무기 총정리 &mdash; 상시 착용 기준</h2>
   <p>바꿔 낄 수 없다는 전제로, <b>종류별 «그냥 계속 들 무기»</b> 입니다.
      ★ 는 마법 무기(물리 무효를 뚫습니다).</p>
   <table class="t"><thead><tr><th>종류</th><th>추천</th><th class="num">Lv</th><th class="num">힘</th>
@@ -615,7 +704,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>단검과 지팡이는 사실상 마법 무기를 포기해야 합니다.</b>
      그래서 파티의 «물리 무효 담당» 은 <b>활 · 창 · 검</b> 중에서 나옵니다.</div>
 
-  <h2 id="party"><span class="n">8</span>파티 조합</h2>
+  <h2 id="party"><span class="n">9</span>파티 조합</h2>
   <p>넷을 채운다면 <b>탱커 1 · 원거리 2 · 마법 1</b> 이 기본입니다.
      리더는 <b>탱커</b>가 맡습니다 &mdash; 리더는 파티 생성 때 정해지고 <b>죽어도 안 넘어갑니다</b>
      (<a href="notes.html#chest">§3</a>). 리더의 통찰·현자 레벨이 금고 발견과 이벤트 등장을 정합니다.</p>
@@ -642,7 +731,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      늪왕의 부적이 마법을 39 깎고, 마법 무기를 들고, 리더 판정까지 혼자 합니다.
      회피탱보다 <b>경험치가 7배 쌉니다</b>.</p>
 
-  <h2 id="halls"><span class="n">9</span>훈련소가 어디 있나</h2>
+  <h2 id="halls"><span class="n">10</span>훈련소가 어디 있나</h2>
   <p>직업은 <b>그 훈련소를 여는 퀘스트</b>를 깨야 얻습니다. 아래는 그 퀘스트가 있는 도시입니다.</p>
   <table class="t"><thead><tr><th>도시</th><th>여기서 열리는 직업</th></tr></thead><tbody>
     <tr><td>윈달리온 마을</td><td>도둑 · 레인저 · 현자 · 수습 전사 · 견습 사냥꾼</td></tr>
