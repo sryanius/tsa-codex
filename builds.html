@@ -445,13 +445,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <dt>부직업</dt><dd><b>견습 마법사 6 · 견습 성직자 6 · 숙련된 마법사 10 · 정령사 20 · 숙련된 성직자 15</b>
         <span class="meta">— 싼 것부터. 여기까지 7.7M 이고 지능 51 입니다(아래)</span></dd>
       <dt>무기</dt><dd>송곳니왕의 전역 지팡이 <span class="meta">Lv29 · <b>힘 2</b> · 55~90 · <b>모든 적/전체 공격</b> · 대지 속성 · 비마법</span></dd>
-      <dt>몸</dt><dd>왕단의 옷 <span class="meta">힘 2</span></dd>
-      <dt>부적</dt><dd>늪왕의 부적 <span class="meta">마법 방어 39</span></dd>
+      <dt>몸</dt><dd><b>암숨의 법복</b> <span class="meta">Lv25 · 힘 2 · 방어 45~51 · 마방 9 · <b>MP 회복 6/턴</b></span></dd>
+      <dt>부적</dt><dd><b>현맥의 부적</b> <span class="meta">Lv25 · 힘 1 · 마방 34 · <b>MP 회복 7/턴</b></span></dd>
     </dl>
-    <div class="chips"><span>지능 <b>51</b></span><span>마법 방어 <b>70</b></span><span>마나 몫 75</span>
-      <span>다크페인 <b>82</b></span><span>평타 57~92</span><span><b>모든 적 · 전체 공격</b></span>
-      <span>요구 힘 <b>2</b></span><span>경험치 <b>7.7M</b></span></div>
+    <div class="chips"><span>지능 <b>51</b></span><span>마법 방어 <b>74</b></span><span>마나 몫 75</span>
+      <span><b>MP 회복 13/턴</b></span><span>다크페인 <b>82</b></span><span>평타 57~92</span>
+      <span><b>모든 적 · 전체 공격</b></span><span>요구 힘 <b>2</b></span><span>경험치 <b>7.7M</b></span></div>
   </div>
+  <div class="note"><b>★ 방어구 두 칸은 «MP 회복» 으로 씁니다.</b>
+     마법 직업은 <b>부적과 의복 두 칸</b>밖에 못 낍니다(투구·방패·갑옷 불가).
+     그 둘을 회복 장비로 채우면 <b>턴당 13</b> 이 들어와서 전체 마법을
+     <b>두 턴에 한 번 이상</b> 계속 쏠 수 있습니다 &mdash; 없으면 <b>세 발이 끝</b>입니다.
+     방어 중심(왕단의 옷 + 늪왕의 부적)과 견주면 <b>물리 방어 10 을 잃고
+     마법 방어는 오히려 4 오릅니다</b>. 자세한 계산은 <a href="#spells">&sect;7</a> 에 있습니다.</div>
   <div class="note"><b>마법사는 «비마법» 무기를 들어도 됩니다.</b> 물리 무효 몬스터는
      <b>마법 스킬</b>로 때리면 되기 때문입니다. 그래서 지팡이는
      마법 무기(마천의 지팡이 Lv24 · 근접/단일)보다
@@ -638,7 +644,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr class="hi"><td rowspan="2"><b>전체</b><br><span class="meta">둘 다</span></td>
       <td><b>블리자드</b> <span class="sm">냉기</span></td><td class="num">20</td><td class="num"><b>19~20</b></td><td class="num">23</td><td>마궁사 10</td></tr>
     <tr class="hi"><td><b>그래블 버스트</b> <span class="sm">대지</span></td><td class="num">20</td><td class="num"><b>19~20</b></td><td class="num">22</td><td>마궁사 10</td></tr>
-    <tr class="hi"><td><b>단일</b></td><td><b>다크페인</b> <span class="sm">어둠</span></td><td class="num">30</td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 <b>1</b></td></tr>
+    <tr class="hi"><td><b>단일</b><br><span class="meta">「보스에서만」</span></td><td><b>다크페인</b> <span class="sm">어둠</span></td><td class="num">30</td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 <b>1</b></td></tr>
+    <tr class="hi"><td><b>부적</b></td><td><b>현맥의 부적</b> <span class="sm">MP 회복 7/턴</span></td><td class="num">&mdash;</td><td class="num">마방 34</td><td class="num">힘 1</td><td>요구 레벨 25 &mdash; 아래를 보십시오</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>나머지 공격 마법은 전부 «사용» 을 끕니다.</b>
       MP 폴백으로 남겨 둘 필요도 없습니다 &mdash; MP 가 모자라면 그 마법이 <b>목록에서 저절로 빠집니다</b>
       (<code>BattleSkill.CanUse</code>).</td></tr>
@@ -657,6 +664,41 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>암흑마법사 1 레벨</b>에 배웁니다. 같은 Lv30 짝인 프리즈링 에지(냉기)는 마도병이라 지금은 없습니다
      &mdash; <b>열리면 같이 켜면 됩니다</b>(같은 레벨이라 손해가 없습니다).
      소모 MP 가 <code>레벨 + useMp + 3</code> 인데 다크페인만 <code>useMp</code> 가 &minus;23 이라 유독 쌉니다.</div>
+  <h3>★ 마나 회복 장비 &mdash; 전체 마법을 계속 쓰는 법</h3>
+  <p>여기가 마법사 셋업에서 가장 크게 갈리는 자리입니다.
+     <code>BattleTurnProcessor.OnTurnEnd</code> 가 <b>매 턴 끝</b>에
+     낀 방어구의 <b>MP 자동 회복</b>을 합쳐서 채워 줍니다.
+     (호출처가 여기 하나뿐입니다 &mdash; <b>전투 턴에만</b> 붙고 이동 중에는 안 붙습니다.)</p>
+  <div class="eq">턴마다 회복 = Σ 방어구.autoHealMp + <b>강화 231</b>   <span class="cmt">// Armor.AutoHealMp</span></div>
+  <div class="note warn"><b>마법 직업은 «부적 · 의복» 두 칸뿐입니다.</b>
+     <code>canEquipArmors</code> 가 암흑마법사·마궁사·정령사·마법사·성직자 전부
+     <b>부적과 의복만</b>입니다 &mdash; 투구·방패·갑옷은 아예 못 낍니다.
+     그래서 <b>MP 회복의 천장은 두 칸의 합</b>입니다.</div>
+  <table class="t"><thead><tr><th>칸</th><th>MP 회복을 고르면</th><th class="num">MP/턴</th><th class="num">마방</th><th class="num">방어</th>
+    <th>대신 포기하는 것</th></tr></thead><tbody>
+    <tr class="hi"><td><b>부적</b></td><td><b>현맥의 부적</b> <span class="sm">Lv25 · 힘 1</span></td><td class="num"><b>7</b></td><td class="num">34</td><td class="num">&mdash;</td><td>늪왕의 부적 <span class="sm">(마방 39 · MP 0)</span> &rarr; <b>마방 &minus;5</b></td></tr>
+    <tr class="hi"><td><b>의복</b></td><td><b>암숨의 법복</b> <span class="sm">Lv25 · 힘 2</span></td><td class="num"><b>6</b></td><td class="num">9</td><td class="num">45~51</td><td>왕단의 옷 <span class="sm">(방어 55~61 · 마방 0)</span> &rarr; <b>방어 &minus;10</b></td></tr>
+    <tr><td colspan="6"><b>합계 MP 13/턴</b> &mdash; 장비 마방은 <b>39 &rarr; 43 으로 오히려 오릅니다</b>.
+      실제로 잃는 것은 <b>물리 방어 10</b> 뿐입니다. 뒷줄 마법사에게는 거의 공짜입니다.</td></tr>
+    <tr style="color:var(--faint)"><td colspan="6">그 밖에 MP 가 붙는 것 &mdash;
+      흑도회마의 부적(4) · 서리환 재생의 부적(4) · 마천의 부적(3) · 혈액 순환의 옷(3) ·
+      🔒 고목의 부적(6, 요구 레벨 34) · 🔒 아오미네의 부적(3 + 최대 MP 10).
+      마나림 헬름(투구 1)·푸른 오라 갑옷(갑옷 1)은 <b>마법 직업이 못 낍니다</b>.</td></tr>
+  </tbody></table>
+
+  <h4>그래서 얼마나 달라지나</h4>
+  <p>MP 가 바닥난 뒤의 <b>지속률</b>은 <code>턴당 회복 &divide; 마법 MP</code> 입니다.</p>
+  <table class="t"><thead><tr><th>부적</th><th class="num">MP/턴</th><th class="num">블리자드(23)를 쏘는 턴</th><th class="num">모험 한 판에</th></tr></thead><tbody>
+    <tr><td>늪왕의 부적 <span class="sm">+ 왕단의 옷</span></td><td class="num">0</td><td class="num">&mdash;</td><td class="num"><b>3발이 끝</b> <span class="sm">(MP 80 기준)</span></td></tr>
+    <tr><td>늪왕의 부적 <span class="sm">+ 암숨의 법복</span></td><td class="num">6</td><td class="num">26%</td><td class="num">거의 무한</td></tr>
+    <tr class="hi"><td><b>현맥의 부적 + 암숨의 법복</b></td><td class="num"><b>13</b></td><td class="num"><b>57%</b></td><td class="num"><b>거의 무한</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>회복 장비가 없으면 «전체 마법 셋업» 자체가 성립하지 않습니다.</b>
+     MP 80 짜리 마법사가 블리자드를 <b>세 번</b> 쏘면 끝이고, 나머지 모험은 전부 평타입니다.
+     13/턴이면 <b>두 턴에 한 번 이상</b> 계속 쏩니다 &mdash; 이 하나가 마법사의 실제 화력을 정합니다.</div>
+  <div class="note"><b>그래블 버스트(22)가 블리자드(23)보다 1 쌉니다.</b>
+     MP 가 22 인 턴에는 그래블만 나갑니다 &mdash; 둘 다 켜 두면 이 턴도 벌립니다.</div>
+
   <h3>단일은 왜 켜는가 &mdash; «MP 잔돈» 한 칸입니다</h3>
   <p>단일 갈래는 <b>전체·관통이 하나도 못 나가는 턴에만</b> 돕니다.
      전체가 빠지는 이유는 MP 하나뿐이므로, 다크페인이 나가는 구간은 <b>딱 여기입니다</b>.</p>
@@ -675,6 +717,27 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      <b>①</b> MP 가 넉넉한 동안에는 <b>한 번도 안 나갑니다</b> &mdash; 전체가 먼저 나갑니다.
      <b>②</b> 어둠 약점인 적(열린 지역 <b>5종</b>)도 물리 무효인 적도 없으면,
      그 턴은 <b>50% 만 다크페인이고 50% 는 평타</b>입니다(<code>RandBool</code>).</div>
+
+  <h4>★ 그런데 회복 장비를 끼면 «상시로 켜면 손해» 가 됩니다</h4>
+  <p>MP 회복 13/턴 기준으로 <b>한 턴의 수지</b>를 보면 이렇습니다.</p>
+  <div class="eq">블리자드  23 쓰고 13 회복 &rarr; <b>순 &minus;10</b>
+다크페인  10 쓰고 13 회복 &rarr; <b>순 +3</b>
+평타       0 쓰고 13 회복 &rarr; <b>순 +13</b></div>
+  <div class="note warn"><b>다크페인은 MP 를 «거의 안 채웁니다».</b>
+     상시로 켜 두면 MP 가 10~22 에 묶여서 블리자드가 좀처럼 못 돌아옵니다 &mdash;
+     블리자드가 나가는 턴이 <b>57% 에서 20% 로</b> 떨어집니다.
+     끄면 그 턴이 평타가 되고, 평타는 MP 를 <b>13 씩 통째로</b> 채웁니다.</div>
+  <table class="t"><thead><tr><th class="num">적 수</th><th class="num">다크페인 «상시»</th><th class="num">다크페인 «끔»</th><th>어느 쪽</th></tr></thead><tbody>
+    <tr><td class="num">1 <span class="sm">(보스)</span></td><td class="num"><b>796</b></td><td class="num">460</td><td><b>켜는 쪽</b></td></tr>
+    <tr><td class="num">2</td><td class="num">936</td><td class="num">921</td><td>비김</td></tr>
+    <tr class="hi"><td class="num">3</td><td class="num">1076</td><td class="num"><b>1381</b></td><td><b>끄는 쪽</b></td></tr>
+    <tr class="hi"><td class="num">4</td><td class="num">1216</td><td class="num"><b>1841</b></td><td><b>끄는 쪽</b></td></tr>
+    <tr><td colspan="4" style="color:var(--muted)">10턴 동안 넣는 총 피해. 마력 51 · MP 회복 13/턴 · 평타 명중 50% 가정</td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 답은 「보스에서만」 입니다.</b>
+     일반전(적 셋 이상)에서는 목록에서 빠져 <b>전체 마법만</b> 돌고,
+     보스전(적 하나)에서는 MP 잔돈 구간에 <b>82 짜리 한 방</b>이 들어갑니다.
+     이 스위치가 «적 수» 를 대신 갈라 줍니다.</div>
   <div class="note"><b>중간을 채우려고 싼 마법을 켜면 안 됩니다.</b>
      MP 가 넉넉할 때도 그것이 나갑니다 &mdash; 얻는 것은 «잔돈 턴» 하나인데
      잃는 것은 <b>모든 턴</b>입니다.</div>
