@@ -1252,12 +1252,25 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      점수는 약점 하나당 <b>+2점</b>이라 <b>레벨이 30 낮은 마법도 이깁니다</b> &mdash;
      피해 30 을 버리고 2 를 얻는 교환입니다. 실제로 켜는 법은
      <a href="builds.html#spells">빌드 &sect;7</a> 에 정리했습니다.</div>
+  <div class="note"><b>그래서 기준은 «속성» 이 아니라 «레벨» 입니다.</b>
+     피해가 <code>레벨 + 1 ~ 레벨 + 4</code> 에서만 나오므로
+     <b>레벨이 같으면 피해도 같습니다</b> &mdash; 그러면 속성만 다른 셈이라
+     <b>같은 레벨끼리는 여럿 켜는 쪽이 이득</b>입니다. 손해는 <b>레벨이 다른 것</b>을 섞을 때만 납니다.
+     <span class="sm">(예외 하나 &mdash; 성스러운 폭발만 <code>minDamage/maxDamage</code> 가 +3 이라
+     같은 Lv5 인데 7~8 입니다.)</span></div>
   <table class="t"><thead><tr><th>그래서 이렇게 켭니다</th><th>왜</th></tr></thead><tbody>
-    <tr class="hi"><td><b>전체 마법은 «가장 레벨 높은 것» 딱 하나만</b></td><td>동점이면 레벨 낮은 쪽이 이기고, 약점이 붙어도 <b>+2</b> 뿐입니다</td></tr>
-    <tr class="hi"><td><b>단일 마법도 «가장 센 것 하나만»</b></td><td>단일 갈래는 약점이 걸리는 <b>첫(=가장 약한)</b> 마법을 그대로 씁니다</td></tr>
+    <tr class="hi"><td><b>«가장 레벨이 높은 급» 만 켭니다 &mdash; 그 급은 통째로</b></td>
+      <td>같은 레벨이면 피해가 같으니, 여러 속성을 켜 두면 <b>약점 +2 를 먹고 무효를 서로 덮어 줍니다</b></td></tr>
+    <tr class="hi"><td><b>레벨이 낮은 급은 전부 끕니다</b></td>
+      <td>동점이면 레벨 낮은 쪽이 이기고, 약점이 하나만 걸려도 점수로도 이깁니다 &mdash; 얻는 것은 <b>+2</b> 뿐입니다</td></tr>
+    <tr><td>단일도 같은 규칙입니다</td><td>단일 갈래는 약점이 걸리는 <b>첫(=레벨 낮은)</b> 마법을 그대로 씁니다</td></tr>
     <tr><td>MP 폴백은 <b>안 켜도 됩니다</b></td><td>MP 가 모자라면 그 마법이 목록에서 빠져 <b>저절로</b> 내려갑니다</td></tr>
     <tr><td><b>보스에서만</b> 은 «보스전에서 대신 쓸 것» 스위치입니다</td><td>보스전에선 켠 것이 <b>전부</b> 후보라, 레벨이 <b>더 낮은</b> 것을 걸어야 바뀝니다</td></tr>
   </tbody></table>
+  <div class="note warn"><b>점수가 «무효» 를 싸게 봅니다.</b>
+     약점 하나는 <b>+2점</b>인데 무효 하나는 <b>&minus;1점</b>뿐입니다 &mdash;
+     실제로는 약점이 피해 <b>+2</b> 를 주고 무효는 피해를 <b>전부</b> 없앱니다.
+     그래서 «약점 둘 + 무효 하나» 같은 판에서는 <b>잘못 고릅니다</b>.</div>
   <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c0efc / 0x26c0f10 — 전체 → 관통 순서)</span> &middot;
      SelectBestRangeSkillAction <span class="sm">(0x26c393c 최고점 초기값 int.MinValue)</span> &middot;
      GetAllTargetDamageSkillPriority &middot; &lt;SelectActions&gt;b__2_1 <span class="sm">(정렬 비교자)</span> &middot;

@@ -608,23 +608,80 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <b>속성</b>     약점 <b>+2</b>  ·  내성 &minus;2  ·  무효 <b>0 (완전 차단)</b></div>
   <div class="note warn"><b>약점을 맞히고 얻는 것은 «+2» 뿐입니다.</b>
      그런데 점수는 약점 적 하나당 <b>+2점</b>이라, 레벨이 <b>30 낮은</b> 마법도 그 한 명 때문에 이깁니다.
-     <b>피해 30 을 버리고 2 를 얻는 교환</b>입니다 &mdash; 그래서 «속성별로 골고루 켜기» 는 손해입니다.</div>
+     <b>피해 30 을 버리고 2 를 얻는 교환</b>입니다.</div>
+  <div class="note"><b>그래서 기준은 «속성» 이 아니라 «레벨» 입니다.</b>
+     피해가 <code>레벨 + 1 ~ 레벨 + 4</code> 에서만 나오므로 &mdash;</div>
+  <table class="t"><thead><tr><th>이런 조합</th><th>어떻게 되나</th><th class="num">판정</th></tr></thead><tbody>
+    <tr style="color:var(--f-lodge)"><td><b>레벨이 «같은» 것끼리 여러 속성</b><br>
+      <span class="meta">블리자드(냉기) + 그래블 버스트(대지) &mdash; 둘 다 Lv20</span></td>
+      <td><b>피해가 똑같으니 잃을 것이 없습니다.</b> 약점이면 <b>+2</b> 를 먹고,
+        한쪽이 <b>무효</b>인 적 앞에서는 점수가 &minus;1 이 되어 <b>다른 속성이 대신 나갑니다</b></td>
+      <td class="num"><b>둘 다 켠다</b></td></tr>
+    <tr class="hi"><td><b>레벨이 «다른» 것끼리</b><br>
+      <span class="meta">블리자드(Lv20) + 불의 폭발(Lv5)</span></td>
+      <td>동점이면 <b>레벨 낮은 쪽</b>이 이기고, 화염 약점이 하나만 있어도 점수로도 집니다.
+        <b>피해 15 를 버리고 2 를 얻습니다</b></td>
+      <td class="num"><b>낮은 쪽을 끈다</b></td></tr>
+  </tbody></table>
+  <div class="note warn"><b>단, 점수가 «무효» 를 싸게 봅니다.</b>
+     약점 하나는 <b>+2점</b>인데 무효 하나는 <b>&minus;1점</b>뿐입니다 &mdash;
+     실제로는 약점이 피해 <b>+2</b> 를 주고 무효는 피해 <b>전부</b>를 없앱니다.
+     그래서 «약점 둘 + 무효 하나» 같은 판에서는 <b>잘못 고릅니다</b>.
+     레벨이 같은 속성을 둘 켜 두면 이 오판의 폭이 줄어듭니다.</div>
 
-  <h3>결론 &mdash; 켤 것은 두 개입니다</h3>
-  <table class="t"><thead><tr><th>칸</th><th>켤 것</th><th class="num">피해</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
-    <tr class="hi"><td><b>전체</b></td><td><b>뇌우</b> <span class="sm">Lv35 · 번개</span></td><td class="num"><b>34~35</b></td><td class="num">38</td><td>마도병 10</td></tr>
-    <tr class="hi"><td><b>단일</b></td><td><b>다크페인</b> <span class="sm">Lv30 · 어둠</span></td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 1</td></tr>
-    <tr><td colspan="5" style="color:var(--muted)"><b>나머지 공격 마법은 전부 «사용» 을 끕니다.</b>
+  <h3>결론 &mdash; «가장 높은 레벨의 한 급» 만 켭니다</h3>
+  <div class="note warn"><b>마도병은 아직 못 갑니다.</b> 훈련소가 <b>칼레바스 고원</b>(노르그레이·자르간트)에 있습니다.
+     그래서 <b>뇌우 · 프로스트 템페스트 · 라이프 하베스트 · 번아웃 · 프리즈링 에지</b> 다섯은
+     지금 <b>배울 수 없습니다</b>. 순례 사제(살바·바이탈라이즈)도 같습니다.
+     아래는 <b>지금 갈 수 있는 훈련소만</b>으로 고른 것입니다.</div>
+  <table class="t"><thead><tr><th>칸</th><th>켤 것</th><th class="num">Lv</th><th class="num">피해</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
+    <tr class="hi"><td rowspan="2"><b>전체</b><br><span class="meta">둘 다</span></td>
+      <td><b>블리자드</b> <span class="sm">냉기</span></td><td class="num">20</td><td class="num"><b>19~20</b></td><td class="num">23</td><td>마궁사 10</td></tr>
+    <tr class="hi"><td><b>그래블 버스트</b> <span class="sm">대지</span></td><td class="num">20</td><td class="num"><b>19~20</b></td><td class="num">22</td><td>마궁사 10</td></tr>
+    <tr class="hi"><td><b>단일</b></td><td><b>다크페인</b> <span class="sm">어둠</span></td><td class="num">30</td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 <b>1</b></td></tr>
+    <tr><td colspan="6" style="color:var(--muted)"><b>나머지 공격 마법은 전부 «사용» 을 끕니다.</b>
       MP 폴백으로 남겨 둘 필요도 없습니다 &mdash; MP 가 모자라면 그 마법이 <b>목록에서 저절로 빠집니다</b>
       (<code>BattleSkill.CanUse</code>).</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 나중</td><td>칼레바스 고원이 열리면 &rarr; <b>뇌우</b> <span class="sm">번개</span></td>
+      <td class="num">35</td><td class="num">34~35</td><td class="num">38</td><td>마도병 10 &mdash; 이 급은 <b>혼자</b>라 하나만 켭니다</td></tr>
   </tbody></table>
-  <div class="note"><b>왜 뇌우인가</b> &mdash; 전체 마법 중 <b>피해가 가장 크고</b>(34~35),
-     동시에 <b>번개 무효가 열린 지역 314종 중 3종뿐</b>입니다.
-     2·3위인 프로스트 템페스트(냉기)는 무효가 <b>20종</b>, 라이프 하베스트(대지)는 <b>21종</b> 이라
-     «0 피해» 를 훨씬 자주 봅니다. 다음 맵(칼레바스 고원)에선 <b>냉기 무효가 105종 중 20종</b>으로 더 나쁩니다.</div>
-  <div class="note"><b>왜 다크페인인가</b> &mdash; 단일 중 최고 피해(31~33)이면서 <b>MP 가 10</b> 입니다.
-     같은 31~33 인 프리즈링 에지는 25, 번아웃(29~31)도 25 입니다.
+  <div class="note"><b>전체 마법의 최고 레벨이 지금은 20 이고, 거기 두 개가 같이 있습니다.</b>
+     그래블 버스트(대지)와 블리자드(냉기) &mdash; <b>피해가 19~20 으로 똑같습니다</b>.
+     그러니 둘 다 켜 두면 <b>속성만 두 벌 갖는 셈</b>입니다.
+     냉기 약점이면 블리자드가, <b>냉기 무효인 적 앞에서는 그래블 버스트가</b> 나갑니다.</div>
+  <div class="note"><b>이 짝이 특히 잘 맞습니다.</b> 발두나의 황야 114종에서
+     <b>냉기 무효는 2종, 대지 무효는 11종</b> 인데 <b>겹치는 것이 거의 없습니다</b> &mdash;
+     한쪽이 막히면 다른 쪽이 뚫습니다. 반대로 약점은 <b>냉기 26종 : 대지 1종</b> 이라
+     평소에는 블리자드가 나갑니다.</div>
+  <div class="note"><b>왜 다크페인인가</b> &mdash; 단일 중 최고 레벨(30)이고 <b>MP 가 10</b> 이며
+     <b>암흑마법사 1 레벨</b>에 배웁니다. 같은 Lv30 짝인 프리즈링 에지(냉기)는 마도병이라 지금은 없습니다
+     &mdash; <b>열리면 같이 켜면 됩니다</b>(같은 레벨이라 손해가 없습니다).
      소모 MP 가 <code>레벨 + useMp + 3</code> 인데 다크페인만 <code>useMp</code> 가 &minus;23 이라 유독 쌉니다.</div>
+  <div class="note"><b>MP 가 떨어지면 이렇게 내려갑니다</b> &mdash;
+     블리자드(23) / 그래블 버스트(22) &rarr; 다크페인(10) &rarr; 평타. 중간을 채우려고 싼 마법을 켜면
+     <b>MP 가 넉넉할 때도 그것이 나갑니다</b>. 켜지 마십시오.</div>
+
+  <h3>지역마다 «무효» 가 다릅니다</h3>
+  <p>무효면 그 적에게는 <b>피해가 0</b> 입니다(약점은 겨우 +2 인데 무효는 전부입니다).
+     칸은 <b>약점 종수 / 무효 종수</b> 입니다.</p>
+  <table class="t"><thead><tr><th>지역</th><th class="num">종수</th>
+    <th class="num">냉기<br><span style="font-weight:400">블리자드</span></th>
+    <th class="num">대지<br><span style="font-weight:400">그래블</span></th>
+    <th class="num">어둠<br><span style="font-weight:400">다크페인</span></th>
+    <th class="num">바람<br><span style="font-weight:400">정령</span></th>
+    <th class="num">신성<br><span style="font-weight:400">성폭</span></th></tr></thead><tbody>
+    <tr><td>미스토리아 반도</td><td class="num">80</td><td class="num">4/2</td><td class="num">0/2</td><td class="num">2/2</td><td class="num">0/1</td><td class="num">2/0</td></tr>
+    <tr><td>바르디아 평원</td><td class="num">117</td><td class="num">12/4</td><td class="num">0/4</td><td class="num">2/2</td><td class="num">3/1</td><td class="num">8/0</td></tr>
+    <tr><td>뤼미에르 힐스</td><td class="num">132</td><td class="num">16/6</td><td class="num">0/7</td><td class="num">3/3</td><td class="num">3/3</td><td class="num">13/0</td></tr>
+    <tr><td>아르디오스 왕국</td><td class="num">138</td><td class="num">12/<b>13</b></td><td class="num">1/9</td><td class="num">2/5</td><td class="num">3/3</td><td class="num">17/0</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">111</td><td class="num">6/<b>13</b></td><td class="num">1/9</td><td class="num">1/6</td><td class="num">4/1</td><td class="num">14/0</td></tr>
+    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num">114</td><td class="num"><b>6/2</b></td><td class="num">1/<b>11</b></td><td class="num">3/7</td><td class="num">4/1</td><td class="num">14/0</td></tr>
+    <tr><td colspan="7" style="color:var(--muted)">열린 지역 합계 <b>314종</b> &mdash;
+      냉기 26/20 · 대지 1/21 · 어둠 5/12 · 바람 8/5 · 신성 30/0 · 번개 8/3 · 화염 80/11 · 빛 30/4 · 물 6/21 · 독 0/14</td></tr>
+  </tbody></table>
+  <div class="note"><b>«무효 0» 인 신성이 눈에 띄지만</b> 성스러운 폭발은 <b>Lv5 · 7~8</b> 입니다 &mdash;
+     블리자드보다 <b>12 낮습니다</b>. 게다가 켜 두면 신성 약점이 30종이라
+     <b>블리자드를 점수로 이겨서</b> 그 약한 마법이 나갑니다. 끕니다.</div>
 
   <h3>전체 마법 &mdash; 정렬 순서 그대로</h3>
   <p>위에서부터 뽑힙니다. <b>두 개 이상 켜면 위쪽(약한 쪽)이 이깁니다.</b></p>
@@ -634,18 +691,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td class="num">5</td><td>성스러운 폭발</td><td class="num">5</td><td>신성</td><td class="num">7~8</td><td class="num">8</td><td class="num">30 / 0</td><td>숙련된 성직자 3</td></tr>
     <tr><td class="num">6~7</td><td>어스퀘이크 · 베놈 클라우드</td><td class="num">10</td><td>대지 · 독</td><td class="num">9~10</td><td class="num">10 · 13</td><td class="num">1 / 21 &middot; 0 / 14</td><td>마궁사 1</td></tr>
     <tr><td class="num">8</td><td>바람의 정령</td><td class="num">12</td><td>바람</td><td class="num">11~12</td><td class="num">15</td><td class="num">8 / 5</td><td>정령사 1</td></tr>
-    <tr><td class="num">9~10</td><td>그래블 버스트 · 블리자드</td><td class="num">20</td><td>대지 · 냉기</td><td class="num">19~20</td><td class="num">22 · 23</td><td class="num">1 / 21 &middot; 26 / 20</td><td>마궁사 10</td></tr>
-    <tr><td class="num">11</td><td>라이프 하베스트 <span class="sm">(HP 흡수)</span></td><td class="num">32</td><td>대지</td><td class="num">31~32</td><td class="num">45</td><td class="num">1 / 21</td><td>마도병 20</td></tr>
-    <tr><td class="num">12</td><td>프로스트 템페스트</td><td class="num">33</td><td>냉기</td><td class="num">32~33</td><td class="num">36</td><td class="num">26 / 20</td><td>마도병 10</td></tr>
-    <tr class="hi"><td class="num">13</td><td><b>뇌우</b></td><td class="num">35</td><td>번개</td><td class="num"><b>34~35</b></td><td class="num">38</td><td class="num"><b>8 / 3</b></td><td>마도병 10</td></tr>
+    <tr class="hi"><td class="num">9~10</td><td><b>그래블 버스트 · 블리자드</b> <span class="sm">&larr; 지금 최고 급</span></td><td class="num">20</td><td>대지 · 냉기</td><td class="num"><b>19~20</b></td><td class="num">22 · 23</td><td class="num">1 / 21 &middot; 26 / 20</td><td>마궁사 10</td></tr>
+    <tr style="color:var(--faint)"><td class="num">11</td><td>🔒 라이프 하베스트 <span class="sm">(HP 흡수)</span></td><td class="num">32</td><td>대지</td><td class="num">31~32</td><td class="num">45</td><td class="num">1 / 21</td><td>마도병 20</td></tr>
+    <tr style="color:var(--faint)"><td class="num">12</td><td>🔒 프로스트 템페스트</td><td class="num">33</td><td>냉기</td><td class="num">32~33</td><td class="num">36</td><td class="num">26 / 20</td><td>마도병 10</td></tr>
+    <tr style="color:var(--faint)"><td class="num">13</td><td>🔒 <b>뇌우</b></td><td class="num">35</td><td>번개</td><td class="num"><b>34~35</b></td><td class="num">38</td><td class="num"><b>8 / 3</b></td><td>마도병 10</td></tr>
     <tr style="color:var(--faint)"><td class="num">14</td><td>마나크러쉬 <span class="sm">(HP 가 아니라 MP 를 깎습니다)</span></td><td class="num">25</td><td>어둠</td><td class="num">24~25</td><td class="num">20</td><td class="num">5 / 12</td><td>암흑마법사 5</td></tr>
   </tbody></table>
   <div class="note warn"><b>마나크러쉬는 반드시 끕니다.</b> 종류가 «MP 피해» 라 정렬은 맨 뒤지만,
      <b>같은 «전체» 목록에서 점수로 경쟁합니다</b> &mdash; 적 중 하나라도 어둠에 약하면
      점수 2 로 뇌우(0)를 이기고, 그 턴은 <b>HP 대신 MP 를 깎습니다</b>.</div>
-  <div class="note"><b>같은 레벨끼리는 순서가 정해져 있지 않습니다.</b>
+  <div class="note"><b>같은 레벨끼리는 순서가 정해져 있지 않습니다</b> &mdash;
      <code>List.Sort</code> 가 안정 정렬이 아니라 Lv5 다섯 개나 Lv20 두 개는
-     <b>어느 쪽이 먼저 올지 모릅니다</b>. 같은 레벨을 둘 이상 켜지 않는 것이 안전합니다.</div>
+     <b>어느 쪽이 먼저 올지 모릅니다</b>. 그런데 <b>같은 레벨이면 피해도 같으므로 상관없습니다</b>.
+     둘 다 켜 두면 약점·무효에 따라 점수로 갈리고, 안 갈리면 아무거나 나가도 결과가 같습니다.</div>
+  <div class="note warn"><b>딱 하나 예외가 있습니다 &mdash; 성스러운 폭발.</b>
+     배울 수 있는 마법 28개 중 <b>유일하게</b> <code>minDamage/maxDamage</code> 가 +3 이라,
+     같은 Lv5 인데 <b>7~8</b> 입니다(나머지 Lv5 는 4~5).
+     «같은 레벨 = 같은 피해» 가 여기서만 깨집니다.</div>
 
   <h3>단일 마법 &mdash; 여기가 더 위험합니다</h3>
   <p>단일 갈래에는 <b>점수 비교가 아예 없습니다</b>. 레벨 낮은 것부터 훑다가
@@ -656,11 +718,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>플레임 스피릿</td><td class="num">12</td><td>화염</td><td class="num">13~15</td><td class="num">15</td><td>정령사 1</td></tr>
     <tr><td>라이프드레인 <span class="sm">(HP 흡수)</span></td><td class="num">20</td><td>어둠</td><td class="num">21~23</td><td class="num">10</td><td>암흑마법사 20</td></tr>
     <tr><td>독성바이트</td><td class="num">25</td><td>독</td><td class="num">26~28</td><td class="num">28</td><td>암흑마법사 1</td></tr>
-    <tr><td>번아웃</td><td class="num">28</td><td>화염</td><td class="num">29~31</td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 번아웃</td><td class="num">28</td><td>화염</td><td class="num">29~31</td><td class="num">25</td><td>마도병 1</td></tr>
     <tr class="hi"><td><b>다크페인</b></td><td class="num">30</td><td>어둠</td><td class="num"><b>31~33</b></td><td class="num"><b>10</b></td><td>암흑마법사 1</td></tr>
-    <tr><td>프리즈링 에지</td><td class="num">30</td><td>냉기</td><td class="num">31~33</td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 프리즈링 에지 <span class="sm">— 열리면 다크페인과 «같이» 켭니다</span></td><td class="num">30</td><td>냉기</td><td class="num">31~33</td><td class="num">25</td><td>마도병 1</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>관통</b> &mdash; 라이트닝 랜스 Lv16 · 빛 · 16~19 · MP 23 · 마궁사 8.
-      <b>후열에 적이 있을 때만</b> 후보가 되고, 전체가 하나도 못 나갈 때 대신 나갑니다.</td></tr>
+      <b>후열에 적이 있을 때만</b> 후보가 되고, 전체가 하나도 못 나갈 때 대신 나갑니다.
+      <b>이것도 끕니다</b> &mdash; MP 23 이라 블리자드와 <b>같은 문턱</b>이어서, 블리자드가 못 나가는 턴엔 이것도 못 나갑니다.</td></tr>
   </tbody></table>
   <div class="note warn"><b>화재를 켜 둔 채로 다니면 이렇게 됩니다.</b>
      열린 지역 몬스터 <b>314종 중 80종이 화염 약점</b>입니다.
@@ -668,7 +731,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>다크페인(31~33) 대신 화재(2~4)</b>가 나갑니다 &mdash; Lv1 이라 목록에서 먼저 걸립니다.</div>
   <div class="note"><b>약점이 하나도 안 걸리면</b> 담아 둔 후보 중에서 <b>50% 로 무작위</b> 하나를 쓰고,
      나머지 50% 는 <b>평타</b>입니다. 이때도 «가장 센 것» 을 골라 주지 않습니다 &mdash;
-     그래서 단일도 <b>하나만</b> 켜야 «항상 그것» 이 나갑니다.</div>
+     그래서 단일도 <b>같은 레벨끼리만</b> 켜야 «무엇이 나가도 같은 피해» 가 됩니다.
+     레벨이 섞이면 무작위가 그대로 손해입니다.</div>
 
   <h3>「보스에서만」 을 쓰는 법</h3>
   <p>일반전에서 빠지는 쪽이 「보스에서만」 이고, <b>보스전에서는 켠 것이 전부</b> 후보가 됩니다
@@ -676,9 +740,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      그래서 이 스위치는 «아끼기» 가 아니라 <b>«보스전에서만 대신 쓰게 하는»</b> 용도입니다.
      동점이면 <b>레벨 낮은 쪽</b>이 이기므로, 상시 마법보다 <b>레벨이 낮은</b> 것을 걸어야 실제로 바뀝니다.</p>
   <table class="t"><thead><tr><th>하고 싶은 것</th><th>거는 법</th></tr></thead><tbody>
-    <tr class="hi"><td>보스전에서 <b>HP 를 흡수</b>하며 버티기</td><td>뇌우(Lv35) 상시 + <b>라이프 하베스트(Lv32) 「보스에서만」</b><br>
+    <tr class="hi"><td><b>지금은 걸 것이 없습니다</b></td><td>상시가 <b>Lv20</b> 인데 그보다 <b>레벨이 낮은 것은 전부 더 약합니다</b>.
+      보스전에서 바꿔 끼울 만한 마법이 지금은 하나도 없습니다 &mdash; <b>전부 꺼 둡니다</b></td></tr>
+    <tr><td>보스의 <b>MP 를 말리기</b></td><td><b>마나크러쉬(Lv25) 「보스에서만」</b> &mdash; 일반전에는 새지 않습니다.
+      다만 Lv25 &gt; 20 이라 <b>보스가 어둠 약점일 때만</b> 실제로 나갑니다</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 칼레바스가 열리면</td><td>뇌우(Lv35) 상시 + <b>라이프 하베스트(Lv32) 「보스에서만」</b><br>
       <span class="meta">32 &lt; 35 라 보스전에선 라이프 하베스트가 이깁니다. 보스가 대지 무효면 점수가 &minus;1 이라 알아서 뇌우로 돌아갑니다</span></td></tr>
-    <tr><td>보스의 <b>MP 를 말리기</b></td><td><b>마나크러쉬(Lv25) 「보스에서만」</b> &mdash; 일반전에는 새지 않습니다</td></tr>
     <tr style="color:var(--faint)"><td>«가장 센 것을 보스에만 아껴 쓰기»</td><td><b>안 됩니다.</b> 레벨이 높을수록 오히려 안 뽑힙니다</td></tr>
   </tbody></table>
   <p class="src">SkillMaster.MinDamage / MaxDamage / get_UseMp &middot;
