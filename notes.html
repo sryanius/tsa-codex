@@ -1212,8 +1212,11 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>전투는 자동이고, 마법 하나하나에 <b>「사용」</b>과 <b>「보스에서만」</b> 을 켤 수 있습니다.
      그 뒤의 고르는 순서가 이렇습니다 (<code>BattleActionSelector.SelectActions</code>).</p>
   <div class="eq"><b>1</b> Character.EnableSkills(isBoss)   <span class="cmt">// 「사용」 켠 것만. 「보스에서만」 은 보스전에서만 들어온다</span>
+   그중 <b>BattleSkill.CanUse</b> 를 통과한 것만 남긴다   <span class="cmt">// MP · 대상 조건</span>
 <b>2</b> 목록을 정렬한다 &mdash; <b>종류 &rarr; 사거리 &rarr; 레벨</b> (전부 <b>오름차순</b>)
-<b>3</b> 마법을 쓸 수 있으면(CanMagicAction):
+<b>2.5</b> ★ 목록에 <b>회복(HealHp)</b> 이 하나라도 남아 있으면 &mdash; <b>그것을 쓰고 끝낸다</b>
+     <span class="cmt">// 공격 선택까지 아예 안 간다. 첫 번째로 걸린 회복 하나.</span>
+<b>3</b> 회복이 없고 마법을 쓸 수 있으면(CanMagicAction):
      <b>a.</b> <b>전체</b> 마법 중에서 가장 좋은 것을 고른다
      <b>b.</b> 없으면 <b>관통</b> 마법 중에서
      <b>c.</b> 둘 다 없으면 <b>단일 대상</b> 으로 내려간다 (아래)
@@ -1271,7 +1274,19 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      약점 하나는 <b>+2점</b>인데 무효 하나는 <b>&minus;1점</b>뿐입니다 &mdash;
      실제로는 약점이 피해 <b>+2</b> 를 주고 무효는 피해를 <b>전부</b> 없앱니다.
      그래서 «약점 둘 + 무효 하나» 같은 판에서는 <b>잘못 고릅니다</b>.</div>
-  <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c0efc / 0x26c0f10 — 전체 → 관통 순서)</span> &middot;
+  <div class="note warn"><b>★ 회복이 공격보다 앞섭니다.</b>
+     <code>SelectActions</code> 는 정렬된 목록을 훑다가 <b>종류가 회복(32)인 것을 만나면</b>
+     그 자리에서 행동을 만들고 <b>바로 반환합니다</b>(0x26c0c40 &rarr; 0x26c0fc0).
+     그래서 <b>회복을 켜 둔 캐릭터는 다친 사람이 있는 한 계속 회복만 합니다</b> &mdash;
+     공격 마법 고르는 데까지 가지도 않습니다.
+     «다친 사람» 의 기준은 성격이 정합니다(<a href="#pers">§9</a> &mdash; 신중한 70% · 나머지 50~60%).</div>
+  <div class="note warn"><b>그리고 정렬이 «사거리 오름차순» 이라 단일이 전체보다 먼저입니다.</b>
+     단일 회복을 켜 두면 <b>전체 회복은 영영 안 나갑니다</b>. 같은 사거리 안에서는 레벨 낮은 쪽이 먼저입니다.</div>
+  <div class="eq">회복량 = <b>Rand(최소회복, 최대회복) + 시전자 마력</b>   <span class="cmt">// BattleSkill.SkillHeal</span></div>
+  <div class="note"><b>여기도 마력이 본체입니다.</b> 스킬의 회복값은 2~4 에서 28~47 까지인데
+     마력이 51 이면 결과는 <b>53 에서 98 사이</b>로 몰립니다 &mdash;
+     전체 회복끼리는 차이가 <b>4~7</b> 밖에 안 납니다.</div>
+  <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c0bf8 회복 우선 · 0x26c0efc / 0x26c0f10 — 전체 → 관통 순서)</span> &middot;
      SelectBestRangeSkillAction <span class="sm">(0x26c393c 최고점 초기값 int.MinValue)</span> &middot;
      GetAllTargetDamageSkillPriority &middot; &lt;SelectActions&gt;b__2_1 <span class="sm">(정렬 비교자)</span> &middot;
      Skill.enable / Skill.enableBossOnly</p>
