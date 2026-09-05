@@ -686,16 +686,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       마나림 헬름(투구 1)·푸른 오라 갑옷(갑옷 1)은 <b>마법 직업이 못 낍니다</b>.</td></tr>
   </tbody></table>
 
+  <h4>★ MP 는 «퀘스트가 끝나야» 돌아옵니다</h4>
+  <p>여기가 핵심입니다. <code>Character.HealMp</code> 를 부르는 자리를 전수로 훑어보면
+     <b>넷뿐</b>입니다 &mdash; 전투 안(회복 마법·물약), <b>퀘스트 종료</b>, 그리고 구출 둘.</p>
+  <div class="eq"><b>AdventureResultDialog.Finish(quest)</b> &rarr; HealMp( <b>MaxMp</b> )   <span class="cmt">// 퀘스트가 끝날 때 «전부» 채운다</span>
+
+퀘스트 «도중» 에는 &mdash; 야영도, 날이 바뀌어도, 전투가 끝나도 &mdash; <b>회복이 없습니다.</b>
+유일한 회복원이 <b>전투 턴의 autoHealMp</b> 입니다.</div>
+  <div class="note warn"><b>그래서 MP 는 퀘스트 하나를 통째로 버텨야 합니다.</b>
+     전투 하나가 아니라 <b>퀘스트 하나</b>가 단위입니다 &mdash;
+     퀘스트 <b>1364개 전수</b>로 세어 보면 전투 이벤트가
+     <b>중앙 4회 · 평균 4.2회 · 최대 12회</b> 입니다.
+     한 전투를 4턴으로 잡으면 <b>퀘스트 한 판이 대략 16턴</b>입니다.</div>
+
   <h4>그래서 얼마나 달라지나</h4>
-  <p>MP 가 바닥난 뒤의 <b>지속률</b>은 <code>턴당 회복 &divide; 마법 MP</code> 입니다.</p>
-  <table class="t"><thead><tr><th>부적</th><th class="num">MP/턴</th><th class="num">블리자드(23)를 쏘는 턴</th><th class="num">모험 한 판에</th></tr></thead><tbody>
-    <tr><td>늪왕의 부적 <span class="sm">+ 왕단의 옷</span></td><td class="num">0</td><td class="num">&mdash;</td><td class="num"><b>3발이 끝</b> <span class="sm">(MP 80 기준)</span></td></tr>
-    <tr><td>늪왕의 부적 <span class="sm">+ 암숨의 법복</span></td><td class="num">6</td><td class="num">26%</td><td class="num">거의 무한</td></tr>
-    <tr class="hi"><td><b>현맥의 부적 + 암숨의 법복</b></td><td class="num"><b>13</b></td><td class="num"><b>57%</b></td><td class="num"><b>거의 무한</b></td></tr>
+  <p>퀘스트 한 판(16턴, 시작 MP 80) 동안 쏠 수 있는 전체 마법 수입니다.
+     <code>(시작 MP + 회복 &times; 턴) &divide; 마법 MP</code> 로 잘립니다.</p>
+  <table class="t"><thead><tr><th>부적 + 의복</th><th class="num">MP/턴</th>
+    <th class="num">퀘스트 한 판에 쏘는 전체 마법</th><th class="num">16턴 중</th></tr></thead><tbody>
+    <tr><td>늪왕의 부적 + 왕단의 옷 <span class="sm">(방어 중심)</span></td><td class="num">0</td>
+      <td class="num"><b>3발이 끝</b></td><td class="num">19%</td></tr>
+    <tr><td>늪왕의 부적 + 암숨의 법복</td><td class="num">6</td>
+      <td class="num">7발</td><td class="num">44%</td></tr>
+    <tr class="hi"><td><b>현맥의 부적 + 암숨의 법복</b></td><td class="num"><b>13</b></td>
+      <td class="num"><b>12발</b></td><td class="num"><b>78%</b></td></tr>
   </tbody></table>
   <div class="note"><b>회복 장비가 없으면 «전체 마법 셋업» 자체가 성립하지 않습니다.</b>
-     MP 80 짜리 마법사가 블리자드를 <b>세 번</b> 쏘면 끝이고, 나머지 모험은 전부 평타입니다.
-     13/턴이면 <b>두 턴에 한 번 이상</b> 계속 쏩니다 &mdash; 이 하나가 마법사의 실제 화력을 정합니다.</div>
+     첫 전투에서 세 번 쏘고 나면 <b>남은 세 전투는 전부 평타</b>입니다.
+     13/턴이면 <b>퀘스트 내내</b> 쏩니다 &mdash; 이 한 칸이 마법사의 실제 화력을 정합니다.
+     길게 끌면 끌수록 차이가 벌어집니다(회복은 턴에 비례하고 시작 MP 는 고정이라).</div>
   <div class="note"><b>그래블 버스트(22)가 블리자드(23)보다 1 쌉니다.</b>
      MP 가 22 인 턴에는 그래블만 나갑니다 &mdash; 둘 다 켜 두면 이 턴도 벌립니다.</div>
 
