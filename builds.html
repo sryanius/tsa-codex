@@ -319,6 +319,34 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p><b>중도사·가드를 주직업으로 쓰면 안 됩니다</b> &mdash; 최대 레벨이 25·15 라
      레벨이 모자랍니다. 방어 칸은 모험가와 같지만(갑옷·투구·방패), <b>부적을 못 낍니다</b>.</p>
 
+  <h3>★ 파티에서 방어탱이 하는 일 &mdash; «전열을 채웁니다»</h3>
+  <p>파티에는 <b>전열과 후열</b>이 있고(<code>Character.Position</code>),
+     대상 고르기가 그 줄을 봅니다(<code>BattleTargetSelector</code>).
+     그리고 <b>후열까지 닿는 것은 «활» 과 «전체·관통» 뿐</b>입니다
+     &mdash; <code>IsFront(무기종류) = 활이 아니다</code>.</p>
+  <table class="t"><thead><tr><th>열린 지역 몬스터 <b>314종</b></th><th class="num">종수</th><th>후열에 닿나</th></tr></thead><tbody>
+    <tr style="color:var(--f-vault)"><td>활을 든 몬스터</td><td class="num"><b>4</b></td><td>닿습니다 <span class="sm">(1%)</span></td></tr>
+    <tr><td>전체·관통 스킬을 가진 몬스터</td><td class="num">66</td><td>그 스킬을 쓸 때만 <span class="sm">(21%)</span></td></tr>
+    <tr class="hi"><td><b>나머지</b> &mdash; 맨손 220 · 단검 40 · 검 16 · 도끼 15 · 대검 8 · 지팡이 7 · 창 4</td>
+      <td class="num"><b>244</b></td><td><b>전열만 때립니다</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 «파티에 탱커가 왜 필요한가» 의 답이 이것입니다.</b>
+     전열에 몸이 하나 서 있으면 <b>몬스터 평타의 99%가 거기로 갑니다</b> &mdash;
+     후열의 마법사·궁수는 <b>전체·관통 스킬</b>과 <b>활 든 4종</b> 말고는 맞지 않습니다.
+     탱커가 «자기만 안 맞는» 것이 아니라 <b>실제로 뒤를 가립니다</b>.</div>
+  <div class="note warn"><b>그러면 회피탱이 더 낫지 않나 &mdash; 자리에 따라 다릅니다.</b>
+     회피탱은 물리를 <b>100% 피하지만</b> 혼란·수면·마비에 걸리면 회피가 <b>0</b> 이 되고
+     HP 57 에 80~99 가 들어옵니다(<a href="#dodge">&sect;3</a>). 그리고 경험치가 <b>152M</b> 입니다.
+     방어탱은 평타 <b>0~12</b> 를 맞지만 HP 93 · 마법 방어 39 로 <b>상태이상에도 안 무너지고</b>,
+     경험치가 <b>22M</b> 으로 <b>7분의 1</b> 입니다.</div>
+  <table class="t"><thead><tr><th>전열을 누구로 채우나</th><th class="num">물리</th><th>상태이상이 걸리면</th><th class="num">경험치</th></tr></thead><tbody>
+    <tr><td>회피탱</td><td class="num"><b>0 확정</b></td><td style="color:var(--f-vault)">회피 0 &rarr; 80~99 를 HP 57 로 받습니다</td><td class="num">152M</td></tr>
+    <tr class="hi"><td><b>방어탱</b></td><td class="num">0~12</td><td>그대로 버팁니다 <span class="sm">(HP 93 · 마방 39)</span></td><td class="num"><b>22M</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>둘 다 세우면 가장 튼튼하지만</b>, 하나만 고른다면
+     <b>파티에서도 방어탱이 «싸고 안 무너지는» 쪽</b>입니다.
+     회피탱은 완봉이 매력이지만 그 대가가 경험치 7배와 상태이상 취약성입니다.</div>
+
   <h3>★ 뽑을 때의 기본 능력치 &mdash; 어디에 쓸 것인가</h3>
   <p>직업 몫이 붙고 나면 <b>기본값의 무게가 스탯마다 완전히 다릅니다.</b>
      위 빌드(모험가 31 · 중도사 25 · 무장병 30 · 가드 15 · 블레이드브레이커 20 · 검술사 15) 기준입니다.</p>
@@ -344,7 +372,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <table class="t"><thead><tr><th>통찰을 채우는 두 길</th><th class="num">얻는 통찰</th><th>비고</th></tr></thead><tbody>
     <tr><td>뽑을 때 기본값에 넣기</td><td class="num">넣은 만큼</td><td><code>&lfloor;&divide;3&rfloor;</code> 이라 <b>3 단위로만</b> 계단이 오릅니다</td></tr>
     <tr class="hi"><td><b>현자를 부직업으로</b></td><td class="num"><b>+15</b> <span class="sm">(부 5 &times; 30)</span></td>
-      <td>경험치 등급 <b>3</b> &mdash; 도둑(8) · 레인저(7)보다 훨씬 쌉니다.
+      <td><b>경험치 지수에서 통째로 빠집니다</b>(아래) &mdash; 얹어도 다른 직업이 안 비싸집니다.
         함정 233개 중 <b>28개</b>를 현자가 담당합니다</td></tr>
     <tr><td>도둑을 부직업으로</td><td class="num">+6 <span class="sm">(부 2 &times; 30)</span></td>
       <td>비싸지만(등급 8) <b>금고 발견에 도둑 레벨이 직접</b> 더해지고
@@ -354,6 +382,30 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>남는 점수는 통찰을 «3의 배수» 로 맞춘 뒤 나머지는 생명점</b>에 넣습니다.
      힘은 완성치가 57 이라 요구 41 을 이미 넘고, 체력은 4 당 1 이라 값이 안 나오며,
      마나는 이 빌드에서 아무 일도 안 합니다.</div>
+  <div class="note"><b>★ 현자와 모험가는 «경험치 지수» 에서 양방향으로 빠집니다.</b>
+     경험치는 <b>다른 직업 레벨의 합</b>이 커질수록 지수로 비싸지는데,
+     <code>Character.SumOtherJobLevels</code> 가 그 합을 낼 때
+     <b>현자(kind 202)와 모험가(kind 0)를 둘 다 제외</b>합니다 &mdash;
+     그리고 <b>그 둘을 올릴 때는 지수 자체가 0</b> 입니다.</div>
+  <div class="eq">SumOtherJobLevels(대상 직업)
+  <b>if</b> 대상이 현자(202) 또는 모험가(0) &rarr; <b>0</b>
+  <b>else</b> 다른 직업 중 <b>현자·모험가를 뺀</b> 레벨의 합</div>
+  <div class="note"><b>그래서 «쏠플 유틸» 은 현자 하나로 끝냅니다.</b>
+     현자 30 은 <b>다른 직업 경험치를 하나도 안 올립니다</b> &mdash; 통찰 +15 가 사실상 공짜입니다.
+     반대로 <b>도둑(200) · 레인저(201)는 지수에 그대로 들어갑니다</b> &mdash;
+     둘을 30 씩 얹으면 <b>나머지 직업 전부가 몇 배로</b> 비싸집니다. 셋 다 올리는 것은 현실성이 없습니다.</div>
+  <table class="t"><thead><tr><th>쏠플에서 포기하는 것</th><th>결과</th></tr></thead><tbody>
+    <tr><td>도둑 레벨 <span class="sm">(금고 발견에 직접 더해짐)</span></td>
+      <td>금고 발견이 <b>리더 보너스 + &lfloor;통찰&divide;3&rfloor;</b> 만 남습니다.
+        게이트(<code>도둑Lv + 리더보너스 &ge; 1</code>)는 <b>리더 보너스로 통과</b>합니다</td></tr>
+    <tr><td>레인저 레벨 <span class="sm">(함정 233개 중 109개 담당)</span></td>
+      <td>그 함정들을 <b>못 보고 맞습니다</b> &mdash; 물리 함정이면 방어탱이 그냥 버팁니다</td></tr>
+    <tr class="hi"><td colspan="2"><b>금고와 함정을 못 열어도 퀘스트는 클리어됩니다.</b>
+      쏠플의 본체는 전투이고, 방어탱은 거기서 안 죽습니다 &mdash; <b>보상만 조금 손해</b>입니다</td></tr>
+  </tbody></table>
+  <p class="src">Character.SumOtherJobLevels <span class="sm">(0x26d8a80 · 필터 0x26e33d0 &mdash; kind 202·0 제외)</span> &middot;
+     TargetTypeExtensions.IsFront <span class="sm">(0x2709630)</span> &middot;
+     BattleTargetSelector <span class="sm">(전열/후열 필터)</span> &middot; 열린 지역 몬스터 314종 전수</p>
   <div class="note warn"><b>드워프는 민첩이 0 입니다.</b>
      회피에도 <code>&lfloor;민첩 흔들림 &divide; 3&rfloor;</code> 이 들어가고
      <b>행동 순서가 민첩 내림차순</b>이라 드워프는 늘 마지막에 움직입니다.
