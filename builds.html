@@ -359,11 +359,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <b>먼저 때려서 한 마리를 먼저 지우는</b> 이득이 없습니다</td></tr>
     <tr><td>총 피해량</td><td><b>안 줄어듭니다</b> &mdash; 전투가 N 라운드면 N 번 때립니다. 순서만 뒤일 뿐입니다</td></tr>
   </tbody></table>
-  <div class="note"><b>그래서 남는 기본 포인트를 «민첩» 에 넣는 것도 선택지입니다.</b>
-     11 을 넣으면 민첩 11 이 되어 <b>발두나 몬스터의 절반(중앙 12)</b> 근처에서 순서를 다툽니다.
-     회피는 여전히 못 살리지만 <b>먼저 때리는 라운드</b>가 생깁니다.
-     <b>생명점(HP +11) · 민첩(순서) · 통찰(쏠플 유틸)</b> 중에서 고르는 문제입니다
-     &mdash; 파티에 금고 담당이 따로 있다면 <b>통찰은 뺍니다</b>.</div>
+  <div class="note warn"><b>★ 그런데 민첩에는 포인트를 «넣을 수가» 없습니다.</b>
+     남는 포인트는 <code>Character.CreateParam</code> 이
+     <b>마스터의 능력치 값에 비례한 누적 구간</b>으로 뿌립니다 &mdash;
+     값이 <b>0 인 칸은 구간이 비어서 절대 안 뽑힙니다</b>.
+     드워프 마스터의 <code>agility</code> 가 0 이라 <b>민첩은 영영 0</b> 입니다.
+     그래서 남는 점수는 <b>생명점</b>(또는 쏠플이면 통찰)으로 갑니다.</div>
+  <h4 style="font-size:13px;margin:20px 0 8px">부직업으로 민첩을 올리면 얼마인가</h4>
+  <p>뼈대의 <b>«다른 직업 레벨 합» 은 105</b> 입니다
+     (중도사 25 + 무장병 30 + 가드 15 + 블레이드브레이커 20 + 검술사 15 &mdash;
+     모험가는 지수에서 빠집니다).</p>
+  <table class="t"><thead><tr><th>얹는 것</th><th class="num">얻는 민첩</th><th class="num">경험치 지수</th><th>값이 되나</th></tr></thead><tbody>
+    <tr><td>숨은 칼날의 궁사 20 <span class="sm">(부 민첩 4)</span></td><td class="num">+8</td><td class="num">1.05<sup>20</sup> &asymp; <b>2.7배</b></td><td style="color:var(--f-vault)">몬스터 중앙 12 에 아직 못 미칩니다</td></tr>
+    <tr><td>도둑 30 <span class="sm">(부 민첩 3)</span></td><td class="num">+9</td><td class="num">1.05<sup>30</sup> &asymp; <b>4.3배</b></td><td style="color:var(--f-vault)">직업 전부가 4배 비싸집니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>둘 다 값이 안 맞습니다.</b> 민첩 8~9 로는 여전히 절반쯤 뒤이고,
+     대가는 <b>이 캐릭터의 모든 직업 경험치가 3~4배</b> 입니다.
+     <b>민첩 0 은 그냥 받아들이는 것이 맞습니다</b> &mdash;
+     잃는 것이 «먼저 때리는 이득» 하나뿐이고 총 피해량은 그대로이기 때문입니다.</div>
   <div class="note"><b>공격은 생각보다 나옵니다.</b> 공격력 <b>82~117</b> 에
      발두나 몬스터 방어 중앙값이 44 이니 한 대에 <b>38~73</b> 이 들어갑니다.
      몬스터 HP 중앙값이 114 라 <b>두세 대</b>면 지웁니다 &mdash; 탱커라고 딜이 없는 빌드가 아닙니다.</div>
@@ -506,8 +519,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>부적을 끼고 싶으면 마검사 주직업</b>(칸: 의복·부적·방패)인데, 직업 몫이 30 이라
      회피 부적(+5)을 더해도 41 로 비슷합니다.</div>
   <div class="note warn"><b>회피탱의 진짜 약점은 명중이 아니라 상태이상입니다.</b>
-     <b>혼란 · 수면 · 마비</b>가 걸리면 회피가 <b>0</b> 이 되고, 그 순간 평타가 80~99 로 들어옵니다.
-     HP 57 이면 한 대입니다.</div>
+     <code>AvoidRate</code> 는 <b>혼란(7) · 수면(16) · 마비(17)</b> 중 하나라도 걸려 있으면
+     <b>계산 없이 0 을 돌려줍니다</b>(0x26b6354). 그 순간 평타가 80~99 로 들어오고 HP 57 이면 한 대입니다.</div>
+  <div class="note warn"><b>★ 그리고 이 셋은 «장비로 못 막습니다».</b>
+     방어구 311개의 <code>invalidEffectOnCreatureKinds</code> 를 전수로 보면
+     막아 주는 것이 <b>저주 8개 · 매혹 3개 · 석화 1개</b> 뿐입니다 &mdash;
+     <b>혼란·수면·마비를 막는 방어구는 하나도 없습니다.</b> 구조적인 구멍입니다.</div>
+  <table class="t"><thead><tr><th>그 셋을 거는 몬스터</th><th class="num">종수</th><th class="num">비율</th></tr></thead><tbody>
+    <tr><td>열린 지역 전부</td><td class="num">314종 중 <b>19종</b></td><td class="num">6%</td></tr>
+    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num">114종 중 <b>6종</b></td><td class="num">5%</td></tr>
+    <tr><td colspan="3" style="color:var(--muted)">열린 지역 내역 &mdash; 마비 12 · 수면 8 · 혼란 3</td></tr>
+  </tbody></table>
+  <div class="note"><b>5% 를 어떻게 볼 것인가가 회피탱과 방어탱을 가릅니다.</b>
+     회피탱은 나머지 95% 에서 <b>완봉</b>하지만 그 5% 에서 <b>한 대에 갑니다</b>.
+     방어탱은 95% 에서 0~12 를 맞지만 그 5% 에서도 <b>그냥 버팁니다</b>
+     (회피를 안 쓰니 잃을 것이 없습니다).</div>
 
   <h3>★ 물리 무효 몬스터 &mdash; 혼자 가면 «마법 활» 이 답입니다</h3>
   <p>평타가 물리 무효를 뚫느냐는 <b>무기 한 칸</b>이 정합니다.</p>
