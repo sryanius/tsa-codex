@@ -352,9 +352,21 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <div class="note"><b>금고 이벤트 1172개 중 157개(13%)가 Always 가 아닙니다.</b>
      금고가 있는 퀘스트 <b>822개</b> 중 <b>71개</b>는 <b>Always 금고가 하나도 없어서</b>,
      운이 나쁘면 그 퀘스트에서 금고 이야기를 <b>한 줄도 못 봅니다</b>.</div>
-  <div class="note warn"><b>시각도 «정확히» 봅니다.</b> <code>IsEventScheduled</code> 는
-     구간 제한이 없으면 <b><code>eventTime == 진행도</code></b> 로 판정합니다(<code>cset eq</code>).
-     그리고 금고는 <b>전부 «이번 모험에 한 번»</b>(AdventureOne)이라,
+  <h4 style="font-size:13px;margin:20px 0 8px">★ 추첨은 «이벤트마다 딱 한 번» 입니다</h4>
+  <p>「매 순간 굴리니까 언젠가는 뜨겠지」 가 아닙니다. <b>이벤트마다 기회가 한 번뿐</b>입니다.</p>
+  <div class="eq">진행도의 단위 = <b>10초</b>   <span class="cmt">// 최대 eventTime = 소요분 × 6, 퀘스트 1364개가 «전부» 그렇다</span>
+<code>IsEventScheduled</code> = <b>eventTime == 진행도</b>   <span class="cmt">// cset eq — «정확히» 같아야 한다</span>
+
+⇒ 이벤트 하나가 후보가 될 수 있는 틱은 <b>하나뿐</b>이다.
+  그 틱에서 등급 추첨을 <b>한 번</b> 하고, 안 맞으면 <b>그 모험에서는 끝</b>이다.</div>
+  <div class="note"><b>예</b> &mdash; 소요 3시간 10분짜리 퀘스트는 <b>1140 틱</b>이고
+     이벤트가 18개면 그 1140 틱 중 <b>18 칸에만</b> 이벤트가 걸려 있습니다.
+     나머지 틱에서는 후보가 비어서 조용히 넘어갑니다(그때 배회 몬스터·함정만 따로 굴립니다).</div>
+  <div class="note warn"><b>그래서 «가끔» 짜리 금고는 그 퀘스트에서 9.4% 입니다 &mdash; 누적이 아니라 한 방입니다.</b>
+     같은 퀘스트를 다시 도는 것 말고는 확률을 올릴 방법이 없습니다.
+     <span class="sm">(한 퀘스트 안에서 eventTime 이 겹치는 이벤트는 170개, 그중 금고는 13개뿐이라
+     «같은 틱에 둘이 걸려 하나만 뽑히는» 경우는 드뭅니다.)</span></div>
+  <div class="note"><b>그리고 금고는 전부 «이번 모험에 한 번»</b>(AdventureOne)이라,
      한 번 뜨고 나면 그 모험에서 다시 안 뜹니다.
      <span class="sm">(금고 1172개 중 시간대 제한 0개 · 평판 조건 0개 · 돌아오는 길 전용 0개 ·
      열쇠 필요 17개 · 열쇠 금지 22개)</span></div>
@@ -369,6 +381,9 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <div class="note warn"><b>그래서 «아무 문구도 없이 넘어갔다» 는 것은
      통찰이 모자랐다는 뜻이 아닙니다.</b> 그 판에 <b>금고 칸이 아예 안 열린 것</b>입니다 &mdash;
      도둑을 키우거나 통찰을 올려도 이건 못 바꿉니다. 같은 퀘스트를 다시 도는 수밖에 없습니다.</div>
+  <div class="note"><b>다만 «전부 랜덤» 은 아닙니다.</b> 금고 이벤트의 <b>87%(1015개)가 Always</b> 라
+     <b>정해진 틱에 반드시 뜹니다</b> &mdash; 거기서부터는 추첨이 아니라 <b>통찰·재주 판정</b>입니다.
+     운이 끼는 것은 <b>나머지 13%</b> 뿐이고, 그것도 <b>한 번뿐인 추첨</b>입니다.</div>
   <p class="src">AdventureMain.RunQuest <span class="sm">(0x2720d9c 등급 추첨 · 0x2720f88 «후보 없음 &rarr; 조용히 끝»)</span> &middot;
      &lt;RunQuest&gt;b__3 <span class="sm">(0x27272ac &mdash; <code>frequency == 5 || frequency == freq</code>)</span> &middot;
      FrequencyExtensions.GetRandom <span class="sm">(0x275dac8)</span> &middot;
