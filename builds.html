@@ -635,6 +635,36 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      그래서 «약점 둘 + 무효 하나» 같은 판에서는 <b>잘못 고릅니다</b>.
      레벨이 같은 속성을 둘 켜 두면 이 오판의 폭이 줄어듭니다.</div>
 
+  <h3>«약점이면 레벨이 낮아도 더 세지 않나» &mdash; 아닙니다</h3>
+  <p>다른 게임 버릇으로는 약점이 <b>배수</b>(&times;1.5, &times;2)입니다. 이 게임은 <b>덧셈 +2</b> 입니다.
+     피해가 만들어지는 자리를 끝까지 훑어도 <b>속성 배수가 붙는 곳이 한 곳도 없습니다</b>.</p>
+  <div class="eq">피해 = Rand(레벨+1, 레벨+4) + <b>마력</b>
+       <b>+2</b> 약점   <b>&minus;2</b> 내성   <b>&times;0</b> 무효   <span class="cmt">// 이게 전부다</span></div>
+  <p>그래서 같은 조건(마력 51 · 상대 마법 방어 0)에서 실제 숫자가 이렇게 나옵니다.</p>
+  <table class="t"><thead><tr><th>마법</th><th class="num">Lv</th><th class="num">그냥 맞힐 때</th>
+    <th class="num">약점을 맞힐 때</th><th class="num">블리자드와 차이</th></tr></thead><tbody>
+    <tr style="color:var(--f-vault)"><td>화재 <span class="sm">단일</span></td><td class="num">1</td><td class="num">53~55</td><td class="num"><b>55~57</b></td><td class="num">&minus;15</td></tr>
+    <tr><td>불의 폭발 <span class="sm">전체</span></td><td class="num">5</td><td class="num">55~56</td><td class="num">57~58</td><td class="num">&minus;13</td></tr>
+    <tr><td>어스퀘이크 <span class="sm">전체</span></td><td class="num">10</td><td class="num">60~61</td><td class="num">62~63</td><td class="num">&minus;8</td></tr>
+    <tr><td>바람의 정령 <span class="sm">전체</span></td><td class="num">12</td><td class="num">62~63</td><td class="num">64~65</td><td class="num">&minus;6</td></tr>
+    <tr class="hi"><td><b>블리자드 · 그래블 버스트</b> <span class="sm">전체</span></td><td class="num">20</td><td class="num"><b>70~71</b></td><td class="num">72~73</td><td class="num">&mdash;</td></tr>
+    <tr><td>다크페인 <span class="sm">단일</span></td><td class="num">30</td><td class="num">82~84</td><td class="num">84~86</td><td class="num">+12</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>약점을 맞힌 화재(55~57)가 그냥 쏜 블리자드(70~71)보다 «14 낮습니다».</b>
+     레벨 1 차이가 피해 1 이니, <b>약점은 «레벨 +2 짜리» 효과</b>입니다.
+     레벨이 19 차이 나는 것을 +2 로 뒤집을 수는 없습니다.</div>
+  <div class="note warn"><b>그런데 «고르는 점수» 는 약점을 +2점으로 셉니다.</b>
+     피해에서 +2 를 주는 것과 점수에서 +2점을 주는 것은 전혀 다른 크기인데
+     같은 «2» 로 취급됩니다 &mdash; <b>이 어긋남이 이 절 전체의 이유입니다.</b>
+     약점 하나 때문에 <b>피해 15 를 버리고 2 를 얻는</b> 교환이 일어납니다.</div>
+  <div class="note"><b>배수인 것은 «무효» 하나뿐입니다.</b> 무효면 그 적에게는 피해가 <b>0</b> 입니다
+     (<code>SkillAttack</code> 이 피해 계산 전에 잘라냅니다). 그래서 속성은
+     <b>«약점을 노리는 데» 가 아니라 «무효를 피하는 데»</b> 씁니다 &mdash;
+     블리자드·그래블 버스트를 같이 켜는 이유가 그것입니다.</div>
+  <p class="src">BattleSkill.SkillAttack <span class="sm">(0x26c9200 무효 &rarr; 0 피해)</span> &middot;
+     피해 계산 <span class="sm">(0x26c99b8 <code>add w8, w22, #2</code> 약점 · 0x26c99d0 <code>sub w8, w23, #2</code> 내성)</span> &middot;
+     BattleSkill.CauseDamage <span class="sm">(속성 배수 없음 &mdash; MP 피해 · 흡수 · Protect 만 봅니다)</span></p>
+
   <h3>결론 &mdash; «가장 높은 레벨의 한 급» 만 켭니다</h3>
   <div class="note warn"><b>마도병은 아직 못 갑니다.</b> 훈련소가 <b>칼레바스 고원</b>(노르그레이·자르간트)에 있습니다.
      그래서 <b>뇌우 · 프로스트 템페스트 · 라이프 하베스트 · 번아웃 · 프리즈링 에지</b> 다섯은
