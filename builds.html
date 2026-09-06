@@ -469,10 +469,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>바람의 거친 경계</td><td class="num">111종 중 14종 (13%)</td></tr>
     <tr style="color:var(--faint)"><td>🔒 칼레바스 고원</td><td class="num">105종 중 12종 (11%)</td></tr>
   </tbody></table>
-  <div class="note warn"><b>★ 그래서 «마검사 주직업» 은 반대 방향입니다.</b>
-     마검사는 <b>단검만</b> 듭니다. 그런데 <b>마법 단검의 천장이 룬 스프레드 대거 Lv14 (26~44)</b> 라
-     발두나 몬스터의 <b>방어 중앙값 44</b> 앞에서 <b>피해가 0</b> 입니다.
-     주직업을 마검사로 바꾸면 <b>활을 못 들어서 물리 무효를 뚫을 방법이 사라집니다.</b></div>
+  <div class="note warn"><b>★ 이 절의 앞선 판은 틀렸습니다 (2026-09-07 고침).</b>
+     「마검사는 단검만 들어서 마법 무기 천장이 Lv14 라 안 된다」 고 적어 뒀는데,
+     <b>마검사에게는 «어떤 단검이든 마법 공격으로 치는» 전용 분기가 있습니다.</b>
+     무기 목록만 보고 코드를 안 봤습니다.</div>
+  <div class="eq"><b>BattleCreature.IsUseMagicWeapon()</b>   <span class="cmt">// 0x26b85d0</span>
+  <b>if</b> 주직업이 <b>마검사</b> <b>and</b> 든 무기가 <b>단검</b>  &rarr; <b>true</b>   <span class="cmt">// 무기의 isMagic 을 «안 봅니다»</span>
+  <b>else</b> 무기.IsMagic()
+
+이 값이 그대로 <code>BattleAction.isMagicAttack</code> 이 되고, 위의 무효 검사를 건너뜁니다.</div>
+  <div class="note"><b>«주직업» 이어야 합니다.</b> <code>MainJob()</code> 을 보므로
+     마검사를 부직업으로 두면 안 걸립니다. 그리고 <b>단검일 때만</b>입니다.
+     <span class="sm">(상태이상 <b>EnchantWeapon</b>(41)이 걸려 있어도 같은 칸이 켜집니다 &mdash; 0x26c1980)</span></div>
+  <div class="note"><b>그래서 «마검사 30 주직업 + 용맥의 단검» 이 이 문제를 통째로 없앱니다.</b>
+     용맥의 단검은 <b>Lv26 · 힘 22 · 45~72 · 전체 공격</b>인데 데이터상 <b>비마법</b>입니다 &mdash;
+     그런데 마검사가 들면 <b>마법 공격으로 칩니다</b>.
+     <b>물리 무효를 뚫으면서 «모든 적» 을 때리는</b> 조합이 이것 하나뿐입니다.
+     퀘스트마다 무기를 바꿔 낄 일도 없습니다.</div>
+  <table class="t"><thead><tr><th>주직업</th><th>무기</th><th class="num">평타</th><th>물리 무효</th><th class="num">회피 주 몫<br><span style="font-weight:400">30 레벨</span></th><th>부적</th></tr></thead><tbody>
+    <tr class="hi"><td><b>마검사 30</b></td><td><b>용맥의 단검</b> <span class="sm">Lv26 · 전체 공격</span></td><td class="num">45~72</td><td><b>뚫습니다</b> <span class="sm">(직업 분기)</span></td><td class="num">12</td><td><b>낍니다</b></td></tr>
+    <tr><td>마검사 30</td><td>왕단의 단검 <span class="sm">Lv30 · 단일</span></td><td class="num">58~92</td><td><b>뚫습니다</b></td><td class="num">12</td><td>낍니다</td></tr>
+    <tr><td>도둑 30</td><td>라이프드레인보우 <span class="sm">Lv28 · 활 · HP흡수 30%</span></td><td class="num">54~88</td><td>뚫습니다 <span class="sm">(무기가 마법)</span></td><td class="num"><b>21</b></td><td style="color:var(--f-vault)">못 낍니다</td></tr>
+    <tr style="color:var(--f-vault)"><td>도둑 30</td><td>용맥의 단검 · 왕단의 단검</td><td class="num">45~72 · 58~92</td><td><b>못 뚫습니다</b></td><td class="num">21</td><td>못 낍니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>회피 몫이 9 낮은 것은 부적으로 메웁니다.</b>
+     마검사는 칸이 <b>의복 · 부적 · 방패</b> 라 회피 부적(+5)을 낄 수 있습니다 &mdash;
+     도둑(의복·방패)과 최종 회피값이 <b>41 : 42</b> 로 거의 같아집니다.
+     게다가 부적 칸이 열리면 <b>마법 방어 39</b> 나 <b>MP 자동 회복</b>도 같이 들어옵니다.</div>
   <table class="t"><thead><tr><th>마법 무기</th><th class="num">Lv</th><th class="num">힘</th><th class="num">피해</th><th>비고</th></tr></thead><tbody>
     <tr style="color:var(--faint)"><td>명천궁 <span class="sm">활</span></td><td class="num">31</td><td class="num">18</td><td class="num">58~94</td><td><b>관통</b> &mdash; 요구 레벨 31 이라 도둑 30 만으로는 못 낍니다</td></tr>
     <tr class="hi"><td><b>라이프드레인보우</b> <span class="sm">활</span></td><td class="num">28</td><td class="num">17</td><td class="num"><b>54~88</b></td><td><b>HP 흡수 30%</b> &mdash; 혼자 가는 회피탱에게 딱 맞습니다</td></tr>
@@ -480,16 +503,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr style="color:var(--f-vault)"><td>룬 스프레드 대거 <span class="sm">단검</span></td><td class="num">14</td><td class="num">11</td><td class="num"><b>26~44</b></td><td><b>단검 마법 천장</b> &mdash; 발두나에서는 피해 0</td></tr>
     <tr style="color:var(--muted)"><td>용맥의 단검 · 왕단의 단검</td><td class="num">26·30</td><td class="num">22·15</td><td class="num">45~72 · 58~92</td><td><b>비마법</b> &mdash; 물리 무효를 못 때립니다</td></tr>
   </tbody></table>
-  <div class="note"><b>그래서 혼자 돌릴 회피탱은 «도둑 주직업 + 라이프드레인보우» 입니다.</b>
-     <b>활은 도둑은 들고 마검사는 못 듭니다</b>(도둑 무기: 단검·활 / 마검사: 단검).
-     회피 몫도 도둑이 주 <b>7</b> 로 마검사 주 <b>4</b> 보다 큽니다 &mdash; 30 레벨이면 <b>21 : 12</b> 입니다.
-     대신 <b>부적을 포기</b>합니다(도둑 칸: 의복·방패).</div>
-  <div class="note warn"><b>퀘스트마다 무기를 바꿀 필요가 없습니다.</b>
-     라이프드레인보우는 <b>마법이면서 54~88</b> 이라 평소 딜도 왕단의 단검(58~92)과 거의 같습니다.
-     <b>그냥 계속 끼고 다니면</b> 물리 무효가 나와도 그대로 때립니다 &mdash;
-     «이 퀘스트에 마법이 필요한가» 를 볼 일이 없어집니다.</div>
-  <div class="note"><b>부적이 꼭 필요하면</b> «숨은 칼날의 궁사»(활·단검 + 의복·<b>부적</b>·방패)가 있지만
-     최대 레벨이 20 이라 회피 주 몫이 <b>8</b> 밖에 안 됩니다. 회피 완봉이 목표라면 도둑 쪽이 맞습니다.</div>
+  <div class="note"><b>도둑 주직업으로 가려면 무기를 «마법 활» 로 바꿔야 합니다.</b>
+     도둑은 단검·활을 드는데 <b>마법 단검의 천장이 룬 스프레드 대거 Lv14 (26~44)</b> 라
+     발두나 방어 중앙값 44 앞에서 <b>피해 0</b> 입니다.
+     쓸 만한 것은 <b>라이프드레인보우</b>(Lv28 · 힘 17 · 54~88 · <b>HP 흡수 30%</b>)이고,
+     명천궁(Lv31 · 58~94 · 관통)은 <b>요구 레벨 31</b> 이라 도둑 30 만으로는 못 낍니다.</div>
+  <div class="note warn"><b>두 길의 차이는 결국 «전체 공격이냐, 회피 9 냐» 입니다.</b>
+     마검사는 <b>전체 공격 단검을 마법으로</b> 쓰고 부적 칸까지 열지만 회피 주 몫이 9 낮고,
+     도둑은 회피가 높지만 <b>단일(활)</b> 이고 부적을 못 낍니다.
+     <b>혼자 돌면서 여럿을 상대한다면 마검사</b> 쪽이 낫습니다.</div>
   <p class="src">BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c7398 &mdash; InvalidPhysics &amp;&amp; !isMagicAttack)</span> &middot;
      BattleActionSelector.BattleAction.isMagicAttack <span class="sm">(0x58)</span> &middot;
      WeaponMaster.Ability.isMagic &middot; 무기·몬스터 전수</p>
