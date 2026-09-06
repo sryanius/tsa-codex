@@ -922,6 +922,42 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td colspan="2" style="color:var(--muted)"><b>그리고 두 조건 모두 공통으로</b> &mdash; HP가 최대의 &frac13; 미만이거나 상태이상이 하나라도 걸린 사람마다,<br>&nbsp;&nbsp;&middot; 이번 사건으로 HP가 줄었으면 +1<br>&nbsp;&nbsp;&middot; 새로 걸린 상태이상 <b>개수만큼</b> +N</td></tr>
   </tbody></table>
   <p>점수는 <b>퀘스트 내내 누적</b>됩니다. 초반에 크게 다치면 그 점수를 안고 끝까지 갑니다.</p>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">★ 실제로 점수를 굴리는 «사건» 은 생각보다 적습니다</h4>
+  <p><code>IfBattleOrTrap</code> 은 조건이 붙어 있다고 굴리는 것이 아닙니다 &mdash;
+     <b>이벤트 종류가 전투·금고·함정일 때만</b> 굴립니다(<code>kind == 11 · 70 · 80</code>).
+     퀘스트 이벤트의 절반이 넘는 <b>메시지</b>는 조건이 붙어 있어도 <b>0점</b>입니다.</p>
+  <table class="t"><thead><tr><th>이벤트 종류</th><th class="num">전체 개수</th><th>점수를 굴리나</th></tr></thead><tbody>
+    <tr style="color:var(--muted)"><td>메시지</td><td class="num">13,797</td><td><b>안 굴립니다</b> &mdash; 조건은 붙어 있지만 종류가 안 맞습니다</td></tr>
+    <tr class="hi"><td><b>전투</b></td><td class="num">5,702</td><td>굴립니다</td></tr>
+    <tr class="hi"><td><b>함정</b></td><td class="num">1,422</td><td>굴립니다</td></tr>
+    <tr class="hi"><td><b>금고</b></td><td class="num">1,172</td><td>굴립니다</td></tr>
+    <tr><td>동굴 진입·탈출 · 금화 · 아이템</td><td class="num">2,859</td><td>굴립니다</td></tr>
+    <tr><td colspan="3" style="color:var(--muted)"><b>Happen</b>(종류를 안 가리는 확률 조항)은 <b>976개(3.8%)</b> 뿐이고,
+      <b>퀘스트 1364개 중 783개(57%)는 Happen 이 하나도 없습니다</b> &mdash; 퀘스트당 중앙값 <b>0개</b></td></tr>
+  </tbody></table>
+  <div class="eq">Happen 확률 = clamp( (<b>퀘스트 난이도 &minus; 파티 평균 레벨</b>) &times; 10 + 50 , <b>5</b> , 95 )%
+
+⇒ 평균 레벨이 난이도보다 <b>4.5 이상 높으면 5% 하한</b>에 눌립니다.</div>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">★ 그래서 «안 맞으면» 점수가 거의 안 쌓입니다</h4>
+  <p>전투·금고·함정 이벤트에서 점수가 붙는 네 자리를 <b>한 대도 안 맞은 캐릭터</b>로 따져 보면 이렇습니다.</p>
+  <table class="t"><thead><tr><th>붙는 조건</th><th>안 맞았다면</th></tr></thead><tbody>
+    <tr><td>죽은 사람마다 <b>+5</b></td><td class="num">0</td></tr>
+    <tr><td>최대 MP <b>5 이상</b>인데 MP 가 줄고 최대의 &frac14; 이하 &rarr; +1</td><td class="num">0 <span class="sm">(최대 MP 가 5 미만이면 아예 건너뜁니다)</span></td></tr>
+    <tr><td>HP 가 사건 직전의 <b>절반 미만</b> &rarr; +1 &mdash; 아니면 MP 가 절반 미만일 때 +1</td><td class="num">0</td></tr>
+    <tr class="hi"><td><b>공통</b> &mdash; <b>HP 가 최대의 &frac13; 미만이거나 상태이상이 하나라도 있을 때만</b> 열립니다.
+      열리면 HP 가 줄었으면 +1, <b>새로 걸린 상태이상 개수만큼 +N</b></td>
+      <td class="num"><b>상태이상만 조심</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>회피로 물리를 완봉하면 후퇴 점수가 거의 안 쌓입니다.</b>
+     그러면 <b>기준점이 3이든 30이든 닿지 않습니다</b> &mdash; 성격이 사실상 무관해집니다.
+     혼자 갈 때 «이기적» 을 억지로 맞출 필요도 그만큼 줄어듭니다.</div>
+  <div class="note warn"><b>구멍은 «상태이상» 입니다.</b>
+     회피는 <b>물리 공격에만</b> 통합니다(<a href="#avoid">&sect;8</a> &mdash;
+     <code>AvoidRate</code> 를 부르는 곳이 <code>PhysicsAttack</code> 한 곳뿐입니다).
+     마법도 상태이상도 회피 판정을 안 거치므로, 한 번 걸리면 공통 조항이 열리고
+     <b>걸린 개수만큼</b> 점수가 붙습니다. 함정(<a href="#trap">&sect;4</a>)도 회피와 별개 규칙입니다.</div>
   <p class="src">AdventureMain.EvaluateLeaderRetreat &middot; Party.AddRetreatPoint &middot; Party.StartReturning</p>
 
   <h3>회복 마법을 언제 쓰는가</h3>
