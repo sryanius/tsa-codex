@@ -891,15 +891,22 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <h3>★ 혼자 갈 때 &mdash; «이기적» 에 전용 분기가 있습니다</h3>
   <p>위 식에서 <b>N</b>(전체 인원)을 보는 성격이 <b>둘</b>뿐인데, 방향이 정반대입니다.
      나머지는 <b>A</b>(살아 있는 수)에만 비례하므로 <b>A = 1 에서 3~4 로 주저앉습니다</b>.</p>
-  <table class="t"><thead><tr><th>성격</th><th class="num">혼자일 때 기준점</th><th class="num">4인일 때</th><th>혼자 갈 만한가</th></tr></thead><tbody>
-    <tr><td><b>무모한</b></td><td class="num"><b>&infin;</b></td><td class="num">&infin;</td><td>돌아서지 않습니다 &mdash; <b>그대로 죽습니다</b></td></tr>
-    <tr class="hi"><td><b>이기적</b></td><td class="num"><b>30</b> <span class="sm">← 전용 분기</span></td><td class="num">24</td><td><b>가장 낫습니다</b></td></tr>
-    <tr><td>감정적</td><td class="num">7~29 <span class="sm">매번 다시</span></td><td class="num">7~29</td><td>운에 맡기는 셈입니다</td></tr>
-    <tr><td>신경질적</td><td class="num">4</td><td class="num">12</td><td style="color:var(--f-vault)">두세 사건이면 돌아섭니다</td></tr>
-    <tr><td>신중한</td><td class="num">3</td><td class="num">8</td><td style="color:var(--f-vault)">두세 사건이면 돌아섭니다</td></tr>
-    <tr><td>합리적</td><td class="num">3</td><td class="num">14</td><td style="color:var(--f-vault)">두세 사건이면 돌아섭니다</td></tr>
-    <tr><td>사교적</td><td class="num"><b>2</b> <span class="sm">← 전용 분기</span></td><td class="num">16</td><td style="color:var(--f-vault)">사실상 못 갑니다</td></tr>
+  <table class="t"><thead><tr><th>성격</th><th class="num">혼자일 때<br>후퇴 기준점</th><th class="num">4인</th>
+    <th class="num">리더 보너스<br><span style="font-weight:400">금고 발견</span></th>
+    <th class="num">자기 회복<br><span style="font-weight:400">이 HP 이하에</span></th></tr></thead><tbody>
+    <tr><td><b>무모한</b></td><td class="num"><b>&infin;</b> <span class="sm">안 돌아섭니다</span></td><td class="num">&infin;</td><td class="num"><b>+3</b></td><td class="num">50%</td></tr>
+    <tr class="hi"><td><b>이기적</b></td><td class="num"><b>30</b> <span class="sm">← 전용 분기</span></td><td class="num">24</td><td class="num">+2</td><td class="num">50%</td></tr>
+    <tr class="hi"><td><b>합리적</b></td><td class="num">3</td><td class="num">14</td><td class="num"><b>+3</b></td><td class="num"><b>60%</b></td></tr>
+    <tr><td>감정적</td><td class="num">7~29 <span class="sm">매번 다시</span></td><td class="num">7~29</td><td class="num">+1</td><td class="num">50%</td></tr>
+    <tr><td>신경질적</td><td class="num">4</td><td class="num">12</td><td class="num">&minus;1</td><td class="num">60%</td></tr>
+    <tr><td>신중한</td><td class="num">3</td><td class="num">8</td><td class="num">0</td><td class="num"><b>70%</b></td></tr>
+    <tr><td>사교적</td><td class="num"><b>2</b> <span class="sm">← 전용 분기</span></td><td class="num">16</td><td class="num">&minus;1</td><td class="num">50%</td></tr>
   </tbody></table>
+  <div class="note warn"><b>리더 보너스는 «혼자» 일 때 가장 크게 작용합니다.</b>
+     리더가 자기 자신이라 금고 <b>발견</b> 판정에 그대로 들어가고,
+     게다가 <b>발견의 통찰 보너스는 «도둑 레벨 + 리더 보너스 &ge; 1» 일 때만 붙습니다</b>(<a href="#chest">&sect;3</a>).
+     도둑을 안 키운 캐릭터라면 <b>사교적(&minus;1) · 신경질적(&minus;1) · 신중한(0)</b> 은
+     <b>통찰이 아무리 높아도 0 으로 굴립니다</b>. 감정적(+1)은 턱걸이로 살아납니다.</div>
   <div class="note"><b>그래서 «무모한» 일 필요는 없습니다.</b> 혼자 가는 캐릭터에게 필요한 것은
      «절대 안 돌아서는 것» 이 아니라 <b>«퀘스트 하나를 버티는 것»</b> 입니다.
      퀘스트 하나의 사건이 <b>19개 안팎</b>이고 사건마다 붙는 점수가 보통 <b>0~1</b> 이므로,
@@ -908,10 +915,25 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <b>HP 가 바닥나도 돌아서지 않습니다</b>. 파티였다면 남은 사람이 있지만 혼자면 그대로 쓰러지고,
      캐릭터에는 <b>구출 비용</b>(<code>rescueCost</code>)과 <b>잃은 장비</b>(<code>lostEquipments</code>)가
      따로 기록됩니다. 이득은 리더 보너스 +3 뿐인데(이기적은 +2) 값이 안 맞습니다.</div>
-  <div class="note"><b>혼자일 때 성격이 건드리는 나머지 둘</b> &mdash;
-     <b>회복 시점</b>은 이기적·무모한이 <b>50%</b>, 신중한이 <b>70%</b> 입니다.
-     혼자면 자기 회복이라 신중한이 유리하지만, 그 대가가 <b>기준점 3</b> 이라 상쇄가 안 됩니다.
-     <b>리더 보너스</b>(금고 발견, <a href="#chest">&sect;3</a>)는 무모한·합리적 +3 · 이기적 +2 입니다.</div>
+  <div class="note"><b>«무모한» 이 안 나오는 종족에서는 «합리적» 이 그 자리입니다.</b>
+     드워프 여 · 엘프 남녀 · 풋워커 여에게는 무모한 칸이 없는데(위 &laquo;어떤 성격이 나오는가&raquo;),
+     <b>합리적이 리더 보너스 +3 으로 무모한과 같고</b> 회복도 60% 로 한 칸 빠릅니다.
+     약점은 <b>후퇴 기준점 3</b> 하나뿐입니다.</div>
+  <div class="note"><b>그 3 이 문제가 되느냐는 «맞느냐» 에 달렸습니다.</b>
+     아래 &laquo;실제로 점수를 굴리는 사건&raquo; 에서 보듯, 한 대도 안 맞고 상태이상도 안 걸리면
+     점수가 <b>0 으로 고정</b>이라 기준점이 3이든 30이든 안 닿습니다.
+     반대로 상태이상을 자주 받는 자리라면 <b>이기적(30)</b> 이나 <b>감정적(최소 7)</b> 의 여유가 필요합니다.</div>
+  <table class="t"><thead><tr><th>혼자 보낼 캐릭터라면</th><th>고를 것</th></tr></thead><tbody>
+    <tr class="hi"><td><b>회피탱</b> &mdash; 물리를 거의 안 맞음</td>
+      <td><b>합리적</b> <span class="sm">(리더 +3 · 회복 60%)</span>.
+        무모한이 나오는 종족이면 무모한도 같지만 <b>죽을 때까지 안 돌아서는</b> 위험이 붙습니다</td></tr>
+    <tr><td><b>맞아 가며 버티는 자리</b> · 상태이상을 자주 받음</td>
+      <td><b>이기적</b> <span class="sm">(30)</span> &gt; <b>감정적</b> <span class="sm">(최소 7 · 리더 +1)</span></td></tr>
+    <tr style="color:var(--faint)"><td>피할 것</td><td><b>사교적</b> &mdash; 기준점 2 에 리더 &minus;1 로 양쪽 다 최악입니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>궁합은 혼자일 때 아예 안 돕니다.</b>
+     <code>CheckCompatibility</code> 는 <b>상대 캐릭터</b>를 받는 함수라 파티에서만 굴러갑니다 &mdash;
+     «이기적이라 파티가 껄끄럽다» 는 <b>키우는 동안</b>의 문제이고, 쏠플 중에는 아무 영향이 없습니다.</div>
   <p class="src">Party.GetRetreatThreshold <span class="sm">(0x26f6930 이기적 &mdash; <code>N==1 ? 30 : 24</code> · 0x26f6898 사교적 &mdash; <code>N&lt;2 ? 2 : A*4</code>)</span></p>
 
   <h4 style="font-size:13px;margin:20px 0 8px">점수가 붙는 자리</h4>
