@@ -888,6 +888,32 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 
 리더가 죽어 있으면 &rarr; 0  <i>// 다음 사건에서 바로 돌아선다</i></div>
   <div class="note warn"><b>기준점은 살아 있는 인원에 비례합니다.</b> 한 명 죽으면 기준점 자체가 내려가서, 남은 점수로도 곧바로 넘길 수 있습니다 &mdash; 무너지기 시작하면 가속이 붙습니다. 무모한 리더만 이 사다리 밖에 있습니다.</div>
+  <h3>★ 혼자 갈 때 &mdash; «이기적» 에 전용 분기가 있습니다</h3>
+  <p>위 식에서 <b>N</b>(전체 인원)을 보는 성격이 <b>둘</b>뿐인데, 방향이 정반대입니다.
+     나머지는 <b>A</b>(살아 있는 수)에만 비례하므로 <b>A = 1 에서 3~4 로 주저앉습니다</b>.</p>
+  <table class="t"><thead><tr><th>성격</th><th class="num">혼자일 때 기준점</th><th class="num">4인일 때</th><th>혼자 갈 만한가</th></tr></thead><tbody>
+    <tr><td><b>무모한</b></td><td class="num"><b>&infin;</b></td><td class="num">&infin;</td><td>돌아서지 않습니다 &mdash; <b>그대로 죽습니다</b></td></tr>
+    <tr class="hi"><td><b>이기적</b></td><td class="num"><b>30</b> <span class="sm">← 전용 분기</span></td><td class="num">24</td><td><b>가장 낫습니다</b></td></tr>
+    <tr><td>감정적</td><td class="num">7~29 <span class="sm">매번 다시</span></td><td class="num">7~29</td><td>운에 맡기는 셈입니다</td></tr>
+    <tr><td>신경질적</td><td class="num">4</td><td class="num">12</td><td style="color:var(--f-vault)">두세 사건이면 돌아섭니다</td></tr>
+    <tr><td>신중한</td><td class="num">3</td><td class="num">8</td><td style="color:var(--f-vault)">두세 사건이면 돌아섭니다</td></tr>
+    <tr><td>합리적</td><td class="num">3</td><td class="num">14</td><td style="color:var(--f-vault)">두세 사건이면 돌아섭니다</td></tr>
+    <tr><td>사교적</td><td class="num"><b>2</b> <span class="sm">← 전용 분기</span></td><td class="num">16</td><td style="color:var(--f-vault)">사실상 못 갑니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 «무모한» 일 필요는 없습니다.</b> 혼자 가는 캐릭터에게 필요한 것은
+     «절대 안 돌아서는 것» 이 아니라 <b>«퀘스트 하나를 버티는 것»</b> 입니다.
+     퀘스트 하나의 사건이 <b>19개 안팎</b>이고 사건마다 붙는 점수가 보통 <b>0~1</b> 이므로,
+     <b>기준점 30 이면 한 판을 넉넉히 넘깁니다</b>.</div>
+  <div class="note warn"><b>무모한은 혼자일 때 위험합니다.</b> 기준점이 <code>int.MaxValue</code> 라
+     <b>HP 가 바닥나도 돌아서지 않습니다</b>. 파티였다면 남은 사람이 있지만 혼자면 그대로 쓰러지고,
+     캐릭터에는 <b>구출 비용</b>(<code>rescueCost</code>)과 <b>잃은 장비</b>(<code>lostEquipments</code>)가
+     따로 기록됩니다. 이득은 리더 보너스 +3 뿐인데(이기적은 +2) 값이 안 맞습니다.</div>
+  <div class="note"><b>혼자일 때 성격이 건드리는 나머지 둘</b> &mdash;
+     <b>회복 시점</b>은 이기적·무모한이 <b>50%</b>, 신중한이 <b>70%</b> 입니다.
+     혼자면 자기 회복이라 신중한이 유리하지만, 그 대가가 <b>기준점 3</b> 이라 상쇄가 안 됩니다.
+     <b>리더 보너스</b>(금고 발견, <a href="#chest">&sect;3</a>)는 무모한·합리적 +3 · 이기적 +2 입니다.</div>
+  <p class="src">Party.GetRetreatThreshold <span class="sm">(0x26f6930 이기적 &mdash; <code>N==1 ? 30 : 24</code> · 0x26f6898 사교적 &mdash; <code>N&lt;2 ? 2 : A*4</code>)</span></p>
+
   <h4 style="font-size:13px;margin:20px 0 8px">점수가 붙는 자리</h4>
   <p>퀘스트 이벤트마다 <code>retreatCondition</code> 이 달려 있고, 그 값이 <b>None</b> 이면 그 사건은 점수를 안 만듭니다. 값이 있을 때만 아래를 굴립니다.</p>
   <table><thead><tr><th>조건</th><th>붙는 점수</th></tr></thead><tbody>
