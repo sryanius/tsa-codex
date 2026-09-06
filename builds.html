@@ -319,6 +319,57 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p><b>중도사·가드를 주직업으로 쓰면 안 됩니다</b> &mdash; 최대 레벨이 25·15 라
      레벨이 모자랍니다. 방어 칸은 모험가와 같지만(갑옷·투구·방패), <b>부적을 못 낍니다</b>.</p>
 
+  <h3>★ 회피가 8 인데 괜찮은가 &mdash; 세 가지를 따로 봐야 합니다</h3>
+  <p>이 빌드의 직업 몫을 전부 펼치면 이렇습니다.</p>
+  <table class="t"><thead><tr><th class="num">명중률</th><th class="num">방어력</th><th class="num">공격력</th>
+    <th class="num">치명 저항</th><th class="num">재주</th><th class="num">회피</th><th class="num">민첩</th></tr></thead><tbody>
+    <tr><td class="num"><b>40</b></td><td class="num"><b>45</b></td><td class="num">25</td><td class="num">20</td><td class="num">10</td><td class="num">8</td><td class="num"><b>0</b></td></tr>
+  </tbody></table>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">① 명중 &mdash; 문제가 아닙니다</h4>
+  <div class="eq">내 명중 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + &lfloor;재주 흔들림 &divide; 3&rfloor; + <b>명중값 40</b>
+   재주 = 기본 7 + 직업 10 = <b>17</b> &rarr; 최솟값 13 &rarr; 몫 <b>4</b>
+   <b>최악의 굴림 = 2 + 4 + 40 = 46</b>
+
+맞습니다 &hArr; 명중 &minus; 상대 회피 &ge; &minus;1     <span class="cmt">// 발두나 몬스터 회피 «최대» 44 &rarr; 43 만 넘으면 된다</span></div>
+  <div class="note"><b>가장 나쁘게 굴려도 46 이라 발두나 전 몬스터를 맞춥니다.</b>
+     회피 중앙값은 32 이니 보통은 14 이상 여유가 있습니다.
+     명중은 <b>재주가 아니라 «직업 명중률 몫 40»</b> 이 만들고,
+     그 40 을 무장병(부 4) · 검술사(부 4) · 블레이드브레이커(부 3)가 채웁니다.</div>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">② 회피 &mdash; 낮은 게 «설계» 입니다</h4>
+  <div class="eq">내 회피 = 2d6 + &lfloor;민첩 흔들림 &divide; 3&rfloor;(민첩 0 이라 <b>0</b>) + <b>8</b> = <b>10~20</b>
+발두나 몬스터 명중 최대 <b>44</b>  &rarr;  <b>하나도 못 피합니다</b></div>
+  <div class="note"><b>방어탱은 «다 맞고 0 으로 만드는» 빌드입니다.</b>
+     회피를 조금 올려 봐야 39 를 넘겨야 의미가 생기는데(<a href="#dodge">&sect;3</a>),
+     이 뼈대로는 8 에서 더 올릴 길이 없습니다. 그 대신 <b>방어 118~174</b> 로
+     평타를 <b>0~12</b> 로 눌러 놓았습니다 &mdash; 회피 대신 방어로 같은 자리를 채운 것입니다.</div>
+  <div class="note"><b>치명타도 눌려 있습니다.</b> 치명타 확률은 <code>공격자 치명타 &minus; 내 치명 저항</code>인데
+     이 빌드의 치명 저항이 <b>32</b> 이고, <b>발두나 114종 중 치명타가 32 를 넘는 것이 0 종</b>입니다
+     (중앙 3 · 최대 13). 그래서 전부 <b>2% 하한</b>에 눌립니다 &mdash; 50 대에 한 번입니다.</div>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">③ 민첩 0 &mdash; 여기는 지적이 맞습니다</h4>
+  <div class="note warn"><b>뼈대 직업 여섯이 민첩을 하나도 안 줍니다.</b>
+     모험가 · 중도사 · 무장병 · 가드 · 블레이드브레이커 · 검술사 <b>전부 민첩 0</b> 이고,
+     드워프는 기본 민첩도 0 입니다. 그래서 <b>행동 순서가 영원히 꼴찌</b>입니다
+     (<code>GetCanActionCreatures</code> 가 매 라운드 민첩 내림차순으로 다시 줄을 세웁니다).</div>
+  <table class="t"><thead><tr><th>민첩 0 이 실제로 잃는 것</th><th>얼마나</th></tr></thead><tbody>
+    <tr style="color:var(--muted)"><td>회피</td><td><b>없습니다</b> &mdash; 8 이든 11 이든 44 를 못 넘습니다</td></tr>
+    <tr class="hi"><td><b>행동 순서</b></td><td>발두나 몬스터 민첩 중앙 <b>12</b> &mdash; 늘 마지막에 움직입니다.
+      <b>먼저 때려서 한 마리를 먼저 지우는</b> 이득이 없습니다</td></tr>
+    <tr><td>총 피해량</td><td><b>안 줄어듭니다</b> &mdash; 전투가 N 라운드면 N 번 때립니다. 순서만 뒤일 뿐입니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 남는 기본 포인트를 «민첩» 에 넣는 것도 선택지입니다.</b>
+     11 을 넣으면 민첩 11 이 되어 <b>발두나 몬스터의 절반(중앙 12)</b> 근처에서 순서를 다툽니다.
+     회피는 여전히 못 살리지만 <b>먼저 때리는 라운드</b>가 생깁니다.
+     <b>생명점(HP +11) · 민첩(순서) · 통찰(쏠플 유틸)</b> 중에서 고르는 문제입니다
+     &mdash; 파티에 금고 담당이 따로 있다면 <b>통찰은 뺍니다</b>.</div>
+  <div class="note"><b>공격은 생각보다 나옵니다.</b> 공격력 <b>82~117</b> 에
+     발두나 몬스터 방어 중앙값이 44 이니 한 대에 <b>38~73</b> 이 들어갑니다.
+     몬스터 HP 중앙값이 114 라 <b>두세 대</b>면 지웁니다 &mdash; 탱커라고 딜이 없는 빌드가 아닙니다.</div>
+  <p class="src">직업 보너스 전수 &middot; 발두나의 황야 몬스터 114종
+     <span class="sm">(회피 중앙 32 · 최대 44 / 방어 중앙 44 / HP 중앙 114 / 치명타 중앙 3 · 최대 13)</span></p>
+
   <h3>★ 파티에서 방어탱이 하는 일 &mdash; «전열을 채웁니다»</h3>
   <p>파티에는 <b>전열과 후열</b>이 있고(<code>Character.Position</code>),
      대상 고르기가 그 줄을 봅니다(<code>BattleTargetSelector</code>).
