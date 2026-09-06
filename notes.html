@@ -325,6 +325,56 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <p>이걸 채운 캐릭터는 대실패(1/36)를 빼고 확정입니다. <b>두 명이 채우면</b> 판정당 실패가 1/1296이라 사실상 100%입니다.</p>
   <p class="src">AdventureMain.OpenTreasureBox / FoundItem / UnlockChest · 리더 보너스 표 @0xF89F2C</p>
 
+  <h3>★ 금고가 «로그 한 줄 없이» 통째로 안 뜰 수 있습니다</h3>
+  <p>「여기에 무엇인가 있는 것 같다」 도, 「해제하지 못했다」 도 없이 그냥 넘어가는 경우가 있습니다.
+     <b>판정에 실패한 것이 아니라 이벤트가 시작되지도 않은 것</b>입니다.
+     <code>AdventureMain.RunQuest</code> 가 이벤트를 고르는 순서가 이렇습니다.</p>
+  <div class="eq"><b>1</b> 후보 = 이벤트 중 <b>시각·등장조건·열쇠</b>를 통과한 것   <span class="cmt">// IsEventScheduled · IsAppearanceEvent · needKey/noKey</span>
+<b>2</b> <b>freq = 무작위 등급 하나를 뽑는다</b>            <span class="cmt">// FrequencyExtensions.GetRandom()</span>
+<b>3</b> 후보 = 후보 중 <b>빈도가 Always 이거나 freq 와 «정확히 같은»</b> 것
+<b>4</b> 후보가 <b>하나도 없으면 &mdash; 아무것도 안 적고 끝냅니다</b>   <span class="cmt">// 0x2720f88</span></div>
+  <div class="note warn"><b>3번이 «이상» 이 아니라 «같음» 입니다.</b>
+     빈도가 «가끔(Sometimes)» 인 금고는 <b>그 판에서 «가끔» 등급이 뽑혀야만</b> 후보가 됩니다.
+     더 흔한 등급이 뽑히면 <b>존재하지 않는 것처럼</b> 지나갑니다.</div>
+  <table class="t"><thead><tr><th>이벤트 빈도</th><th class="num">한 칸에서 뽑힐 확률</th><th class="num">금고 이벤트 1172개 중</th></tr></thead><tbody>
+    <tr class="hi"><td><b>Always</b> <span class="sm">늘</span></td><td class="num"><b>100%</b> <span class="sm">— 추첨과 무관</span></td><td class="num"><b>1015</b> (87%)</td></tr>
+    <tr><td>Usually <span class="sm">보통</span></td><td class="num">37.5%</td><td class="num">92</td></tr>
+    <tr><td>Often <span class="sm">자주</span></td><td class="num">18.75%</td><td class="num">47</td></tr>
+    <tr><td>Sometimes <span class="sm">가끔</span></td><td class="num">9.38%</td><td class="num">14</td></tr>
+    <tr><td>Occasionally</td><td class="num">7.03%</td><td class="num">3</td></tr>
+    <tr><td>Infrequently</td><td class="num">1.76%</td><td class="num">1</td></tr>
+    <tr style="color:var(--faint)"><td>Rare</td><td class="num">0.56%</td><td class="num">0</td></tr>
+    <tr style="color:var(--faint)"><td>SuperRare</td><td class="num">0.03%</td><td class="num">0</td></tr>
+  </tbody></table>
+  <p>등급 추첨은 <b>실패하면 그 자리에서 멈추는 사슬</b>입니다 &mdash;
+     <code>RandSuccess(75)</code> 실패면 Always, 통과하면 <code>RandSuccess(50)</code> 실패면 Usually &hellip;
+     이런 식으로 <b>50 &middot; 50 &middot; 50 &middot; 25 &middot; 25 &middot; 5</b> 를 내려갑니다.</p>
+  <div class="note"><b>금고 이벤트 1172개 중 157개(13%)가 Always 가 아닙니다.</b>
+     금고가 있는 퀘스트 <b>822개</b> 중 <b>71개</b>는 <b>Always 금고가 하나도 없어서</b>,
+     운이 나쁘면 그 퀘스트에서 금고 이야기를 <b>한 줄도 못 봅니다</b>.</div>
+  <div class="note warn"><b>시각도 «정확히» 봅니다.</b> <code>IsEventScheduled</code> 는
+     구간 제한이 없으면 <b><code>eventTime == 진행도</code></b> 로 판정합니다(<code>cset eq</code>).
+     그리고 금고는 <b>전부 «이번 모험에 한 번»</b>(AdventureOne)이라,
+     한 번 뜨고 나면 그 모험에서 다시 안 뜹니다.
+     <span class="sm">(금고 1172개 중 시간대 제한 0개 · 평판 조건 0개 · 돌아오는 길 전용 0개 ·
+     열쇠 필요 17개 · 열쇠 금지 22개)</span></div>
+  <div class="note"><b>반대로, 이벤트가 «시작되면» 반드시 한 줄은 남습니다.</b></div>
+  <table class="t"><thead><tr><th>어디까지 갔나</th><th>화면에 뜨는 것</th></tr></thead><tbody>
+    <tr><td>이벤트 자체가 후보에 못 듦</td><td style="color:var(--f-vault)"><b>아무것도 없음</b> &mdash; 그냥 다음으로</td></tr>
+    <tr><td>발견 실패</td><td>전용 문구 하나 <span class="sm">(<code>LocalizeMaster.Adventure</code> 의 고정 문장)</span></td></tr>
+    <tr><td>발견 성공</td><td>이벤트 본문 <span class="sm">(<code>entry.GetDetail()</code>)</span> &rarr; 해제 판정으로</td></tr>
+    <tr><td>해제 실패</td><td>전용 문구 하나</td></tr>
+    <tr><td>해제 성공</td><td>본문 + 얻은 물건</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>그래서 «아무 문구도 없이 넘어갔다» 는 것은
+     통찰이 모자랐다는 뜻이 아닙니다.</b> 그 판에 <b>금고 칸이 아예 안 열린 것</b>입니다 &mdash;
+     도둑을 키우거나 통찰을 올려도 이건 못 바꿉니다. 같은 퀘스트를 다시 도는 수밖에 없습니다.</div>
+  <p class="src">AdventureMain.RunQuest <span class="sm">(0x2720d9c 등급 추첨 · 0x2720f88 «후보 없음 &rarr; 조용히 끝»)</span> &middot;
+     &lt;RunQuest&gt;b__3 <span class="sm">(0x27272ac &mdash; <code>frequency == 5 || frequency == freq</code>)</span> &middot;
+     FrequencyExtensions.GetRandom <span class="sm">(0x275dac8)</span> &middot;
+     QuestEventEntry.IsEventScheduled <span class="sm">(0x27168c4)</span> &middot;
+     OpenTreasureBox <span class="sm">(0x2724f20 발견 실패 문구)</span> &middot; 퀘스트 1364개 전수</p>
+
   <h2 id="trap"><span class="n">4</span>함정 &mdash; 금고와는 다른 규칙</h2>
   <p>함정마다 <code>TrapMaster.jobKind</code> 가 <b>어느 직업이 탐지하는지</b>를 따로 정합니다. 금고와 달리 도적 전용이 아닙니다.</p>
   <table><thead><tr><th>담당</th><th class="num">개수</th><th>성격</th></tr></thead><tbody>
