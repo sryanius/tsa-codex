@@ -456,8 +456,43 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      회피 부적(+5)을 더해도 41 로 비슷합니다.</div>
   <div class="note warn"><b>회피탱의 진짜 약점은 명중이 아니라 상태이상입니다.</b>
      <b>혼란 · 수면 · 마비</b>가 걸리면 회피가 <b>0</b> 이 되고, 그 순간 평타가 80~99 로 들어옵니다.
-     HP 57 이면 한 대입니다. 그리고 <b>단검은 마법 무기 천장이 Lv14</b> 라
-     물리 무효 몬스터를 못 때립니다. <b>솔플에는 방어탱이 낫습니다.</b></div>
+     HP 57 이면 한 대입니다.</div>
+
+  <h3>★ 물리 무효 몬스터 &mdash; 혼자 가면 «마법 활» 이 답입니다</h3>
+  <p>평타가 물리 무효를 뚫느냐는 <b>무기 한 칸</b>이 정합니다.</p>
+  <div class="eq"><b>if</b> 대상이 물리 무효 <b>and</b> 이번 공격이 <b>마법이 아니면</b> &rarr; 무효   <span class="cmt">// PhysicsAttack 0x26c7398</span>
+
+«마법 공격» 여부는 <b>무기의 isMagic</b> 에서 옵니다 &mdash; <b>마법 무기면 그 검사를 건너뜁니다.</b></div>
+  <table class="t"><thead><tr><th>지역</th><th class="num">물리 무효 몬스터</th></tr></thead><tbody>
+    <tr><td>열린 지역 전부</td><td class="num">314종 중 <b>29종 (9%)</b></td></tr>
+    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num">114종 중 <b>14종 (12%)</b></td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">111종 중 14종 (13%)</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 칼레바스 고원</td><td class="num">105종 중 12종 (11%)</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 그래서 «마검사 주직업» 은 반대 방향입니다.</b>
+     마검사는 <b>단검만</b> 듭니다. 그런데 <b>마법 단검의 천장이 룬 스프레드 대거 Lv14 (26~44)</b> 라
+     발두나 몬스터의 <b>방어 중앙값 44</b> 앞에서 <b>피해가 0</b> 입니다.
+     주직업을 마검사로 바꾸면 <b>활을 못 들어서 물리 무효를 뚫을 방법이 사라집니다.</b></div>
+  <table class="t"><thead><tr><th>마법 무기</th><th class="num">Lv</th><th class="num">힘</th><th class="num">피해</th><th>비고</th></tr></thead><tbody>
+    <tr style="color:var(--faint)"><td>명천궁 <span class="sm">활</span></td><td class="num">31</td><td class="num">18</td><td class="num">58~94</td><td><b>관통</b> &mdash; 요구 레벨 31 이라 도둑 30 만으로는 못 낍니다</td></tr>
+    <tr class="hi"><td><b>라이프드레인보우</b> <span class="sm">활</span></td><td class="num">28</td><td class="num">17</td><td class="num"><b>54~88</b></td><td><b>HP 흡수 30%</b> &mdash; 혼자 가는 회피탱에게 딱 맞습니다</td></tr>
+    <tr><td>지문의 현궁 <span class="sm">활</span></td><td class="num">26</td><td class="num">15</td><td class="num">48~79</td><td>&mdash;</td></tr>
+    <tr style="color:var(--f-vault)"><td>룬 스프레드 대거 <span class="sm">단검</span></td><td class="num">14</td><td class="num">11</td><td class="num"><b>26~44</b></td><td><b>단검 마법 천장</b> &mdash; 발두나에서는 피해 0</td></tr>
+    <tr style="color:var(--muted)"><td>용맥의 단검 · 왕단의 단검</td><td class="num">26·30</td><td class="num">22·15</td><td class="num">45~72 · 58~92</td><td><b>비마법</b> &mdash; 물리 무효를 못 때립니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 혼자 돌릴 회피탱은 «도둑 주직업 + 라이프드레인보우» 입니다.</b>
+     <b>활은 도둑은 들고 마검사는 못 듭니다</b>(도둑 무기: 단검·활 / 마검사: 단검).
+     회피 몫도 도둑이 주 <b>7</b> 로 마검사 주 <b>4</b> 보다 큽니다 &mdash; 30 레벨이면 <b>21 : 12</b> 입니다.
+     대신 <b>부적을 포기</b>합니다(도둑 칸: 의복·방패).</div>
+  <div class="note warn"><b>퀘스트마다 무기를 바꿀 필요가 없습니다.</b>
+     라이프드레인보우는 <b>마법이면서 54~88</b> 이라 평소 딜도 왕단의 단검(58~92)과 거의 같습니다.
+     <b>그냥 계속 끼고 다니면</b> 물리 무효가 나와도 그대로 때립니다 &mdash;
+     «이 퀘스트에 마법이 필요한가» 를 볼 일이 없어집니다.</div>
+  <div class="note"><b>부적이 꼭 필요하면</b> «숨은 칼날의 궁사»(활·단검 + 의복·<b>부적</b>·방패)가 있지만
+     최대 레벨이 20 이라 회피 주 몫이 <b>8</b> 밖에 안 됩니다. 회피 완봉이 목표라면 도둑 쪽이 맞습니다.</div>
+  <p class="src">BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c7398 &mdash; InvalidPhysics &amp;&amp; !isMagicAttack)</span> &middot;
+     BattleActionSelector.BattleAction.isMagicAttack <span class="sm">(0x58)</span> &middot;
+     WeaponMaster.Ability.isMagic &middot; 무기·몬스터 전수</p>
 
   <h2 id="bow"><span class="n">4</span>활 딜러 &mdash; 관통으로 줄을 뚫는다</h2>
   <div class="role">
