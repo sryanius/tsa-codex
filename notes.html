@@ -323,6 +323,71 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <div class="eq">발견  도적레벨 + 리더보너스 + &lfloor;통찰력/3&rfloor;  &gt;=  퀘스트 레벨 + 발견값 + 9
 해제  도적레벨 + &lfloor;재주/3&rfloor;             &gt;=  난이도 + 9</div>
   <p>이걸 채운 캐릭터는 대실패(1/36)를 빼고 확정입니다. <b>두 명이 채우면</b> 판정당 실패가 1/1296이라 사실상 100%입니다.</p>
+
+  <h3>★ 금고 파밍 &mdash; 실제로 넘어야 하는 수</h3>
+  <div class="note warn"><b>먼저: 금고가 목적이면 «혼자 가면 안 됩니다».</b>
+     발견도 해제도 <b>살아 있는 파티원을 차례로 굴려 한 명만 통과하면 성공</b>입니다 &mdash;
+     <b>인원수가 그대로 굴림 횟수</b>입니다. 혼자면 기회가 한 번, 넷이면 네 번입니다.
+     그리고 <b>한 명만</b> 도둑·통찰을 키우면 그 한 명이 파티 전체의 금고를 엽니다.</div>
+  <div class="eq"><b>발견 확정선</b> = 퀘스트 레벨 + 발견값 + 9      &lArr; 도둑레벨 + <b>리더 보너스</b> + &lfloor;통찰 최솟값 &divide; 3&rfloor;
+<b>해제 확정선</b> = 해제 난이도 + 9                &lArr; 도둑레벨 + &lfloor;재주 최솟값 &divide; 3&rfloor;   <span class="cmt">// 리더 보너스 없음</span></div>
+  <table class="t"><thead><tr><th>지역</th><th class="num">금고 수</th>
+    <th class="num">발견 확정선<br><span style="font-weight:400">중앙 / 최대</span></th>
+    <th class="num">해제 확정선<br><span style="font-weight:400">중앙 / 최대</span></th>
+    <th class="num">해제 판정<br><span style="font-weight:400">아예 없음</span></th></tr></thead><tbody>
+    <tr><td>미스토리아 반도</td><td class="num">180</td><td class="num">14 / 16</td><td class="num">10 / 11</td><td class="num">49%</td></tr>
+    <tr><td>바르디아 평원</td><td class="num">194</td><td class="num">16 / 20</td><td class="num">10 / 12</td><td class="num">26%</td></tr>
+    <tr><td>뤼미에르 힐스</td><td class="num">154</td><td class="num">20 / 24</td><td class="num">10 / 14</td><td class="num">25%</td></tr>
+    <tr><td>아르디오스 왕국</td><td class="num">157</td><td class="num">26 / 33</td><td class="num">10 / 13</td><td class="num">24%</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">244</td><td class="num">32 / 36</td><td class="num">10 / 13</td><td class="num">27%</td></tr>
+    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num">85</td><td class="num"><b>37 / 40</b></td><td class="num">10 / 13</td><td class="num">16%</td></tr>
+    <tr style="color:var(--faint)"><td>🔒 칼레바스 고원</td><td class="num">106</td><td class="num">43 / 46</td><td class="num">10 / 14</td><td class="num">32%</td></tr>
+  </tbody></table>
+  <div class="note"><b>해제는 거의 문제가 안 됩니다.</b> 확정선이 어느 지역에서나 <b>10~14</b> 이고,
+     <b>금고 1172개 중 330개(28%)는 해제 난이도가 0 이라 판정 자체를 건너뜁니다</b>.
+     도둑 15 만 있어도 넘습니다. <b>어려운 것은 «발견» 입니다.</b></div>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">통찰이 «최소로» 얼마를 보태나 &mdash; 31 에서 계단이 뜁니다</h4>
+  <p><code>CreateRandomValue</code> 의 흔들림 폭이 구간마다 바뀝니다.
+     확정을 따질 때는 <b>가장 나쁘게 나온 값</b>을 봅니다.</p>
+  <div class="eq">v &le; 8    v &plusmn; Random.Range(0,3)     <span class="cmt">// 0 아래로는 안 내려간다</span>
+9 ~ 30    v &plusmn; Rand(&lfloor;v &divide; 3&rfloor;)
+<b>31 ~ 99   v &plusmn; Rand(&lfloor;v &divide; 10&rfloor;)</b>    <span class="cmt">// 폭이 확 준다</span>
+100 ~     v &plusmn; Rand(&lfloor;v &divide; 16&rfloor;)</div>
+  <table class="t"><thead><tr><th class="num">통찰</th><th class="num">10</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">37</th><th class="num">43</th><th class="num">50</th></tr></thead><tbody>
+    <tr><td>최솟값</td><td class="num">8</td><td class="num">15</td><td class="num">18</td><td class="num">21</td><td class="num"><b>29</b></td><td class="num">35</td><td class="num">41</td><td class="num">46</td></tr>
+    <tr class="hi"><td><b>발견에 보태는 몫</b></td><td class="num">2</td><td class="num">5</td><td class="num">6</td><td class="num">7</td><td class="num"><b>9</b></td><td class="num">11</td><td class="num">13</td><td class="num">15</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>통찰 30 &rarr; 31 에서 두 칸이 뜁니다</b> &mdash; 흔들림이 &divide;3 에서 &divide;10 으로 바뀌기 때문입니다.
+     <b>30 에서 멈추지 말고 31 을 찍으십시오.</b> (회피의 민첩에서도 같은 계단이 있습니다 &mdash; <a href="#avoid">&sect;8</a>)</div>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">그래서 «금고 담당» 한 명을 이렇게 만듭니다</h4>
+  <table class="t"><thead><tr><th>쌓는 것</th><th class="num">발견에 더해지는 값</th><th>비고</th></tr></thead><tbody>
+    <tr class="hi"><td><b>도둑 30</b> <span class="sm">주직업</span></td><td class="num"><b>+30</b></td><td>발견에 <b>레벨이 그대로</b> 들어갑니다. 해제에도 같이 들어갑니다</td></tr>
+    <tr class="hi"><td><b>리더로 세우기</b></td><td class="num"><b>+3</b></td><td>무모한 · 합리적이 +3 · 이기적 +2 <span class="sm">(발견에만, 해제에는 안 붙습니다)</span></td></tr>
+    <tr><td>통찰 &mdash; 도둑 주 몫</td><td class="num">기본 +12</td><td>도둑은 주 통찰 4 라 30 레벨이면 +12</td></tr>
+    <tr class="hi"><td><b>현자 30</b> <span class="sm">부직업</span></td><td class="num">통찰 <b>+15</b></td><td><b>경험치 지수에서 통째로 빠집니다</b> &mdash; 얹어도 다른 직업이 안 비싸집니다</td></tr>
+    <tr><td>레인저 30 <span class="sm">부직업</span></td><td class="num">통찰 +6</td><td>함정 233개 중 <b>109개</b>를 담당합니다. 다만 지수에 들어갑니다</td></tr>
+  </tbody></table>
+  <div class="eq"><b>풋워커 여</b>(기본 통찰 10) + 도둑 30 주 + 현자 30 부
+  통찰 = 10 + 12 + 15 = <b>37</b> &rarr; 최소 몫 <b>11</b>
+  발견 = 30 + 3 + 11 = <b>44</b>   &ge; 발두나 최대 <b>40</b>  ✔
+  <span class="cmt">// 여기에 레인저 30 을 더하면 통찰 43 → 몫 13 → 46, 칼레바스도 확정</span></div>
+  <div class="note"><b>이 한 명이 파티 전체의 금고를 엽니다.</b>
+     나머지 세 명은 통찰을 하나도 안 올려도 됩니다 &mdash;
+     <b>차례로 굴려 한 명만 통과하면 성공</b>이기 때문입니다.
+     대실패(첫 2d6 이 1+1, 1/36)만 남는데, 그것도 <b>다른 파티원이 이어서 굴립니다</b>.</div>
+  <table class="t"><thead><tr><th>금고 1172개가 주는 것</th><th class="num">개수</th></tr></thead><tbody>
+    <tr><td>무기</td><td class="num">488</td></tr>
+    <tr><td>방어구</td><td class="num">359</td></tr>
+    <tr><td>금화</td><td class="num">220</td></tr>
+    <tr style="color:var(--muted)"><td>아무것도 없음</td><td class="num">105</td></tr>
+    <tr><td colspan="2" style="color:var(--muted)"><b>강화값(craftValue)이 음수인 금고가 667개(57%)</b> 입니다 &mdash;
+      음수면 몬스터 드롭과 같은 취급이라 <b>단계마다 요구 근력이 1씩 내려갑니다</b>(<a href="#craft">&sect;5</a>)</td></tr>
+  </tbody></table>
+  <p class="src">Chest.foundValue / unlockDifficulty / craftValue <span class="sm">(금고 1172개 전수)</span> &middot;
+     Util.CreateRandomValue <span class="sm">(0x276b694 &mdash; 흔들림 구간 3 / 10 / 16)</span> &middot;
+     AdventureMain.OpenTreasureBox <span class="sm">(파티원을 차례로 굴립니다)</span></p>
   <p class="src">AdventureMain.OpenTreasureBox / FoundItem / UnlockChest · 리더 보너스 표 @0xF89F2C</p>
 
   <h3>★ 금고가 «로그 한 줄 없이» 통째로 안 뜰 수 있습니다</h3>
