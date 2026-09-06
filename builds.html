@@ -398,18 +398,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      전열에 몸이 하나 서 있으면 <b>몬스터 평타의 99%가 거기로 갑니다</b> &mdash;
      후열의 마법사·궁수는 <b>전체·관통 스킬</b>과 <b>활 든 4종</b> 말고는 맞지 않습니다.
      탱커가 «자기만 안 맞는» 것이 아니라 <b>실제로 뒤를 가립니다</b>.</div>
-  <div class="note warn"><b>그러면 회피탱이 더 낫지 않나 &mdash; 자리에 따라 다릅니다.</b>
-     회피탱은 물리를 <b>100% 피하지만</b> 혼란·수면·마비에 걸리면 회피가 <b>0</b> 이 되고
-     HP 57 에 80~99 가 들어옵니다(<a href="#dodge">&sect;3</a>). 그리고 경험치가 <b>152M</b> 입니다.
-     방어탱은 평타 <b>0~12</b> 를 맞지만 HP 93 · 마법 방어 39 로 <b>상태이상에도 안 무너지고</b>,
-     경험치가 <b>22M</b> 으로 <b>7분의 1</b> 입니다.</div>
-  <table class="t"><thead><tr><th>전열을 누구로 채우나</th><th class="num">물리</th><th>상태이상이 걸리면</th><th class="num">경험치</th></tr></thead><tbody>
-    <tr><td>회피탱</td><td class="num"><b>0 확정</b></td><td style="color:var(--f-vault)">회피 0 &rarr; 80~99 를 HP 57 로 받습니다</td><td class="num">152M</td></tr>
-    <tr class="hi"><td><b>방어탱</b></td><td class="num">0~12</td><td>그대로 버팁니다 <span class="sm">(HP 93 · 마방 39)</span></td><td class="num"><b>22M</b></td></tr>
+  <div class="note warn"><b>그러면 회피탱이 더 낫지 않나 &mdash; 갈리는 곳은 «상태이상» 하나입니다.</b>
+     회피탱(마검사 판, <a href="#dodge">&sect;3</a>)은 물리를 <b>100% 피하지만</b>
+     혼란·수면·마비에 걸리면 회피가 <b>0</b> 이 되고 <b>HP 40</b> 에 80~99 가 들어옵니다.
+     방어탱은 평타 <b>0~12</b> 를 맞는 대신 <b>HP 93</b> 으로 그 순간에도 안 무너집니다.</div>
+  <table class="t"><thead><tr><th>전열을 누구로 채우나</th><th class="num">물리</th><th>상태이상이 걸리면</th><th class="num">HP</th><th class="num">마법 방어</th><th class="num">경험치</th></tr></thead><tbody>
+    <tr><td>회피탱 <span class="sm">마검사 판</span></td><td class="num"><b>0 확정</b></td><td style="color:var(--f-vault)">회피 0 &rarr; 80~99 를 한 대에</td><td class="num">40</td><td class="num"><b>51</b></td><td class="num"><b>17.6M</b></td></tr>
+    <tr class="hi"><td><b>방어탱</b></td><td class="num">0~12</td><td>그대로 버팁니다</td><td class="num"><b>93</b></td><td class="num">39</td><td class="num">22M</td></tr>
   </tbody></table>
-  <div class="note"><b>둘 다 세우면 가장 튼튼하지만</b>, 하나만 고른다면
-     <b>파티에서도 방어탱이 «싸고 안 무너지는» 쪽</b>입니다.
-     회피탱은 완봉이 매력이지만 그 대가가 경험치 7배와 상태이상 취약성입니다.</div>
+  <div class="note"><b>경험치는 거의 같습니다</b>(17.6M : 22M) &mdash;
+     예전에 적어 둔 «회피탱은 7배 비싸다» 는 <b>도둑 주직업 판(177M)</b> 기준이었고,
+     마검사 판으로 바꾸면서 사라진 차이입니다.
+     이제 갈리는 것은 <b>«상태이상 5% 를 어떻게 볼 것인가»</b> 하나뿐입니다.</div>
 
   <h3>★ 뽑을 때의 기본 능력치 &mdash; 어디에 쓸 것인가</h3>
   <p>직업 몫이 붙고 나면 <b>기본값의 무게가 스탯마다 완전히 다릅니다.</b>
@@ -500,27 +500,64 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 물리 판정 자체를 없앤다</h2>
   <div class="role">
-    <h3>도둑 회피탱</h3>
-    <p class="lede2">종족은 <b>풋워커</b>(민첩 8~9 · 재주 7~9). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.</p>
+    <h3>마검사 회피탱 <span class="tag" style="color:var(--f-lodge)">추천</span></h3>
+    <p class="lede2">종족은 <b>풋워커 여</b>(민첩 8 · 재주 9 · <b>통찰 10</b>). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.</p>
     <dl class="kv">
-      <dt>주직업</dt><dd><b>도둑 30</b> <span class="meta">— 주 회피 7 로 가장 큽니다 (마검사는 4)</span></dd>
-      <dt>부직업</dt><dd>마검사 30 · 숨은 칼날의 궁사 20 · 검술사 15 · 레인저 30 · 현자 30</dd>
-      <dt>무기</dt><dd>용맥의 단검 <span class="meta">Lv25 · 힘 22 · 45~72 · <b>전체 공격</b> · 화염</span>
-        &nbsp;/&nbsp; 왕단의 단검 <span class="meta">Lv30 · 힘 15 · 58~92 · 단일</span></dd>
+      <dt>주직업</dt><dd><b>마검사 30</b> <span class="meta">— <b>든 단검을 전부 «마법 공격» 으로 칩니다</b>(아래). 부적 칸도 여기서 열립니다</span></dd>
+      <dt>부직업</dt><dd><b>도둑 30</b>(부 회피 3 · 민첩 3 · 통찰 2) · <b>숨은 칼날의 궁사 20</b>(2 · 4) ·
+        <b>검술사 15</b>(2) · <b>현자 30</b> <span class="meta">— 현자는 경험치 지수에서 빠집니다</span></dd>
+      <dt>무기</dt><dd><b class="mag">용맥의 단검</b> <span class="meta">Lv26 · 힘 22 · 45~72 · <b>전체 공격</b> · 화염 — 마검사가 들면 마법 공격</span></dd>
       <dt>몸</dt><dd>통풍이 잘되는 옷 <span class="meta">Lv13 · 힘 2 · <b>회피 +6</b> · 민첩 +2 · 마법 방어 5</span></dd>
-      <dt>방패</dt><dd>테라 버클러 <span class="meta">Lv16 · 방패 회피 +5</span> <span class="meta">— 도둑은 부적을 못 낍니다</span></dd>
+      <dt>부적</dt><dd><b>세라믹스틸 오멘워드 탈리스만</b> <span class="meta">Lv27 · 힘 1 · <b>회피 +5</b> · <b>마법 방어 37</b></span></dd>
+      <dt>방패</dt><dd>테라 버클러 <span class="meta">Lv16 · 힘 20 · 방패 회피 +5</span> <span class="meta">— 막기 판정용(§10), 회피와는 별개입니다</span></dd>
     </dl>
-    <div class="chips"><span>회피값 <b>42</b></span><span>물리 <b>100% 회피</b></span><span>HP 57</span>
-      <span>뚫리면 <b>80~99</b></span><span>경험치 <b>152M</b></span></div>
+    <div class="chips"><span>회피값 <b>39</b></span><span>민첩 <b>39</b></span><span>회피 최솟값 <b>53</b></span>
+      <span>물리 <b>100% 회피</b> <span class="meta">발두나·칼레바스 둘 다</span></span>
+      <span>마법 방어 <b>51</b></span><span>HP 40</span><span>평타 <b>79~106</b> 전체</span>
+      <span>통찰 <b>33</b></span><span>경험치 <b>17.6M</b></span></div>
   </div>
-  <div class="note"><b>목표는 회피값 39 입니다.</b> 민첩 20(흔들림 최솟값 15 → +5)이면
-     <code>2 + 5 + 39 = 46</code> 이라 지금 갈 수 있는 최고 명중 44 를 항상 넘깁니다.
-     도둑 주직업만으로 직업 몫 <b>36</b> 이 나오니 통풍 옷 하나로 닿습니다.
-     <b>부적을 끼고 싶으면 마검사 주직업</b>(칸: 의복·부적·방패)인데, 직업 몫이 30 이라
-     회피 부적(+5)을 더해도 41 로 비슷합니다.</div>
+  <div class="note warn"><b>★ 이 절은 «도둑 주직업» 으로 적혀 있었습니다 (2026-09-07 고침).</b>
+     주 회피 몫만 보고 도둑(주 7)을 세웠는데, <b>마검사 쪽이 모든 면에서 낫습니다</b> &mdash;
+     회피 완봉은 둘 다 되고, <b>마법 방어가 51 : 11</b> 이며 <b>경험치가 17.6M : 177.5M</b> 입니다.
+     게다가 마검사여야 <b>단검이 마법 공격</b>이 되어 물리 무효를 뚫습니다.</div>
+
+  <h3>회피값 &mdash; 어디까지 채워야 하나</h3>
+  <div class="eq">내 회피 = <b>2d6</b> + &lfloor;CreateRandomValue(민첩) &divide; 3&rfloor; + 회피값 + 지형
+빗나갑니다 &hArr; <b>내 회피 &ge; 상대 명중 + 2</b>
+
+⇒ <b>완봉선 = 2</b>(2d6 최소) <b>+ &lfloor;민첩 최솟값 &divide; 3&rfloor; + 회피값 &ge; 몬스터 명중 + 2</b></div>
+  <table class="t"><thead><tr><th>지역</th><th class="num">몬스터 최고 명중</th><th class="num">필요한 회피 최솟값</th></tr></thead><tbody>
+    <tr><td>아르디오스 왕국</td><td class="num">34</td><td class="num">36</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">40</td></tr>
+    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num"><b>45</b></td><td class="num"><b>47</b></td></tr>
+    <tr><td>🔒 칼레바스 고원</td><td class="num">51</td><td class="num">53</td></tr>
+  </tbody></table>
+  <table class="t"><thead><tr><th>이 빌드가 만드는 회피</th><th class="num">값</th><th>어디서</th></tr></thead><tbody>
+    <tr><td>주직업 몫</td><td class="num">12</td><td>마검사 30 &times; 주 회피 4</td></tr>
+    <tr><td>부직업 몫</td><td class="num">16</td><td>도둑 30&times;3 + 숨은 칼날의 궁사 20&times;2 + 검술사 15&times;2 = 160</td></tr>
+    <tr><td>장비</td><td class="num">11</td><td>통풍이 잘되는 옷 +6 · 오멘워드 탈리스만 +5</td></tr>
+    <tr class="hi"><td><b>회피값 합계</b></td><td class="num"><b>39</b></td><td></td></tr>
+    <tr><td>2d6 최소</td><td class="num">+2</td><td></td></tr>
+    <tr class="hi"><td><b>민첩 39 의 몫</b></td><td class="num"><b>+12</b></td><td>흔들림 최솟값 37 &rarr; &lfloor;37&divide;3&rfloor;</td></tr>
+    <tr class="hi"><td><b>회피 최솟값</b></td><td class="num"><b>53</b></td><td><b>발두나 47 ✔ · 칼레바스 53 ✔</b></td></tr>
+  </tbody></table>
+  <div class="note warn"><b>민첩 31 이 분기점입니다.</b> <code>CreateRandomValue</code> 의 흔들림이
+     <b>30 이하는 &divide;3, 31 부터는 &divide;10</b> 이라 최솟값이 한 번에 뜁니다 &mdash;
+     민첩 30 이면 몫이 7 인데 31 이면 <b>9</b>, 39 면 <b>12</b> 입니다.
+     이 빌드의 민첩 39 는 <b>뽑을 때 20 + 직업 17</b>(도둑 30&times;3 + 숨은 칼날의 궁사 20&times;4)
+     <b>+ 장비 2</b> 로 만듭니다.</div>
+  <div class="note"><b>회피 몫에는 «무기 조건» 이 없습니다.</b>
+     공격력·명중률 몫만 <b>그 무기를 들 수 있는 직업</b>을 세는데(<a href="notes.html#tank">원리 &sect;10</a>),
+     회피·민첩은 안 봅니다. 그래서 <b>검술사(검)</b> 를 부직업으로 둬도
+     단검을 든 채로 회피 2&times;15 를 그대로 받습니다.</div>
+  <div class="note"><b>강화가 더 얹어 줍니다.</b> 방어구는 <b>2단계 이상이면 회피 +1~2 가 확정</b>이고
+     <b>옷은 1·3 단계에서도</b> 붙습니다(<a href="notes.html#craft">원리 &sect;5</a>).
+     매 단계 민첩 +1~2 도 확정이라, 통풍 옷과 부적을 3단계씩 강화하면
+     <b>회피 4~8 · 민첩 6~12</b> 가 더 들어옵니다 &mdash; 여기 적은 53 은 <b>강화 0 기준</b>입니다.</div>
   <div class="note warn"><b>회피탱의 진짜 약점은 명중이 아니라 상태이상입니다.</b>
      <code>AvoidRate</code> 는 <b>혼란(7) · 수면(16) · 마비(17)</b> 중 하나라도 걸려 있으면
-     <b>계산 없이 0 을 돌려줍니다</b>(0x26b6354). 그 순간 평타가 80~99 로 들어오고 HP 57 이면 한 대입니다.</div>
+     <b>계산 없이 0 을 돌려줍니다</b>(0x26b6354). 그 순간 평타가 80~99 로 들어오는데
+     이 빌드의 <b>HP 는 40</b> 입니다 &mdash; <b>한 대</b>입니다.</div>
   <div class="note warn"><b>★ 그리고 이 셋은 «장비로 못 막습니다».</b>
      방어구 311개의 <code>invalidEffectOnCreatureKinds</code> 를 전수로 보면
      막아 주는 것이 <b>저주 8개 · 매혹 3개 · 석화 1개</b> 뿐입니다 &mdash;
@@ -1281,21 +1318,34 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr><td>원거리 ②</td><td>무장병 창잡이</td><td>하늘을 뚫는 창 ★</td><td>모든 적 사거리 + 관통. 후열을 때립니다</td></tr>
     <tr><td>마법</td><td>암흑마법사</td><td>송곳니왕의 전역 지팡이</td><td>전체 마법. 회피·방어를 무시하는 유일한 딜</td></tr>
   </tbody></table>
-  <div class="note"><b>리더에게 통찰을 몰아주세요.</b> 금고 <b>발견</b>과 <b>이벤트 등장</b>은
-     <b>리더만</b> 굴립니다 &mdash; 이벤트 판정에 실패하면 금고가 아예 안 나옵니다.
-     반대로 금고 <b>해제</b>는 재주고 리더 보너스가 없으며, <b>함정 탐지는 파티 전원이 굴립니다</b>.
-     그래서 <b>레인저·현자는 리더 한 명에게만</b> 올리면 됩니다(<a href="notes.html#chest">§3</a>·<a href="notes.html#trap">§4</a>).</div>
-  <div class="note warn"><b>회피탱을 쓸 거면 파티에 두세요, 솔플로는 쓰지 마세요.</b>
-     혼란·수면·마비 한 번에 회피가 0 이 되고, 단검이라 물리 무효도 못 뚫습니다.
-     파티에서는 «맞아 주는 자리» 로 여전히 좋습니다 &mdash; 상태이상만 힐러가 봐 주면 됩니다.</div>
+  <div class="note"><b>금고·함정 담당은 «한 명» 이면 됩니다.</b>
+     발견도 해제도 <b>살아 있는 파티원을 차례로 굴려 한 명만 통과하면 성공</b>입니다
+     (<a href="notes.html#chest">원리 &sect;3</a>) &mdash; 그래서 <b>도둑·레인저·현자는 한 명에게만</b> 올립니다.
+     <b>리더만인 것은 «굴림» 이 아니라 «성격 보너스»</b> 입니다 &mdash;
+     <code>LeaderBonus</code> 가 리더가 아니면 0 을 돌려주고, 그 보너스는 <b>발견에만</b> 붙습니다
+     (해제에는 안 붙습니다). 그러니 <b>금고 담당을 리더로 세우고 성격을 +3(무모한·합리적)으로</b> 맞추면
+     같은 사람이 두 이득을 다 챙깁니다.</div>
+  <div class="note"><b>회피탱은 «마검사 주직업» 이면 솔플도 됩니다.</b>
+     마검사는 <b>든 단검을 전부 마법 공격으로</b> 쳐서 물리 무효를 뚫고,
+     부적 칸이 열려 <b>마법 방어 51</b> 이 붙습니다(<a href="#dodge">&sect;3</a>).
+     남는 구멍은 <b>혼란·수면·마비</b> 하나인데, 정신계 상태이상은 <b>마법 방어</b>로 저항하므로
+     그 51 이 그대로 방어선이 됩니다.
+     <span class="sm">(도둑 주직업 판은 마법 방어가 11 이라 이 방어선이 없었습니다.)</span></div>
 
   <h3>둘만 데려간다면</h3>
   <p><b>모험가 방어탱 + 레인저 활잡이</b> 입니다. 탱커가 판정을 전부 맡고,
      활이 관통으로 둘씩 정리하며, 둘 다 마법 무기라 물리 무효도 통과합니다.</p>
   <h3>솔플이라면</h3>
-  <p><b>모험가 방어탱 하나</b>입니다. 평타를 0 으로 누르고, 자동회복 27/턴이 치명타를 지우고,
-     늪왕의 부적이 마법을 39 깎고, 마법 무기를 들고, 리더 판정까지 혼자 합니다.
-     회피탱보다 <b>경험치가 7배 쌉니다</b>.</p>
+  <p>둘 다 됩니다 &mdash; 성격이 다릅니다.</p>
+  <table class="t"><thead><tr><th>솔플용</th><th>강점</th><th>약점</th><th class="num">경험치</th></tr></thead><tbody>
+    <tr><td><b>모험가 방어탱</b></td><td>평타 0~12 · 자동회복 27/턴 · HP 93 · <b>무엇에도 안 무너집니다</b></td>
+      <td>민첩 0 이라 늘 마지막에 움직입니다</td><td class="num">22M</td></tr>
+    <tr><td><b>마검사 회피탱</b></td><td>물리 <b>100% 회피</b> · 전체 공격 단검이 <b>마법 취급</b> · 통찰 33 으로 금고까지</td>
+      <td>혼란·수면·마비 한 번이면 HP 40 에 한 대</td><td class="num">17.6M</td></tr>
+  </tbody></table>
+  <p><b>금고 파밍이 목적이라면 마검사 회피탱</b>입니다 &mdash;
+     통찰 33 에 도둑 30 이 붙어 발견 판정을 혼자 넘깁니다(<a href="notes.html#chest">원리 &sect;3</a>).
+     <b>안 죽는 것이 목적이라면 방어탱</b> 입니다.</p>
 
   <h2 id="halls"><span class="n">10</span>훈련소가 어디 있나</h2>
   <p>직업은 <b>그 훈련소를 여는 퀘스트</b>를 깨야 얻습니다. 아래는 그 퀘스트가 있는 도시입니다.</p>
