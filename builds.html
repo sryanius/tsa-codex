@@ -1002,33 +1002,50 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      피해 계산 <span class="sm">(0x26c99b8 <code>add w8, w22, #2</code> 약점 · 0x26c99d0 <code>sub w8, w23, #2</code> 내성)</span> &middot;
      BattleSkill.CauseDamage <span class="sm">(속성 배수 없음 &mdash; MP 피해 · 흡수 · Protect 만 봅니다)</span></p>
 
-  <h3>결론 &mdash; «가장 높은 레벨의 한 급» 만 켭니다</h3>
+  <h3>결론 &mdash; 전체 마법 셋만 켭니다</h3>
   <div class="note"><b>칼레바스 고원이 열렸습니다 (2026-09-08).</b>
      <b>마도병</b>(노르그레이·자르간트)과 <b>순례 사제</b>가 들어와서
      뇌우 · 프로스트 템페스트 · 라이프 하베스트 · 번아웃 · 프리즈링 에지 ·
      살바 · 바이탈라이즈를 <b>전부 배울 수 있습니다</b>. 아래는 그 기준으로 다시 고른 것입니다.</div>
   <table class="t"><thead><tr><th>칸</th><th>켤 것</th><th class="num">Lv</th><th class="num">피해</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
-    <tr class="hi"><td><b>전체</b></td><td><b>뇌우</b> <span class="sm">번개</span></td><td class="num">35</td><td class="num"><b>34~35</b></td><td class="num">38</td><td>마도병 <b>10</b></td></tr>
+    <tr class="hi"><td rowspan="3"><b>전체</b><br><span class="meta">셋 다</span></td>
+      <td><b>블리자드</b> <span class="sm">냉기</span></td><td class="num">20</td><td class="num">19~20</td><td class="num"><b>23</b></td><td>마궁사 10</td></tr>
+    <tr class="hi"><td><b>그래블 버스트</b> <span class="sm">대지</span></td><td class="num">20</td><td class="num">19~20</td><td class="num"><b>22</b></td><td>마궁사 10</td></tr>
+    <tr class="hi"><td><b>뇌우</b> <span class="sm">번개 &mdash; 보험</span></td><td class="num">35</td><td class="num">34~35</td><td class="num">38</td><td>마도병 10</td></tr>
     <tr class="hi"><td><b>부적</b></td><td><b>현맥의 부적</b> <span class="sm">MP 회복 7/턴</span></td><td class="num">&mdash;</td><td class="num">마방 34</td><td class="num">힘 1</td><td>요구 레벨 25 &mdash; 아래를 보십시오</td></tr>
-    <tr class="hi"><td rowspan="2"><b>단일</b><br><span class="meta">같은 Lv30 둘</span></td>
-      <td><b>다크페인</b> <span class="sm">어둠</span></td><td class="num">30</td><td class="num"><b>31~33</b></td><td class="num">10</td><td>암흑마법사 1</td></tr>
-    <tr class="hi"><td><b>프리즈링 에지</b> <span class="sm">냉기</span></td><td class="num">30</td><td class="num"><b>31~33</b></td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr style="color:var(--f-vault)"><td><b>단일</b></td><td colspan="5"><b>하나도 켜지 않습니다</b> &mdash;
+      남는 턴은 <b>평타로 버티며 MP 를 모으는</b> 편이 낫습니다(아래)</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>나머지 공격 마법은 전부 «사용» 을 끕니다.</b>
       MP 폴백으로 남겨 둘 필요도 없습니다 &mdash; MP 가 모자라면 그 마법이 <b>목록에서 저절로 빠집니다</b>
       (<code>BattleSkill.CanUse</code>).</td></tr>
   </tbody></table>
-  <div class="note"><b>전체 마법의 최고 급은 «뇌우» 혼자입니다.</b>
-     Lv35 로 2위 프로스트 템페스트(Lv33)보다 두 단계 위라 <b>같이 켤 짝이 없습니다</b> &mdash;
-     레벨이 다르면 낮은 쪽이 이기므로 <b>뇌우 하나만</b> 켭니다.</div>
-  <div class="note"><b>그리고 번개는 «무효» 가 거의 없습니다.</b>
-     열린 지역 <b>367종 중 번개 무효는 4종</b>이고 <b>칼레바스 105종에서는 단 1종</b>입니다.
-     2위 프로스트 템페스트(냉기)는 무효가 <b>33종</b>이며 <b>칼레바스에서만 20종</b>이라
-     «0 피해» 를 훨씬 자주 봅니다. 라이프 하베스트(대지)도 무효가 <b>27종</b>입니다.</div>
-  <div class="note"><b>단일은 Lv30 이 둘이라 «둘 다» 켭니다.</b>
-     다크페인(어둠)과 프리즈링 에지(냉기) &mdash; <b>피해가 31~33 으로 똑같아서</b>
-     속성만 두 벌 갖는 셈입니다. 단일 갈래는 무효를 안 보므로
-     어둠 무효(13종)인 적 앞에서 프리즈링이 대신 나갈 여지를 남겨 둡니다.
-     <span class="sm">(MP 는 다크페인 10 · 프리즈링 에지 25 &mdash; MP 가 25 아래면 다크페인만 남습니다.)</span></div>
+  <div class="note warn"><b>★ 이 결론은 «한 방» 이 아니라 «턴당» 으로 재야 나옵니다 (2026-09-08 고침).</b>
+     뇌우가 레벨이 가장 높으니 그것만 켜면 된다고 적었는데, <b>MP 38 을 안 봤습니다.</b>
+     실제 몬스터로 돌려 보면 <b>블리자드+그래블이 뇌우 단독보다 12~19% 셉니다.</b></div>
+  <table class="t"><thead><tr><th>전체 마법</th><th class="num">한 방<br><span style="font-weight:400">마력 51</span></th>
+    <th class="num">MP</th><th class="num">피해 &divide; MP</th><th class="num">쏘는 턴 비율<br><span style="font-weight:400">회복 13/턴</span></th>
+    <th class="num">턴당 기대 피해</th></tr></thead><tbody>
+    <tr><td>뇌우 <span class="sm">Lv35 · 번개</span></td><td class="num"><b>85~86</b></td><td class="num">38</td><td class="num">2.25</td><td class="num">34%</td><td class="num">29.4</td></tr>
+    <tr class="hi"><td><b>블리자드</b> <span class="sm">Lv20 · 냉기</span></td><td class="num">70~71</td><td class="num">23</td><td class="num"><b>3.07</b></td><td class="num"><b>57%</b></td><td class="num"><b>40.2</b></td></tr>
+    <tr class="hi"><td><b>그래블 버스트</b> <span class="sm">Lv20 · 대지</span></td><td class="num">70~71</td><td class="num"><b>22</b></td><td class="num"><b>3.20</b></td><td class="num"><b>59%</b></td><td class="num"><b>41.6</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>한 방은 뇌우가 21% 세지만, MP 당 효율은 냉기·대지가 37% 좋고
+     턴당 기대 피해는 40% 좋습니다.</b> 뇌우는 세 턴에 한 번밖에 못 쏩니다.</div>
+  <div class="note"><b>그리고 «냉기 무효면 대지, 대지 무효면 냉기» 가 실제로 됩니다.</b>
+     점수가 <code>약점&times;2 &minus; 무효</code> 라 한쪽이 무효면 그쪽 점수가 내려가 다른 쪽이 나갑니다.
+     <b>둘 다 막히는 적은 열린 지역 367종 중 7종(2%)</b> 뿐입니다 &mdash;
+     냉기 무효 33종 · 대지 무효 27종인데 <b>겹치는 것이 7종밖에 안 됩니다</b>.
+     번개 무효 4종(1%)과 사실상 같은 값입니다.</div>
+  <table class="t"><thead><tr><th>지역</th><th class="num">냉기 무효</th><th class="num">대지 무효</th>
+    <th class="num">둘 다 무효<br><span style="font-weight:400">블리+그래블이 막히는 적</span></th><th class="num">번개 무효<br><span style="font-weight:400">뇌우가 막히는 적</span></th></tr></thead><tbody>
+    <tr><td>열린 지역 367종</td><td class="num">33</td><td class="num">27</td><td class="num"><b>7</b> <span class="sm">(2%)</span></td><td class="num">4 <span class="sm">(1%)</span></td></tr>
+    <tr class="hi"><td><b>칼레바스 고원</b> 105종</td><td class="num">20</td><td class="num">10</td><td class="num"><b>2</b></td><td class="num">1</td></tr>
+    <tr><td>발두나의 황야 114종</td><td class="num">2</td><td class="num">11</td><td class="num"><b>1</b></td><td class="num">0</td></tr>
+  </tbody></table>
+  <div class="note"><b>그래도 뇌우는 켜 둡니다 &mdash; «보험» 으로만 돕니다.</b>
+     뇌우는 Lv35 라 정렬이 맨 뒤여서, 점수가 같으면 <b>언제나 블리자드·그래블이 이깁니다</b>.
+     뇌우가 나가는 것은 <b>냉기·대지가 둘 다 막힌 판</b> 뿐입니다 &mdash;
+     평소에 MP 를 축내지 않으면서 그 2% 를 메워 줍니다.</div>
   <h3>★ 마나 회복 장비 &mdash; 전체 마법을 계속 쓰는 법</h3>
   <p>여기가 마법사 셋업에서 가장 크게 갈리는 자리입니다.
      <code>BattleTurnProcessor.OnTurnEnd</code> 가 <b>매 턴 끝</b>에
@@ -1080,16 +1097,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      첫 전투에서 세 번 쏘고 나면 <b>남은 세 전투는 전부 평타</b>입니다.
      13/턴이면 <b>퀘스트 내내</b> 쏩니다 &mdash; 이 한 칸이 마법사의 실제 화력을 정합니다.
      길게 끌면 끌수록 차이가 벌어집니다(회복은 턴에 비례하고 시작 MP 는 고정이라).</div>
-  <div class="note warn"><b>뇌우는 MP 38 로 비쌉니다.</b> 회복 13/턴이면 지속률이 <b>13 &divide; 38 = 34%</b> 라
-     세 턴에 한 번꼴입니다 &mdash; 그래서 <b>남는 턴을 단일로 메우는 것이 이득</b>이 됩니다(아래).
-     블리자드(23) 시절과 결론이 갈리는 지점이 여기입니다.</div>
+  <div class="note"><b>그래블 버스트(22)가 블리자드(23)보다 1 쌉니다.</b>
+     MP 가 22 인 턴에는 그래블만 나갑니다 &mdash; 둘 다 켜 두면 이 턴도 벌립니다.</div>
 
-  <h3>단일도 켭니다 &mdash; 뇌우가 비싸서 결론이 뒤집혔습니다</h3>
-  <div class="note warn"><b>★ 이 절은 두 번 뒤집혔습니다.</b>
-     ① 「보스에서만 걸면 이득」 &rarr; <b>보스전에 적이 하나인 경우는 22% 뿐</b>이라 틀렸고,
-     ② 그래서 「단일은 전부 끈다」 로 고쳤는데, <b>칼레바스가 열려 전체 마법이 블리자드(MP 23)에서
-     뇌우(MP 38)로 올라가면서 다시 뒤집혔습니다</b> &mdash; 잔돈 구간이 넓어졌기 때문입니다.
-     아래 숫자는 <b>칼레바스 기준</b>입니다.</div>
+  <h3>단일은 켜지 않습니다 &mdash; 평타로 버티며 MP 를 모으는 편이 낫습니다</h3>
+  <div class="note"><b>전체 마법이 블리자드·그래블(22~23)이면 «잔돈 구간» 이 좁습니다.</b>
+     회복 13/턴으로 <b>58%</b> 의 턴을 채우니, 남는 턴은 <b>평타로 버티며 MP 를 모으는</b> 쪽이
+     다음 전체 마법을 앞당깁니다. 단일(다크페인 MP 10)을 켜면 <b>한 턴에 순 +3</b> 밖에 안 모여
+     전체 마법이 계속 뒤로 밀립니다.</div>
   <table class="t"><thead><tr><th>몬스터 그룹</th><th class="num">그룹 수</th><th class="num">중앙</th><th class="num">평균</th>
     <th class="num">1마리</th><th class="num">3마리 이상</th></tr></thead><tbody>
     <tr class="hi"><td><b>보스</b> <span class="sm">(전용 음악이 붙는 그룹)</span></td><td class="num">1125</td><td class="num"><b>3</b></td><td class="num"><b>2.80</b></td><td class="num">22%</td><td class="num"><b>60%</b></td></tr>
@@ -1101,24 +1116,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>보스전이 오히려 적이 더 많습니다.</b> 중앙 3마리에 평균 2.80 이고,
      <b>셋 이상이 60%</b> 입니다. 「보스에서만」 스위치로는 <b>적 수를 못 가릅니다</b>.</div>
 
-  <h4>그래서 어느 쪽이 나은가 &mdash; 칼레바스 기준으로 다시</h4>
-  <p>퀘스트 한 판(16턴 · 시작 MP 80 · 회복 13/턴 · 마력 51 · <b>칼레바스 방어 중앙 54</b> ·
-     평타 명중 50%)을 그대로 돌린 총 피해입니다.</p>
-  <table class="t"><thead><tr><th class="num">적 수</th><th class="num">단일 끔</th><th class="num">단일 켬</th><th>어느 쪽</th></tr></thead><tbody>
-    <tr><td class="num">1</td><td class="num">691</td><td class="num"><b>1338</b></td><td><b>켜는 쪽</b> (+94%)</td></tr>
-    <tr><td class="num">2</td><td class="num">1382</td><td class="num"><b>1680</b></td><td><b>켜는 쪽</b> (+22%)</td></tr>
-    <tr><td class="num">3</td><td class="num"><b>2072</b></td><td class="num">2022</td><td>끄는 쪽 (+2%)</td></tr>
-    <tr><td class="num">4</td><td class="num"><b>2763</b></td><td class="num">2364</td><td>끄는 쪽 (+17%)</td></tr>
-    <tr class="hi"><td class="num"><b>일반 평균<br>2.23</b></td><td class="num">1540</td><td class="num"><b>1759</b></td><td><b>켜는 쪽 14% 우위</b></td></tr>
-    <tr class="hi"><td class="num"><b>보스 평균<br>2.80</b></td><td class="num">1934</td><td class="num"><b>1954</b></td><td>거의 비김</td></tr>
+  <h4>실제 몬스터로 돌려 본 값</h4>
+  <p>퀘스트 한 판을 <b>전투 4회 &times; 4턴</b>으로 잡고, 그룹 크기는 <b>전수 분포</b>에서 뽑고,
+     적은 그 지역 몬스터에서 <b>실제 약점·무효를 그대로</b> 써서 4000회 돌린 평균입니다
+     (시작 MP 80 · 회복 13/턴 · 마력 51 · 평타 74.5 명중 50%).</p>
+  <table class="t"><thead><tr><th>켜는 것</th><th class="num">칼레바스<br>일반 / 보스</th>
+    <th class="num">발두나<br>일반 / 보스</th><th class="num">열린 지역<br>일반 / 보스</th></tr></thead><tbody>
+    <tr style="color:var(--f-vault)"><td>뇌우만</td><td class="num">1537 / 1930</td><td class="num">1661 / 2090</td><td class="num">1769 / 2230</td></tr>
+    <tr style="color:var(--f-vault)"><td>뇌우 + 단일 둘</td><td class="num">1709 / 1892</td><td class="num">1687 / 1888</td><td class="num">1712 / 1901</td></tr>
+    <tr><td>블리자드 + 그래블</td><td class="num">1883 / <b>2336</b></td><td class="num">1989 / <b>2492</b></td><td class="num"><b>2020</b> / <b>2527</b></td></tr>
+    <tr><td>블리자드 + 그래블 + 단일</td><td class="num">1882 / 2204</td><td class="num">1906 / 2252</td><td class="num">1910 / 2244</td></tr>
+    <tr class="hi"><td><b>셋 다 (블리 + 그래블 + 뇌우)</b></td><td class="num"><b>1892</b> / <b>2347</b></td><td class="num"><b>1999</b> / 2488</td><td class="num">2009 / 2498</td></tr>
   </tbody></table>
-  <div class="note"><b>바뀐 것은 «전체 마법의 MP» 하나입니다.</b>
-     블리자드는 23 이라 회복 13/턴으로 <b>57%</b> 의 턴을 채웠는데,
-     뇌우는 38 이라 <b>34%</b> 밖에 못 채웁니다 &mdash; 나머지 66% 가 «잔돈 구간» 이 되고,
-     거기서 평타(칼레바스 방어 54 앞에서 20 남짓)보다 다크페인(82)이 네 배를 넣습니다.</div>
-  <div class="note"><b>결론 &mdash; 뇌우 + 다크페인 + 프리즈링 에지 셋을 켭니다.</b>
-     단일 둘은 <b>같은 Lv30 이라 서로 손해가 없고</b>, 어둠·냉기로 무효를 나눠 받습니다.
-     적이 셋 이상 몰리는 자리만 손해인데 그 폭이 2~17% 로 작습니다.</div>
+  <div class="note warn"><b>뇌우 단독은 어디서나 12~19% 뒤집니다.</b> 그리고 <b>단일을 켜면 5~11% 더 잃습니다</b>
+     &mdash; 다크페인이 MP 를 낮게 묶어 블리자드·그래블을 늦추기 때문입니다.
+     <b>평타는 그 턴에 MP 를 13 통째로 모읍니다.</b></div>
+  <div class="note"><b>결론 &mdash; 블리자드 · 그래블 버스트 · 뇌우 셋만 켭니다.</b>
+     평소엔 싸고 자주 나가는 <b>블리자드·그래블</b>이 돌고,
+     둘 다 막힌 2% 에서만 <b>뇌우</b>가 나옵니다.
+     단일은 전부 끄고 그 턴은 <b>평타로 MP 를 모읍니다</b>.</div>
 
   <h3>참고 &mdash; 단일이 어떻게 골라지나</h3>
   <p>단일 갈래는 <b>전체·관통이 하나도 못 나가는 턴에만</b> 돕니다.
@@ -1171,7 +1187,11 @@ MP &lt; 10   &rarr; <b>평타</b></div>
   <div class="note warn"><b>칼레바스가 열리면서 냉기·대지가 크게 나빠졌습니다.</b>
      칼레바스 105종 중 <b>냉기 무효 20종 · 대지 무효 10종</b> 입니다 &mdash;
      그전까지 최고였던 블리자드(냉기)·그래블 버스트(대지)가 그만큼 자주 0 이 됩니다.
-     반대로 <b>번개는 칼레바스에서 무효가 1종뿐</b>이라 뇌우가 더 벌어집니다.</div>
+     반대로 <b>번개는 칼레바스에서 무효가 1종뿐</b>입니다.</div>
+  <div class="note"><b>그래도 «둘 다 막히는» 적은 거의 없습니다.</b>
+     냉기 무효 20종과 대지 무효 10종이 <b>칼레바스에서 겹치는 것은 2종</b> 뿐이라,
+     둘을 같이 켜 두면 실제로 0 이 되는 자리는 번개(1종)와 거의 같습니다 &mdash;
+     한쪽이 막히면 점수가 내려가 다른 쪽이 나갑니다(<a href="#spells">&sect;7</a>).</div>
 
   <h3>전체 마법 &mdash; 정렬 순서 그대로</h3>
   <p>위에서부터 뽑힙니다. <b>두 개 이상 켜면 위쪽(약한 쪽)이 이깁니다.</b></p>
@@ -1181,15 +1201,15 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr><td class="num">5</td><td>성스러운 폭발</td><td class="num">5</td><td>신성</td><td class="num">7~8</td><td class="num">8</td><td class="num">33 / 1</td><td>숙련된 성직자 3</td></tr>
     <tr><td class="num">6~7</td><td>어스퀘이크 · 베놈 클라우드</td><td class="num">10</td><td>대지 · 독</td><td class="num">9~10</td><td class="num">10 · 13</td><td class="num">1 / 27 &middot; 0 / 24</td><td>마궁사 1</td></tr>
     <tr><td class="num">8</td><td>바람의 정령</td><td class="num">12</td><td>바람</td><td class="num">11~12</td><td class="num">15</td><td class="num">12 / 7</td><td>정령사 1</td></tr>
-    <tr><td class="num">9~10</td><td>그래블 버스트 · 블리자드</td><td class="num">20</td><td>대지 · 냉기</td><td class="num">19~20</td><td class="num">22 · 23</td><td class="num">1 / 27 &middot; 28 / 33</td><td>마궁사 10</td></tr>
+    <tr class="hi"><td class="num">9~10</td><td><b>그래블 버스트 · 블리자드</b> <span class="sm">&larr; 상시로 도는 둘</span></td><td class="num">20</td><td>대지 · 냉기</td><td class="num">19~20</td><td class="num">22 · 23</td><td class="num">1 / 27 &middot; 28 / 33</td><td>마궁사 10</td></tr>
     <tr><td class="num">11</td><td>라이프 하베스트 <span class="sm">(HP 흡수)</span></td><td class="num">32</td><td>대지</td><td class="num">31~32</td><td class="num">45</td><td class="num">1 / 27</td><td>마도병 20</td></tr>
     <tr><td class="num">12</td><td>프로스트 템페스트</td><td class="num">33</td><td>냉기</td><td class="num">32~33</td><td class="num">36</td><td class="num">28 / 33</td><td>마도병 10</td></tr>
-    <tr class="hi"><td class="num">13</td><td><b>뇌우</b> <span class="sm">&larr; 지금 최고 급</span></td><td class="num">35</td><td>번개</td><td class="num"><b>34~35</b></td><td class="num">38</td><td class="num"><b>8 / 4</b></td><td>마도병 10</td></tr>
+    <tr class="hi"><td class="num">13</td><td><b>뇌우</b> <span class="sm">&larr; 최고 급이지만 «보험»</span></td><td class="num">35</td><td>번개</td><td class="num"><b>34~35</b></td><td class="num">38</td><td class="num"><b>8 / 4</b></td><td>마도병 10</td></tr>
     <tr style="color:var(--faint)"><td class="num">14</td><td>마나크러쉬 <span class="sm">(HP 가 아니라 MP 를 깎습니다)</span></td><td class="num">25</td><td>어둠</td><td class="num">24~25</td><td class="num">20</td><td class="num">5 / 13</td><td>암흑마법사 5</td></tr>
   </tbody></table>
   <div class="note warn"><b>마나크러쉬는 반드시 끕니다.</b> 종류가 «MP 피해» 라 정렬은 맨 뒤지만,
      <b>같은 «전체» 목록에서 점수로 경쟁합니다</b> &mdash; 적 중 하나라도 어둠에 약하면
-     점수 2 로 뇌우(0)를 이기고, 그 턴은 <b>HP 대신 MP 를 깎습니다</b>.</div>
+     점수 2 로 블리자드·그래블(0)을 이기고, 그 턴은 <b>HP 대신 MP 를 깎습니다</b>.</div>
   <div class="note"><b>같은 레벨끼리는 순서가 정해져 있지 않습니다</b> &mdash;
      <code>List.Sort</code> 가 안정 정렬이 아니라 Lv5 다섯 개나 Lv20 두 개는
      <b>어느 쪽이 먼저 올지 모릅니다</b>. 그런데 <b>같은 레벨이면 피해도 같으므로 상관없습니다</b>.
@@ -1209,8 +1229,8 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr><td>라이프드레인 <span class="sm">(HP 흡수)</span></td><td class="num">20</td><td>어둠</td><td class="num">21~23</td><td class="num">10</td><td>암흑마법사 20</td></tr>
     <tr><td>독성바이트</td><td class="num">25</td><td>독</td><td class="num">26~28</td><td class="num">28</td><td>암흑마법사 1</td></tr>
     <tr><td>번아웃</td><td class="num">28</td><td>화염</td><td class="num">29~31</td><td class="num">25</td><td>마도병 1</td></tr>
-    <tr class="hi"><td><b>다크페인</b> <span class="sm">&larr; 켭니다</span></td><td class="num">30</td><td>어둠</td><td class="num"><b>31~33</b></td><td class="num"><b>10</b></td><td>암흑마법사 1</td></tr>
-    <tr class="hi"><td><b>프리즈링 에지</b> <span class="sm">&larr; 같이 켭니다</span></td><td class="num">30</td><td>냉기</td><td class="num"><b>31~33</b></td><td class="num">25</td><td>마도병 1</td></tr>
+    <tr><td>다크페인 <span class="sm">&mdash; 단일 중 최고지만 끕니다</span></td><td class="num">30</td><td>어둠</td><td class="num">31~33</td><td class="num">10</td><td>암흑마법사 1</td></tr>
+    <tr><td>프리즈링 에지</td><td class="num">30</td><td>냉기</td><td class="num">31~33</td><td class="num">25</td><td>마도병 1</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>관통</b> &mdash; 라이트닝 랜스 Lv16 · 빛 · 16~19 · MP 23 · 마궁사 8.
       <b>후열에 적이 있을 때만</b> 후보가 되고, 전체가 하나도 못 나갈 때 대신 나갑니다.
       <b>이것도 끕니다</b> &mdash; MP 23 이라 블리자드와 <b>같은 문턱</b>이어서, 블리자드가 못 나가는 턴엔 이것도 못 나갑니다.</td></tr>
@@ -1299,11 +1319,10 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      그래서 이 스위치는 «아끼기» 가 아니라 <b>«보스전에서만 대신 쓰게 하는»</b> 용도입니다.
      동점이면 <b>레벨 낮은 쪽</b>이 이기므로, 상시 마법보다 <b>레벨이 낮은</b> 것을 걸어야 실제로 바뀝니다.</p>
   <table class="t"><thead><tr><th>하고 싶은 것</th><th>거는 법</th></tr></thead><tbody>
-    <tr class="hi"><td>보스전에서 <b>HP 를 흡수</b>하며 버티기</td><td>뇌우(Lv35) 상시 + <b>라이프 하베스트(Lv32) 「보스에서만」</b><br>
-      <span class="meta">32 &lt; 35 라 보스전에선 라이프 하베스트가 이깁니다.
-      보스가 대지 무효면 점수가 &minus;1 이라 알아서 뇌우로 돌아갑니다</span></td></tr>
-    <tr><td>보스의 <b>MP 를 말리기</b></td><td><b>마나크러쉬(Lv25) 「보스에서만」</b> &mdash; 일반전에는 새지 않습니다.
-      다만 Lv25 &lt; 35 라 보스전에서는 <b>뇌우보다 먼저</b> 걸립니다 &mdash; 그 턴은 HP 가 안 깎입니다</td></tr>
+    <tr class="hi"><td><b>공격 마법에는 걸 것이 없습니다</b></td><td>상시가 <b>Lv20 둘</b>인데 그보다 레벨이 낮은 것은 전부 더 약합니다.
+      보스전도 중앙 3마리라 단일로 바꿔 끼울 이유가 없습니다 &mdash; <b>전부 꺼 둡니다</b></td></tr>
+    <tr style="color:var(--faint)"><td>보스의 <b>MP 를 말리기</b></td><td><b>마나크러쉬(Lv25) 「보스에서만」</b> &mdash; 일반전에는 새지 않습니다.
+      다만 Lv25 &gt; 20 이라 <b>보스가 어둠 약점일 때만</b> 실제로 나갑니다</td></tr>
     <tr style="color:var(--faint)"><td>«가장 센 것을 보스에만 아껴 쓰기»</td><td><b>안 됩니다.</b> 레벨이 높을수록 오히려 안 뽑힙니다</td></tr>
   </tbody></table>
   <p class="src">SkillMaster.MinDamage / MaxDamage / get_UseMp &middot;
@@ -1476,7 +1495,7 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      (그래도 캐릭터 레벨 35 라 진악의 단검은 낍니다).</div>
   <div class="note"><b>마법사의 부적은 «마방 46 대 MP 회복 7» 의 맞바꿈입니다.</b>
      고목의 부적은 마방이 <b>+12</b> 오르는 대신 MP 회복이 <b>7 &rarr; 6</b> 으로 1 줍니다 &mdash;
-     퀘스트 한 판(16턴)에 MP 16 이니 뇌우 반 발입니다. <b>마방 12 가 훨씬 큽니다.</b></div>
+     퀘스트 한 판(16턴)에 MP 16 이니 <b>블리자드 한 발에도 못 미칩니다</b>. <b>마방 12 가 훨씬 큽니다.</b></div>
   <p class="src">Character.CanEquip <span class="sm">(0x26d92d4 &mdash; 요구 레벨 &gt; MaxJobLevel 이면 거부)</span> &middot;
      Character.SumOtherJobLevels <span class="sm">(현자·모험가 제외)</span> &middot;
      Equipment.GetNeedLevel <span class="sm">(강화 213 을 뺍니다)</span> &middot; 훈련소 강화 표 36직업 전수</p>
