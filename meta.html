@@ -365,8 +365,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
-      <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
-      <span class="count" id="count"></span>
+        <span class="count" id="count"></span>
     </div>
   </div>
 
@@ -1563,12 +1562,13 @@ var t;
 el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("wk").addEventListener("change",function(e){ state.wk=e.target.value; render(); });
-el("showlocked").checked=state.showLocked;
-el("showlocked").addEventListener("change",function(e){
+var lk=el("showlocked");
+if(lk){ lk.checked=state.showLocked;
+lk.addEventListener("change",function(e){
   state.showLocked=e.target.checked;
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
-});
+}); }
 var VIEWS=["job","race","skill","town","calc","map","stat"];
 function setView(v){
   state.view=v;

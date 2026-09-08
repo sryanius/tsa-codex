@@ -242,7 +242,6 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
     <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
-    <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
     <span class="count" id="count"></span>
   </div>
   <div class="abils" id="montags" hidden>
@@ -1028,13 +1027,14 @@ el("q").addEventListener("input",function(e){
 el("reg").addEventListener("change",function(e){ state.reg=e.target.value; render(); });
 el("callonly").addEventListener("change",function(e){ state.callOnly=e.target.checked; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
-el("showlocked").checked=state.showLocked;
-el("showlocked").addEventListener("change",function(e){
+var lk=el("showlocked");
+if(lk){ lk.checked=state.showLocked;
+lk.addEventListener("change",function(e){
   state.showLocked=e.target.checked;
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   if(!state.showLocked && isLockedRegion(state.reg)) state.reg="";
   fillRegs(); render();
-});
+}); }
 var TABNOTE={
   place:"지역별 탐색지와 거기 나오는 몬스터 그룹, 그리고 그 그룹이 떨구는 것.",
   mon:"몬스터의 능력치·특수능력·출현지, 그리고 떨구는 아이템.",

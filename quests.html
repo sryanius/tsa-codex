@@ -376,7 +376,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <option value="rep">요구 평판 낮은 순</option>
       </select>
       <label class="toggle"><input type="checkbox" id="undone"> 안 깬 것만</label>
-      <label class="toggle" title="칼레바스 고원 — 아직 출시되지 않은 지역입니다"><input type="checkbox" id="showlocked"> 미출시 지역 보기</label>
       <span class="count" id="count"></span>
     </div>
     <div class="bar-row" id="chips"></div>
@@ -406,7 +405,7 @@ window.__TSA_BOOT=function(D){
 var FAC={"숙소":"--f-lodge","창고":"--f-ware","치료소":"--f-heal","금고":"--f-vault","대장간":"--f-forge","모험가 아카이브":"--f-arch"};
 var FORD=["숙소","창고","치료소","금고","대장간","모험가 아카이브"];
 var LKEY="tsa.levels.v1", KEY_SAVE="tsa.save.v1", FKEY="tsa.fac.v1";
-var LOCKED={"자르간트 마을":1,"노르그레이 마을":1};   // 칼레바스 고원 — 미출시
+var LOCKED={};   // 칼레바스 고원이 열려서 지금은 감출 도시가 없다 (2026-09-08)
 var lv={};
 try{ lv=JSON.parse(localStorage.getItem(LKEY)||"{}")||{}; }catch(e){ lv={}; }
 function saveLv(){ try{ localStorage.setItem(LKEY,JSON.stringify(lv)); }catch(e){} }
@@ -1115,13 +1114,14 @@ el("town").addEventListener("change",function(e){ state.town=e.target.value; ren
 el("undone").addEventListener("change",function(e){ state.undone=e.target.checked; render(); });
 el("party").addEventListener("change",function(e){ state.party=e.target.value; render(); });
 el("sort").addEventListener("change",function(e){ state.sort=e.target.value; render(); });
-el("showlocked").checked=state.showLocked;
-el("showlocked").addEventListener("change",function(e){
+var lk=el("showlocked");
+if(lk){ lk.checked=state.showLocked;
+lk.addEventListener("change",function(e){
   state.showLocked=e.target.checked;
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   if(!state.showLocked && LOCKED[state.town]) state.town="";
   fillTowns(); render();
-});
+}); }
 el("v-fac").onclick=function(){ setView("fac"); };
 function setView(v){
   state.view=v;

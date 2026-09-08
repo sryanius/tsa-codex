@@ -341,7 +341,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
     <tr><td>아르디오스 왕국</td><td class="num">157</td><td class="num">26 / 33</td><td class="num">10 / 13</td><td class="num">24%</td></tr>
     <tr><td>바람의 거친 경계</td><td class="num">244</td><td class="num">32 / 36</td><td class="num">10 / 13</td><td class="num">27%</td></tr>
     <tr class="hi"><td><b>발두나의 황야</b></td><td class="num">85</td><td class="num"><b>37 / 40</b></td><td class="num">10 / 13</td><td class="num">16%</td></tr>
-    <tr style="color:var(--faint)"><td>🔒 칼레바스 고원</td><td class="num">106</td><td class="num">43 / 46</td><td class="num">10 / 14</td><td class="num">32%</td></tr>
+    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num">106</td><td class="num"><b>43 / 46</b></td><td class="num">10 / 14</td><td class="num">32%</td></tr>
   </tbody></table>
   <div class="note"><b>해제는 거의 문제가 안 됩니다.</b> 확정선이 어느 지역에서나 <b>10~14</b> 이고,
      <b>금고 1172개 중 330개(28%)는 해제 난이도가 0 이라 판정 자체를 건너뜁니다</b>.
@@ -372,7 +372,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <div class="eq"><b>풋워커 여</b>(기본 통찰 10) + 도둑 30 주 + 현자 30 부
   통찰 = 10 + 12 + 15 = <b>37</b> &rarr; 최소 몫 <b>11</b>
   발견 = 30 + 3 + 11 = <b>44</b>   &ge; 발두나 최대 <b>40</b>  ✔
-  <span class="cmt">// 여기에 레인저 30 을 더하면 통찰 43 → 몫 13 → 46, 칼레바스도 확정</span></div>
+  <span class="cmt">// 레인저 30 을 더하면 통찰 43 → 몫 13 → 46, 칼레바스(46)까지 확정</span></div>
   <div class="note"><b>이 한 명이 파티 전체의 금고를 엽니다.</b>
      나머지 세 명은 통찰을 하나도 안 올려도 됩니다 &mdash;
      <b>차례로 굴려 한 명만 통과하면 성공</b>이기 때문입니다.
@@ -1329,8 +1329,9 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      대신 <b>갑옷은 낍니다</b> &mdash; 그쪽은 방어로 가는 게 맞습니다.</p>
   <h3>그래서 무엇을 키울 것인가 &mdash; 나란히 재 봤습니다</h3>
   <p>같은 «물리를 안 맞는» 목표를 회피로 가는 길과 방어로 가는 길을
-     세이브의 실제 장비·직업 값으로 계산했습니다. 아직 못 얻는 직업
-     (참수형 · 순례자 · 마도병)은 뺐습니다.</p>
+     세이브의 실제 장비·직업 값으로 계산했습니다.
+     <span class="sm">(칼레바스 고원이 열리기 전 &mdash; 마도병·순례 사제·목 베기·풍현사를 뺀 값입니다.
+     새 기준은 <a href="builds.html#deftank">빌드 &sect;1</a>·<a href="builds.html#dodge">&sect;3</a> 에 있습니다.)</span></p>
   <table class="t"><thead><tr><th>빌드</th><th class="num">HP</th><th class="num">방어</th>
     <th class="num">Lv30 평타</th><th class="num">치명타 <span class="sm">2%</span></th>
     <th class="num">자동회복</th><th class="num">공격력</th><th class="num">누적 경험치</th></tr></thead><tbody>
@@ -1523,7 +1524,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>갑옷</td><td>반환로 도강 갑옷 (Lv27)</td><td>+10</td></tr>
     <tr><td>의복</td><td>반조명 도강복 (Lv27)</td><td>+10</td></tr>
     <tr><td>투구</td><td>반조의 투구 (Lv24)</td><td>+9</td></tr>
-    <tr><td colspan="2"><b>합계</b></td><td><b>69</b> <span class="sm">(미출시까지 84)</span></td></tr>
+    <tr><td colspan="2"><b>합계</b></td><td><b>69</b></td></tr>
   </tbody></table>
   <p>여기에 직업 몫이 붙습니다 &mdash; <b>마법사 계열에만</b> 있고 암흑마법사 주 6 / 부 3 이 최고,
      마검사·현자·전술병은 주 2 / 부 1 입니다.
