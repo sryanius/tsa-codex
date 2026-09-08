@@ -264,10 +264,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="lede">계산식은 <a href="notes.html">원리</a> 에 있고, 여기는 <b>그래서 무엇을 뽑고 무엇을 입힐 것인가</b> 입니다.
       숫자는 전부 지금 갈 수 있는 지역의 장비·몬스터로 계산했습니다
       &mdash; <b>칼레바스 고원이 열려서(2026-09-08) 몬스터 367종·장비 전부를 다시 넣었습니다.</b>
-      다만 <b>훈련소 레벨 상한이 30</b>(모험가만 31)이라 <b>요구 레벨 32 이상인 장비는 아직 못 낍니다</b>.
+      다만 <b>훈련소 레벨 상한이 30</b>(모험가만 31)이라 <b>요구 레벨 32 이상인 장비는 아직 못 낍니다</b>
+      &mdash; 그 상한이 풀린다고 가정한 설계는 <a href="#cap35">&sect;11</a> 에 따로 두었습니다.
       <b>요구 힘</b>과 <b>요구 레벨</b>(최고 직업 레벨)은 따로 표시했습니다 &mdash; 둘 다 넘어야 낍니다.</p>
     <div class="toc">
-      <a href="#why">전제 셋</a><a href="#deftank">방어탱</a><a href="#healtank">회복탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#spells">마법 켜기</a><a href="#weapons">무기 총정리</a><a href="#party">파티 조합</a><a href="#halls">훈련소 지도</a>
+      <a href="#why">전제 셋</a><a href="#deftank">방어탱</a><a href="#healtank">회복탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#spells">마법 켜기</a><a href="#weapons">무기 총정리</a><a href="#party">파티 조합</a><a href="#halls">훈련소 지도</a><a href="#cap35">상한 35 대비</a>
     </div>
   </header>
   <main class="doc">
@@ -1394,5 +1395,91 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      계산식은 <a href="notes.html">원리</a> §8 · §10 · §11 &middot;
      경험치는 시간당 10만 기준</p>
 
-  </main>
+  
+  <h2 id="cap35"><span class="n">11</span>훈련소 상한이 35 로 풀리면 &mdash; 미리 보는 설계</h2>
+  <div class="note"><b>이 절은 «가정» 입니다.</b> 위의 §1~§10 은 <b>지금 확인된 상한(30 · 모험가 31)</b> 기준이고,
+     여기는 <b>훈련소를 35 까지 올릴 수 있게 되면</b> 무엇이 어떻게 바뀌는지만 따로 적었습니다.</div>
+
+  <h3>① 35 까지 올라가는 직업은 «일곱» 뿐입니다</h3>
+  <p>훈련소 강화 표 자체가 35 단계까지 있는 직업이 그만큼입니다. 나머지 28 개는
+     <b>표가 지금 최대와 같아서</b> 상한이 풀려도 안 오릅니다.</p>
+  <table class="t"><thead><tr><th>35 까지 오르는 직업</th><th class="num">지금</th><th class="num">경험치 등급</th><th>비고</th></tr></thead><tbody>
+    <tr class="hi"><td><b>현자</b></td><td class="num">30</td><td class="num">3</td><td><b>경험치 지수에서 양방향으로 빠집니다</b> &mdash; 아래 참조</td></tr>
+    <tr><td>도둑</td><td class="num">30</td><td class="num">8</td><td>회피 부 3 · 통찰 부 2 · 금고 발견에 레벨이 직접</td></tr>
+    <tr><td>레인저</td><td class="num">30</td><td class="num">7</td><td>함정 233개 중 109개 담당</td></tr>
+    <tr><td>마도병</td><td class="num">30</td><td class="num">5</td><td>회피 부 2 · 뇌우는 10 이면 됩니다</td></tr>
+    <tr><td>순례 사제</td><td class="num">30</td><td class="num">3</td><td>마법 방어 부 4 · 살바는 1 이면 됩니다</td></tr>
+    <tr><td>목 베기 · 풍현사</td><td class="num">30</td><td class="num">5</td><td>도끼 · 활 계열</td></tr>
+    <tr><td colspan="4" style="color:var(--muted)"><b>모험가는 31 이 끝입니다</b> &mdash; 표가 거기까지입니다.
+      마검사 · 무장병 · 암흑마법사 등 나머지는 전부 지금 값 그대로입니다.</td></tr>
+  </tbody></table>
+
+  <h3>② ★ 핵심 &mdash; 요구 레벨은 «최고 직업 레벨» 과 견줍니다</h3>
+  <div class="eq"><b>Character.CanEquip(장비)</b>   <span class="cmt">// 0x26d92d4</span>
+  <b>if</b> 장비.요구레벨 &gt; <b>MaxJobLevel()</b> &rarr; 못 낀다
+
+주직업이 아니어도 됩니다. <b>가진 직업 중 «가장 높은 하나» 만</b> 보면 됩니다.</div>
+  <div class="note warn"><b>그래서 «현자 35» 하나가 모든 빌드의 답입니다.</b>
+     현자는 <code>SumOtherJobLevels</code> 에서 <b>양방향으로 빠지므로</b>(<a href="#deftank">&sect;1</a>)
+     35 까지 올려도 <b>다른 직업이 하나도 안 비싸집니다</b>. 값은 <b>1.6M</b> 이고,
+     덤으로 <b>통찰 +18</b>(부 5 &times; 35)이 붙어 금고·함정·선제공격까지 같이 올라갑니다.</div>
+  <table class="t"><thead><tr><th>레벨 35 를 만드는 길</th><th class="num">그 직업만의 경험치</th><th class="num">다른 직업에 붙는 지수</th></tr></thead><tbody>
+    <tr class="hi"><td><b>현자 35</b></td><td class="num"><b>1.6M</b></td><td class="num"><b>없음</b></td></tr>
+    <tr><td>마도병 35</td><td class="num">2.1M</td><td class="num">1.05<sup>+5</sup></td></tr>
+    <tr><td>레인저 35</td><td class="num">2.7M</td><td class="num">1.05<sup>+5</sup></td></tr>
+    <tr><td>도둑 35</td><td class="num">2.9M</td><td class="num">1.05<sup>+5</sup></td></tr>
+  </tbody></table>
+  <div class="note"><b>강화로도 낮출 수 있습니다.</b> <code>Equipment.GetNeedLevel</code> 은
+     강화 <b>요구 레벨 감소</b>(kind 213)를 빼고 돌려줍니다 &mdash;
+     단계마다 <code>5&times;(요구레벨 &minus; 대장간레벨) + 50</code>% 로 +1 씩 붙습니다(<a href="notes.html#craft">원리 &sect;5</a>).
+     레벨을 올리기 전에도 몇 개는 이 길로 낄 수 있습니다.</div>
+
+  <h3>③ 새로 열리는 장비 (요구 레벨 32~35)</h3>
+  <table class="t"><thead><tr><th>칸</th><th>최고</th><th class="num">Lv</th><th class="num">힘</th><th class="num">값</th><th>비고</th></tr></thead><tbody>
+    <tr><td rowspan="3">무기</td><td>피철의 검</td><td class="num">35</td><td class="num">38</td><td class="num">70~110</td><td>비마법 &mdash; 물리 무효를 못 뚫습니다</td></tr>
+    <tr class="hi"><td><b>진악의 단검</b></td><td class="num">34</td><td class="num">17</td><td class="num"><b>66~104</b></td><td><b>마검사가 들면 마법</b> &mdash; 회피탱의 딜이 크게 오릅니다</td></tr>
+    <tr><td>모래 쪼개는 도끼</td><td class="num">35</td><td class="num">40</td><td class="num">69~112</td><td><b>전체 공격</b>이지만 <b>명중이 안 나옵니다</b>(아래)</td></tr>
+    <tr class="hi"><td><b>부적</b></td><td><b>고목의 부적</b></td><td class="num">34</td><td class="num">1</td><td class="num"><b>마방 46</b></td><td>+ MP 회복 6/턴. 늪왕(39)·현맥(34)을 대체합니다</td></tr>
+    <tr class="hi"><td><b>방패</b></td><td><b>영묘의 방패</b></td><td class="num">35</td><td class="num">39</td><td class="num">9~37 · <b>마방 17</b></td><td>방어와 마방을 같이 줍니다</td></tr>
+    <tr><td>갑옷</td><td>피철 갑옷</td><td class="num">35</td><td class="num">40</td><td class="num">70~73</td><td>왕단 60~63 &rarr; +10</td></tr>
+    <tr><td>투구</td><td>진악의 투구</td><td class="num">34</td><td class="num">37</td><td class="num">8~35</td><td>&mdash;</td></tr>
+    <tr><td>의복</td><td>이와오리의 옷</td><td class="num">33</td><td class="num">2</td><td class="num">66~72</td><td>치명 저항 +4</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>«전체 공격 도끼» 는 함정입니다.</b>
+     모래 쪼개는 도끼(Lv35 · 69~112 · 전체)는 세 보이지만,
+     <b>도끼를 들 수 있는 직업만 명중률 몫을 셉니다</b>(<a href="notes.html#tank">원리 &sect;10</a>) &mdash;
+     검술사(검 전용)가 빠져 명중값이 <b>37 &rarr; 29</b> 로 떨어집니다.
+     그러면 칼레바스 105종 중 <b>65종(62%)</b> 을 «2d6 이 바닥인 턴» 에 놓칩니다.
+     유령의 검은 같은 자리에서 <b>7종(7%)</b> 입니다.</div>
+
+  <h3>④ 세 빌드가 어떻게 바뀌나</h3>
+  <p>세 빌드 모두 <b>부직업에 «현자 35» 를 얹고</b>, 부적을 <b>고목의 부적</b>으로 바꾸는 것이 공통입니다.</p>
+  <table class="t"><thead><tr><th>빌드</th><th>바꾸는 것</th><th class="num">지금</th><th class="num">상한 35</th></tr></thead><tbody>
+    <tr class="hi"><td rowspan="4"><b>방어탱</b><br><span class="meta">유령의 검은 그대로</span></td>
+      <td>피철 갑옷 · 영묘의 방패 · 진악의 투구 · 고목의 부적</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+    <tr class="hi"><td>방어</td><td class="num">130~188</td><td class="num"><b>142~200</b></td></tr>
+    <tr class="hi"><td>마법 방어</td><td class="num">39</td><td class="num"><b>67</b></td></tr>
+    <tr class="hi"><td>통찰 / 경험치</td><td class="num">2 / 21.9M</td><td class="num"><b>20</b> / 23.5M</td></tr>
+    <tr><td rowspan="4"><b>회피탱</b><br><span class="meta">도둑 30 &rarr; 35</span></td>
+      <td>무기는 두 갈래 &mdash; 용맥의 단검(전체) 유지 또는 <b>진악의 단검</b>(단일)</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+    <tr><td>회피 최솟값 <span class="sm">(칼레바스 완봉선 53)</span></td><td class="num">53 <span class="sm">여유 0</span></td><td class="num"><b>55</b> <span class="sm">여유 2</span></td></tr>
+    <tr><td>평타 &mdash; 용맥(전체) / 진악(단일)</td><td class="num">74~101</td><td class="num">76~103 / <b>97~135</b></td></tr>
+    <tr><td>치명 저항 · 통찰 / 경험치</td><td class="num">41 · 33 / 17.6M</td><td class="num">43 · <b>37</b> / 25.7M</td></tr>
+    <tr><td rowspan="3"><b>마법사</b><br><span class="meta">부적만 바꿉니다</span></td>
+      <td>현맥의 부적 &rarr; <b>고목의 부적</b></td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
+    <tr><td>마법 방어</td><td class="num">76</td><td class="num"><b>92</b></td></tr>
+    <tr><td>MP 회복 / 경험치</td><td class="num">13/턴 / 9.8M</td><td class="num">12/턴 / 11.4M</td></tr>
+  </tbody></table>
+  <div class="note"><b>회피탱만 값이 큽니다.</b> 회피 여유 2 를 얻으려고 <b>도둑 30 &rarr; 35</b> 를 올리면
+     경험치가 <b>17.6M &rarr; 25.7M</b> 입니다 &mdash; 그 여유는 <b>강화</b>(2단계 이상이면 회피 +1~2 확정)로
+     훨씬 싸게 살 수 있습니다. <b>현자 35 만 얹고 도둑은 30 에 두는 것</b>이 실속입니다
+     (그래도 캐릭터 레벨 35 라 진악의 단검은 낍니다).</div>
+  <div class="note"><b>마법사의 부적은 «마방 46 대 MP 회복 7» 의 맞바꿈입니다.</b>
+     고목의 부적은 마방이 <b>+12</b> 오르는 대신 MP 회복이 <b>7 &rarr; 6</b> 으로 1 줍니다 &mdash;
+     퀘스트 한 판(16턴)에 MP 16 이니 뇌우 반 발입니다. <b>마방 12 가 훨씬 큽니다.</b></div>
+  <p class="src">Character.CanEquip <span class="sm">(0x26d92d4 &mdash; 요구 레벨 &gt; MaxJobLevel 이면 거부)</span> &middot;
+     Character.SumOtherJobLevels <span class="sm">(현자·모험가 제외)</span> &middot;
+     Equipment.GetNeedLevel <span class="sm">(강화 213 을 뺍니다)</span> &middot; 훈련소 강화 표 36직업 전수</p>
+
+</main>
 </div>
