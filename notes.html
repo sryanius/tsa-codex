@@ -368,7 +368,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
     <tr><td>통찰 &mdash; 도둑 주 몫</td><td class="num">기본 +12</td><td>도둑은 주 통찰 4 라 30 레벨이면 +12</td></tr>
     <tr class="hi"><td><b>현자 30</b> <span class="sm">부직업</span></td><td class="num">통찰 <b>+15</b></td><td><b>경험치 지수에서 통째로 빠집니다</b> &mdash; 얹어도 다른 직업이 안 비싸집니다</td></tr>
     <tr><td>레인저 30 <span class="sm">부직업</span></td><td class="num">통찰 +6</td>
-      <td>열린 지역 함정 배치 230개 중 <b>139개</b>를 담당합니다(도둑 75 · 현자 16 &mdash; 겹쳐서 셉니다).
+      <td>함정 마스터 131개 중 <b>63개</b>가 레인저 담당입니다(도둑 50 · 현자 18 &mdash; 7.0 에서 넷 늘었습니다).
         다만 지수에 들어갑니다</td></tr>
   </tbody></table>
   <div class="eq"><b>풋워커 여</b>(기본 통찰 10) + 도둑 30 주 + 현자 30 부
@@ -839,7 +839,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      Util.Dice2D = 2d6 · Util.Dice2DAvg = 7 · 열린 지역 몬스터 242종</p>
 
   <h3>활이 절대 안 통하는 몬스터가 있습니다</h3>
-  <p><code>invalidBow</code> 가 켜진 몬스터에게 활로 때리면 <b>회피에 999 가 더해집니다</b> &mdash; 어떤 수치로도 못 맞힙니다. 전체 368종 중 <b>5종</b>입니다.</p>
+  <p><code>invalidBow</code> 가 켜진 몬스터에게 활로 때리면 <b>회피에 999 가 더해집니다</b> &mdash; 어떤 수치로도 못 맞힙니다. 전체 377종 중 <b>5종</b>입니다.</p>
   <table><thead><tr><th>몬스터</th><th class="num">레벨</th></tr></thead><tbody>
   <tr><td>본 하운드 <code>5_BoneHound</code></td><td class="num">5</td></tr>
   <tr><td>데스 할로우 <code>9_DeathHollow</code></td><td class="num">9</td></tr>
@@ -848,7 +848,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td>본 베일 <code>24_BoneVeil</code></td><td class="num">24</td></tr>
   </tbody></table>
   <h3>물리 무효는 «마법 무기» 로 뚫립니다</h3>
-  <p><code>invalidPhysics</code> 가 <b>36종</b> 있는데, 무효 판정이 이렇게 돼 있습니다:</p>
+  <p><code>invalidPhysics</code> 가 <b>37종</b> 있는데, 무효 판정이 이렇게 돼 있습니다:</p>
   <div class="eq">if (대상.InvalidPhysics() &amp;&amp; <b>!공격.isMagicAttack</b>) → 무효</div>
   <p>즉 <b>공격이 «마법 공격» 으로 표시되면 그대로 통합니다.</b> 그 표시는 <code>BattleCreature.IsUseMagicWeapon()</code> 이 정합니다:</p>
   <div class="eq">무기가 없으면 → 아니오
@@ -858,7 +858,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 그리고 <code>EffectOnCreature 41</code> 이 걸려 있으면 무조건 예</div>
   <div class="note"><b>마법 무기는 446종 중 68종(15%)입니다.</b> 활이 12종, 단검이 8종 있습니다 &mdash; 실버 활(Lv5) · 엘프 활(7) · 지구결속 활(12) · 아케인 연마 활(16) · 프리즈 아이(17) · 기원의 활(22) · 넝쿨 묶은 활(23) · 모래거울 활(24) · 지문의 현궁(25) · 라이프드레인보우(28) · 명천궁(30) · 불타는 활(34). <a href="codex.html">도감</a> 아이템 줄에 <b>«마법»</b> 표로 붙여 뒀습니다.</div>
   <div class="note warn"><b>마검사는 «주직업» 일 때만 통합니다.</b> <code>IsUseMagicWeapon()</code> 이 보는 건 <code>Character.MainJob()</code> 이고, 그건 <code>Job.isCurrent</code> 가 켜진 직업 &mdash; 게임에서 <b>지금 지정해 둔 직업</b> 하나뿐입니다. 마검사를 부직업으로 달아 두면 단검을 들어도 물리 공격 그대로입니다. 그리고 마검사가 들 수 있는 무기는 <b>단검뿐</b>이라(최대 레벨 30), 다른 무기로는 이 길이 없습니다.</div>
-  <p><b>강화로는 마법 속성을 못 붙입니다.</b> 처음부터 마법인 무기를 구해야 합니다 &mdash; 물리 무효 몬스터가 36종이나 되니, 파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</p>
+  <p><b>강화로는 마법 속성을 못 붙입니다.</b> 처음부터 마법인 무기를 구해야 합니다 &mdash; 물리 무효 몬스터가 37종이나 되니, 파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</p>
   <p>도감의 몬스터 줄에 <b>«활 무효» · «물리 무효»</b> 표를 붙여 뒀습니다.</p>
 
   <h3>상태이상이 명중·회피를 깎습니다 &mdash; 숨은 표</h3>
