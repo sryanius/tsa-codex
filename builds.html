@@ -625,6 +625,65 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      잃는 것은 «막기» 판정에 쓰는 <b>방패 회피 +5</b> 뿐입니다 &mdash;
      회피로 이미 100% 를 피하는 빌드에서 막기 판정은 거의 안 돌아갑니다.</div>
 
+  <h3>★ 쩔 전용 변형 &mdash; «라그네스 강창의 흔적» 은 세팅이 다릅니다</h3>
+  <p>회피탱 하나로 <b>쩔 대상 1~3명</b>을 끌고 도는 자리입니다
+     (<a href="notes.html#farm">원리 &sect;12</a> 에서 고른 1위).
+     여기는 <b>안 맞는 것</b>이 아니라 <b>15턴 안에 다 잡는 것</b>이 어렵습니다.</p>
+  <div class="note warn"><b>★ 화력이 셀수록 좋은 판이 아닙니다.</b>
+     카샨은 <b>같은 열 생존이 4 미만</b>일 때만 부르고, 부름은 <b>턴당 1마리</b>가 상한이며,
+     <b>15턴을 넘기면 무승부 &mdash; 경험치가 0</b> 입니다.
+     너무 약하면 무승부로 빈손이고, 너무 세면 부름이 돌기 전에 판이 끝납니다.</div>
+  <table class="t"><thead><tr><th class="num">탱커 평타<br><span style="font-weight:400">전체 공격</span></th>
+    <th class="num">승률</th><th class="num">이긴 판</th><th class="num">판당 경험치</th><th class="num">시간당</th><th>판정</th></tr></thead><tbody>
+    <tr style="color:var(--f-vault)"><td class="num">60~85</td><td class="num">52%</td><td class="num">7.9턴</td><td class="num">1,798</td><td class="num">6,347</td><td>절반이 무승부 &mdash; <b>빈손</b></td></tr>
+    <tr><td class="num">74~101 <span class="sm">지금 §3 판</span></td><td class="num">74%</td><td class="num">5.6턴</td><td class="num">5,969</td><td class="num">21,067</td><td>넷 중 하나가 무승부</td></tr>
+    <tr class="hi"><td class="num"><b>84~111</b></td><td class="num"><b>97%</b></td><td class="num">4.6턴</td><td class="num"><b>9,257</b></td><td class="num"><b>32,671</b></td><td><b>여기가 꼭대기</b></td></tr>
+    <tr><td class="num">89~116</td><td class="num">100%</td><td class="num">4.1턴</td><td class="num">8,892</td><td class="num">31,384</td><td>이미 내려갑니다</td></tr>
+    <tr style="color:var(--muted)"><td class="num">94~121</td><td class="num">100%</td><td class="num">3.7턴</td><td class="num">8,479</td><td class="num">29,927</td><td>부름이 덜 돕니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>«승률이 95% 를 막 넘는 자리» 가 최적입니다.</b>
+     그 아래는 무승부가 통째로 0 이라 손해가 급하고, 그 위는 판이 짧아져
+     카샨이 부를 턴을 잃습니다. <b>평타 84~111</b> 이 그 지점입니다.</div>
+
+  <h4>그 화력을 만드는 법 &mdash; 회피를 안 깎고</h4>
+  <div class="note"><b>라그네스는 발두나라 완봉선이 47 입니다.</b>
+     §3 빌드의 회피 최솟값이 <b>53</b> 이니 여기서는 <b>6 이 남습니다</b> &mdash;
+     칼레바스용으로 짠 여유를 화력으로 바꿀 수 있습니다.</div>
+  <table class="t"><thead><tr><th>부직업</th><th class="num">평타</th><th class="num">회피 최솟값</th><th class="num">명중 최솟값</th><th class="num">경험치</th></tr></thead><tbody>
+    <tr><td>도둑 30 · 숨은 칼날의 궁사 20 · <b>검술사 15</b> · 현자 30 <span class="sm">§3 기본</span></td>
+      <td class="num">74~101</td><td class="num">53</td><td class="num">53</td><td class="num"><b>17.6M</b></td></tr>
+    <tr class="hi"><td>도둑 30 · 숨은 칼날의 궁사 20 · <b>검투사 25</b> · 현자 30 <span class="sm">검술사와 맞바꿈</span></td>
+      <td class="num"><b>84~111</b></td><td class="num"><b>53</b></td><td class="num">64</td><td class="num">42.3M</td></tr>
+    <tr style="color:var(--muted)"><td>위에 검술사 15 를 도로 얹으면</td>
+      <td class="num">84~111</td><td class="num">56</td><td class="num">65</td><td class="num">78.0M</td></tr>
+    <tr style="color:var(--f-vault)"><td>숨은 칼날의 궁사까지 빼면</td>
+      <td class="num">76~103</td><td class="num" style="color:var(--f-vault)">46</td><td class="num">56</td><td class="num">20.6M</td>
+      </tr>
+    <tr><td colspan="5" style="color:var(--muted)"><b>검술사를 검투사로 바꾸는 것이 요점입니다.</b>
+      검술사는 검 전용이라 <b>단검을 든 채로는 공격 몫이 0</b> 이고 회피 3 만 줍니다.
+      검투사는 <b>단검을 들 수 있어</b> 부 공격력 4 가 그대로 들어옵니다(최대 25 &rarr; 공격 +10).
+      회피는 검투사 부 1 이 메워서 <b>53 그대로</b>입니다.
+      대가는 경험치 <b>17.6M &rarr; 42.3M</b> 입니다 &mdash; 마지막 줄처럼 회피를 46 으로 떨어뜨리면
+      발두나 완봉선 47 을 못 넘어 <b>맞기 시작합니다</b>.</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 쩔 대상이 세지면 이 자리가 스스로 나빠집니다.</b>
+     같은 탱커(74~101)로 쩔 대상 셋의 평타만 바꿔 보면 &mdash;
+     <b>40~60 이면 판당 5,969</b> 인데 <b>60~85 로 세지면 8,721</b> 로 올랐다가
+     <b>80~110 에서 7,230 으로 도로 내려갑니다</b>. 판이 2.3턴 만에 끝나서 카샨이 못 부릅니다.
+     <b>쩔이 잘될수록 떠날 때가 가까워집니다</b> &mdash; 판이 세 턴 아래로 떨어지면 자리를 옮기십시오.</div>
+  <div class="note"><b>무기는 반드시 «전체 공격» 이어야 합니다.</b>
+     같은 조건에서 단일 무기(왕단의 단검 87~121)는 판당 <b>1,763</b> 으로 3분의 1 토막입니다 &mdash;
+     한 마리씩 잡으면 전열이 안 비워져 부름이 안 돌고, 그 전에 판이 끝납니다.
+     <b>단검 중 전체 공격은 «용맥의 단검» 하나뿐</b>입니다.</div>
+  <div class="note"><b>여기서는 «마법 무기» 가 필요 없습니다.</b>
+     라그네스에 나오는 셋(타로스 · 카샨 · 스컬크로우 골렘)은 <b>물리 무효가 하나도 없습니다</b> &mdash;
+     마검사를 고른 이유 중 «단검을 마법으로 친다» 쪽은 이 자리에서 안 쓰입니다.
+     <b>부적 칸(마법 방어 51)</b> 쪽 이유만 남습니다.</div>
+  <p class="src">전투 4,000판 시뮬레이션 &mdash; 카샨 HP 100 · 방어 48 · exp 3,111 /
+     스컬크로우 골렘 122 · 46 · 2,840 / 타로스 161 · 54 · 3,111 &middot;
+     부름 60.9%/턴 · 턴당 1마리 상한 · 열당 4 · 무승부 15턴 &middot;
+     평균 조우 간격 17.0분(자유 탐색)</p>
+
   <h3>왜 도둑이 아니라 마검사인가</h3>
   <div class="eq"><b>BattleCreature.IsUseMagicWeapon()</b>   <span class="cmt">// 0x26b85d0</span>
   <b>if</b> 주직업이 <b>마검사</b> <b>and</b> 든 무기가 <b>단검</b>  &rarr; <b>true</b>   <span class="cmt">// 무기의 isMagic 을 «안 봅니다»</span>
