@@ -262,10 +262,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="eyebrow">The Silent Archivist &middot; 뽑고 입히기</p>
     <h1>역할별 빌드와 장비</h1>
     <p class="lede">계산식은 <a href="notes.html">원리</a> 에 있고, 여기는 <b>무엇을 뽑고 무엇을 입힐 것인가</b> 입니다.
-      숫자는 전부 <b>칼레바스 고원까지 열린 지금</b>(몬스터 367종 · 장비 757개)으로 다시 냈고,
-      기준선은 가장 빡빡한 <b>칼레바스 고원</b> 입니다.
-      훈련소 상한은 <b>30</b>, <b>모험가는 31</b> &mdash; 그 31 을 어디에 쓰는지가 <a href="#why">&sect;0</a> 에 있습니다.
-      상한이 35 로 풀린 경우는 <a href="#cap35">&sect;11</a> 에 따로 두었습니다.</p>
+      기준선은 <b>칼레바스 고원</b> 입니다 &mdash; 지금 갈 수 있는 곳 중 가장 빡빡합니다.
+      <b>앱 7.0 (2026-09-13)</b> 에서 칼레바스에 퀘스트와 몬스터가 더 붙었고
+      (105종 &rarr; <b>120종</b>, 열린 지역 합 <b>371종</b> · 장비 <b>788개</b>),
+      다음 지역 <b>발케인 지방</b>이 데이터로만 실려 왔습니다.
+      <b>훈련소 상한은 직업마다 «강화 표 길이» 그대로</b>이고 모험가는 <b>최고 훈련소 레벨 + 1</b> 입니다
+      (<a href="#why">&sect;0 ③</a>) &mdash; 35 까지 가는 일곱 직업의 설계는 <a href="#cap35">&sect;11</a> 에 있습니다.</p>
+    <div class="note warn" style="margin-top:14px"><b>★ 7.0 반영은 진행 중입니다.</b>
+      <b>&sect;0 ③ 과 &sect;11 은 새 세이브로 다시 확인해 고쳤습니다.</b>
+      나머지 절의 몬스터 종수·회피·공격력 수치는 아직 <b>7.0 이전(칼레바스 105종)</b> 값입니다 &mdash;
+      결론이 뒤집히는 곳은 없지만 표의 숫자는 조금씩 올라갑니다
+      (칼레바스 공격력 최대 172 &rarr; <b>181</b> · 회피 최대 48 &rarr; <b>49</b> ·
+      물리 무효 12 &rarr; <b>17종</b>). 완봉선 53 은 <b>그대로</b>입니다.</div>
     <div class="toc">
       <a href="#why">전제</a><a href="#deftank">방어탱</a><a href="#healtank">회복탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#spells">마법 켜기</a><a href="#weapons">무기 총정리</a><a href="#party">파티 조합</a><a href="#halls">훈련소 지도</a><a href="#cap35">상한 35</a>
     </div>
@@ -296,19 +304,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>마법 · 성직 계열</td><td>몸(의복) · <b>부적</b> &mdash; 둘뿐입니다</td></tr>
   </tbody></table>
 
-  <h3>③ ★ 요구 레벨은 «최고 직업 레벨» 과 견줍니다 &mdash; 모험가 31 이 열쇠입니다</h3>
+  <h3>③ ★ 요구 레벨은 «최고 직업 레벨» 과 견줍니다 &mdash; 모험가가 열쇠입니다</h3>
   <div class="eq"><b>Character.CanEquip(장비)</b>   <span class="cmt">// 0x26d92d4</span>
   <b>if</b> 장비.요구레벨 &gt; <b>MaxJobLevel()</b> &rarr; 못 낀다      <span class="cmt">// 주직업이 아니어도 된다 — «가장 높은 하나»</span>
 
 <b>Job.MaxLevel(모험가)</b>   <span class="cmt">// 0x26e8acc — 모험가는 훈련소가 없다</span>
   = <b>max(가진 훈련소 레벨) + 1</b>   (최소 2 · 전역 상한 99)</div>
-  <div class="note warn"><b>모험가는 «31 에서 멈추는» 것이 아닙니다.</b>
-     훈련소 상한이 30 이라 <b>지금</b> 31 인 것이고, 상한이 오르면 <b>같이 따라 오릅니다</b>
-     (35 가 되면 모험가는 <b>36</b>). 그리고 모험가는
-     <b>경험치 지수에서 양방향으로 빠집니다</b>(아래) &mdash;
-     <b>부직업으로 31 까지 올려도 다른 직업이 하나도 안 비싸집니다.</b></div>
-  <table class="t"><thead><tr><th>모험가 31 을 부직업으로 얹으면</th><th class="num">값</th></tr></thead><tbody>
-    <tr class="hi"><td><b>그 직업만의 경험치</b></td><td class="num"><b>0.70M</b></td></tr>
+  <div class="note warn"><b>★ «훈련소 상한 30» 같은 것은 없습니다 (2026-09-13 세이브로 확인).</b>
+     훈련소마다 <b>자기 강화 표의 길이</b>가 곧 상한입니다 &mdash;
+     표가 25인 중도사는 25 에서 멈추고, <b>표가 35인 일곱 직업</b>
+     (현자 · 도둑 · 레인저 · 마도병 · 순례 사제 · 목 베기 · 풍현사)<b>은 35 까지 갑니다</b>.
+     세이브를 열어 보면 <b>현자 · 레인저 · 도둑 훈련소가 이미 Lv31</b> 이고,
+     나머지 훈련소는 전부 자기 표의 끝에 닿아 있습니다 &mdash; 막고 있는 것은 골드뿐입니다.</div>
+  <div class="note"><b>그래서 모험가는 «따라 오릅니다».</b>
+     지금 세이브의 최고 훈련소가 31 이니 <b>모험가는 32</b> 이고,
+     현자를 35 까지 올리면 <b>모험가는 36</b> 이 됩니다.
+     그리고 모험가는 <b>경험치 지수에서 양방향으로 빠집니다</b>(아래) &mdash;
+     <b>부직업으로 올려도 다른 직업이 하나도 안 비싸집니다.</b></div>
+  <table class="t"><thead><tr><th>모험가를 부직업으로 얹으면 <span class="sm">(31 기준)</span></th><th class="num">값</th></tr></thead><tbody>
+    <tr class="hi"><td><b>그 직업만의 경험치</b></td><td class="num"><b>0.70M</b> <span class="sm">(36 까지면 1.17M)</span></td></tr>
     <tr class="hi"><td><b>다른 직업에 붙는 지수</b></td><td class="num"><b>없음</b></td></tr>
     <tr><td>얻는 능력치</td><td class="num">생명점 부 1 &rarr; <b>HP +4</b> 뿐</td></tr>
     <tr class="hi"><td colspan="2"><b>진짜 얻는 것 &mdash; 요구 레벨 31 장비 16개가 통째로 열립니다.</b>
@@ -1096,23 +1110,27 @@ MP &lt; 10   &rarr; <b>평타</b></div>
   <p class="src">meta.json 장비 757 &middot; codex.json 몬스터 367 &middot;
      계산식은 <a href="notes.html">원리</a> §8 · §10 · §11 &middot; 경험치는 시간당 10만 기준</p>
 
-  <h2 id="cap35"><span class="n">11</span>훈련소 상한이 35 로 풀리면</h2>
-  <div class="note"><b>이 절은 «가정» 입니다.</b> 위의 &sect;1~&sect;10 은 <b>지금 확인된 상한(30)</b> 기준이고,
-     여기는 훈련소를 35 까지 올릴 수 있게 되면 무엇이 바뀌는지만 적었습니다.</div>
+  <h2 id="cap35"><span class="n">11</span>훈련소를 35 까지 올리면</h2>
+  <div class="note warn"><b>★ 이 절은 더 이상 «가정» 이 아닙니다 (2026-09-13 고침).</b>
+     예전에 여기 «상한이 30 이라 35 는 가정» 이라고 적어 뒀는데, <b>그 상한은 제가 넣은 추측이었습니다.</b>
+     세이브를 열어 보니 <b>현자 · 레인저 · 도둑 훈련소가 이미 Lv31</b> 이고,
+     그 셋은 <b>표가 35까지 있어 계속 올라갑니다</b>. 막는 것은 골드와 시간뿐입니다.</div>
 
   <h3>① 35 까지 오르는 직업은 일곱, 그리고 모험가는 36</h3>
-  <p>훈련소 강화 표가 35 단계까지 있는 직업이 일곱입니다. 나머지 28 개는 <b>표가 지금 최대와 같아서</b> 안 오릅니다.
-     <b>모험가는 훈련소가 없고 «최고 훈련소 레벨 + 1» 이라</b>(<a href="#why">&sect;0 ③</a>) <b>36</b> 이 됩니다.</p>
+  <p>훈련소 강화 표가 35 단계까지 있는 직업이 일곱입니다. 나머지 <b>26 개는 표가 지금 레벨과 같아서</b> 더 안 오릅니다
+     (중도사 25 · 마검사 30 · 암흑마법사 30 &hellip;).
+     <b>모험가는 훈련소가 없고 «최고 훈련소 레벨 + 1» 이라</b>(<a href="#why">&sect;0 ③</a>)
+     현자가 35 에 닿는 순간 <b>36</b> 이 됩니다.</p>
   <table class="t"><thead><tr><th>직업</th><th class="num">지금</th><th class="num">풀리면</th><th>비고</th></tr></thead><tbody>
-    <tr class="hi"><td><b>모험가</b></td><td class="num">31</td><td class="num"><b>36</b></td>
+    <tr class="hi"><td><b>모험가</b></td><td class="num">32 <span class="sm">(지금)</span></td><td class="num"><b>36</b></td>
       <td><b>지수 면제</b> · 31&rarr;36 이 <b>0.70M &rarr; 1.17M</b> &mdash; 가장 싼 «레벨» 입니다</td></tr>
-    <tr class="hi"><td><b>현자</b></td><td class="num">30</td><td class="num"><b>35</b></td>
+    <tr class="hi"><td><b>현자</b></td><td class="num"><b>31</b></td><td class="num"><b>35</b></td>
       <td><b>지수 면제</b> · <b>1.60M</b> · 통찰 <b>+18</b>(부 5&times;35)</td></tr>
-    <tr><td>도둑</td><td class="num">30</td><td class="num">35</td><td>회피 부 3 · 통찰 부 2 · 금고 발견에 레벨이 직접</td></tr>
-    <tr><td>레인저</td><td class="num">30</td><td class="num">35</td><td>함정 233개 중 109개 담당</td></tr>
+    <tr><td>도둑</td><td class="num"><b>31</b></td><td class="num">35</td><td>회피 부 3 · 통찰 부 2 · 금고 발견에 레벨이 직접</td></tr>
+    <tr><td>레인저</td><td class="num"><b>31</b></td><td class="num">35</td><td>함정 233개 중 109개 담당</td></tr>
     <tr><td>마도병</td><td class="num">30</td><td class="num">35</td><td>회피 부 2 &mdash; 뇌우는 10 이면 됩니다</td></tr>
-    <tr><td>순례 사제</td><td class="num">30</td><td class="num">35</td><td>마법 방어 부 4 &mdash; 살바는 1 이면 됩니다</td></tr>
-    <tr><td>목 베기 · 풍현사</td><td class="num">30</td><td class="num">35</td><td>도끼 · 활 계열</td></tr>
+    <tr><td>순례 사제</td><td class="num">9</td><td class="num">35</td><td>마법 방어 부 4 &mdash; 살바는 1 이면 됩니다</td></tr>
+    <tr><td>목 베기 · 풍현사</td><td class="num">3 · &mdash;</td><td class="num">35</td><td>도끼 · 활 계열</td></tr>
   </tbody></table>
   <div class="note warn"><b>«레벨 35 장비를 끼는 법» 은 둘인데, 값이 다릅니다.</b>
      요구 레벨은 <b>가진 직업 중 가장 높은 하나</b>와만 견주므로,
@@ -1120,7 +1138,8 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      둘 다 <b>경험치 지수에서 빠져서</b> 다른 직업을 하나도 안 비싸게 만듭니다.
      <b>현자 쪽이 0.43M 비싼 대신 통찰 +18</b> 이 붙습니다 &mdash;
      혼자 도는 캐릭터면 현자, 파티에서 딜만 맡으면 모험가가 답입니다.
-     <span class="sm">(장비의 요구 레벨은 35 가 천장이라 모험가 36 이 «남는» 1 은 쓸 데가 없습니다.)</span></div>
+     <span class="sm">(7.0 에서 요구 레벨 <b>36~37</b> 장비가 생겨서, 모험가 36 의 «남는 1» 도 이제 쓸 데가 있습니다 &mdash;
+     다만 그 장비는 아직 <b>발케인 지방</b>에서만 나옵니다.)</span></div>
 
   <h3>② 새로 열리는 장비 (요구 레벨 32~35)</h3>
   <table class="t"><thead><tr><th>칸</th><th>최고</th><th class="num">요구 Lv</th><th class="num">힘</th><th class="num">값</th><th>비고</th></tr></thead><tbody>
