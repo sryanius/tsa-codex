@@ -245,7 +245,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#tank">근접이 죽는 이유</a><a href="#magic">마법</a>
+      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#tank">근접이 죽는 이유</a><a href="#magic">마법</a><a href="#farm">탐색지 쩔</a>
     </div>
   </header>
 
@@ -1590,6 +1590,155 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p class="src">BattleSkill.GetDamage / DamageSkill / SkillAttack / AddCondition &middot;
      BattleCreature.MagicDamageReduction / MagicResistValue &middot; Armor.MagicDefense &middot;
      Util.Dice2DWithCritical &middot; JobMaster.mainJobBonusesMagicDefense</p>
+
+
+  <h2 id="farm"><span class="n">12</span>탐색지 쩔 &mdash; 전투는 «불려 나와서» 늘어납니다</h2>
+  <p>제작자가 짚은 것에서 시작합니다 &mdash;
+     <b>카샨</b>(Lv28 · 발두나)은 1~2턴 만에 몬스터가 바로바로 나오는데
+     <b>롱넥 글레이저</b>(Lv33 · 칼레바스 라펠 계곡)는 안 나옵니다.
+     <b>탐색지 탓이 아닙니다.</b> 두 곳은 전투가 걸리는 속도가 <b>소수점까지 같습니다</b>.</p>
+
+  <h3>① 탐색지가 전투를 거는 속도 &mdash; 344곳 중 303곳이 똑같습니다</h3>
+  <div class="eq"><b>AdventureMain.GetWanderingMonsterGroup</b>   <span class="cmt">// 0x2721ad4</span>
+  monsterGroups 를 <b>frequency 로 GroupBy</b> &rarr; 등급마다 <code>RandSuccess(1, iv)</code> 를 <b>한 번씩</b>
+  iv = 표[freq &minus; 5] &divide; AdventureInterval(<b>10</b>)
+       <b>퀘스트가 없으면(자유 탐색) 다시 &divide; 7</b>       <span class="cmt">// csel w21,w8,w21,eq — quest == null 일 때만</span>
+  첫 성공에서 그 등급 그룹 중 <b>하나를 무작위</b>로 뽑는다   <span class="cmt">// GetAtRandom</span>
+
+표 @0xf89e9c (초) = [600, 600, 600, 600, 600, 1200, 1800, 3600, 7200, 14400, 43200, 172800]</div>
+  <table class="t"><thead><tr><th>빈도 등급</th><th class="num">표(초)</th>
+    <th class="num">퀘스트 중<br><span style="font-weight:400">틱당</span></th>
+    <th class="num">자유 탐색<br><span style="font-weight:400">틱당</span></th>
+    <th class="num">평균 간격<br><span style="font-weight:400">자유 탐색</span></th></tr></thead><tbody>
+    <tr style="color:var(--faint)"><td>Always(5)</td><td class="num">600</td><td class="num">1.667%</td><td class="num">12.500%</td><td class="num">1.3분</td></tr>
+    <tr><td>Usually(10)</td><td class="num">1,200</td><td class="num">0.833%</td><td class="num">5.882%</td><td class="num">2.8분</td></tr>
+    <tr><td>Often(11)</td><td class="num">1,800</td><td class="num">0.556%</td><td class="num">4.000%</td><td class="num">4.2분</td></tr>
+    <tr><td>Sometimes(12)</td><td class="num">3,600</td><td class="num">0.278%</td><td class="num">1.961%</td><td class="num">8.5분</td></tr>
+    <tr class="hi"><td><b>Occasionally(13)</b> <span class="sm">&larr; 그룹 696개 중 653개</span></td><td class="num">7,200</td><td class="num">0.139%</td><td class="num"><b>0.980%</b></td><td class="num"><b>17.0분</b></td></tr>
+    <tr><td>Infrequently(14)</td><td class="num">14,400</td><td class="num">0.069%</td><td class="num">0.488%</td><td class="num">34.2분</td></tr>
+    <tr style="color:var(--faint)"><td>Rare(15) · SuperRare(16)</td><td class="num">43,200 · 172,800</td><td class="num">&mdash;</td><td class="num">0.162% · 0.041%</td><td class="num">1.7시간 · 6.9시간</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 자유 탐색이 퀘스트보다 7배 빠릅니다.</b>
+     <code>party.Quest == null</code> 일 때만 간격을 7로 나눕니다 &mdash;
+     같은 탐색지가 퀘스트를 물고 가면 2시간, 그냥 탐색만 보내면 <b>17분</b>입니다.
+     쩔을 시킬 거면 <b>퀘스트를 안 물리는 것</b>이 가장 큰 레버입니다.</div>
+  <div class="note"><b>그리고 탐색지로는 거의 못 고릅니다.</b>
+     탐색지 344곳 · 그룹 696개 중 <b>Always 그룹은 하나도 없고</b> 93.8%가 Occasionally 입니다.
+     <b>303곳이 0.980%/틱(17.0분)으로 동률</b>이고, 카샨의 세 곳도 라펠 계곡도 전부 여기 있습니다.
+     <span class="sm">같은 등급 그룹이 둘이어도 <code>GroupBy</code> 로 묶여 «한 번만» 굴립니다 &mdash;
+     확률을 올리는 것은 «서로 다른 등급» 을 하나 더 갖는 것뿐입니다.</span></div>
+  <div class="note"><b>가장 빠른 곳은 5.7분짜리 두 곳</b>입니다 &mdash;
+     삼키는 군주의 숲(Lv6)·림네아 유적(Lv8, 둘 다 뤼미에르 힐스)이 Sometimes 그룹을 하나씩 갖고 있습니다.
+     다만 판당 경험치가 143·250 이라 쩔용은 아닙니다.
+     <span class="sm">그다음이 1.463%/틱(11.4분) 35곳 &mdash; 불타는 동굴·멜리오스의 숲 등.</span></div>
+
+  <h3>② 진짜 차이는 «부름» 입니다</h3>
+  <p>몬스터의 행동표에 <code>command = 97 (Call)</code> 짜리가 있으면 <b>같은 편을 불러냅니다</b>.
+     불려 나온 놈도 쓰러뜨리면 경험치가 그대로 들어옵니다.</p>
+  <div class="eq"><b>ActionPattern.CanExecute</b>   <span class="cmt">// 0x26c8a0c</span>
+  HP 창(minHpPercent ~ maxHpPercent) <b>and</b> turnInterval <b>and</b>
+  (frequency == Always ? 참 : <b>GetRandom() == frequency</b>)   <span class="cmt">// 패턴마다 따로 굴린다</span>
+
+<b>actionSelectType</b>   <span class="cmt">// 0x26c0d68</span>
+  <b>All(1)</b>    &rarr; 통과한 패턴을 <b>전부</b> 그 턴에 실행   <span class="cmt">// FindAll</span>
+  <b>Normal(0)</b> &rarr; 통과한 <b>첫 하나만</b></div>
+  <table class="t"><thead><tr><th></th><th>카샨 <span class="sm">Lv28</span></th><th>롱넥 글레이저 <span class="sm">Lv33</span></th></tr></thead><tbody>
+    <tr><td>actionSelectType</td><td><b>All(1)</b></td><td>Normal(0)</td></tr>
+    <tr><td>부름 패턴</td><td><b>2개</b> <span class="sm">(전열 · 후열)</span></td><td>1개 <span class="sm">(전열)</span></td></tr>
+    <tr class="hi"><td><b>HP 조건</b></td><td><b>0~100%</b> <span class="sm">언제나</span></td><td style="color:var(--f-vault)"><b>0~40%</b> <span class="sm">빈사일 때만</span></td></tr>
+    <tr><td>빈도</td><td>Usually <span class="sm">37.5%, 패턴마다 독립</span></td><td>Usually</td></tr>
+    <tr><td>부르는 대상</td><td><b>카샨</b> <span class="sm">자기 자신</span></td><td><b>롱넥 글레이저</b> <span class="sm">자기 자신</span></td></tr>
+    <tr class="hi"><td><b>턴당 부름 확률</b></td><td><b>1 &minus; 0.625² = 60.9%</b><br><span class="meta">3마리면 1 &minus; 0.625⁶ = <b>94.0%</b></span></td>
+      <td style="color:var(--f-vault)"><b>HP 40% 위에서는 0%</b><br><span class="meta">그 아래에서만 37.5%</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 «1~2턴 만에» 가 나옵니다.</b>
+     카샨 한 마리면 첫 부름까지 평균 <b>1.64턴</b>, 세 마리로 시작하는 그룹이면 <b>1.06턴</b> 입니다.
+     롱넥은 파티가 체력을 40% 아래로 떨어뜨리기 전까지 <b>확률이 정확히 0</b> 이라,
+     쩔 파티에서는 사실상 한 번도 안 봅니다.</div>
+  <div class="note warn"><b>★ 다만 부름은 «한 턴에 전투 전체 1마리» 가 상한입니다.</b>
+     <code>Battle.Action</code> 이 부름을 실행하기 전에
+     <code>BattleContext.IsThisTurnWithCalledMonster()</code> 를 보고,
+     이번 턴에 이미 불려 나온 것이 있으면 <b>그 부름을 버립니다</b>(실패 로그만 남습니다).
+     그러니 «턴당 기대 마릿수» 는 <b>«그 턴에 부름이 한 번이라도 걸릴 확률» 과 같고 1 을 못 넘습니다</b> &mdash;
+     카샨 3마리라도 <b>턴당 0.94마리</b>입니다.</div>
+  <div class="eq"><b>Battle.Action</b>   <span class="cmt">// 0x26bebb4</span>
+  cmp w8, #0x61                  <span class="cmt">// 97 = Call</span>
+  bl  IsThisTurnWithCalledMonster
+  tbz w8, #0, &lt;성공&gt;              <span class="cmt">// 거짓일 때만 소환한다</span>
+  &hellip; 실패 로그(0x54) 만 남기고 끝
+
+<b>술어</b>   <span class="cmt">// 0x26c69e8</span>  entry.turn == ctx.currentTurn</div>
+  <div class="note"><b>상한이 둘 더 있습니다.</b>
+     부름은 <b>같은 열의 생존 아군이 4 미만</b>일 때만 성공하고(전열 4 + 후열 4 = 동시 8마리),
+     전투가 <b>15턴</b>을 넘기면 무승부인데 <b>무승부는 경험치가 0</b> 입니다.
+     &mdash; 부름이 파티의 처치 속도를 넘어서면 <b>오히려 빈손으로 끝납니다</b>.</div>
+
+  <h3>③ 언제나 부르는 몬스터는 열한 종뿐입니다</h3>
+  <p>HP 조건이 <b>0~100%</b> 인 부름만 쩔에 쓸모가 있습니다. 전수로 세면 이렇습니다.</p>
+  <table class="t"><thead><tr><th>몬스터</th><th class="num">Lv</th><th>고르기</th><th class="num">턴당 부름</th><th class="num">불려 나오는 놈의 경험치</th></tr></thead><tbody>
+    <tr class="hi"><td><b>리치</b></td><td class="num">25</td><td>All</td><td class="num"><b>100%</b></td><td class="num"><b>4,101</b></td></tr>
+    <tr><td>킹스 레머넌트 <span class="sm">발케인 · 잠김</span></td><td class="num">35</td><td>All</td><td class="num">100%</td><td class="num">5,435</td></tr>
+    <tr><td>피 이끼</td><td class="num">14</td><td>All</td><td class="num">100%</td><td class="num">550</td></tr>
+    <tr><td>여왕 개미</td><td class="num">10</td><td>All</td><td class="num">75.6%</td><td class="num">296</td></tr>
+    <tr class="hi"><td><b>카샨</b></td><td class="num">28</td><td>All</td><td class="num"><b>60.9%</b></td><td class="num"><b>3,111</b></td></tr>
+    <tr><td>위스퍼 리프 · 붉은 개미</td><td class="num">9 · 5</td><td>Normal</td><td class="num">37.5%</td><td class="num">182 · 41</td></tr>
+    <tr><td>가짜 유물</td><td class="num">12</td><td>FromTop</td><td class="num">37.5%</td><td class="num">467</td></tr>
+    <tr class="hi"><td><b>아이스 핸드</b></td><td class="num">31</td><td>FromTop</td><td class="num">18.8%</td><td class="num"><b>4,012</b></td></tr>
+    <tr><td>고블린 드러머</td><td class="num">11</td><td>FromTop</td><td class="num">18.8%</td><td class="num">300</td></tr>
+    <tr><td>도적 용병</td><td class="num">14</td><td>Normal</td><td class="num">9.4%</td><td class="num">550</td></tr>
+    <tr><td colspan="5" style="color:var(--muted)"><b>열한 종 전부 «자기 자신» 을 부릅니다</b> &mdash;
+      불려 나온 놈도 똑같이 부르므로 자리만 비어 있으면 계속 채워집니다.
+      <b>롱넥 글레이저는 이 목록에 없습니다</b>(HP 0~40% 짜리라 빠졌습니다).</td></tr>
+  </tbody></table>
+
+  <h3>④ 쩔 시키기 좋은 탐색지 15곳</h3>
+  <p><b>한 판 = 전투 10턴</b>으로 잡고(무승부 한계 15턴 아래), <b>자유 탐색</b> 기준으로
+     <code>조우 경험치 + 부름 경험치&times;10턴</code> 을 평균 간격으로 나눈 값입니다.
+     <b>아직 못 가는 발케인 지방은 뺐습니다.</b></p>
+  <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th>
+    <th class="num">평균 간격</th><th class="num">조우 경험치<br><span style="font-weight:400">한 판</span></th>
+    <th class="num">부르는 놈</th><th class="num">시간당 경험치</th></tr></thead><tbody>
+    <tr class="hi"><td class="num">1</td><td><b>명실상부한 모래시계</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">7,778</td><td class="num"><b>카샨</b> <span class="sm">61%/턴</span></td><td class="num"><b>112,532</b></td></tr>
+    <tr class="hi"><td class="num">2</td><td><b>사디르의 묘표군</b></td><td>발두나의 황야</td><td class="num">25</td><td class="num">17.0분</td><td class="num">6,155</td><td class="num"><b>리치</b> <span class="sm">100%/턴</span></td><td class="num"><b>94,094</b></td></tr>
+    <tr class="hi"><td class="num">3</td><td><b>밀제아의 썩은 무덤</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">17.0분</td><td class="num">5,148</td><td class="num"><b>리치</b> <span class="sm">100%/턴</span></td><td class="num"><b>90,542</b></td></tr>
+    <tr class="hi"><td class="num">4</td><td><b>오목한 동굴</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">4,886</td><td class="num"><b>카샨</b> <span class="sm">61%/턴</span></td><td class="num"><b>84,156</b></td></tr>
+    <tr class="hi"><td class="num">5</td><td><b>루스벨 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">8,024</td><td class="num"><b>아이스 핸드</b> <span class="sm">19%/턴</span></td><td class="num"><b>52,381</b></td></tr>
+    <tr class="hi"><td class="num">6</td><td><b>라그네스 강창의 흔적</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">4,531</td><td class="num"><b>카샨</b> <span class="sm">61%/턴</span></td><td class="num"><b>49,446</b></td></tr>
+    <tr class="hi"><td class="num">7</td><td><b>그레스티아 묘지</b></td><td>칼레바스 고원</td><td class="num">33</td><td class="num">17.0분</td><td class="num">9,955</td><td class="num"><b>아이스 핸드</b> <span class="sm">19%/턴</span></td><td class="num"><b>48,410</b></td></tr>
+    <tr><td class="num">8</td><td><b>불타는 동굴</b></td><td>칼레바스 고원</td><td class="num">33</td><td class="num">11.4분</td><td class="num">8,449</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>44,512</b></td></tr>
+    <tr class="hi"><td class="num">9</td><td><b>겨울을 나기 위한 오두막들</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">8,522</td><td class="num"><b>아이스 핸드</b> <span class="sm">19%/턴</span></td><td class="num"><b>43,353</b></td></tr>
+    <tr class="hi"><td class="num">10</td><td><b>사카이카제의 돌 고리</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">8,356</td><td class="num"><b>아이스 핸드</b> <span class="sm">19%/턴</span></td><td class="num"><b>42,767</b></td></tr>
+    <tr><td class="num">11</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>42,480</b></td></tr>
+    <tr><td class="num">12</td><td><b>말레포트 강둑 유적</b></td><td>발두나의 황야</td><td class="num">29</td><td class="num">17.0분</td><td class="num">11,316</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>39,939</b></td></tr>
+    <tr><td class="num">13</td><td><b>브림갈 봉우리</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">10,860</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>38,329</b></td></tr>
+    <tr><td class="num">14</td><td><b>이스카르 유적</b></td><td>칼레바스 고원</td><td class="num">33</td><td class="num">17.0분</td><td class="num">10,709</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>37,796</b></td></tr>
+    <tr><td class="num">15</td><td><b>엘디아의 숲</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">10,213</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>36,046</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>1위와 15위가 3배 차이인데, 그 3배를 만드는 것은 거의 전부 «부름» 입니다.</b>
+     간격은 15곳 중 14곳이 17.0분으로 같고, 조우 경험치는 오히려 아래쪽이 더 높습니다
+     (도르감 단도 유적 12,036 대 명실상부한 모래시계 7,778).
+     <b>«한 판에 몇이 나오나» 가 아니라 «한 판이 얼마나 불어나나» 를 봐야 합니다.</b></div>
+  <div class="note"><b>고르는 법은 세 줄입니다.</b>
+     ① 그 탐색지 몬스터 중 <b>부름</b>을 가진 놈이 있는가 &mdash;
+     ② 그 부름의 HP 조건이 <b>0~100%</b> 인가(0~40%·0~50% 는 빈사 때만이라 쓸모없습니다) &mdash;
+     ③ <b>자기 자신</b>을 부르는가. 셋을 다 만족하면 자리가 빌 때마다 계속 채워집니다.</div>
+  <div class="note warn"><b>카샨을 너무 빨리 죽이지 마십시오.</b>
+     같은 열에 4마리가 차 있으면 더 안 불립니다 &mdash; 한 마리를 살려 두고 나머지를 치워
+     <b>자리를 계속 비워 주는</b> 편이 총량이 큽니다.
+     반대로 처치가 너무 느리면 15턴 무승부로 <b>경험치가 0</b> 이 되니, 그 사이를 맞춰야 합니다.</div>
+  <div class="note"><b>라펠 계곡이 나쁜 곳은 아닙니다 &mdash; 쩔용이 아닐 뿐입니다.</b>
+     조우 경험치만 보면 한 판 6,366 으로 중간쯤이고, 시간당으로는 <b>49위 · 22,468</b> 입니다.
+     1위 명실상부한 모래시계(112,532)와 <b>5.0배</b> 차이인데 그 차이가 전부 부름에서 나옵니다.</div>
+  <p class="src">AdventureMain.Run <span class="sm">(0x2720588 &mdash; 퀘스트 이벤트가 터지면 배회를 건너뜁니다)</span> &middot;
+     AdventureMain.GetWanderingMonsterGroup <span class="sm">(0x2721ad4)</span> &middot;
+     MonsterGroupExtensions.GetWanderingInterval <span class="sm">(0x26bdc24 · 표 @0xf89e9c)</span> &middot;
+     Util.RandSuccess <span class="sm">(0x276b4c4 &mdash; <code>Random.Range(0, iv) &lt; 1</code>)</span> &middot;
+     ActionPattern.CanExecute <span class="sm">(0x26c8a0c)</span> &middot;
+     BattleActionSelector.SelectActions <span class="sm">(0x26c0d68 &mdash; All / Normal 분기)</span> &middot;
+     Battle.Action <span class="sm">(0x26bebb4 &mdash; 턴당 1마리 상한)</span> &middot;
+     BattleSkill.CanUse <span class="sm">(0x26c4374 &mdash; 열당 4 미만)</span> &middot;
+     GameSettings.BattleDrawTurn <span class="sm">(15 &mdash; 무승부면 경험치 0)</span> &middot;
+     탐색지 344곳 · 몬스터 그룹 696개 · 몬스터 377종 전수</p>
 
   </div>
 
