@@ -415,7 +415,7 @@ var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{},
            party:"",sort:"",showLocked:false,fav:false};
 
 /* ── 즐겨찾기 ────────────────────────────────────────────────────────
-   퀘스트가 1364건이라 «내가 도는 것» 만 따로 보고 싶다. 브라우저에만 둔다. */
+   퀘스트가 1400건이 넘어 «내가 도는 것» 만 따로 보고 싶다. 브라우저에만 둔다. */
 var FAVKEY="tsa.fav.v1", FAV={};
 try{ (JSON.parse(localStorage.getItem(FAVKEY)||"[]")||[]).forEach(function(i){ FAV[i]=1; }); }catch(e){}
 function saveFav(){

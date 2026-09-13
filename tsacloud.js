@@ -23,6 +23,13 @@
   var VERIFIER_KEY = "tsa_pkce_v1";
   var DB_NAME = "tsa-cache";
 
+  /* ★ 데이터 판번호. build_cloud.py 가 full/*.json 과 mapimg 의 해시로 채워 넣는다.
+   *   캐시 키 앞에 붙여서, 데이터를 새로 올리면 «기기에 남은 옛 캐시가 저절로 버려진다».
+   *   이게 없던 동안 버킷은 새것인데 화면은 옛날 숫자인 상태가 조용히 유지됐다
+   *   (특히 fetchBlob 은 캐시가 있으면 아예 다시 안 받아서 지도 배경이 영영 안 바뀐다). */
+  var STAMP = "db2254c52109";
+  function ck(k) { return STAMP + "|" + k; }
+
   /* ── 저장 헬퍼 ─────────────────────────────────────────────────────── */
   function ls(k, v) {
     try {
@@ -41,7 +48,8 @@
       r.onerror = function () { rej(r.error); };
     });
   }
-  async function cacheGet(k) {
+  async function cacheGet(k0) {
+    var k = ck(k0);
     try {
       var db = await idb();
       return await new Promise(function (res) {
@@ -51,12 +59,31 @@
       });
     } catch (e) { return null; }
   }
-  async function cachePut(k, v) {
+  async function cachePut(k0, v) {
+    var k = ck(k0);
     try {
       var db = await idb();
       await new Promise(function (res) {
         var t = db.transaction("kv", "readwrite").objectStore("kv").put(v, k);
         t.onsuccess = t.onerror = function () { res(); };
+      });
+    } catch (e) { }
+  }
+
+  /* 판이 바뀌면 옛 판의 캐시를 지운다. 안 지우면 IndexedDB 가 판마다 쌓인다. */
+  async function cacheSweep() {
+    try {
+      var db = await idb();
+      var st = db.transaction("kv", "readwrite").objectStore("kv");
+      var req = st.getAllKeys();
+      await new Promise(function (res) {
+        req.onsuccess = function () {
+          (req.result || []).forEach(function (k) {
+            if (typeof k === "string" && k.indexOf(STAMP + "|") !== 0) st.delete(k);
+          });
+          res();
+        };
+        req.onerror = function () { res(); };
       });
     } catch (e) { }
   }
@@ -268,4 +295,6 @@
       return { ok: true, cleared: cleared, recorded: recorded };
     }
   };
+
+  cacheSweep();          /* 판이 바뀌었으면 옛 캐시를 여기서 버린다 */
 })();
