@@ -332,7 +332,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 <body>
 <div class="wrap">
   <nav class="topnav">
-<a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="builds.html">빌드</a>
+<a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="builds.html">빌드</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 세계와 용병단</p>
@@ -359,9 +359,9 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       <button id="v-town" type="button" aria-pressed="false">도시 시설</button>
       </div>
       <span class="seglab">도구</span>
-      <div class="seg" role="group" aria-label="도구 보기 전환">
-      <button id="v-calc" type="button" aria-pressed="false">뽑기 계산기</button>
-      <button id="v-stat" type="button" aria-pressed="false">능력치 계산기</button>
+      <div class="seg" role="group" aria-label="도구">
+      <a class="xtab" href="calc.html">용병 뽑기 계산기</a>
+      <a class="xtab" href="calc.html?v=stat">능력치 계산기</a>
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
@@ -803,6 +803,25 @@ function scRows(){
     return {k:label, base:base, job:jb3, gear:gp, sum:base+jb3+gp};
   });
 }
+/* 종족을 고르면 기본 능력치를 그 종족 기준값으로 채운다.
+   «새로 짤 때» 여덟 칸을 손으로 넣지 않아도 되게 하려는 것이다. */
+function raceOpts(){
+  var out='<option value="">&mdash; 직접 넣기</option>';
+  (D.races||[]).forEach(function(r){
+    if(r.lock && !state.showLocked) return;
+    var lb=r.race+" "+(r.man?"남":"여")+" (합 "+r.sum+")";
+    out+='<option value="'+esc(r.i)+'"'+(sc.race===r.i?" selected":"")+'>'+esc(lb)+'</option>';
+  });
+  return out;
+}
+function scSetRace(id){
+  sc.race=id;
+  var r=(D.races||[]).filter(function(x){ return x.i===id; })[0];
+  if(!r) return;
+  sc.base={}; SC_BASE.forEach(function(k){ sc.base[k]=(r.ab&&r.ab[k])||0; });
+  sc.elf = (r.race==="엘프");
+  sc.from = r.race+" "+(r.man?"남":"여")+" 기준값";
+}
 function scAgiFloor(a){
   if(a<1) return 0;
   var n = a<=8 ? 3 : (a<=30 ? (a*171>>9) : (a<=99 ? (a*205>>11) : (a>>4)));
@@ -830,6 +849,7 @@ function scLoad(id){
   sc.was={}; (c.jobs||[]).forEach(function(j){ sc.was[j.i]=j.lv||0; });
   var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
   sc.elf = !!(rc && rc.race==="엘프");
+  sc.race = rc ? rc.i : "";
   sc.slot={};
   // ★ c.eq 는 장비 «파일 GUID» 다 — D.gear 는 «에셋 이름» 으로 키를 쓴다.
   //   CREW.equips 를 거쳐야 한다. 안 거치면 장비가 하나도 안 실린다.
@@ -1131,7 +1151,10 @@ function statHTML(){
       +'<span class="meta">주직업은 하나만 셉니다 &mdash; 부직업과 계수가 다릅니다</span></div>'
     + subRows
     +'<div class="crow"><span class="lvlabel"></span><button type="button" class="mini" id="sc-subadd">부직업 추가</button></div>'
-    +'<div class="crow"><span class="lvlabel">기본 능력치</span><div class="statbox">'+baseRow+'</div></div>'
+    +'<div class="crow"><span class="lvlabel">종족</span><select id="sc-race">'+raceOpts()+'</select>'
+      +'<span class="meta">고르면 <b>기본 능력치가 그 종족의 기준값으로</b> 채워집니다 &mdash; 뽑을 때 더 받는 점수는 직접 얹으세요</span></div>'
+    +'<div class="crow"><span class="lvlabel">기본 능력치</span><div class="statbox">'+baseRow+'</div>'
+      +'<span class="meta">'+(sc.from? '<b>'+esc(sc.from)+'</b> 에서 가져왔습니다' : '종족을 고르거나 직접 넣으세요')+'</span></div>'
     + eqRows
     +'<div class="crow"><span class="lvlabel">내 착용 한도</span><span class="meta">'
       +'힘 <b>'+scPower()+'</b> · 최고 직업 레벨 <b>'+scMaxJobLv()+'</b> &mdash; '
@@ -1569,7 +1592,7 @@ lk.addEventListener("change",function(e){
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
 }); }
-var VIEWS=["job","race","skill","town","calc","map","stat"];
+var VIEWS=["job","race","skill","town","map"];
 function setView(v){
   state.view=v;
   VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
@@ -1620,6 +1643,7 @@ el("out").addEventListener("change",function(e){
   if(t.id==="c-bar"){ calc.bar=t.value; render(); return; }
   if(t.name==="c-sex"){ calc.sex=t.dataset.x; render(); return; }
   if(t.id==="sc-crew"){ if(t.value) scLoad(t.value); else { sc.from=""; } render(); return; }
+  if(t.id==="sc-race"){ scSetRace(t.value); render(); return; }
   if(t.id==="sc-main"){ sc.main=t.value; sc.mainLv=scClamp(t.value, sc.mainLv||0); render(); return; }
   if(t.dataset && t.dataset.slot!=null){
     if(t.value) sc.slot[t.dataset.slot]=t.value; else delete sc.slot[t.dataset.slot];
