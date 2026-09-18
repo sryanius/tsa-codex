@@ -754,22 +754,26 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      피한 것 중 최고 명중이 <b>48</b>, 맞은 것의 명중이 <b>49</b> &mdash;
      완봉선이 그 사이에 있습니다. <b>완봉선 = 48</b> 입니다.</div>
 
-  <h4>그래서 무엇이 모자랐나 &mdash; 회피값이 아니라 «민첩» 이었습니다</h4>
-  <div class="eq">완봉선 = 회피값 + &lfloor;CreateRandomValue(민첩)의 최솟값 &divide; 3&rfloor;
-          = 43 + <b>5</b>  (민첩 <b>20</b>)
-          = <b>48</b>        ← 글레이셜 리브의 명중 49 에 <b>1 모자랍니다</b></div>
-  <p>회피값 43 은 낮지 않습니다. <b>민첩 20 이 문제입니다</b> &mdash;
-     위 표에서 민첩 20 은 바닥에 <b>5</b> 밖에 안 얹어 주는데, 민첩 31 은 <b>9</b> 를 얹습니다.</p>
-  <table class="t"><thead><tr><th class="num">민첩</th><th class="num">바닥에 더해지는 값</th><th class="num">완봉선<br><span style="font-weight:400">회피값 43 그대로</span></th><th>글레이셜 리브(49)</th></tr></thead><tbody>
-    <tr style="color:var(--f-vault)"><td class="num">20 <span class="sm">지금</span></td><td class="num">5</td><td class="num">48</td><td><b>뚫립니다</b></td></tr>
-    <tr><td class="num">25</td><td class="num">6</td><td class="num">49</td><td>딱 막힙니다</td></tr>
-    <tr><td class="num">30</td><td class="num">7</td><td class="num">50</td><td>막힙니다</td></tr>
-    <tr class="hi"><td class="num"><b>31</b></td><td class="num"><b>9</b></td><td class="num"><b>52</b></td>
-      <td><b>Lv30+ 구간 최고 명중 51 까지 전부 막힙니다</b></td></tr>
-  </tbody></table>
-  <div class="note warn"><b>회피값을 1 올리는 것보다 민첩 30&rarr;31 이 훨씬 큽니다.</b>
-     회피값 +1 은 완봉선 +1 이지만, 민첩 30&rarr;31 은 <b>+2</b> 이고
-     민첩 20&rarr;31 은 <b>+4</b> 입니다. 회피탱은 <b>민첩부터</b> 봐야 합니다.</div>
+  <h4>★ 그런데 자료실의 «완봉 가능한 최대 명중» 이 틀렸습니다</h4>
+  <div class="note warn"><b>이 용병의 완봉선을 자료실은 <span style="color:var(--f-vault)">53</span> 으로 보여 줍니다 &mdash;
+     그런데 명중 49 에 실제로 맞았습니다.</b>
+     53 이 맞다면 49 에는 절대 안 맞아야 합니다. <b>계산식이 틀렸다는 뜻입니다.</b></div>
+  <p>게임 화면이 알려 준 이 용병의 실제 값은 <b>회피 능력 40 · 민첩 43</b>(기본 20 + 직업·장비 23)입니다.
+     자료실은 <code>회피값 + &lfloor;CreateRandomValue(민첩) 최솟값 &divide; 3&rfloor;</code> 로
+     <code>40 + 13 = 53</code> 을 냅니다. <b>나눗수가 3 이 아니라 6 이면 <code>40 + 6 = 46</code></b> 이고,
+     그 쪽은 실측과 모순이 없습니다.</p>
+  <div class="note"><b>지금 확정된 것과 아닌 것을 갈라 둡니다.</b>
+     <b>확정</b> &mdash; 이 용병의 완봉선은 <b>49 미만</b>입니다(로그가 직접 말합니다).
+     글레이셜 리브의 명중 <b>49</b> 는 <b>못 막습니다</b>.
+     <b>미확정</b> &mdash; 완봉선이 정확히 얼마인지, 즉
+     <code>CreateRandomValue</code> 의 <b>나눗수가 3 인지 6 인지</b>와
+     거기 들어가는 민첩이 <b>기본값(20)인지 장비 포함(43)인지</b>는 아직 가리는 중입니다.
+     <span class="sm">그 결과가 나오면 아래 &sect;8 의 민첩 표와 «Lv구간별 필요 회피값» 표도 같이 고칩니다.</span></div>
+  <div class="note warn"><b>그래서 처방은 «민첩» 이 아니라 «회피값» 입니다.</b>
+     네 후보 계산 중 어느 것을 쓰더라도 이 용병의 완봉선은 <b>45~46</b> 근처이고,
+     글레이셜 리브의 49 를 넘기려면 <b>회피값을 4~5 더</b> 올려야 합니다.
+     민첩으로 메우는 길은 나눗수가 확정되기 전에는 권하지 않습니다 &mdash;
+     ÷6 이면 민첩 6 당 회피 1 밖에 안 붙습니다.</div>
 
   <h4>나머지 7번은 «회피 판정 자체가 없어진» 경우였습니다</h4>
   <p>맞은 8번 중 <b>7번이 아이스 맨드레이크</b>(명중 37)였습니다 &mdash;
