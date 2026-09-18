@@ -235,6 +235,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   border:1px solid var(--line);border-radius:99px;background:var(--surface)}
 .toc a:hover{color:var(--ink);border-color:var(--accent)}
 .src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:8px 0 0}
+
+.dim{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:18px 0}
+.dim div{background:var(--surface);padding:10px 12px}
+.dim dt{font-size:11px;letter-spacing:.05em;color:var(--faint)}
+.dim dd{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:17px;color:var(--ink)}
+.dim dd span{font-size:11.5px;color:var(--muted);font-family:"IBM Plex Sans KR",sans-serif}
 </style>
 <div class="wrap">
   <nav class="topnav">
@@ -243,15 +250,595 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
     <h1>게임이 안 알려주는 계산식</h1>
-    <p class="lede">전부 설치된 APK에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서, 계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 추측이 섞인 곳은 그렇다고 적어 뒀습니다.</p>
+    <p class="lede">설치된 APK 에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서,
+      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다.</p>
+    <p class="lede" style="margin-top:10px"><b>여기는 «왜 그런가» 만 답합니다.</b>
+      무엇을 입고 무엇을 켤지는 <a href="builds.html">빌드</a> 에 있습니다.
+      식과 상수는 이 문서에 <b>한 벌만</b> 두고, 빌드는 결과값과 링크만 들고 갑니다.</p>
+    <dl class="dim">
+      <div><dt>몬스터</dt><dd>371 <span>/ 383</span></dd></div>
+      <div><dt>탐색지</dt><dd>330 <span>/ 354</span></dd></div>
+      <div><dt>퀘스트</dt><dd>1,425</dd></div>
+      <div><dt>장비</dt><dd>790 <span>방 326 · 무 464</span></dd></div>
+      <div><dt>직업</dt><dd>36 <span>/ 37</span></dd></div>
+      <div><dt>스킬</dt><dd>159 <span>배우는 것 37</span></dd></div>
+    </dl>
+    <p class="lede" style="margin-top:0;font-size:13px;color:var(--muted)">
+      앞의 수가 <b>지금 갈 수 있는 곳</b> 기준입니다 &mdash; 발케인 지방은 데이터만 실려 있고 아직 못 갑니다
+      (<code>LastMapLevel</code> 이 7 입니다). <b>본문에서는 분모를 다시 적지 않습니다.</b></p>
     <div class="toc">
-      <a href="#rep">평판</a><a href="#board">게시판</a><a href="#chest">금고</a><a href="#trap">함정</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#job">직업</a><a href="#avoid">명중·회피</a><a href="#pers">성격</a><a href="#tank">근접이 죽는 이유</a><a href="#magic">마법</a><a href="#farm">탐색지 쩔</a>
+      <a href="#dice">굴림</a><a href="#stat">수치</a><a href="#job">직업</a><a href="#pers">성격</a><a href="#hit">전투 ① 맞나</a><a href="#dmg">전투 ② 아픈가</a><a href="#magic">전투 ③ 마법</a><a href="#check">판정 한 틀</a><a href="#board">평판과 게시판</a><a href="#event">이벤트 추첨</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#farm">탐색지 쩔</a><a href="#va">부록 · 주소표</a>
     </div>
   </header>
 
   <div class="doc">
 
-  <h2 id="rep"><span class="n">1</span>평판</h2>
+  <h2 id="dice"><span class="n">1</span>굴림 &mdash; 게임이 쓰는 주사위는 다섯 개</h2>
+  <p>이 문서의 모든 «%» 와 «흔들림» 이 이 다섯에서 나옵니다. <b>한 번만 적어 둡니다</b> &mdash;
+     뒤 절에서는 이름만 부릅니다.</p>
+  <div class="eq"><b>Rand(a, b)</b>          a 이상 b <b>미만</b>. <i>상한은 안 나옵니다.</i>
+<b>Rand(n)</b>             0 이상 n 미만
+<b>RandSuccess(v)</b>      v% 로 성공. <i>자르지 않습니다 &mdash; 0 이면 절대, 100 이면 언제나.</i>
+<b>RandSuccess100(v)</b>   v% 로 성공하되 <b>2~98 로 자릅니다.</b>
+                     <i>그래서 «확률 0%» 도 «확률 100%» 도 없습니다.</i>
+<b>Dice2D()</b>            2d6 (2~12). 기댓값 7 &mdash; 몬스터에게는 이 <b>7 이 상수로</b> 들어갑니다.
+<b>Dice2DWithCritical(n)</b>  2d6 을 굴려 n 을 넘으면 <b>한 번 더 굴려 더합니다</b>(연쇄).
+                     단 첫 굴림이 <b>1+1 이면 &minus;100</b> &mdash; 대실패입니다.</div>
+  <div class="note warn"><b>★ <code>RandSuccess100</code> 의 2~98 자르기가 조용히 큰 값을 만듭니다.</b>
+     치명타 확률이 여기 걸려서, <b>치명 저항을 아무리 올려도 50 대에 한 번은 크리티컬이 들어옵니다.</b>
+     반대로 «절대 성공 못 하는» 판정도 2% 로 뚫립니다.</div>
+
+  <h3>흔들림 &mdash; <code>CreateRandomValue</code></h3>
+  <p>능력치는 그대로 안 쓰입니다. <b>기준값 언저리에서 한 번 흔들어</b> 씁니다.
+     흔들림 폭은 기준값 구간마다 다릅니다.</p>
+  <div class="eq">n = 기준값 &le; 8   →  3
+    기준값 &le; 30  →  &lfloor;기준 &times; 171 &divide; 512&rfloor;   <i>&asymp; 기준 &divide; 3</i>
+    기준값 &le; 99  →  &lfloor;기준 &times; 205 &divide; 2048&rfloor;  <i>&asymp; 기준 &divide; 10</i>
+    그 위        →  &lfloor;기준 &divide; 16&rfloor;
+
+<b>최솟값 = 기준값 &minus; (n &minus; 1)</b>     <i>폭이 좁아질수록 바닥이 올라갑니다</i></div>
+  <p>그리고 이 값이 능력치로 쓰일 때는 <b>거의 언제나 6 으로 나눕니다.</b>
+     회피 · 명중 · 금고 발견 · 금고 해제 · 함정 · 선제공격 &mdash; 전부 같은 나눗수입니다.</p>
+  <table><thead><tr><th class="num">기준값</th><th class="num">10</th><th class="num">15</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">32</th><th class="num">38</th><th class="num">45</th><th class="num">52</th></tr></thead><tbody>
+  <tr><td>흔들림 최솟값</td><td class="num">8</td><td class="num">11</td><td class="num">15</td><td class="num">18</td><td class="num">21</td><td class="num">29</td><td class="num">30</td><td class="num">35</td><td class="num">42</td><td class="num">48</td></tr>
+  <tr class="hi"><td><b>더해지는 몫</b> <span class="sm">&lfloor;최솟값 &divide; 6&rfloor;</span></td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">3</td><td class="num"><b>4</b></td><td class="num"><b>5</b></td><td class="num">6</td><td class="num">7</td><td class="num">8</td></tr>
+  </tbody></table>
+  <div class="note"><b>몫이 오르는 지점은 여기뿐입니다 &mdash; 그 사이는 올려도 안 바뀝니다.</b>
+     <code>8 · 16 · 25 · <b>31 · 32</b> · 38 · 45 · 52 · 58 · 65 · 72 · 78 · 85 · 92 · 98</code><br>
+     <b>31 과 32 가 연달아 있습니다.</b> 30 에서 멈추면 3, 31 이면 4, <b>32 면 5</b> 입니다 &mdash;
+     «31 만 찍으면 된다» 가 아니라 <b>32 까지 가야 두 칸을 다 챙깁니다.</b></div>
+  <div class="note warn"><b>★ 나눗수는 3 이 아니라 6 입니다.</b>
+     기계어가 <code>0x2AAAAAAB</code> 를 곱해 <b>상위 32비트만</b> 취합니다
+     (<code>smull</code> &rarr; <code>lsr x8, x8, #0x20</code>; <code>2<sup>32</sup> &divide; 0x2AAAAAAB = 6.000</code>).
+     ÷3 이었다면 <code>0xAAAAAAAB</code> 에 <code>#0x21</code> 이어야 합니다.
+     <b>8-26 · 7.0 · 7.1 세 판본 모두 같습니다</b> &mdash; 이 자료실이 한동안 3 으로 적어
+     회피 완봉선을 7 쯤 높게, 도감의 몬스터 회피를 최대 5 높게 내보내고 있었습니다.
+     지금은 <code>avoidcheck.py</code> 가 매 빌드마다 붙잡습니다.</div>
+  <p><b>능력치를 올려 사는 것은 비쌉니다.</b> 여섯을 올려야 몫이 1 오릅니다 &mdash;
+     회피값·명중값은 한 칸당 그대로 1 이므로, <b>거의 언제나 «값» 쪽이 쌉니다.</b>
+     능력치는 <b>계단 하나를 정확히 밟을 때만</b> 값어치가 있습니다.</p>
+
+  <h2 id="stat"><span class="n">2</span>수치 &mdash; 화면의 숫자가 어디서 나오나</h2>
+  <p>«상태» 화면의 값은 전부 <b>기본 + 직업 몫 + 장비</b> 입니다. 직업 몫은 하나의 식을 씁니다.</p>
+  <div class="eq"><b>직업 몫 = &lceil;주직업레벨 &times; 주보너스 &divide; 10&rceil; + &lceil;&Sigma;(부직업레벨 &times; 부보너스) &divide; 10&rceil;</b>
+
+<i>주직업은 하나만 (isCurrent 가 켜진 것 &mdash; 레벨 1등이 아닙니다)
+부직업은 가진 것을 전부 합쳐서 <b>한 번만</b> 올림합니다</i></div>
+  <div class="eq"><b>공격력</b>   = 무기 자체 + 직업 몫<i>&lowast;</i> + 강화
+<b>방어력</b>   = 방어구 합<i>(방패·부적 포함)</i> + 직업 몫 + 무기 AddDefense + <b>&lfloor;체력 &divide; 4&rfloor;</b>
+<b>명중률</b>   = 직업 몫 + <b>무기 종류표</b> + 조정 + 강화 + 방어구 몫
+           <i>무기가 없으면 «무기» 자리에 <b>주직업 레벨</b>이 들어갑니다</i>
+<b>크리티컬</b> = 직업 몫 + 무기 몫 + 방어구 몫
+           <i>무기 몫은 <b>전체 공격이면 &lfloor;&divide;4&rfloor;</b>, 후열 포함이면 &divide;3 으로 깎입니다</i>
+<b>회피</b>     = 직업 몫 + 장비 회피 + 강화
+<b>마법 방어</b> = 직업 몫 + 장비<i>(부적은 장비 레벨만큼)</i> + 강화
+
+<i>&lowast; <b>공격력 몫에만</b> «지금 든 무기를 들 수 있는 직업만 센다» 는 조건이 붙습니다.
+   명중률·회피·마법방어 몫에는 그 조건이 없습니다 &mdash; 전 직업이 들어갑니다.</i></div>
+  <table><thead><tr><th>무기 종류</th><th class="num">단검</th><th class="num">검</th><th class="num">대검</th><th class="num">도끼</th><th class="num">활</th><th class="num">창</th><th class="num">지팡이</th></tr></thead><tbody>
+  <tr><td>명중률에 더해지는 값</td><td class="num"><b>+1</b></td><td class="num">0</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&minus;1</td><td class="num">&minus;1</td><td class="num">&minus;2</td></tr>
+  <tr><td>크리티컬 기본값</td><td class="num"><b>10</b></td><td class="num">6</td><td class="num">5</td><td class="num">2</td><td class="num">7</td><td class="num">7</td><td class="num">0</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 전체 공격 무기는 크리티컬이 4분의 1 로 깎입니다.</b>
+     용맥의 단검은 기본 10 인데 전체 공격이라 실제로는 <b>2</b> 만 들어갑니다.
+     «전체 공격 + 높은 크리티컬» 은 데이터에 있어도 화면에는 안 나옵니다.</div>
+  <div class="note"><b>화면 값과 전투 값은 다릅니다.</b>
+     화면은 <b>범위의 양끝</b>(최소~최대)을 그대로 보여 주지만, 전투에서는
+     <code>Rand(최소, 최대)</code> 로 한 번 굴립니다 &mdash; <b>상한은 안 나옵니다</b>(&sect;1).
+     그리고 회피·명중은 여기에 <b>2d6 과 흔들림 몫</b>이 더 붙습니다.</div>
+  <p class="src">이 여섯 식은 <code>statcheck.mjs</code> 가 매 빌드마다 게임 화면에서 읽은 값과 맞춰 봅니다 &mdash;
+     한 항이라도 빠지면 배포가 섭니다. 실제로 체력 몫 · 무기 종류표 · 크리티컬 나눗수 셋이
+     조용히 빠져 있었습니다.</p>
+
+  <h2 id="job"><span class="n">3</span>직업 &mdash; 천장 · 경험치 · 낄 수 있는 것</h2>
+  <h3>천장은 «훈련소 강화 표의 길이» 입니다</h3>
+  <p>인위적인 상한이 따로 있는 게 아니라, <b>그 직업 훈련소의 표가 몇 줄인지</b> 가 곧 천장입니다.
+     표가 35줄이면 35 까지, 25줄이면 25 에서 멈춥니다.</p>
+  <table><thead><tr><th class="num">천장</th><th class="num">직업 수</th><th>누가</th></tr></thead><tbody>
+  <tr style="color:var(--muted)"><td class="num">40</td><td class="num">1</td><td>모래 환상 사수 <span class="sm">&mdash; 발케인에 있어 아직 잠김</span></td></tr>
+  <tr class="hi"><td class="num"><b>36</b></td><td class="num">1</td><td><b>모험가</b> <span class="sm">&mdash; 훈련소가 없고 «최고 훈련소 레벨 + 1» 입니다</span></td></tr>
+  <tr><td class="num">35</td><td class="num">7</td><td>도둑 · 레인저 · 마도병 · 목 베기 · 풍현사 · 순례 사제 · 현자</td></tr>
+  <tr><td class="num">30 이하</td><td class="num">28</td><td>나머지</td></tr>
+  </tbody></table>
+  <div class="note"><b>모험가는 «최고 훈련소 레벨 + 1» 입니다</b>(하한 2 · 전역 상한 99).
+     지금 닿을 수 있는 표 최대가 35 라 <b>36</b> 이고,
+     <b>발케인이 열려 모래 환상 사수(40)가 풀리면 모험가는 41 이 됩니다.</b></div>
+
+  <h3>여러 직업을 키우면 왜 급격히 느려지나</h3>
+  <div class="eq">필요 경험치 = (직업 레벨 + 1)<sup>2.5</sup> &times; 14
+            &times; (1 + (expLevel &minus; 1) &divide; 4)      <i>// 직업마다 다른 계수</i>
+            &times; <b>1.05<sup>(다른 직업 레벨의 합)</sup></b></div>
+  <p><b>다른 직업 레벨 1점마다 필요 경험치가 5%씩 복리로 붙습니다.</b>
+     합이 20이면 2.7배, 50이면 11.5배, 100이면 131배, 150이면 1,521배입니다.
+     보조로 조금씩 올려 둔 직업이 주직업의 성장을 그대로 눌러 버립니다.</p>
+  <div class="note warn"><b>현자와 모험가는 이 «합» 에 안 들어갑니다.</b>
+     <code>SumOtherJobLevels</code> 의 술어가 현자(202)와 모험가(0)를 빼고 셉니다.
+     그래서 이 둘은 <b>아무리 올려도 다른 직업을 비싸게 만들지 않습니다</b> &mdash;
+     경유 직업으로 놔둬도 손해가 없습니다.</div>
+  <div class="note"><b>★ 올리는 «순서» 가 총액을 바꿉니다.</b>
+     지수가 «지금까지 쌓인 합» 이라, <b>비싼 직업을 먼저</b> 올리고 싼 것을 나중에 붙이는 쪽이 쌉니다.
+     같은 목표 구성이 순서만 바꿔 <b>21.9M ↔ 19.4M</b> 로 갈립니다.</div>
+  <p>직업 계수도 큽니다 &mdash; 모험가 ×1.00, 초급 직업 ×1.25, <b>도둑 ×2.75</b>(최고), 레인저 ×2.50,
+     모래 환상 사수 ×2.00. <a href="meta.html?v=job">클래스 표</a> 에 전부 적어 뒀습니다.</p>
+
+  <h3>보너스는 어디서 사는 게 싼가</h3>
+  <p>같은 능력치를 주는 직업 중 <b>주/부 보너스가 큰 쪽</b>과 <b>천장이 높은 쪽</b>이 다릅니다.
+     부직업으로 쌓을 거면 «부 보너스 × 천장» 이 실제 값어치입니다.</p>
+  <table class="t"><thead><tr><th>무엇</th><th class="num">종수</th><th>주 &mdash; 가장 큰 쪽</th><th>부로 쌓을 때</th></tr></thead><tbody>
+  <tr class="hi"><td><b>회피</b></td><td class="num">12</td><td><b>도둑 7</b> <span class="sm">(Lv35)</span></td><td>도둑 3 · 마도병/마검사/숨은 칼날의 궁사/검술사 2</td></tr>
+  <tr><td>명중률</td><td class="num">31</td><td>전술병 · 스커미셔 · 검투사 10</td><td>전술병 5 <span class="sm">(Lv20)</span></td></tr>
+  <tr><td>통찰력</td><td class="num">13</td><td><b>현자 10</b> <span class="sm">(Lv35)</span></td><td>현자 5 &mdash; 압도적</td></tr>
+  <tr><td>방어력</td><td class="num">16</td><td>중도사 · 무장병 · 마도병 8</td><td><b>중도사 8</b> <span class="sm">(Lv25 · 주와 같음)</span></td></tr>
+  <tr><td>마법 방어</td><td class="num">16</td><td><b>순례 사제 8</b> <span class="sm">(Lv35)</span></td><td>순례 사제 4</td></tr>
+  <tr><td>민첩</td><td class="num">15</td><td><b>풍현사 10</b> <span class="sm">(Lv35)</span></td><td>풍현사 5</td></tr>
+  <tr><td>방패 회피</td><td class="num">8</td><td>검술사 5 <span class="sm">(Lv15)</span></td><td>검술사 2 &mdash; 천장이 낮습니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>회피 몫에는 무기 조건이 없습니다</b>(&sect;2) &mdash;
+     그래서 회피 보너스가 있는 열두 직업을 <b>전부 부직업으로 쌓을 수 있습니다.</b>
+     공격력 몫만 «지금 든 무기를 들 수 있는 직업» 으로 걸러집니다.</div>
+
+  <h3>낄 수 있는 것 &mdash; 요구 레벨과 무기 종류</h3>
+  <div class="eq"><b>요구 레벨</b>은 «가진 직업 중 가장 높은 하나» 와 견줍니다.
+  <i>합이 아니라 최댓값입니다 &mdash; 모험가가 열쇠인 이유입니다(항상 최고 +1).</i>
+
+<b>낄 수 있는 무기</b>는 <b>주직업의 목록만</b> 봅니다.
+  <i>부직업이 무엇을 들 수 있든 상관없습니다.</i>
+  ★ 단 <b>종족이 풋워커면 «활» 이 하나 더 붙습니다.</b></div>
+  <div class="note warn"><b>★ 풋워커는 주직업이 못 드는 무기여도 활을 낍니다.</b>
+     그래서 <b>단검 전용인 마검사를 주직업으로 두고도 활이 끼워집니다.</b>
+     게임 «상태» 화면에서도 장착 아이콘이 주직업 목록보다 하나 많게 뜹니다.
+     <span class="sm">Race: 휴먼 0 · 드워프 1 · 엘프 2 · <b>풋워커 3</b></span><br>
+     활을 드는 값어치는 회피가 아니라 <b>반사를 안 받는 것</b>입니다(<a href="#dmg">&sect;6</a>).</div>
+
+  <h2 id="pers"><span class="n">4</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
+  <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
+  <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
+  <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num">30%</td><td class="num">+3</td><td class="num">+Rand(3)</td></tr>
+  <tr><td><b>이기적</b></td><td class="num">24</td><td class="num">50%</td><td class="num">30%</td><td class="num">+2</td><td class="num">+Rand(2)</td></tr>
+  <tr><td><b>사교적</b></td><td class="num">16</td><td class="num">50%</td><td class="num">20%</td><td class="num">&minus;1</td><td class="num">&mdash;</td></tr>
+  <tr><td><b>신중한</b></td><td class="num">8</td><td class="num"><b>70%</b></td><td class="num">5%</td><td class="num">0</td><td class="num">&mdash;</td></tr>
+  <tr><td><b>합리적</b></td><td class="num">14</td><td class="num">60%</td><td class="num">15%</td><td class="num">+3</td><td class="num">&mdash;</td></tr>
+  <tr><td><b>신경질적</b></td><td class="num">12</td><td class="num">60%</td><td class="num">20%</td><td class="num">&minus;1</td><td class="num">0</td></tr>
+  <tr><td><b>감정적</b></td><td class="num">7&ndash;29<br><span style="font-size:11px;color:var(--faint)">매번 다시 굴림</span></td><td class="num">50%</td><td class="num">30%</td><td class="num">+1</td><td class="num">0</td></tr>
+  </tbody></table>
+  <p class="src">Party.GetRetreatThreshold &middot; BattleSkill.CanUse &middot; Character.GetShoutRate &middot; Party.LeaderBonus &middot; InviteAdventureDialog.TapInviteButton</p>
+
+  <h3>★ 어떤 성격이 나오는가 &mdash; 종족과 성별이 정합니다</h3>
+  <p>성격은 <b>뽑을 때 한 번</b> 정해지고 그 뒤로 바뀌지 않습니다
+     (<code>Character.personality</code> 에 쓰는 곳이 <code>CreateParam</code> 하나뿐입니다).
+     고르는 방식은 «칸 뽑기»입니다 &mdash; 캐릭터 마스터마다 <b>성격 칸 목록</b>이 있고
+     거기서 <b>균등 추첨</b>합니다.</p>
+  <div class="eq">personality = personalities[ <b>Random.Range(0, personalities.Count)</b> ]</div>
+  <div class="note"><b>같은 성격이 여러 칸 들어 있으면 그만큼 확률이 높습니다.</b>
+     마스터는 <b>18종</b>뿐이고(종족 4 &times; 성별 2, 휴먼만 5단계) 칸 수는 6 또는 7 입니다.</div>
+  <table class="t"><thead><tr><th>마스터</th><th class="num">칸</th>
+    <th class="num">무모한</th><th class="num">이기적</th><th class="num">사교적</th><th class="num">신중한</th>
+    <th class="num">합리적</th><th class="num">신경질적</th><th class="num">감정적</th></tr></thead><tbody>
+    <tr><td>휴먼 남 1~5 · 여 1~5 <span class="sm">(10종)</span></td><td class="num">7</td>
+      <td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td></tr>
+    <tr><td><b>드워프 남</b> 1·2</td><td class="num"><b>6</b></td>
+      <td class="num"><b>1/6</b></td><td class="num"><b>3/6</b></td><td class="num">&middot;</td><td class="num">1/6</td>
+      <td class="num">&middot;</td><td class="num">&middot;</td><td class="num">1/6</td></tr>
+    <tr class="hi"><td><b>드워프 여</b> 1·2</td><td class="num">7</td>
+      <td class="num"><b>&middot;</b></td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">1/7</td><td class="num">&middot;</td><td class="num"><b>3/7</b></td></tr>
+    <tr><td>엘프 남</td><td class="num">7</td>
+      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">&middot;</td><td class="num">2/7</td><td class="num">2/7</td></tr>
+    <tr><td>엘프 여</td><td class="num">7</td>
+      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
+      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">3/7</td></tr>
+    <tr><td>풋워커 남</td><td class="num">7</td>
+      <td class="num">1/7</td><td class="num">2/7</td><td class="num">&middot;</td><td class="num">&middot;</td>
+      <td class="num">1/7</td><td class="num">1/7</td><td class="num">2/7</td></tr>
+    <tr><td>풋워커 여</td><td class="num">7</td>
+      <td class="num">&middot;</td><td class="num">2/7</td><td class="num">1/7</td><td class="num">&middot;</td>
+      <td class="num">2/7</td><td class="num">1/7</td><td class="num">1/7</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>무모한이 아예 안 나오는 쪽이 넷 있습니다</b> &mdash;
+     <b>드워프 여 · 엘프 남 · 엘프 여 · 풋워커 여</b>. 칸에 없으니 0% 입니다.
+     후퇴를 안 하는 리더(무모한)를 찾는다면 <b>휴먼(1/7) · 드워프 남(1/6) · 풋워커 남(1/7)</b>
+     세 곳에서만 나옵니다.</div>
+  <div class="note"><b>드워프 남자는 절반이 이기적입니다</b> &mdash; 6칸 중 3칸.
+     드워프 여자는 <b>감정적이 3/7</b> 이고, 엘프도 감정적·신경질적으로 몰려 있습니다.
+     감정적은 후퇴 기준점을 <b>매번 7~29 로 다시 굴리는</b> 성격이라 리더로는 예측이 안 됩니다(아래).</div>
+  <p class="src">CharacterMaster.personalities <span class="sm">(마스터 18종 전수)</span> &middot;
+     Character.CreateParam &middot;
+     ListExtensions.Random</p>
+
+  <h3>후퇴 &mdash; 리더의 성격만 봅니다</h3>
+  <p>후퇴는 <b>리더 한 명의 성격</b>으로 정해집니다. 나머지 파티원의 성격은 여기에 아무 영향이 없습니다. 방식은 «점수 적립»입니다 &mdash; 사건이 하나 끝날 때마다 파티에 <b>후퇴 점수</b>가 쌓이고, 그 합이 기준점에 닿는 순간 되돌아섭니다.</p>
+  <div class="eq">A = 살아 있는 인원 &nbsp; N = 전체 인원
+
+무모한   &rarr; int.MaxValue          <i>// 사실상 없음 — 전멸까지 안 돌아선다</i>
+이기적   &rarr; N == 1 ? 30 : 24
+사교적   &rarr; N &lt;  2 ? 2  : A &times; 4
+신중한   &rarr; A &gt;  1 ? A &times; 2 : 3
+합리적   &rarr; A &ge;  2 ? A &times; 3 + 2 : 3
+신경질적 &rarr; A == 1 ? 4  : A &times; 3
+감정적   &rarr; Rand(7, 30)          <i>// 판정할 때마다 새로 굴린다</i>
+
+리더가 죽어 있으면 &rarr; 0  <i>// 다음 사건에서 바로 돌아선다</i></div>
+  <div class="note warn"><b>기준점은 살아 있는 인원에 비례합니다.</b> 한 명 죽으면 기준점 자체가 내려가서, 남은 점수로도 곧바로 넘길 수 있습니다 &mdash; 무너지기 시작하면 가속이 붙습니다. 무모한 리더만 이 사다리 밖에 있습니다.</div>
+  <h3>★ 혼자 갈 때 &mdash; «이기적» 에 전용 분기가 있습니다</h3>
+  <p>위 식에서 <b>N</b>(전체 인원)을 보는 성격이 <b>둘</b>뿐인데, 방향이 정반대입니다.
+     나머지는 <b>A</b>(살아 있는 수)에만 비례하므로 <b>A = 1 에서 3~4 로 주저앉습니다</b>.</p>
+  <table class="t"><thead><tr><th>성격</th><th class="num">혼자일 때<br>후퇴 기준점</th><th class="num">4인</th>
+    <th class="num">리더 보너스<br><span style="font-weight:400">금고 발견</span></th>
+    <th class="num">자기 회복<br><span style="font-weight:400">이 HP 이하에</span></th></tr></thead><tbody>
+    <tr><td><b>무모한</b></td><td class="num"><b>&infin;</b> <span class="sm">안 돌아섭니다</span></td><td class="num">&infin;</td><td class="num"><b>+3</b></td><td class="num">50%</td></tr>
+    <tr class="hi"><td><b>이기적</b></td><td class="num"><b>30</b> <span class="sm">← 전용 분기</span></td><td class="num">24</td><td class="num">+2</td><td class="num">50%</td></tr>
+    <tr class="hi"><td><b>합리적</b></td><td class="num">3</td><td class="num">14</td><td class="num"><b>+3</b></td><td class="num"><b>60%</b></td></tr>
+    <tr><td>감정적</td><td class="num">7~29 <span class="sm">매번 다시</span></td><td class="num">7~29</td><td class="num">+1</td><td class="num">50%</td></tr>
+    <tr><td>신경질적</td><td class="num">4</td><td class="num">12</td><td class="num">&minus;1</td><td class="num">60%</td></tr>
+    <tr><td>신중한</td><td class="num">3</td><td class="num">8</td><td class="num">0</td><td class="num"><b>70%</b></td></tr>
+    <tr><td>사교적</td><td class="num"><b>2</b> <span class="sm">← 전용 분기</span></td><td class="num">16</td><td class="num">&minus;1</td><td class="num">50%</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>리더 보너스는 «혼자» 일 때 가장 크게 작용합니다.</b>
+     리더가 자기 자신이라 금고 <b>발견</b> 판정에 그대로 들어가고,
+     게다가 <b>발견의 통찰 보너스는 «도둑 레벨 + 리더 보너스 &ge; 1» 일 때만 붙습니다</b>(<a href="#check">&sect;3</a>).
+     도둑을 안 키운 캐릭터라면 <b>사교적(&minus;1) · 신경질적(&minus;1) · 신중한(0)</b> 은
+     <b>통찰이 아무리 높아도 0 으로 굴립니다</b>. 감정적(+1)은 턱걸이로 살아납니다.</div>
+  <div class="note"><b>그래서 «무모한» 일 필요는 없습니다.</b> 혼자 가는 캐릭터에게 필요한 것은
+     «절대 안 돌아서는 것» 이 아니라 <b>«퀘스트 하나를 버티는 것»</b> 입니다.
+     퀘스트 하나의 사건이 <b>19개 안팎</b>이고 사건마다 붙는 점수가 보통 <b>0~1</b> 이므로,
+     <b>기준점 30 이면 한 판을 넉넉히 넘깁니다</b>.</div>
+  <div class="note warn"><b>무모한은 혼자일 때 위험합니다.</b> 기준점이 <code>int.MaxValue</code> 라
+     <b>HP 가 바닥나도 돌아서지 않습니다</b>. 파티였다면 남은 사람이 있지만 혼자면 그대로 쓰러지고,
+     캐릭터에는 <b>구출 비용</b>(<code>rescueCost</code>)과 <b>잃은 장비</b>(<code>lostEquipments</code>)가
+     따로 기록됩니다. 이득은 리더 보너스 +3 뿐인데(이기적은 +2) 값이 안 맞습니다.</div>
+  <div class="note"><b>«무모한» 이 안 나오는 종족에서는 «합리적» 이 그 자리입니다.</b>
+     드워프 여 · 엘프 남녀 · 풋워커 여에게는 무모한 칸이 없는데(위 &laquo;어떤 성격이 나오는가&raquo;),
+     <b>합리적이 리더 보너스 +3 으로 무모한과 같고</b> 회복도 60% 로 한 칸 빠릅니다.
+     약점은 <b>후퇴 기준점 3</b> 하나뿐입니다.</div>
+  <div class="note"><b>그 3 이 문제가 되느냐는 «맞느냐» 에 달렸습니다.</b>
+     아래 &laquo;실제로 점수를 굴리는 사건&raquo; 에서 보듯, 한 대도 안 맞고 상태이상도 안 걸리면
+     점수가 <b>0 으로 고정</b>이라 기준점이 3이든 30이든 안 닿습니다.
+     반대로 상태이상을 자주 받는 자리라면 <b>이기적(30)</b> 이나 <b>감정적(최소 7)</b> 의 여유가 필요합니다.</div>
+  <table class="t"><thead><tr><th>혼자 보낼 캐릭터라면</th><th>고를 것</th></tr></thead><tbody>
+    <tr class="hi"><td><b>회피탱</b> &mdash; 물리를 거의 안 맞음</td>
+      <td><b>합리적</b> <span class="sm">(리더 +3 · 회복 60%)</span>.
+        무모한이 나오는 종족이면 무모한도 같지만 <b>죽을 때까지 안 돌아서는</b> 위험이 붙습니다</td></tr>
+    <tr><td><b>맞아 가며 버티는 자리</b> · 상태이상을 자주 받음</td>
+      <td><b>이기적</b> <span class="sm">(30)</span> &gt; <b>감정적</b> <span class="sm">(최소 7 · 리더 +1)</span></td></tr>
+    <tr style="color:var(--faint)"><td>피할 것</td><td><b>사교적</b> &mdash; 기준점 2 에 리더 &minus;1 로 양쪽 다 최악입니다</td></tr>
+  </tbody></table>
+  <div class="note"><b>궁합은 혼자일 때 아예 안 돕니다.</b>
+     <code>CheckCompatibility</code> 는 <b>상대 캐릭터</b>를 받는 함수라 파티에서만 굴러갑니다 &mdash;
+     «이기적이라 파티가 껄끄럽다» 는 <b>키우는 동안</b>의 문제이고, 쏠플 중에는 아무 영향이 없습니다.</div>
+  <p class="src">Party.GetRetreatThreshold <span class="sm"></span></p>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">점수가 붙는 자리</h4>
+  <p>퀘스트 이벤트마다 <code>retreatCondition</code> 이 달려 있고, 그 값이 <b>None</b> 이면 그 사건은 점수를 안 만듭니다. 값이 있을 때만 아래를 굴립니다.</p>
+  <table><thead><tr><th>조건</th><th>붙는 점수</th></tr></thead><tbody>
+  <tr><td><b>IfBattleOrTrap</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">전투·함정·금고 이벤트에서만</span></td><td>사건 중 <b>죽은 사람마다 +5</b><br>최대 MP 5 이상인 사람의 MP가 줄고, 그 결과 최대의 &frac14; 이하가 되면 +1<br>HP가 사건 직전의 절반 미만이면 +1 &mdash; 아니면 MP가 절반 미만일 때 +1</td></tr>
+  <tr><td><b>Happen</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">사건 종류를 안 가림</span></td><td><code>clamp((퀘스트 레벨 &minus; 파티 평균 레벨) &times; 10 + 50, 5, 95)</code>% 로 +1</td></tr>
+  <tr><td colspan="2" style="color:var(--muted)"><b>그리고 두 조건 모두 공통으로</b> &mdash; HP가 최대의 &frac13; 미만이거나 상태이상이 하나라도 걸린 사람마다,<br>&nbsp;&nbsp;&middot; 이번 사건으로 HP가 줄었으면 +1<br>&nbsp;&nbsp;&middot; 새로 걸린 상태이상 <b>개수만큼</b> +N</td></tr>
+  </tbody></table>
+  <p>점수는 <b>퀘스트 내내 누적</b>됩니다. 초반에 크게 다치면 그 점수를 안고 끝까지 갑니다.</p>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">★ 실제로 점수를 굴리는 «사건» 은 생각보다 적습니다</h4>
+  <p><code>IfBattleOrTrap</code> 은 조건이 붙어 있다고 굴리는 것이 아닙니다 &mdash;
+     <b>이벤트 종류가 전투·금고·함정일 때만</b> 굴립니다(<code>kind == 11 · 70 · 80</code>).
+     퀘스트 이벤트의 절반이 넘는 <b>메시지</b>는 조건이 붙어 있어도 <b>0점</b>입니다.</p>
+  <table class="t"><thead><tr><th>이벤트 종류</th><th class="num">전체 개수</th><th>점수를 굴리나</th></tr></thead><tbody>
+    <tr style="color:var(--muted)"><td>메시지</td><td class="num">15,184</td><td><b>안 굴립니다</b> &mdash; 조건은 붙어 있지만 종류가 안 맞습니다</td></tr>
+    <tr class="hi"><td><b>전투</b></td><td class="num">5,885</td><td>굴립니다</td></tr>
+    <tr class="hi"><td><b>함정</b></td><td class="num">1,470</td><td>굴립니다</td></tr>
+    <tr class="hi"><td><b>금고</b></td><td class="num">1,194</td><td>굴립니다</td></tr>
+    <tr><td>동굴 진입·탈출 · 금화 · 아이템</td><td class="num">2,974</td><td>굴립니다</td></tr>
+    <tr><td colspan="3" style="color:var(--muted)"><b>Happen</b>(<code>retreatCondition == 2</code> &mdash; 종류를 안 가리는 확률 조항)은
+      <b>992개(3.7%)</b> 뿐이고,
+      <b>퀘스트 1425개 중 814개(58%)는 Happen 이 하나도 없습니다</b> &mdash; 퀘스트당 중앙값 <b>0개</b>.
+      <span class="sm">퀘스트 1425개 · 이벤트 26,707개 전수 (7.0)</span></td></tr>
+  </tbody></table>
+  <div class="eq">Happen 확률 = clamp( (<b>퀘스트 난이도 &minus; 파티 평균 레벨</b>) &times; 10 + 50 , <b>5</b> , 95 )%
+
+⇒ 평균 레벨이 난이도보다 <b>4.5 이상 높으면 5% 하한</b>에 눌립니다.</div>
+
+  <h4 style="font-size:13px;margin:20px 0 8px">★ 그래서 «안 맞으면» 점수가 거의 안 쌓입니다</h4>
+  <p>전투·금고·함정 이벤트에서 점수가 붙는 네 자리를 <b>한 대도 안 맞은 캐릭터</b>로 따져 보면 이렇습니다.</p>
+  <table class="t"><thead><tr><th>붙는 조건</th><th>안 맞았다면</th></tr></thead><tbody>
+    <tr><td>죽은 사람마다 <b>+5</b></td><td class="num">0</td></tr>
+    <tr><td>최대 MP <b>5 이상</b>인데 MP 가 줄고 최대의 &frac14; 이하 &rarr; +1</td><td class="num">0 <span class="sm">(최대 MP 가 5 미만이면 아예 건너뜁니다)</span></td></tr>
+    <tr><td>HP 가 사건 직전의 <b>절반 미만</b> &rarr; +1 &mdash; 아니면 MP 가 절반 미만일 때 +1</td><td class="num">0</td></tr>
+    <tr class="hi"><td><b>공통</b> &mdash; <b>HP 가 최대의 &frac13; 미만이거나 상태이상이 하나라도 있을 때만</b> 열립니다.
+      열리면 HP 가 줄었으면 +1, <b>새로 걸린 상태이상 개수만큼 +N</b></td>
+      <td class="num"><b>상태이상만 조심</b></td></tr>
+  </tbody></table>
+  <div class="note"><b>회피로 물리를 완봉하면 후퇴 점수가 거의 안 쌓입니다.</b>
+     그러면 <b>기준점이 3이든 30이든 닿지 않습니다</b> &mdash; 성격이 사실상 무관해집니다.
+     혼자 갈 때 «이기적» 을 억지로 맞출 필요도 그만큼 줄어듭니다.</div>
+  <div class="note warn"><b>구멍은 «상태이상» 입니다.</b>
+     회피는 <b>물리 공격에만</b> 통합니다(<a href="#hit">&sect;8</a> &mdash;
+     <code>AvoidRate</code> 를 부르는 곳이 <code>PhysicsAttack</code> 한 곳뿐입니다).
+     마법도 상태이상도 회피 판정을 안 거치므로, 한 번 걸리면 공통 조항이 열리고
+     <b>걸린 개수만큼</b> 점수가 붙습니다. 함정(<a href="#check">&sect;4</a>)도 회피와 별개 규칙입니다.</div>
+  <p class="src">AdventureMain.EvaluateLeaderRetreat &middot; Party.AddRetreatPoint &middot; Party.StartReturning</p>
+
+  <h3>회복 마법을 언제 쓰는가</h3>
+  <p>회복 주문의 설명문에 «시전자의 성격에 따라 사용 타이밍이 달라집니다» 라고 적혀 있는 그 부분입니다. <b>시전자</b>의 성격이 기준선을 올립니다.</p>
+  <div class="eq">T = min(스킬의 healTiming + 성격 보정, 8)
+  신중한 +2 &nbsp;&middot;&nbsp; 합리적 +1 &nbsp;&middot;&nbsp; 신경질적 +1 &nbsp;&middot;&nbsp; 나머지 +0
+
+대상으로 고른다  &hArr;  HP &le; 최대 HP &times; T / 10
+              또는  HP == 1
+              또는  잃은 HP &gt; (마법력 + (최소회복+최대회복)/2) &minus; 2</div>
+  <p><b>게임 안의 모든 스킬이 <code>healTiming = 5</code> 입니다</b> (152건 전수). 그래서 실질적으로 성격만 남습니다 &mdash; <b>신중한 70% · 합리적/신경질적 60% · 나머지 50%</b>. 상한 8(80%)에는 어떤 조합으로도 닿지 않습니다.</p>
+  <div class="note"><b>힐러는 신중한이 가장 빠릅니다.</b> 다른 성격의 힐러는 HP가 절반으로 떨어질 때까지 기다립니다 &mdash; 한 방에 절반 넘게 맞는 구간에서는 그 차이가 그대로 사망으로 이어집니다. 마지막 줄(«잃은 HP가 회복량보다 크면») 덕분에 최대 HP가 큰 캐릭터는 기준선 위에서도 힐을 받습니다.</div>
+  <p class="src">BattleSkill.CanUse &middot; SkillMaster.healTiming [Range(2,8)]</p>
+
+  <h3>전투 중 대사</h3>
+  <p><code>GetShoutRate()</code> 는 <b>대사 출력 확률</b>입니다 &mdash; 크리티컬을 냈을 때, 그리고 몬스터의 정체를 간파했을 때 말풍선이 뜰 확률. 행동 자체는 바꾸지 않습니다. 신중한(5%)은 거의 말이 없고 무모한·이기적·감정적(30%)은 시끄럽습니다.</p>
+
+  <h3>궁합 &mdash; 그리고 코드에 남은 버그</h3>
+  <p>친밀도가 오르내릴 때 성격 궁합이 배수로 곱해집니다. <b>«잘 맞음»을 먼저 보고, 아니면 «안 맞음»을 봅니다.</b></p>
+  <table><thead><tr><th>판정</th><th class="num">친밀도가 오를 때</th><th class="num">내릴 때</th></tr></thead><tbody>
+  <tr><td>잘 맞음</td><td class="num"><b>&times;1.5</b></td><td class="num">&times;0.8</td></tr>
+  <tr><td>안 맞음</td><td class="num">&times;0.3</td><td class="num"><b>&times;2.0</b></td></tr>
+  <tr><td>둘 다 아님</td><td class="num">&times;1.0</td><td class="num">&times;1.0</td></tr>
+  </tbody></table>
+  <table><thead><tr><th>내 성격</th><th>잘 맞음</th><th>안 맞음 (코드)</th><th>실제로 도는가</th></tr></thead><tbody>
+  <tr><td><b>무모한</b></td><td>감정적</td><td>이기적 · 신중한 · 신경질적</td><td>둘 다 산다</td></tr>
+  <tr><td><b>이기적</b></td><td>무모한 · 합리적</td><td>신중한 · 신경질적 · 감정적</td><td>둘 다 산다</td></tr>
+  <tr><td><b>사교적</b></td><td>이기적 · 감정적</td><td>이기적 · 감정적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>신중한</b></td><td>합리적 · 신경질적</td><td>합리적 · 신경질적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>합리적</b></td><td>이기적 · 신중한 · 신경질적</td><td>신중한 · 신경질적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>신경질적</b></td><td>신중한 · 합리적</td><td>신중한 · 합리적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  <tr><td><b>감정적</b></td><td>무모한 · 사교적</td><td>무모한 · 사교적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>일곱 중 다섯은 «잘 맞음»과 «안 맞음»의 목록이 완전히 같습니다.</b> <code>IsGood</code> 을 먼저 보기 때문에, 그 다섯 성격에게 <code>IsBad</code> 는 한 번도 실행되지 않습니다. 합리적의 «안 맞음»(신중한·신경질적)도 «잘 맞음»에 통째로 들어 있어서 마찬가지입니다. <b>실제로 «안 맞음»이 도는 건 무모한과 이기적, 둘뿐입니다.</b> 두 함수의 <code>switch</code> 가지가 한 칸씩 어긋나 있는 모양이라, 게임 쪽 실수로 보입니다.</div>
+  <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
+  <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
+
+
+  <h2 id="hit"><span class="n">5</span>전투 ① &mdash; 맞나 안 맞나</h2>
+  <div class="note"><b>맞느냐 빗나가느냐는 값 비교입니다. 확률이 아닙니다.</b>
+     <code>회피 &ge; 명중 + 2</code> 면 <b>무조건</b> 빗나갑니다.</div>
+  <p>그리고 <b>몬스터 쪽에는 주사위가 없습니다.</b> 캐릭터만 2d6 을 굴립니다 &mdash;
+     그래서 «회피가 얼마면 한 대도 안 맞나» 에 정확한 답이 나옵니다.</p>
+  <div class="eq"><b>몬스터</b> (고정값)
+  명중 = 몬스터 레벨 + hitPoint + <b>7</b>
+  회피 = 몬스터 레벨 + avoidPoint + &lfloor;민첩 &divide; 6&rfloor; + 5   (+2 비행)
+
+<b>캐릭터</b> (굴림)
+  명중 = <b>2d6</b> + &lfloor;흔들림(재주) &divide; 6&rfloor; + 명중값 + 지형 + 상태
+  회피 = <b>2d6</b> + &lfloor;흔들림(민첩) &divide; 6&rfloor; + 회피값 + 지형 + 상태
+         <i>(상대가 비행 몬스터이고 내가 활을 들었으면 +3)</i></div>
+  <p>여기 <b>7</b> 은 2d6 의 기댓값(&sect;1)을 몬스터에게 상수로 준 것입니다.</p>
+
+  <h3>완봉선 &mdash; 그 명중까지는 한 대도 안 맞습니다</h3>
+  <p>2d6 의 최솟값 2 와 빗나가는 문턱 «+2» 가 정확히 상쇄됩니다. 남는 것은 이 한 줄입니다.</p>
+  <div class="eq"><b>완봉선 = 회피값 + &lfloor;흔들림 최솟값(민첩) &divide; 6&rfloor; + 지형</b>
+         <i>(상대가 비행이고 내가 활이면 +3)</i>
+
+이 값 <b>이하</b>의 명중은 한 대도 안 맞습니다.</div>
+  <div class="note warn"><b>★ 넘긴 뒤는 «안 맞는다» 가 아니라 «대개 피한다» 입니다.</b>
+     회피값 40 · 민첩 43(완봉선 46)인 실제 용병으로 재면 &mdash;
+     명중 47 은 99.3%, 48 은 95.8%, <b>49 는 89.6%</b>, 51 은 68.7% 로 피합니다.
+     전투 로그에서 이 용병이 204번 중 196번을 피했는데, <b>뚫린 한 번에 84 를 맞고 즉사했습니다</b>(최대 HP 56).
+     <b>한 대가 즉사인 자리에서 «거의 다 피한다» 는 안전이 아닙니다.</b></div>
+
+  <h3>그래서 회피값이 얼마면 되나</h3>
+  <p><b>자유 탐색과 퀘스트는 필요치가 크게 다릅니다.</b>
+     자유 탐색에는 몬스터 레벨 보정이 없지만, 퀘스트는 클리어할수록
+     <code>maxAddLevel</code> 까지 레벨이 올라갑니다(1,425개 중 1,307개가 3).</p>
+  <table class="t"><thead><tr><th>지역</th><th class="num">자유 탐색</th><th class="num">퀘스트 <span style="font-weight:400">(보정 최대)</span></th></tr></thead><tbody>
+  <tr><td>미스토리아 반도</td><td class="num">13</td><td class="num">21</td></tr>
+  <tr><td>바르디아 평원</td><td class="num">17</td><td class="num">30</td></tr>
+  <tr><td>뤼미에르 힐스</td><td class="num">20</td><td class="num">30</td></tr>
+  <tr><td>아르디오스 왕국</td><td class="num">23</td><td class="num">37</td></tr>
+  <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">41</td></tr>
+  <tr><td>발두나의 황야</td><td class="num">44</td><td class="num">48</td></tr>
+  <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num"><b>48</b></td><td class="num"><b>54</b></td></tr>
+  <tr style="color:var(--muted)"><td>발케인 지방 <span class="sm">잠김</span></td><td class="num">48</td><td class="num">51</td></tr>
+  </tbody></table>
+  <p>즉 <b>완봉선이 이 수 이상</b>이면 그 구역에서 평타를 한 대도 안 맞습니다.
+     탐색지마다 정확한 값은 <a href="codex.html?v=place">도감</a> 에 적어 뒀습니다.</p>
+  <div class="note"><b>지형은 캐릭터에게만 붙습니다.</b> 근접끼리는 서로 깎여 상쇄되지만,
+     <b>거친 지형에서 활에게 맞을 때는 내 회피만 깎입니다.</b>
+     그리고 <b>활은 비행 몬스터에게 명중 +2</b> 를 받습니다.</div>
+  <table><thead><tr><th>지형</th><th class="num">내 회피</th><th class="num">공격자 명중</th></tr></thead><tbody>
+  <tr><td>평지</td><td class="num">0</td><td class="num">0</td></tr>
+  <tr><td>이동 곤란</td><td class="num">&minus;2</td><td class="num">활 0 · 그 외 &minus;2</td></tr>
+  <tr><td>매우 곤란</td><td class="num">&minus;4</td><td class="num">활 0 · 그 외 &minus;4</td></tr>
+  <tr><td>숲</td><td class="num">+1</td><td class="num">활 &minus;1 · 그 외 0</td></tr>
+  </tbody></table>
+
+  <h3>회피가 0 이 되는 자리 &mdash; 구멍은 넷입니다</h3>
+  <table class="t"><thead><tr><th>무엇</th><th>어떻게 되나</th></tr></thead><tbody>
+  <tr class="hi"><td><b>혼란(7) · 수면(16) · 마비(17)</b></td><td>회피 계산을 <b>통째로 건너뛰고 0</b> 을 돌려줍니다. 회피값이 얼마든 무조건 맞습니다</td></tr>
+  <tr class="hi"><td><b>망각(11)</b></td><td>분기가 갈라져 <b>회피값 항이 통째로 빠집니다</b>(명중값도 같이). 장비·직업으로 쌓은 것이 한 번에 사라집니다</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 가장 무서운 것은 «반격 마비» 입니다.</b>
+     <b>아이스 맨드레이크</b>(Lv32)가 <code>12_ReflectParalysis</code> 를 갖고 있습니다 &mdash;
+     <b>때리면 때린 쪽이 마비됩니다.</b> 실측에서 한 회피탱이 여덟 번 죽었는데
+     <b>그중 일곱 번이 이 모양</b>이었습니다 &mdash; <code>[마비]</code> 직후 85~99 한 방.
+     명중 37 짜리라 원래는 절대 안 맞는 상대입니다.
+     <b>반격을 가진 몬스터는 활로 때리거나(&sect;6) 아예 안 때리는 것이 답입니다.</b></div>
+  <div class="note"><b>깎는 쪽도 있습니다.</b> 넘어짐 &minus;2 · 실명 &minus;4 · 잡힘/삼켜짐 &minus;4 ·
+     걸려 넘어짐 &minus;4 · 춤 &minus;2 · 이동 곤란 &minus;2 · 붙잡힘 &minus;2 · 놀람 &minus;2 ·
+     광신 &minus;2(명중은 +2) · 정신 교란 &minus;1.
+     <b>그래서 «딱 맞는 회피» 는 위험합니다 &mdash; 필요치보다 5 는 여유를 두세요.</b>
+     상태이상 저항은 <b>힘</b>(정신계는 마법 방어)이므로 회피탱이라도 힘을 버리면 안 됩니다.</div>
+
+  <h3>방패 막기 &mdash; 회피가 뚫린 뒤 한 번 더</h3>
+  <div class="eq">막습니다 &hArr; <b>방패 회피 &ge; 공격자 명중 + 1</b>   <i>(회피는 +2 &mdash; 문턱이 하나 낮습니다)</i>
+
+  방패 회피 = 2d6 + 방패 회피값 + 직업 몫 + &lfloor;지형 보정 &divide; 2&rfloor;
+              <i>민첩이 한 글자도 안 들어갑니다</i></div>
+  <div class="note"><b>공격자 명중을 <code>addHitRate = 0</code> 으로 다시 부릅니다</b> &mdash;
+     스킬이 명중을 얹어 회피를 뚫었어도, 막기에서는 그 보너스가 빠진 값과 겨룹니다.</div>
+  <div class="note warn"><b>방패 회피값이 붙은 장비는 790개 중 <span style="color:var(--f-vault)">둘뿐</span>입니다.</b>
+     테라 버클러(+5) 와 바위왕의 대방패(+2). 나머지는 전부 직업 몫이고 천장은 30 쯤입니다.
+     그리고 <b>막았다고 «안 맞은» 것도 아닙니다</b> &mdash; 방패 방어만큼만 덜 맞습니다.
+     <b>같은 노력을 회피값에 쓰는 쪽이 거의 항상 낫습니다.</b></div>
+  <div class="note"><b>회피는 물리 공격에만 통합니다.</b>
+     회피를 굴리는 자리가 <b>평타 처리 단 한 곳</b>입니다 &mdash;
+     마법 피해도, 상태이상도 회피 판정을 거치지 않습니다.
+     그리고 <b>민첩이 정하는 것은 회피와 «행동 순서» 둘뿐</b>입니다.</div>
+
+
+  <h2 id="dmg"><span class="n">6</span>전투 ② &mdash; 얼마나 아픈가</h2>
+  <div class="eq">평타 피해 = 공격력 &minus; <b>방어력 전액</b>      <i>0 이하면 피해가 없습니다</i>
+치명타     = 공격력 &minus; &lfloor;방어력 &divide; 2&rfloor;   <i>확률에 2% 하한이 있습니다(&sect;1)</i></div>
+  <p><b>«전액» 이 핵심입니다.</b> 비율이 아니라 뺄셈이라, 방어를 상대 공격력까지 올리면
+     피해가 <b>0 으로 수렴합니다</b>. 회피가 «안 맞는다» 라면 방어는 «맞아도 안 아프다» 입니다.</p>
+  <div class="note warn"><b>★ 피해가 1 미만이면 그 뒤가 통째로 건너뛰어집니다.</b>
+     반사도, 평타에 붙은 상태이상도 안 옵니다.
+     <b>방어로 0 을 만드는 것은 회피로 안 맞는 것과 거의 같은 값어치입니다.</b></div>
+  <div class="note"><b>방어력에는 체력 몫이 들어 있습니다</b>(&sect;2) &mdash;
+     <code>&lfloor;체력 &divide; 4&rfloor;</code>. 방패도 방어력에 그대로 들어가고,
+     <b>막기에 성공하면 그 위에 한 번 더 빠집니다</b>(두 번 셉니다).</div>
+  <div class="note warn"><b>치명타에는 완봉이 없습니다.</b>
+     확률이 2~98 로 잘리므로(&sect;1), 치명 저항을 아무리 올려도 <b>50 대에 한 번은</b> 들어옵니다.
+     방어탱은 «절대 안 죽는다» 가 아니라 «가끔 크게 맞는다» 로 잡아야 합니다.</div>
+
+  <h3>반사 &mdash; 때리면 되받습니다</h3>
+  <p><code>damageReflect</code> 를 가진 몬스터를 <b>평타로</b> 때리면 준 피해의 그 비율을 되받습니다
+     (내림, 최소 1). 내가 때린 것이므로 <b>회피 판정을 안 거칩니다.</b></p>
+  <div class="note"><b>관문이 넷 있습니다 &mdash; 하나라도 걸리면 반사가 안 옵니다.</b>
+     <ul>
+       <li><b>빗나가면</b> 안 옵니다</li>
+       <li><b>피해가 1 미만이면</b> 안 옵니다</li>
+       <li><b>★ 활로 때리면</b> 안 옵니다 &mdash; 무기 종류가 활(14)이면
+         <b>반격 · 상태 반사 · 피해 반사를 통째로 건너뜁니다</b></li>
+       <li><b>죽이는 일격에는</b> 안 옵니다</li>
+     </ul></div>
+  <div class="note warn"><b>★ 로그에 «반사» 라고 안 찍힙니다.</b>
+     때린 쪽에 찍히는 <b>평범한 «피해»</b> 로 남아서 화면만으로는 «맞았다» 와 구분이 안 됩니다.
+     실측 &mdash; 글레이셜 리브(반사 30%)를 단검으로 때린 세 번이
+     <b>45&rarr;13 · 35&rarr;10 · 34&rarr;10</b>, <b>활로 때린 여덟 번은 전부 0</b> 이었습니다.</div>
+  <p><b>그래서 «적게 크게» 가 «많이 조금씩» 보다 낫습니다.</b>
+     반사는 방어를 뺀 최종 피해의 비율이고 막타는 면제이므로,
+     한 방을 키워 때리는 횟수를 줄이면 총량이 줍니다.</p>
+
+  <h3>뚫리지 않는 몬스터</h3>
+  <p><code>invalidPhysics</code> 가 <b>37종</b> 있습니다. 판정은 이 한 줄입니다:</p>
+  <div class="eq">if (대상.InvalidPhysics() &amp;&amp; <b>!공격.isMagicAttack</b>) → 무효</div>
+  <p>즉 <b>공격이 «마법» 으로 표시되면 그대로 통합니다.</b> 그 표시를 정하는 것은 넷입니다.</p>
+  <div class="eq">무기가 없으면                              → 아니오
+<b>주직업이 마검사이고 단검을 들었으면</b>        → 예   <i>// 부직업이면 안 됩니다</i>
+<b>주직업이 모래 환상 사수이고 활을 들었으면</b>   → 예   <i>// 7.1 신규 · 지금은 잠김</i>
+그 외에는 <b>무기 마스터의 isMagic</b>
+무기 강화 상태이상(41)이 걸려 있으면            → 무조건 예</div>
+  <div class="note"><b>마법 무기는 464자루 중 68자루(15%)입니다.</b>
+     활이 12자루, 단검이 8자루. <b>강화로는 마법 속성을 못 붙입니다</b> &mdash;
+     처음부터 마법인 무기를 구해야 합니다.
+     물리 무효가 37종이나 되니 <b>파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</b></div>
+  <div class="note warn"><b>활이 절대 안 통하는 몬스터가 다섯 있습니다.</b>
+     <code>invalidBow</code> 가 켜지면 활 공격에 <b>회피 999</b> 가 더해집니다 &mdash;
+     본 하운드(5) · 데스 할로우(9) · 프로스트 레이스(12) · 아이스 앤트(22) · 본 베일(24).</div>
+
+  <h2 id="magic"><span class="n">7</span>전투 ③ &mdash; 마법과 상태이상</h2>
+  <div class="note"><b>마법에는 명중/회피 비교가 없습니다. 쏘면 들어갑니다.</b>
+     회피탱이 마법에 약한 이유가 이것이고, 마법사가 명중을 안 챙겨도 되는 이유도 이것입니다.</div>
+  <div class="eq">피해 = Rand(스킬최소, 스킬최대) + 시전자 마력
+       → 2d6 이 9 를 넘으면 <b>한 번 더 굴려 더함</b>
+       → 대상의 <b>마법 방어를 전액</b> 뺀다
+       → 0 이하면 Rand(3)
+
+스킬최소 = 레벨 + minDamage + 1   <i>(관통 &minus;1 · 전체 &minus;2)</i>
+스킬최대 = 레벨 + maxDamage + 4   <i>(전체 &minus;3)</i>
+소모 MP  = 레벨 &minus; useMp + 3   <i>(물리 마법이면 3 대신 2)</i></div>
+  <div class="note warn"><b>★ 배울 수 있는 마법 28개 중 27개가 <code>minDamage</code>/<code>maxDamage</code> 0 입니다.</b>
+     (성스러운 폭발만 +3) 그래서 <b>«레벨 높은 마법 = 센 마법» 이 예외 없이 성립합니다.</b>
+     속성은 약점 &plusmn;2 와 무효 0 에만 쓰이고, 피해 자체를 바꾸지 않습니다.</div>
+
+  <h3>어떤 마법이 나갈지 정하는 순서</h3>
+  <div class="eq">1. 켜 둔 것 중 <b>지금 쓸 수 있는 것</b>만 남긴다   <i>(MP 가 모자라면 여기서 빠진다)</i>
+2. <b>종류 → 사거리 → 레벨</b> 오름차순으로 정렬한다
+3. <b>회복</b>이 하나라도 있으면 <b>그 자리에서 반환</b>한다
+4. 없으면 전체 → 관통 → 단일 순, 같은 급이면 <b>레벨 낮은 것</b>이 이긴다</div>
+  <div class="note warn"><b>★ 여기서 두 가지가 따라 나옵니다.</b>
+     <ul>
+       <li><b>동점이면 «약한 쪽» 이 이깁니다.</b> 레벨 오름차순이라 낮은 것이 먼저 잡힙니다 &mdash;
+         <b>가장 높은 급만 켜고 아래는 전부 꺼야</b> 합니다. 다 켜면 가장 약한 것이 나갑니다.</li>
+       <li><b>단일 회복을 하나라도 켜 두면 전체 회복은 영영 안 나갑니다.</b>
+         사거리 오름차순이라 단일이 먼저 잡히고, 회복은 그 자리에서 반환하기 때문입니다.</li>
+     </ul></div>
+  <div class="note"><b>MP 폴백은 안 켜도 됩니다.</b>
+     MP 가 모자란 마법은 1단계에서 저절로 빠져 한 급 아래로 내려갑니다 &mdash;
+     «떨어졌을 때를 대비해» 약한 것을 같이 켜 두면 <b>멀쩡할 때도 그게 나갑니다.</b></div>
+  <div class="note warn"><b>대부분의 상태이상은 «힘» 이 막습니다.</b>
+     마법 방어로 저항하는 상태이상은 <b>159개 중 27개</b> 뿐입니다 &mdash;
+     나머지는 힘으로 겨룹니다. 회피도 마법 방어도 안 통하는 자리가 있다는 뜻입니다.</div>
+
+  <h2 id="check"><span class="n">8</span>판정 한 틀 &mdash; 금고 · 함정 · 선제공격</h2>
+  <p>여섯 판정이 <b>전부 같은 틀</b>입니다. 한 번만 적고, 차이는 표로 냅니다.</p>
+  <div class="eq"><b>내 값</b>  = Dice2DWithCritical(10) + 담당 직업 레벨 + (리더 보너스) + &lfloor;흔들림(스탯) &divide; 6&rfloor;
+<b>상대</b>   = <b>퀘스트 레벨</b> + 난이도 + 2d6
+
+<b>살아 있는 파티원을 차례로 굴려, 한 명만 통과하면 성공입니다.</b>
+  <i>인원수가 곧 굴림 횟수입니다 &mdash; 한 명만 키워도 파티 전체의 금고가 열립니다.</i>
+
+<b>확정선</b> = 상대의 고정부 + <b>9</b>
+  <i>Dice2DWithCritical 의 (대실패 아닌) 최솟값 3, 상대 2d6 의 최댓값 12 ⇒ 12 &minus; 3 = 9</i></div>
+  <table class="t"><thead><tr><th>판정</th><th>담당 직업</th><th>스탯</th><th class="num">리더</th><th>상대 자리</th></tr></thead><tbody>
+  <tr class="hi"><td><b>금고 발견</b></td><td>도적</td><td>통찰</td><td class="num">○</td><td>퀘스트 레벨 + 발견값</td></tr>
+  <tr class="hi"><td><b>금고 해제</b></td><td>도적</td><td>재주</td><td class="num">&times;</td><td>퀘스트 레벨 + 해제 난이도</td></tr>
+  <tr><td>습득물</td><td>도적</td><td>통찰</td><td class="num">○</td><td>여기에 <b>+6</b> 이 더 붙습니다</td></tr>
+  <tr><td>함정 탐지</td><td><code>TrapMaster.jobKind</code><br><span class="sm">레인저 113 · 도적 98 · 현자 29</span></td><td>통찰</td><td class="num">○</td><td>퀘스트 레벨 + 함정 레벨</td></tr>
+  <tr><td>함정 해제</td><td>같음</td><td>물리 → 재주<br>효과 부여 → 통찰</td><td class="num">&times;</td><td>같음</td></tr>
+  <tr><td>선제공격</td><td>max(도둑+2, 레인저)</td><td>통찰</td><td class="num">○</td><td>파티 난이도 + 몬스터 값</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 함정은 도적 전용이 아닙니다.</b>
+     <code>TrapMaster.jobKind</code> 가 함정마다 «누가 탐지하는지» 를 따로 정하는데,
+     <b>레인저가 가장 많습니다.</b> 도적만 키우면 절반을 못 봅니다.</div>
+  <div class="note"><b>리더 보너스는 «찾는» 쪽에만 붙습니다.</b>
+     금고 발견 · 함정 탐지에는 붙고, <b>금고 해제 · 함정 해제에는 안 붙습니다.</b>
+     그리고 통찰 몫은 <b>«담당 직업 레벨 + 리더 보너스 &ge; 1» 일 때만</b> 붙습니다 &mdash;
+     도적을 안 키운 파티원은 통찰이 아무리 높아도 0 으로 굴립니다.</div>
+  <div class="note warn"><b>★ 확정선은 시간이 갈수록 올라갑니다.</b>
+     <code>퀘스트 레벨 = master.level + min(addLevel, maxAddLevel)</code> 이고,
+     <b>클리어할 때마다 addLevel 이 1 씩 오릅니다</b>(실패하면 1 내려갑니다).
+     같은 퀘스트를 반복하면 금고가 점점 안 열립니다.</div>
+
+  <h3>그래서 어디까지 닿나</h3>
+  <table class="t"><thead><tr><th>지역</th><th class="num">금고 수</th><th class="num">발견 확정선<br><span style="font-weight:400">중앙 / 최대</span></th><th class="num">해제 확정선<br><span style="font-weight:400">중앙 / 최대</span></th><th class="num">해제 판정<br>없는 금고</th></tr></thead><tbody>
+  <tr><td>미스토리아 반도</td><td class="num">167</td><td class="num">14 / 16</td><td class="num">15 / 18</td><td class="num">46%</td></tr>
+  <tr><td>바르디아 평원</td><td class="num">178</td><td class="num">17 / 20</td><td class="num">18 / 21</td><td class="num">20%</td></tr>
+  <tr><td>뤼미에르 힐스</td><td class="num">141</td><td class="num">20 / 24</td><td class="num">22 / 27</td><td class="num">18%</td></tr>
+  <tr><td>아르디오스 왕국</td><td class="num">150</td><td class="num">26 / 33</td><td class="num">27 / 35</td><td class="num">20%</td></tr>
+  <tr><td>바람의 거친 경계</td><td class="num">209</td><td class="num">32 / 36</td><td class="num">33 / 38</td><td class="num">14%</td></tr>
+  <tr><td>발두나의 황야</td><td class="num">85</td><td class="num">37 / 40</td><td class="num">39 / 43</td><td class="num">16%</td></tr>
+  <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num">97</td><td class="num"><b>43 / 46</b></td><td class="num"><b>44 / 47</b></td><td class="num">15%</td></tr>
+  <tr><td>길드 <span class="sm">지역 없음</span></td><td class="num">51</td><td class="num">23 / 36</td><td class="num">26 / 37</td><td class="num">2%</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 높은 지역에서는 «해제» 가 «발견» 보다 먼저 막힙니다.</b>
+     해제 확정선이 발견보다 1~2 높은데, <b>쌓을 수 있는 해제값이 더 낮기</b> 때문입니다 &mdash;
+     발견에는 리더 보너스가 붙지만 해제에는 안 붙습니다.
+     도둑 35 주 + 현자 35 부 + 레인저 35 부 를 다 채워도
+     <b>발견 45 · 해제 41</b> 이 천장이라, 칼레바스 해제 중앙 44 를 못 넘습니다.</div>
+  <div class="note"><b>다행히 해제 판정을 아예 건너뛰는 금고가 28%</b> 입니다
+     (1,206개 중 341개 &mdash; 해제 난이도가 0 이면 판정 자체가 없습니다).
+     그리고 <b>몬스터가 든 금고는 발견 판정도 건너뛰고 무조건 발견됩니다.</b></div>
+  <div class="note"><b>발견값(<code>foundValue</code>)이 0 인 금고가 87%</b> 입니다 &mdash;
+     1,206개 중 1,051개. 즉 발견 확정선은 사실상 <b>«퀘스트 레벨 + 9»</b> 이고,
+     지역이 올라갈수록 어려워지는 것은 <b>발견값이 아니라 퀘스트 레벨 때문</b>입니다.</div>
+
+  <h2 id="board"><span class="n">9</span>평판과 게시판 &mdash; 원하는 퀘스트가 왜 안 뜨나</h2>
   <p><b>요구 평판은 부호에 따라 방향이 반대입니다.</b> 양수는 «그 값 이상»이라야 뜨는 하한이고, 음수는 «그 값 이하»여야 뜨는 상한입니다. 그래서 선행 체인을 하나로 합칠 수 없어, 퀘스트 색인에서는 <b>▲ 한 번은 올려야 하는 평판</b>과 <b>▼ 한 번은 내려가야 하는 평판</b>을 따로 계산합니다.</p>
   <h3>평판이 오르다 멈추는 이유</h3>
   <div class="eq">퀘스트 레벨 = master.level + Min(addLevel, master.maxAddLevel)
@@ -261,7 +848,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <p>낮은 레벨 퀘스트를 아무리 반복해도 평판이 어느 선에서 멈추는 이유입니다. 천장이 <b>5 단위</b>로 올라갑니다.</p>
   <p class="src">Town.MaxReputation · Town.ApplyReputationChange</p>
 
-  <h2 id="board"><span class="n">2</span>게시판 &mdash; 칸을 다투지 않습니다</h2>
+  <h3>게시판에는 칸이 없습니다</h3></h2>
   <div class="note"><b>게시판에는 «칸» 이 없습니다.</b> 퀘스트마다 자기 카운터를 하나씩 들고 있고, 그 카운터가 0 이 되면 뜹니다. 서로 자리를 뺏지 않습니다 &mdash; <b>게시판에 이미 잔뜩 걸려 있어도 새 퀘스트가 뜨는 데 아무 지장이 없습니다.</b></div>
   <p>갱신할 때 도는 것은 <b>아직 안 떠 있는 퀘스트</b>뿐입니다. 이미 게시된 것(<code>Status = NotAccepted</code>)은 아예 건드리지 않습니다. 그래서 «지우고 새로 채우기» 가 아니라 <b>그대로 두고 추가만</b> 하는 쪽입니다.</p>
   <div class="eq">for (안 떠 있는 퀘스트 하나씩) {
@@ -282,7 +869,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <tr><td><b>자주</b> Usually</td><td class="num">37.5%</td><td class="num">60.9%</td><td class="num">529</td></tr>
   <tr><td><b>흔히</b> Often</td><td class="num">18.75%</td><td class="num">34.0%</td><td class="num">200</td></tr>
   <tr><td><b>가끔</b> Sometimes</td><td class="num">9.38%</td><td class="num">17.9%</td><td class="num">62</td></tr>
-  <tr><td><b>이따금</b> Occasionally</td><td class="num">3.52%</td><td class="num">6.9%</td><td class="num">16</td></tr>
+  <tr><td><b>이따금</b> Occasionally</td><td class="num">7.03%</td><td class="num">13.6%</td><td class="num">16</td></tr>
   <tr><td><b>드물게</b> Infrequently</td><td class="num">1.76%</td><td class="num">3.5%</td><td class="num">3</td></tr>
   <tr><td style="color:var(--faint)">희귀 · 매우 희귀</td><td class="num" style="color:var(--faint)">0.56% · 0.03%</td><td class="num" style="color:var(--faint)">&mdash;</td><td class="num" style="color:var(--faint)">0</td></tr>
   </tbody></table>
@@ -297,109 +884,24 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <div class="note"><b>표시 상한 100 은 사실상 안 걸립니다.</b> <code>GetCanAcceptedQuests()</code> 안에 <code>TownAverageQuestCount</code>(100, 어떤 내부 플래그가 켜지면 30) 비교가 있긴 한데, 목록이 그걸 넘어도 <b>그 플래그가 켜져 있을 때만</b> 오래된 것을 건너뜁니다. 평소에는 전부 나옵니다. &mdash; 전에 여기 «목록이 이 값에 닿을 때까지 채운다» 고 적어 뒀던 건 <b>틀린 설명</b>이라 고쳤습니다.</div>
   <p class="src">Town.UpdateQuests · Town.UpdateQuestStatus · Town.CanAcceptQuest · FrequencyExtensions.GetRandom · Quest.Start · Quest.Finish · Quest.GetStatus</p>
 
-  <h2 id="chest"><span class="n">3</span>금고 &mdash; 발견과 해제</h2>
-  <p>살아 있는 파티원을 <b>차례로 굴려 한 명만 통과하면 성공</b>입니다. <b>발견</b>과 <b>해제</b> 두 판정을 모두 넘겨야 물건을 얻고, 해제 난이도가 0이면 해제 판정은 건너뜁니다.</p>
-  <div class="note warn"><b>발견과 해제는 쓰는 능력치가 다릅니다.</b>
-  발견은 <b>통찰력</b>, 해제는 <b>재주</b> 입니다. 그리고 <b>리더 보너스는 발견에만</b> 붙습니다.</div>
-  <div class="eq"><b>발견</b>  <span class="cmt">Party.FoundItem</span>
-  내 값 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + 도적레벨 + <b>리더 보너스</b> + <b>&lfloor;통찰력/3&rfloor;</b>
-  성공  = 내 값 &gt;= 퀘스트 레벨 + 발견값 + <b>2d6</b>
+  <div class="note warn"><b>★ 주기 99(1회성 273건)는 카운터를 쓰지 않습니다.</b>
+     갱신 때 카운터를 줄이는 대신 <b>0 으로 내려 바로 게시</b>합니다 &mdash;
+     조건과 빈도만 통과하면 그 갱신에 뜹니다(273건 중 272건이 빈도 «항상» 입니다).
+     그래서 «1회성을 놓치면 카운터를 처음부터 다시 채운다» 는 말은 맞지 않습니다.
+     대신 <b>게시 기한이 짧습니다</b> &mdash; 중앙 18시간이고 81%가 하루 안에 내려갑니다.</div>
+  <div class="note"><b>카운터가 주는 자리는 여섯 곳입니다.</b>
+     의뢰 갱신 버튼 · 일일 로그인 보너스 · <b>상점 열기</b> · <b>단원 내보내기</b> ·
+     <b>잃은 단원 정리</b> · <b>새 지도 추가</b>.<br>
+     반대로 <b>모험 결과 화면</b>과 <b>지도에서 탐색 의뢰</b>는 «추가만» 하고 카운터를 안 줄입니다.</div>
 
-<b>해제</b>  <span class="cmt">AdventureMain.UnlockChest</span>
-  내 값 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + 도적레벨 + <b>&lfloor;재주/3&rfloor;</b>   <span class="cmt">// 리더 보너스 없음</span>
-  성공  = 내 값 &gt;= 난이도 + <b>2d6</b></div>
-  <div class="note warn"><b>함정이 둘 있습니다.</b><br>
-  · 발견의 통찰력 보너스는 «도적레벨 + 리더보너스»가 <b>1 이상일 때만</b> 붙습니다. 도적을 안 키운 파티원은 통찰이 아무리 높아도 0으로 굴립니다.<br>
-  · 첫 2d6이 1+1이면 <b>−100(대실패)</b> 입니다. 1/36은 어떤 능력치로도 못 막습니다 &mdash; <b>한 명 기준 천장이 97.22%</b> 입니다.</div>
-  <h3>리더 보너스는 성격이 정합니다</h3>
-  <table><thead><tr><th>성격</th><th class="num">보너스</th><th>성격</th><th class="num">보너스</th></tr></thead><tbody>
-  <tr><td>무모한</td><td class="num"><b>+3</b></td><td>신중한</td><td class="num">0</td></tr>
-  <tr><td>합리적</td><td class="num"><b>+3</b></td><td>사교적</td><td class="num">−1</td></tr>
-  <tr><td>이기적</td><td class="num">+2</td><td>신경질적</td><td class="num">−1</td></tr>
-  <tr><td>감정적</td><td class="num">+1</td><td></td><td class="num"></td></tr>
-  </tbody></table>
-  <p>리더 <b>한 명에게만</b> 붙고, <b>발견 판정에만</b> 들어갑니다. 통찰이 높은데 도적 레벨이 없는 파티원을 리더로 두면, 그 사람의 통찰이 발견에 살아납니다.</p>
-  <h3>사실상 확정을 만드는 조건</h3>
-  <div class="eq">발견  도적레벨 + 리더보너스 + &lfloor;통찰력/3&rfloor;  &gt;=  퀘스트 레벨 + 발견값 + 9
-해제  도적레벨 + &lfloor;재주/3&rfloor;             &gt;=  난이도 + 9</div>
-  <p>이걸 채운 캐릭터는 대실패(1/36)를 빼고 확정입니다. <b>두 명이 채우면</b> 판정당 실패가 1/1296이라 사실상 100%입니다.</p>
-
-  <h3>★ 금고 파밍 &mdash; 실제로 넘어야 하는 수</h3>
-  <div class="note warn"><b>먼저: 금고가 목적이면 «혼자 가면 안 됩니다».</b>
-     발견도 해제도 <b>살아 있는 파티원을 차례로 굴려 한 명만 통과하면 성공</b>입니다 &mdash;
-     <b>인원수가 그대로 굴림 횟수</b>입니다. 혼자면 기회가 한 번, 넷이면 네 번입니다.
-     그리고 <b>한 명만</b> 도둑·통찰을 키우면 그 한 명이 파티 전체의 금고를 엽니다.</div>
-  <div class="eq"><b>발견 확정선</b> = 퀘스트 레벨 + 발견값 + 9      &lArr; 도둑레벨 + <b>리더 보너스</b> + &lfloor;통찰 최솟값 &divide; 3&rfloor;
-<b>해제 확정선</b> = 해제 난이도 + 9                &lArr; 도둑레벨 + &lfloor;재주 최솟값 &divide; 3&rfloor;   <span class="cmt">// 리더 보너스 없음</span></div>
-  <table class="t"><thead><tr><th>지역</th><th class="num">금고 수</th>
-    <th class="num">발견 확정선<br><span style="font-weight:400">중앙 / 최대</span></th>
-    <th class="num">해제 확정선<br><span style="font-weight:400">중앙 / 최대</span></th>
-    <th class="num">해제 판정<br><span style="font-weight:400">아예 없음</span></th></tr></thead><tbody>
-    <tr><td>미스토리아 반도</td><td class="num">180</td><td class="num">14 / 16</td><td class="num">10 / 11</td><td class="num">49%</td></tr>
-    <tr><td>바르디아 평원</td><td class="num">194</td><td class="num">16 / 20</td><td class="num">10 / 12</td><td class="num">26%</td></tr>
-    <tr><td>뤼미에르 힐스</td><td class="num">154</td><td class="num">20 / 24</td><td class="num">10 / 14</td><td class="num">25%</td></tr>
-    <tr><td>아르디오스 왕국</td><td class="num">157</td><td class="num">26 / 33</td><td class="num">10 / 13</td><td class="num">24%</td></tr>
-    <tr><td>바람의 거친 경계</td><td class="num">244</td><td class="num">32 / 36</td><td class="num">10 / 13</td><td class="num">27%</td></tr>
-    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num">85</td><td class="num"><b>37 / 40</b></td><td class="num">10 / 13</td><td class="num">16%</td></tr>
-    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num">117</td><td class="num"><b>43 / 46</b></td><td class="num">10 / 14</td><td class="num">30%</td></tr>
-  </tbody></table>
-  <div class="note"><b>해제는 거의 문제가 안 됩니다.</b> 확정선이 어느 지역에서나 <b>10~14</b> 이고,
-     <b>금고 1194개 중 336개(28%)는 해제 난이도가 0 이라 판정 자체를 건너뜁니다</b>.
-     도둑 15 만 있어도 넘습니다. <b>어려운 것은 «발견» 입니다.</b></div>
-
-  <h4 style="font-size:13px;margin:20px 0 8px">통찰이 «최소로» 얼마를 보태나 &mdash; 31 에서 계단이 뜁니다</h4>
-  <p><code>CreateRandomValue</code> 의 흔들림 폭이 구간마다 바뀝니다.
-     확정을 따질 때는 <b>가장 나쁘게 나온 값</b>을 봅니다.</p>
-  <div class="eq">v &le; 8    v &plusmn; Random.Range(0,3)     <span class="cmt">// 0 아래로는 안 내려간다</span>
-9 ~ 30    v &plusmn; Rand(&lfloor;v &divide; 3&rfloor;)
-<b>31 ~ 99   v &plusmn; Rand(&lfloor;v &divide; 10&rfloor;)</b>    <span class="cmt">// 폭이 확 준다</span>
-100 ~     v &plusmn; Rand(&lfloor;v &divide; 16&rfloor;)</div>
-  <table class="t"><thead><tr><th class="num">통찰</th><th class="num">10</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">37</th><th class="num">43</th><th class="num">50</th></tr></thead><tbody>
-    <tr><td>최솟값</td><td class="num">8</td><td class="num">15</td><td class="num">18</td><td class="num">21</td><td class="num"><b>29</b></td><td class="num">35</td><td class="num">41</td><td class="num">46</td></tr>
-    <tr class="hi"><td><b>발견에 보태는 몫</b></td><td class="num">2</td><td class="num">5</td><td class="num">6</td><td class="num">7</td><td class="num"><b>9</b></td><td class="num">11</td><td class="num">13</td><td class="num">15</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>통찰 30 &rarr; 31 에서 두 칸이 뜁니다</b> &mdash; 흔들림이 &divide;3 에서 &divide;10 으로 바뀌기 때문입니다.
-     <b>30 에서 멈추지 말고 31 을 찍으십시오.</b> (회피의 민첩에서도 같은 계단이 있습니다 &mdash; <a href="#avoid">&sect;8</a>)</div>
-
-  <h4 style="font-size:13px;margin:20px 0 8px">그래서 «금고 담당» 한 명을 이렇게 만듭니다</h4>
-  <table class="t"><thead><tr><th>쌓는 것</th><th class="num">발견에 더해지는 값</th><th>비고</th></tr></thead><tbody>
-    <tr class="hi"><td><b>도둑 30</b> <span class="sm">주직업</span></td><td class="num"><b>+30</b></td><td>발견에 <b>레벨이 그대로</b> 들어갑니다. 해제에도 같이 들어갑니다</td></tr>
-    <tr class="hi"><td><b>리더로 세우기</b></td><td class="num"><b>+3</b></td><td>무모한 · 합리적이 +3 · 이기적 +2 <span class="sm">(발견에만, 해제에는 안 붙습니다)</span></td></tr>
-    <tr><td>통찰 &mdash; 도둑 주 몫</td><td class="num">기본 +12</td><td>도둑은 주 통찰 4 라 30 레벨이면 +12</td></tr>
-    <tr class="hi"><td><b>현자 30</b> <span class="sm">부직업</span></td><td class="num">통찰 <b>+15</b></td><td><b>경험치 지수에서 통째로 빠집니다</b> &mdash; 얹어도 다른 직업이 안 비싸집니다</td></tr>
-    <tr><td>레인저 30 <span class="sm">부직업</span></td><td class="num">통찰 +6</td>
-      <td>함정 마스터 131개 중 <b>63개</b>가 레인저 담당입니다(도둑 50 · 현자 18 &mdash; 7.0 에서 넷 늘었습니다).
-        다만 지수에 들어갑니다</td></tr>
-  </tbody></table>
-  <div class="eq"><b>풋워커 여</b>(기본 통찰 10) + 도둑 30 주 + 현자 30 부
-  통찰 = 10 + 12 + 15 = <b>37</b> &rarr; 최소 몫 <b>11</b>
-  발견 = 30 + 3 + 11 = <b>44</b>   &ge; 발두나 최대 <b>40</b>  ✔
-  <span class="cmt">// 레인저 30 을 더하면 통찰 43 → 몫 13 → 46, 칼레바스(46)까지 확정</span></div>
-  <div class="note"><b>이 한 명이 파티 전체의 금고를 엽니다.</b>
-     나머지 세 명은 통찰을 하나도 안 올려도 됩니다 &mdash;
-     <b>차례로 굴려 한 명만 통과하면 성공</b>이기 때문입니다.
-     대실패(첫 2d6 이 1+1, 1/36)만 남는데, 그것도 <b>다른 파티원이 이어서 굴립니다</b>.</div>
-  <table class="t"><thead><tr><th>금고 1194개가 주는 것</th><th class="num">개수</th></tr></thead><tbody>
-    <tr><td>무기</td><td class="num">497</td></tr>
-    <tr><td>방어구</td><td class="num">366</td></tr>
-    <tr><td>금화</td><td class="num">226</td></tr>
-    <tr style="color:var(--muted)"><td>아무것도 없음</td><td class="num">105</td></tr>
-    <tr><td colspan="2" style="color:var(--muted)"><b>강화값(craftValue)이 음수인 금고가 910개(76%)</b> 입니다 &mdash;
-      음수면 몬스터 드롭과 같은 취급이라 <b>단계마다 요구 근력이 1씩 내려갑니다</b>(<a href="#craft">&sect;5</a>)</td></tr>
-  </tbody></table>
-  <p class="src">Chest.foundValue / unlockDifficulty / craftValue <span class="sm">(금고 1194개 전수)</span> &middot;
-     Util.CreateRandomValue <span class="sm">(0x276b694 &mdash; 흔들림 구간 3 / 10 / 16)</span> &middot;
-     AdventureMain.OpenTreasureBox <span class="sm">(파티원을 차례로 굴립니다)</span></p>
-  <p class="src">AdventureMain.OpenTreasureBox / FoundItem / UnlockChest · 리더 보너스 표 @0xF89F2C</p>
-
-  <h3>★ 금고가 «로그 한 줄 없이» 통째로 안 뜰 수 있습니다</h3>
+  <h2 id="event"><span class="n">10</span>이벤트 추첨 &mdash; 금고가 «로그 한 줄 없이» 안 뜨는 이유</h2>
   <p>「여기에 무엇인가 있는 것 같다」 도, 「해제하지 못했다」 도 없이 그냥 넘어가는 경우가 있습니다.
      <b>판정에 실패한 것이 아니라 이벤트가 시작되지도 않은 것</b>입니다.
      <code>AdventureMain.RunQuest</code> 가 이벤트를 고르는 순서가 이렇습니다.</p>
   <div class="eq"><b>1</b> 후보 = 이벤트 중 <b>시각·등장조건·열쇠</b>를 통과한 것   <span class="cmt">// IsEventScheduled · IsAppearanceEvent · needKey/noKey</span>
 <b>2</b> <b>freq = 무작위 등급 하나를 뽑는다</b>            <span class="cmt">// FrequencyExtensions.GetRandom()</span>
 <b>3</b> 후보 = 후보 중 <b>빈도가 Always 이거나 freq 와 «정확히 같은»</b> 것
-<b>4</b> 후보가 <b>하나도 없으면 &mdash; 아무것도 안 적고 끝냅니다</b>   <span class="cmt">// 0x2720f88</span></div>
+<b>4</b> 후보가 <b>하나도 없으면 &mdash; 아무것도 안 적고 끝냅니다</b></div>
   <div class="note warn"><b>3번이 «이상» 이 아니라 «같음» 입니다.</b>
      빈도가 «가끔(Sometimes)» 인 금고는 <b>그 판에서 «가끔» 등급이 뽑혀야만</b> 후보가 됩니다.
      더 흔한 등급이 뽑히면 <b>존재하지 않는 것처럼</b> 지나갑니다.</div>
@@ -421,7 +923,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      운이 나쁘면 그 퀘스트에서 금고 이야기를 <b>한 줄도 못 봅니다</b>.</div>
   <h4 style="font-size:13px;margin:20px 0 8px">★ 추첨은 «이벤트마다 딱 한 번» 입니다</h4>
   <p>「매 순간 굴리니까 언젠가는 뜨겠지」 가 아닙니다. <b>이벤트마다 기회가 한 번뿐</b>입니다.</p>
-  <div class="eq">진행도의 단위 = <b>10초</b>   <span class="cmt">// 최대 eventTime = 소요분 × 6, 퀘스트 1403개가 «전부» 그렇다</span>
+  <div class="eq">진행도의 단위 = <b>10초</b>   <span class="cmt">// 최대 eventTime = 소요분 × 6, 퀘스트 1425개가 «전부» 그렇다</span>
 <code>IsEventScheduled</code> = <b>eventTime == 진행도</b>   <span class="cmt">// cset eq — «정확히» 같아야 한다</span>
 
 ⇒ 이벤트 하나가 후보가 될 수 있는 틱은 <b>하나뿐</b>이다.
@@ -451,28 +953,13 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <div class="note"><b>다만 «전부 랜덤» 은 아닙니다.</b> 금고 이벤트의 <b>87%(1015개)가 Always</b> 라
      <b>정해진 틱에 반드시 뜹니다</b> &mdash; 거기서부터는 추첨이 아니라 <b>통찰·재주 판정</b>입니다.
      운이 끼는 것은 <b>나머지 13%</b> 뿐이고, 그것도 <b>한 번뿐인 추첨</b>입니다.</div>
-  <p class="src">AdventureMain.RunQuest <span class="sm">(0x2720d9c 등급 추첨 · 0x2720f88 «후보 없음 &rarr; 조용히 끝»)</span> &middot;
-     &lt;RunQuest&gt;b__3 <span class="sm">(0x27272ac &mdash; <code>frequency == 5 || frequency == freq</code>)</span> &middot;
-     FrequencyExtensions.GetRandom <span class="sm">(0x275dac8)</span> &middot;
-     QuestEventEntry.IsEventScheduled <span class="sm">(0x27168c4)</span> &middot;
-     OpenTreasureBox <span class="sm">(0x2724f20 발견 실패 문구)</span> &middot; 퀘스트 1403개 전수</p>
+  <p class="src">AdventureMain.RunQuest &middot;
+     &lt;RunQuest&gt;b__3 <span class="sm"></span> &middot;
+     FrequencyExtensions.GetRandom &middot;
+     QuestEventEntry.IsEventScheduled &middot;
+     OpenTreasureBox &middot; 퀘스트 1425개 전수</p>
 
-  <h2 id="trap"><span class="n">4</span>함정 &mdash; 금고와는 다른 규칙</h2>
-  <p>함정마다 <code>TrapMaster.jobKind</code> 가 <b>어느 직업이 탐지하는지</b>를 따로 정합니다. 금고와 달리 도적 전용이 아닙니다.</p>
-  <table><thead><tr><th>담당</th><th class="num">개수</th><th>성격</th></tr></thead><tbody>
-  <tr><td><b>레인저</b></td><td class="num"><b>109</b></td><td>전부 «탐지로 회피 가능» &mdash; 물리 62 · 상태이상 24 · 효과 23</td></tr>
-  <tr><td>도적</td><td class="num">96</td><td>탐지 66 + <b>해제 필요 30</b></td></tr>
-  <tr><td>현자</td><td class="num">28</td><td>탐지</td></tr>
-  </tbody></table>
-  <p>탐지는 금고와 같은 식(담당 직업 레벨 + 리더 보너스 + 통찰/3)이고, <b>해제는 함정 종류마다 쓰는 스탯이 다릅니다.</b></p>
-  <table><thead><tr><th>함정 종류</th><th>해제에 쓰는 스탯</th></tr></thead><tbody>
-  <tr><td>물리 피해</td><td><b>재주</b></td></tr>
-  <tr><td>마법 피해 · MP 피해</td><td><b>마력</b></td></tr>
-  <tr><td>효과 부여</td><td><b>통찰력</b></td></tr>
-  </tbody></table>
-  <p class="src">Trap.Detect · Trap.DisarmTrap · TrapMaster 233건 집계</p>
-
-  <h2 id="craft"><span class="n">5</span>강화 &mdash; 무기의 추가 공격, 방어구의 회피</h2>
+  <h2 id="craft"><span class="n">11</span>강화 &mdash; 무엇이 붙고 몇 단계가 붙나</h2>
   <p>두 옵션은 마스터 데이터에 없습니다. <b>강화(craft)가 굴립니다.</b> 그리고 결정적인 조건이 있습니다 &mdash; <b>한 번에 5단계 이상 강화될 때만 도는 블록</b> 안에만 들어 있습니다.</p>
   <table><thead><tr><th>옵션</th><th class="num">일반 무기</th><th class="num">마법 무기</th></tr></thead><tbody>
   <tr><td>추가 공격</td><td class="num">5%</td><td class="num">15%</td></tr>
@@ -574,7 +1061,7 @@ RunCraft(craftIndex)</div>
      방어력 13개가 전부 +1 이고 최대 공격 102개가 전부 2 이하입니다.
      무기 쪽만 봐도 기댓값이 세 번쯤이라 <b>0 회는 약 5% 확률</b>입니다 &mdash;
      운일 수도 있고, 제가 못 본 조건이 더 있을 수도 있습니다. 그대로 적어 둡니다.</div>
-  <p class="src">Armor.Craft · Weapon.Craft · Equipment.RunCraft <span class="sm">(0x2702a14 요구 근력 10% · 0x2702b60 요구 레벨)</span> ·
+  <p class="src">Armor.Craft · Weapon.Craft · Equipment.RunCraft ·
      Equipment.GetNeedLevel · MonsterMaster.GetReward · Util.Rand / RandSuccess ·
      세이브 장비 370개 · 강화 항목 717개</p>
 
@@ -607,7 +1094,8 @@ p = 50
   <div class="note"><b>마법 속성은 강화로 못 붙입니다.</b> <code>Enhancement.Kind.IsMagic(254)</code> 가 enum에 있지만 <code>Weapon.Craft</code> 가 그걸 만드는 자리는 없습니다(생성 지점 28곳 전수 확인). 마스터 데이터의 <code>isMagic</code> 플래그가 유일한 경로라, <b>마법 속성 무기는 처음부터 그런 것을 구해야 합니다.</b></div>
   <p class="src">Weapon.Craft · Equipment.RunCraft · ShopDialog TapBuyButton</p>
 
-  <h2 id="fac"><span class="n">6</span>시설 레벨이 실제로 바꾸는 것</h2>
+
+  <h2 id="fac"><span class="n">12</span>시설 &mdash; 레벨이 실제로 바꾸는 것</h2>
   <p>직업 레벨과 마찬가지로, 코드가 <code>GetBuildingLevel</code> 을 부르는 자리를 전수로 찾았습니다. 시설마다 <b>딱 한 가지 수치</b>를 바꿉니다.</p>
   <table><thead><tr><th>시설</th><th>바꾸는 것</th><th>식</th></tr></thead><tbody>
   <tr><td><b>금고</b></td><td>골드 상한</td><td><code>레벨 × 2000 + 4000</code></td></tr>
@@ -676,928 +1164,13 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운은 Lv0부터, 하스포지는 Lv9부터 시작합니다. <a href="meta.html?v=town">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
   <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · User.MaxCharacterCount · MaxRetireCharacterCount · Character.HealingCost · InviteAdventureDialog.TapInviteButton</p>
 
-  <h2 id="job"><span class="n">7</span>직업이 실제로 하는 일</h2>
-  <p>직업 레벨을 코드가 참조하는 곳을 전수로 찾았습니다. <b>특수 분기가 있는 직업은 셋뿐</b>입니다. 나머지 60여 직업은 스탯 보너스·스킬·장착 가능 무기로만 갈립니다.</p>
-  <table><thead><tr><th>직업</th><th>코드가 쓰는 곳</th><th class="num">통찰 보너스</th></tr></thead><tbody>
-  <tr><td><b>도적</b></td><td>금고 발견·해제, 함정 96건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
-  <tr><td><b>레인저</b></td><td>함정 109건, 전투</td><td class="num">주 +4 / 부 +2</td></tr>
-  <tr><td><b>현자</b></td><td>이벤트 등장 조건, 함정 28건</td><td class="num"><b>주 +10 / 부 +5</b></td></tr>
-  </tbody></table>
-  <h3>주/부 보너스는 «레벨 × 보너스 ÷ 10, 올림» 입니다</h3>
-  <p>클래스 표의 «주 보너스 / 부 보너스» 숫자는 그대로 더해지는 값이 아닙니다. <code>Character.AddJobBonuses</code> 가 이렇게 씁니다:</p>
-  <div class="eq">직업 몫 = ⌈<b>주직업레벨 × 주보너스</b> ÷ 10⌉ + ⌈<b>Σ(부직업레벨 × 부보너스)</b> ÷ 10⌉</div>
-  <p>두 가지가 중요합니다. <b>주직업은 하나만</b> 세지만(<code>Job.isCurrent</code> 가 켜진 것 &mdash; 레벨 1등이 아닙니다), <b>부직업은 가진 것 전부를 합칩니다.</b> 그래서 부 보너스가 있는 직업을 여럿 올려 두면 합이 꽤 커집니다.</p>
-  <table><thead><tr><th>예</th><th class="num">계산</th><th class="num">회피값</th></tr></thead><tbody>
-  <tr><td>도둑 30을 <b>주직업</b>으로</td><td class="num">⌈30×7÷10⌉</td><td class="num"><b>21</b></td></tr>
-  <tr><td>도둑 30을 <b>부직업</b>으로</td><td class="num">⌈30×3÷10⌉</td><td class="num">9</td></tr>
-  <tr><td>부직업에 도둑30·검술사30·마검사30</td><td class="num">⌈30×(3+2+2)÷10⌉</td><td class="num">21</td></tr>
-  </tbody></table>
-  <div class="note"><b>회피 보너스가 있는 직업은 36종 중 12종뿐입니다</b> &mdash; 도둑(주7/부3)이 압도적이고, 마도병·마검사·숨은 칼날의 궁사·검술사·베테랑 파이터가 4/2, 나머지는 2/1 이하입니다. 회피 몫에는 <b>무기 조건이 없어서</b>(공격력·명중률 몫만 «그 무기를 들 수 있는 직업» 을 봅니다) 열한 직업을 전부 부직업으로 쌓을 수 있습니다.</div>
-  <div class="note warn"><b>다만 «주직업을 도둑으로» 가 정답은 아닙니다.</b> 주 회피는 도둑 7 : 마검사 4 로 도둑이 크지만,
-     <b>마검사는 부적 칸이 열리고</b>(회피 부적 +5 · 마법 방어 37) <b>든 단검을 전부 마법 공격으로 칩니다</b>.
-     실제로 짜 보면 회피 완봉은 양쪽 다 되고 <b>마법 방어와 경험치에서 마검사가 크게 앞섭니다</b>
-     &mdash; <a href="builds.html#dodge">빌드 &sect;3</a> 에 두 판을 나란히 적어 뒀습니다.</div>
 
-  <div class="note warn"><b>현자와 모험가는 이 «다른 직업 레벨 합» 에 안 들어갑니다.</b> <code>Character.SumOtherJobLevels</code> 의 술어가 <code>Job.Kind</code> 202(현자)와 0(모험가)를 빼고 셉니다. 그래서 이 둘은 <b>아무리 올려도 다른 직업의 경험치를 비싸게 만들지 않습니다</b> &mdash; 경유 직업으로 놔둬도 손해가 없습니다.</div>
-
-  <h3>여러 직업을 키우면 왜 급격히 느려지나</h3>
-  <div class="eq">필요 경험치 = (직업 레벨 + 1)<sup>2.5</sup> × 14
-            × (1 + (expLevel − 1) / 4)      <i>// 직업마다 다른 계수</i>
-            × <b>1.05<sup>(다른 직업 레벨의 합)</sup></b></div>
-  <p><b>다른 직업 레벨 1점마다 필요 경험치가 5%씩 복리로 붙습니다.</b> 합이 20이면 2.7배, 50이면 11.5배, 100이면 131배, 150이면 1,521배입니다. 보조로 조금씩 올려 둔 직업이 주직업의 성장을 그대로 눌러 버립니다.</p>
-  <p>직업 계수도 큽니다 — 모험가 ×1.00, 초급 직업 ×1.25, 도둑 ×2.75(최고), 레인저 ×2.50. <a href="meta.html?v=job">클래스 표</a>에 전부 적어 뒀습니다.</p>
-  <p class="src">Character.GetExpToNextLevel · Job.NeedNextExp · Character.SumOtherJobLevels</p>
-  <p>전투에서는 <code>ExecuteBattle</code> 안에서 <b>도적 레벨 + 레인저 레벨 + 통찰</b>을 함께 더해 씁니다 &mdash; 둘 다 기여합니다. 현자는 통찰 보너스가 압도적이고 단검·검·활·창·지팡이를 전부 듭니다.</p>
-
-  <h2 id="avoid"><span class="n">8</span>명중과 회피 &mdash; 몬스터는 주사위를 안 굴립니다</h2>
-  <div class="note"><b>맞느냐 빗나가느냐는 이 한 줄입니다.</b> <code>명중 &minus; 회피 &ge; &minus;1</code> 이면 맞습니다. 뒤집으면 <b>회피가 명중보다 2 이상 크면 무조건 빗나갑니다.</b> 확률이 아니라 값 비교입니다.</div>
-  <p>그런데 <b>몬스터 쪽에는 주사위가 없습니다.</b> 캐릭터만 2d6 을 굴립니다. 그래서 «회피가 얼마면 다 피하나» 에 정확한 답이 나옵니다.</p>
-  <div class="eq"><b>몬스터</b> (고정값)
-  명중 = 몬스터 레벨 + hitPoint + <b>7</b> + 스폰 레벨보정
-  회피 = 몬스터 레벨 + avoidPoint + ⌊민첩/3⌋ + 7 &minus; 2 (+2 비행)
-
-<b>캐릭터</b> (굴림)
-  명중 = <b>2d6</b> + ⌊CreateRandomValue(재주)/<b>6</b>⌋ + 명중값 + 지형 + 상태
-  회피 = <b>2d6</b> + ⌊CreateRandomValue(민첩)/<b>6</b>⌋ + <b>회피값</b> + 지형 + 상태 + <b>(비행 몬스터에게 맞을 때 활을 들었으면 +3)</b></div>
-  <p>여기 <b>7</b> 은 <code>Util.Dice2DAvg</code> 입니다 &mdash; 2d6 의 기댓값을 몬스터에게 상수로 준 것입니다. 그래서 몬스터는 «평균만큼 굴린 셈» 으로 고정됩니다.</p>
-  <div class="note warn"><b>★ 이 나눗수는 <span style="color:var(--f-vault)">3 이 아니라 6</span> 입니다 &mdash; 자료실이 오래 틀려 있었습니다.</b>
-     기계어가 <code>0x2AAAAAAB</code> 를 곱해 <b>상위 32비트만</b> 취합니다
-     (<code>smull</code> &rarr; <code>lsr x8, x8, #0x20</code>). <code>2<sup>32</sup> &divide; 0x2AAAAAAB = 6.000</code> 입니다.
-     ÷3 이었다면 <code>0xAAAAAAAB</code> 에 <code>#0x21</code> 이어야 합니다.
-     <b>8-26 · 7.0 · 7.1 세 판본 모두 같습니다</b> &mdash; 업데이트로 바뀐 것이 아니라 처음부터 6 이었습니다.
-     <span class="sm">회피 0x26b650c·0x26b6620 / 명중 0x26b6264·0x26b62cc (8-26 기준)</span><br>
-     이 때문에 자료실은 <b>완봉선을 7 쯤 높게</b> 적어 놨었고, 실제로 그 오차에 물렸습니다 &mdash;
-     회피 40·민첩 43 인 용병을 «완봉선 53» 으로 적어 두었는데 <b>명중 49 짜리한테 맞아 죽었습니다</b>.
-     <code>avoidcheck.py</code> 가 이제 그 세 줄을 기대값으로 붙잡고 있습니다.</div>
-  <h3>그래서 회피가 얼마면 다 피하나</h3>
-  <p>2d6 의 최솟값이 2 이므로, 아래를 채우면 <b>그 몬스터의 물리 공격은 한 대도 안 맞습니다.</b></p>
-  <div class="eq">회피값 + ⌊CreateRandomValue(민첩)의 <b>최솟값</b>/<b>6</b>⌋ + 지형 + (상대가 비행이고 내가 활이면 3) &ge; 몬스터 명중</div>
-  <p>이 몫이 <b>민첩에 따라 달라집니다</b> &mdash; 민첩이 낮으면 회피값이 더 필요합니다.</p>
-  <table><thead><tr><th class="num">민첩</th><th class="num">10</th><th class="num">15</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">35</th><th class="num">40</th></tr></thead><tbody>
-  <tr><td>회피에 더해지는 최솟값</td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">3</td><td class="num"><b>4</b></td><td class="num">5</td><td class="num">6</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>민첩 30 → 31 에서 한 칸이 뜁니다.</b> <code>CreateRandomValue</code> 의 흔들림 폭이 «기준/3»(≤30)에서 «기준/10»(31~99)으로 확 줄기 때문입니다. 흔들림이 작아지니 최솟값이 올라가고, 그만큼 <b>바닥이 높아집니다</b>. 회피탱을 키운다면 <b>민첩 31 이 30보다 눈에 띄게 낫습니다.</b></div>
-  <p>즉 <b>회피값 ≥ 몬스터 명중 &minus; (위 표의 값)</b> 이면 완봉입니다. 명중 35 짜리 구역이라면 민첩 15는 회피 <b>34</b>, 민첩 30은 <b>32</b>, 민첩 31은 <b>31</b> 이 필요합니다.</p>
-  <table><thead><tr><th>어디</th><th class="num">그 구역 최고 명중</th><th class="num">필요 회피값<br><span style="font-weight:400">민첩 30 기준</span></th></tr></thead><tbody>
-  <tr><td>Lv0~4 탐색지</td><td class="num">12</td><td class="num">9</td></tr>
-  <tr><td>Lv5~9</td><td class="num">19</td><td class="num">16</td></tr>
-  <tr><td>Lv10~14</td><td class="num">27</td><td class="num">24</td></tr>
-  <tr><td>Lv15~19</td><td class="num">28</td><td class="num">25</td></tr>
-  <tr><td>Lv20~24</td><td class="num">38</td><td class="num">35</td></tr>
-  <tr><td>Lv25~29</td><td class="num">44</td><td class="num">41</td></tr>
-  <tr><td><b>Lv30 이상</b></td><td class="num"><b>51</b></td><td class="num"><b>48</b></td></tr>
-  </tbody></table>
-  <p><b>탐색지마다 정확한 값을 도감에 적어 뒀습니다</b> &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «회피 NN+» 이 민첩 30 기준으로 필요한 회피값이고, 상세를 열면 민첩별 표가 나옵니다. 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</p>
-  <div class="note warn"><b>회피는 물리 공격에만 통합니다.</b> <code>AvoidRate</code> 를 부르는 자리는 <code>BattlePhysicalAttackExecutor.PhysicsAttack</code> <b>단 한 곳</b>입니다. 마법 피해도, 상태이상도 회피 판정을 거치지 않습니다. 회피탱은 물리만 막습니다.</div>
-  <h3>★ 실제로 뚫린 판 &mdash; 전투 로그가 완봉선을 정확히 짚어 줍니다</h3>
-  <p>위의 식은 «이론» 이 아닙니다. <b>전투 로그 1,853판</b>에 그대로 찍혀 있습니다.
-     회피탱 하나(<b>혜주</b>)가 몬스터 평타를 <b>204번</b> 받았는데
-     <b>196번을 피하고 8번 맞았습니다</b>. 그 8번이 어디서 났는지가 전부 설명됩니다.</p>
-  <table class="t"><thead><tr><th class="num">상대 명중</th><th class="num">피함</th><th class="num">맞음</th><th>무엇</th></tr></thead><tbody>
-    <tr><td class="num">27 ~ 47</td><td class="num">31</td><td class="num">0</td><td>완봉</td></tr>
-    <tr><td class="num">48 <span class="sm">클레이 재칼</span></td><td class="num">4</td><td class="num">0</td><td>완봉 &mdash; <b>여기가 바닥</b></td></tr>
-    <tr class="hi"><td class="num"><b>49</b> <span class="sm">글레이셜 리브</span></td><td class="num">0</td><td class="num"><b>1</b></td>
-      <td><b>딱 1 넘어서 뚫렸습니다</b> &mdash; 그 한 대가 <b>84</b>, HP 는 56 이었습니다</td></tr>
-  </tbody></table>
-  <div class="note"><b>레벨을 Lv19 로 고정하고, 마비·수면·혼란이 붙은 뒤의 타격은 빼고 센 것입니다.</b>
-     피한 것 중 최고 명중이 <b>48</b>, 맞은 것의 명중이 <b>49</b> &mdash;
-     완봉선이 그 사이에 있습니다. <b>완봉선 = 48</b> 입니다.</div>
-
-  <h4>★ 그런데 자료실의 «완봉 가능한 최대 명중» 이 틀렸습니다</h4>
-  <div class="note warn"><b>이 용병의 완봉선을 자료실은 <span style="color:var(--f-vault)">53</span> 으로 보여 줍니다 &mdash;
-     그런데 명중 49 에 실제로 맞았습니다.</b>
-     53 이 맞다면 49 에는 절대 안 맞아야 합니다. <b>계산식이 틀렸다는 뜻입니다.</b></div>
-  <p>게임 화면이 알려 준 이 용병의 실제 값은 <b>회피 능력 40 · 민첩 43</b>(기본 20 + 직업·장비 23)입니다.
-     자료실은 <code>회피값 + &lfloor;CreateRandomValue(민첩) 최솟값 &divide; 3&rfloor;</code> 로
-     <code>40 + 13 = 53</code> 을 냅니다. <b>나눗수가 3 이 아니라 6 이면 <code>40 + 6 = 46</code></b> 이고,
-     그 쪽은 실측과 모순이 없습니다.</p>
-  <div class="note"><b>지금 확정된 것과 아닌 것을 갈라 둡니다.</b>
-     <b>확정</b> &mdash; 이 용병의 완봉선은 <b>49 미만</b>입니다(로그가 직접 말합니다).
-     글레이셜 리브의 명중 <b>49</b> 는 <b>못 막습니다</b>.
-     <b>미확정</b> &mdash; 완봉선이 정확히 얼마인지, 즉
-     <code>CreateRandomValue</code> 의 <b>나눗수가 3 인지 6 인지</b>와
-     거기 들어가는 민첩이 <b>기본값(20)인지 장비 포함(43)인지</b>는 아직 가리는 중입니다.
-     <span class="sm">그 결과가 나오면 아래 &sect;8 의 민첩 표와 «Lv구간별 필요 회피값» 표도 같이 고칩니다.</span></div>
-  <div class="note warn"><b>그래서 처방은 «민첩» 이 아니라 «회피값» 입니다.</b>
-     네 후보 계산 중 어느 것을 쓰더라도 이 용병의 완봉선은 <b>45~46</b> 근처이고,
-     글레이셜 리브의 49 를 넘기려면 <b>회피값을 4~5 더</b> 올려야 합니다.
-     민첩으로 메우는 길은 나눗수가 확정되기 전에는 권하지 않습니다 &mdash;
-     ÷6 이면 민첩 6 당 회피 1 밖에 안 붙습니다.</div>
-
-  <h4>나머지 7번은 «회피 판정 자체가 없어진» 경우였습니다</h4>
-  <p>맞은 8번 중 <b>7번이 아이스 맨드레이크</b>(명중 37)였습니다 &mdash;
-     완봉선 48 로는 절대 안 맞아야 할 상대입니다. 로그를 펴 보면 <b>일곱 번 다 같은 모양</b>입니다.</p>
-  <div class="eq">T0  혜주  효과 부여  [<b>마비</b>]
-T0  혜주  피해      <b>85 ~ 99</b>
-T0  혜주  쓰러짐</div>
-  <div class="note warn"><b><code>AvoidRate</code> 는 세 가지 상태에서 계산 없이 0 을 돌려줍니다.</b>
-     <b>혼란(7) · 수면(16) · 마비(17)</b> 입니다 &mdash;
-     <code>GetEffect</code> 를 셋 부르고 하나라도 걸리면 <code>mov w0, wzr; ret</code> 입니다.
-     아이스 맨드레이크는 <code>12_ReflectParalysis</code> 를 갖고 있어서
-     <b>이쪽이 때리면 때린 쪽이 마비됩니다</b>. 회피탱을 통째로 무력화합니다.
-     한 판에서는 <b>세 번 연속 피하다가</b> 마비가 붙은 다음 턴에 죽었습니다.</div>
-
-  <h3>★ 반사 피해는 회피와 아무 상관이 없습니다 &mdash; 그런데 활은 안 받습니다</h3>
-  <p>글레이셜 리브는 <code>damageReflect = 30</code> 을 갖고 있습니다.
-     <b>이쪽이 때리면 준 피해의 30%를 그대로 되받습니다</b>(내림).
-     로그에 정확히 남아 있습니다.</p>
-  <table class="t"><thead><tr><th>때린 무기</th><th class="num">준 피해</th><th class="num">되받은 피해</th><th class="num">비율</th></tr></thead><tbody>
-    <tr><td>단검</td><td class="num">45</td><td class="num">13</td><td class="num">29%</td></tr>
-    <tr><td>단검</td><td class="num">35</td><td class="num">10</td><td class="num">29%</td></tr>
-    <tr><td>단검</td><td class="num">34</td><td class="num">10</td><td class="num">29%</td></tr>
-    <tr class="hi"><td><b>활</b></td><td class="num">31 · 24 · 10 …</td><td class="num"><b>0</b></td><td class="num"><b>&mdash;</b></td></tr>
-  </tbody></table>
-  <div class="note"><b>활로 때리면 반사도 반격도 안 옵니다.</b>
-     <code>PhysicsAttack</code> 이 반격 구역에 들어가기 전에 무기 종류를
-     <code>IsFront</code> 에 넣는데, 그 함수는 <b>한 줄</b>입니다 &mdash;
-     <code>cmp w0, #0xe; cset w0, ne</code> (무기종류 14 = <b>활</b>).
-     활이면 <b>false</b> 가 나오고 <code>tbz</code> 가 <b>반격·상태반사·피해반사 구역을 통째로 건너뜁니다</b>.</div>
-  <div class="note"><b>죽이는 일격에도 반사가 없습니다.</b>
-     반사 직전에 <code>IsAlive(대상)</code> 이 걸려 있습니다.
-     같은 판에서 창으로 69를 넣어 <b>죽인</b> 타격은 되받은 것이 0 이었습니다.</div>
-  <p class="src">전투 로그 <b>1,853판</b>(퀘스트 209건) 전수 &middot;
-     (몬스터 &times; 아군) 쌍 176개 중 <b>174개</b>가 «늘 피하거나 늘 맞거나» 한쪽으로만 &mdash;
-     타격 수로는 <b>99.6%</b> &middot;
-     PhysicsAttack <span class="sm">(0x26c7380 <code>sub w8,w0,w24</code> &middot; <code>cmn w8,#1</code> &middot; <code>b.mi</code> &rarr; 회피)</span> &middot;
-     AvoidRate <span class="sm">(0x26b6304 &mdash; GetEffect 7&middot;16&middot;17 중 하나면 <code>mov w0,wzr</code>)</span> &middot;
-     TargetTypeExtensions.IsFront <span class="sm">(0x2709630)</span></p>
-
-  <h3>지형이 양쪽을 다르게 건드립니다</h3>
-  <table><thead><tr><th>지형</th><th class="num">내 회피</th><th class="num">공격자 명중</th></tr></thead><tbody>
-  <tr><td>평지 <code>Plain</code></td><td class="num">0</td><td class="num">0</td></tr>
-  <tr><td>이동 곤란 <code>HardToMove</code></td><td class="num">&minus;2</td><td class="num">활 0 · 그 외 &minus;2</td></tr>
-  <tr><td>매우 곤란 <code>VeryHardToMove</code></td><td class="num">&minus;4</td><td class="num">활 0 · 그 외 &minus;4</td></tr>
-  <tr><td>숲 <code>Forest</code></td><td class="num">+1</td><td class="num">활 &minus;1 · 그 외 0</td></tr>
-  </tbody></table>
-  <p>근접끼리는 서로 깎여 상쇄되지만, <b>거친 지형에서 활에게 맞을 때는 내 회피만 깎입니다</b> &mdash; 이동 곤란에서 &minus;2, 매우 곤란에서 &minus;4. 그리고 <b>활은 비행 몬스터에게 명중 +2</b> 를 받습니다.</p>
-  <h3>선제공격은 «통찰» 입니다 &mdash; 민첩이 아닙니다</h3>
-  <p>전투가 시작될 때 한쪽이 먼저 치고 들어가는 판정이 따로 있습니다
-     (<code>BattleContext.FirstAttack</code>). 여기 쓰이는 것은 <b>통찰</b>이고,
-     <b>민첩은 한 글자도 안 들어갑니다</b>.</p>
-  <div class="eq">파티 쪽 값(한 명) = <b>리더 보너스</b> + <b>max(도둑 레벨 + 2, 레인저 레벨)</b>
-                  + &lfloor;통찰 흔들림 &divide; 3&rfloor;
-몬스터 쪽 값      = &lfloor;몬스터 통찰 흔들림 &divide; 3&rfloor; + 조정
-
-파티가 앞서려면  <b>Dice2DWithCritical(10) + 파티 값 &ge; 몬스터 값 + 2d6 + 8</b></div>
-  <div class="note"><b>도둑과 레인저가 여기서 또 나옵니다.</b>
-     <code>GetJobLevel(Thief) + 2</code> 와 <code>GetJobLevel(Ranger)</code> 중
-     <b>큰 쪽</b>이 통째로 더해집니다 &mdash; 도둑 30 이면 <b>+32</b> 입니다.
-     금고·함정·이벤트에 이어(<a href="#chest">§3</a>·<a href="#trap">§4</a>)
-     <b>선제공격까지 통찰·도둑·레인저</b>가 정합니다.
-     <span class="sm">(몬스터 쪽 조정값과 두 번째 굴림의 정확한 갈래는 아직 다 안 풀었습니다.)</span></div>
-  <div class="note warn"><b>민첩이 정하는 것은 «행동 순서» 뿐입니다.</b>
-     <code>Battle.GetCanActionCreatures</code> 가 <b>매 라운드</b>
-     <code>Agility()</code> 내림차순으로 다시 줄을 세웁니다 &mdash; 주사위도 나눗셈도 없이
-     <b>날것 그대로</b>입니다. 선제공격과는 별개입니다.</div>
-  <p class="src">AdventureMain.ExecuteBattle <span class="sm">(0x2725bd8~0x2725c1c)</span> &middot;
-     AdventureMain.&lt;ExecuteBattle&gt;b__7_1 / b__7_0 &middot; Battle.&lt;GetCanActionCreatures&gt;b__5_3</p>
-
-  <h3>방패 막기 &mdash; 회피가 뚫린 뒤에 한 번 더</h3>
-  <p>회피 판정에 져서 «맞는다» 로 정해진 다음, <b>방패가 한 번 더 굴립니다</b>.
-     같은 판정의 일부가 아니라 <b>완전히 따로</b> 굴리는 두 번째 관문입니다.</p>
-  <div class="eq">방패 회피값 = <b>2d6</b> + &Sigma;방어구.ShieldAvoid()
-             + &lceil;주Lv&times;주방패회피&divide;10&rceil; + &lceil;&Sigma;(부Lv&times;부방패회피)&divide;10&rceil;
-             + <b>&lfloor;지형 회피 보정 &divide; 2&rfloor;</b>   <span class="cmt">// ★ 지형은 절반만</span>
-
-막는다  &hArr;  <b>방패 회피값 &minus; 공격자 명중 &ge; 1</b>
-막으면  공격력 &minus;= <b>Rand(방패 최소 방어, 방패 최대 방어)</b>   <span class="cmt">// 그 뒤 평소대로 방어를 뺀다</span></div>
-  <div class="note"><b>방패 회피값이 0 이 되는 자리가 넷 있습니다.</b>
-     방패를 안 꼈을 때 · <b>혼란</b>(7) · <b>망각</b>(11) ·
-     그리고 <b>행동할 수 없게 만드는 상태이상이 하나라도 걸려 있을 때</b>
-     (<code>effects.Count(e =&gt; !e.CanAction()) &gt; 0</code> &mdash; 수면·마비 따위).
-     회피가 0 이 되는 자리(혼란·수면·마비)와 겹치지만 <b>같지는 않습니다</b>.</div>
-  <p><b>회피와 다른 점이 셋</b>입니다.</p>
-  <ul>
-    <li><b>민첩이 안 들어갑니다.</b> 회피는 <code>&lfloor;민첩 흔들림 &divide; 3&rfloor;</code> 가 큰 몫인데,
-        방패 회피는 <b>장비와 직업뿐</b>입니다.</li>
-    <li><b>지형 보정이 절반</b>만 들어갑니다.</li>
-    <li><b>문턱이 1 낮습니다.</b> 회피는 <code>명중 &minus; 회피 &ge; &minus;1</code> 이면 맞으니
-        <b>회피 &ge; 명중 + 2</b> 라야 피하는데, 막기는 <b>방패 회피 &ge; 명중 + 1</b> 이면 됩니다.</li>
-  </ul>
-  <p><b>공격자 명중은 새로 부릅니다</b> &mdash; 회피 판정 때와 같은 <code>HitRate</code> 를
-     한 번 더 부르되 이번엔 <code>addHitRate = 0</code> 입니다. 공격자가 사람이면
-     <code>Dice2D + &lfloor;재주 흔들림 &divide; 3&rfloor;</code> 가 <b>다시 굴려지고</b>,
-     몬스터면 주사위가 없어 늘 같은 값입니다(§위). 그래서 몬스터에게 맞을 때
-     새로 굴리는 건 <b>내 쪽 2d6 하나뿐</b>입니다.</p>
-
-  <h4>방패 회피값은 어디까지 오르나</h4>
-  <p><b>방패 회피가 붙은 장비가 열린 지역에 둘뿐입니다.</b> 나머지는 전부 직업 몫입니다.</p>
-  <table class="t"><thead><tr><th>출처</th><th class="num">값</th><th>비고</th></tr></thead><tbody>
-    <tr><td>테라 버클러 (Lv16 · 요구 힘 20)</td><td class="num">5</td><td>방어는 5~18 로 낮습니다</td></tr>
-    <tr><td>바위왕의 대방패 (Lv15)</td><td class="num">2</td><td>방어 4~19</td></tr>
-    <tr><td>송곳니왕의 호세방패 (Lv29)</td><td class="num">0</td><td><b>방어 최고(8~31)지만 막기에는 안 보탭니다</b></td></tr>
-    <tr><td>주직업 검술사 15</td><td class="num">8</td><td>주 보너스 5 &mdash; 가장 큽니다</td></tr>
-    <tr><td>부직업 전부 <span class="sm">(가드·베테랑 파이터·마검사·마도병·무장병·중도사)</span></td><td class="num">17</td><td>합쳐서 한 번만 올림</td></tr>
-    <tr class="hi"><td colspan="2"><b>천장 &mdash; 30</b></td><td>2d6 을 더하면 <b>32~42</b></td></tr>
-  </tbody></table>
-  <div class="note warn"><b>방어가 좋은 방패와 막기가 되는 방패가 다릅니다.</b>
-     송곳니왕의 호세방패는 방어 8~31 에 치명타 저항 8 이지만 방패 회피가 <b>0</b> 이고,
-     테라 버클러는 방패 회피 5 지만 방어가 5~18 입니다.
-     <b>막기를 노릴 값어치는 직업 쪽에 있습니다</b> &mdash; 장비로는 최대 5 뿐입니다.</div>
-
-  <h4>그래서 얼마나 막나</h4>
-  <p>열린 지역 몬스터의 명중 중앙값으로 잰 «한 대를 막을 확률» 입니다.</p>
-  <table class="t"><thead><tr><th>방패 회피값</th>
-    <th class="num">Lv1~9<br><span class="sm">명중 12</span></th>
-    <th class="num">Lv10~14<br><span class="sm">명중 18</span></th>
-    <th class="num">Lv15~19<br><span class="sm">명중 23</span></th>
-    <th class="num">Lv20~24<br><span class="sm">명중 30</span></th>
-    <th class="num">Lv25~33<br><span class="sm">명중 34</span></th></tr></thead><tbody>
-    <tr><td>6 <span class="sm">(마검사 30 만)</span></td><td class="num">58%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-    <tr><td>11 <span class="sm">(+ 테라 버클러)</span></td><td class="num">100%</td><td class="num">42%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
-    <tr><td>16</td><td class="num">100%</td><td class="num">97%</td><td class="num">42%</td><td class="num">0%</td><td class="num">0%</td></tr>
-    <tr><td>21</td><td class="num">100%</td><td class="num">100%</td><td class="num">97%</td><td class="num">17%</td><td class="num">0%</td></tr>
-    <tr><td>26</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">83%</td><td class="num">28%</td></tr>
-    <tr class="hi"><td><b>30</b> <span class="sm">(천장)</span></td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num">100%</td><td class="num"><b>83%</b></td></tr>
-  </tbody></table>
-  <div class="note"><b>천장까지 짜도 상위 지역에서는 다 못 막습니다.</b> 그리고 막아도
-     «안 맞은» 게 아니라 <b>공격력에서 방패 방어를 뺀 채로 평소대로 맞습니다</b> &mdash;
-     회피처럼 0 이 되는 게 아닙니다. 방패 회피에 직업을 쏟는 것보다
-     <b>같은 노력을 회피에 쓰는 쪽이 낫습니다</b>(§10).</div>
-  <p class="src">BattleCreature.ShieldAvoidRate <span class="sm">(0x26b75e8)</span> ·
-     Character.ShieldAvoidValue · Armor.ShieldAvoid ·
-     BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c73e4~0x26c7418 · 0x26c745c)</span> ·
-     BattleCreature.HitRate / AvoidRate · Terrain.GetHitRateModifier / GetAvoidRateModifier ·
-     Util.Dice2D = 2d6 · Util.Dice2DAvg = 7 · 열린 지역 몬스터 242종</p>
-
-  <h3>활이 절대 안 통하는 몬스터가 있습니다</h3>
-  <p><code>invalidBow</code> 가 켜진 몬스터에게 활로 때리면 <b>회피에 999 가 더해집니다</b> &mdash; 어떤 수치로도 못 맞힙니다. 전체 377종 중 <b>5종</b>입니다.</p>
-  <table><thead><tr><th>몬스터</th><th class="num">레벨</th></tr></thead><tbody>
-  <tr><td>본 하운드 <code>5_BoneHound</code></td><td class="num">5</td></tr>
-  <tr><td>데스 할로우 <code>9_DeathHollow</code></td><td class="num">9</td></tr>
-  <tr><td>프로스트 레이스 <code>12_FrostWraith</code></td><td class="num">12</td></tr>
-  <tr><td>아이스 앤트 <code>22_IceAnt</code></td><td class="num">22</td></tr>
-  <tr><td>본 베일 <code>24_BoneVeil</code></td><td class="num">24</td></tr>
-  </tbody></table>
-  <h3>물리 무효는 «마법 무기» 로 뚫립니다</h3>
-  <p><code>invalidPhysics</code> 가 <b>37종</b> 있는데, 무효 판정이 이렇게 돼 있습니다:</p>
-  <div class="eq">if (대상.InvalidPhysics() &amp;&amp; <b>!공격.isMagicAttack</b>) → 무효</div>
-  <p>즉 <b>공격이 «마법 공격» 으로 표시되면 그대로 통합니다.</b> 그 표시는 <code>BattleCreature.IsUseMagicWeapon()</code> 이 정합니다:</p>
-  <div class="eq">무기가 없으면 → 아니오
-<b>주직업이 마검사(Job.Kind 29) 이고 단검을 들었으면 → 예</b>   <i>// 부직업이면 안 된다</i>
-그 외에는 <b>Weapon.IsMagic()</b> — 무기 마스터의 <code>ability.isMagic</code>
-(강화로 붙는 <code>IsMagic(254)</code> 도 세지만, 강화는 그걸 만들지 않습니다)
-그리고 <code>EffectOnCreature 41</code> 이 걸려 있으면 무조건 예</div>
-  <div class="note"><b>마법 무기는 446종 중 68종(15%)입니다.</b> 활이 12종, 단검이 8종 있습니다 &mdash; 실버 활(Lv5) · 엘프 활(7) · 지구결속 활(12) · 아케인 연마 활(16) · 프리즈 아이(17) · 기원의 활(22) · 넝쿨 묶은 활(23) · 모래거울 활(24) · 지문의 현궁(25) · 라이프드레인보우(28) · 명천궁(30) · 불타는 활(34). <a href="codex.html">도감</a> 아이템 줄에 <b>«마법»</b> 표로 붙여 뒀습니다.</div>
-  <div class="note warn"><b>마검사는 «주직업» 일 때만 통합니다.</b> <code>IsUseMagicWeapon()</code> 이 보는 건 <code>Character.MainJob()</code> 이고, 그건 <code>Job.isCurrent</code> 가 켜진 직업 &mdash; 게임에서 <b>지금 지정해 둔 직업</b> 하나뿐입니다. 마검사를 부직업으로 달아 두면 단검을 들어도 물리 공격 그대로입니다. 그리고 마검사가 들 수 있는 무기는 <b>단검뿐</b>이라(최대 레벨 30), 다른 무기로는 이 길이 없습니다.</div>
-  <p><b>강화로는 마법 속성을 못 붙입니다.</b> 처음부터 마법인 무기를 구해야 합니다 &mdash; 물리 무효 몬스터가 37종이나 되니, 파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</p>
-  <p>도감의 몬스터 줄에 <b>«활 무효» · «물리 무효»</b> 표를 붙여 뒀습니다.</p>
-
-  <h3>상태이상이 명중·회피를 깎습니다 &mdash; 숨은 표</h3>
-  <p><code>EffectOnCreature</code> 의 <b>정적 사전 네 벌</b>입니다. 게임 어디에도 안 나오고
-     마스터 데이터에도 없습니다 &mdash; 바이너리의 <code>.cctor</code> 에서 읽었습니다.</p>
-  <table class="t"><thead><tr><th>상태이상</th><th class="num">명중</th><th class="num">회피</th><th class="num">방어</th><th class="num">치명 저항</th></tr></thead><tbody>
-    <tr><td>Hug 잡힘</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
-    <tr><td>Eating 삼켜짐</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
-    <tr><td>Blind 실명</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
-    <tr><td>VeryHardToMove 매우 곤란</td><td class="num">&minus;4</td><td class="num">&minus;4</td><td class="num">&middot;</td><td class="num">&minus;4</td></tr>
-    <tr><td>TripWire 걸려 넘어짐</td><td class="num">&middot;</td><td class="num">&minus;4</td><td class="num">&minus;2</td><td class="num">&minus;3</td></tr>
-    <tr><td>Dance 춤</td><td class="num">&minus;4</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&minus;2</td></tr>
-    <tr class="hi"><td><b>Fell 넘어짐</b> <span class="sm">(카샨의 Slimy)</span></td><td class="num">&middot;</td><td class="num"><b>&minus;2</b></td><td class="num">&minus;2</td><td class="num">&minus;2</td></tr>
-    <tr><td>HardToMove 이동 곤란</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&minus;2</td></tr>
-    <tr><td>Hold 붙잡힘</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&minus;2</td></tr>
-    <tr><td>LifeDrain 생명 흡수</td><td class="num">&minus;2</td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
-    <tr><td>BeSurprised 놀람</td><td class="num">&middot;</td><td class="num">&minus;2</td><td class="num">&minus;1</td><td class="num">&minus;2</td></tr>
-    <tr><td>Fanaticism 광신</td><td class="num"><b>+2</b></td><td class="num">&minus;2</td><td class="num">&middot;</td><td class="num">&middot;</td></tr>
-    <tr><td>MentalDisturbance 정신 교란</td><td class="num">&minus;1</td><td class="num">&minus;1</td><td class="num">&minus;1</td><td class="num">&minus;1</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>그리고 셋은 회피를 아예 0 으로 만듭니다.</b>
-     <code>AvoidRate</code> 맨 앞에서 <b>혼란(7) &middot; 수면(16) &middot; 마비(17)</b> 중 하나라도
-     걸려 있으면 <b>계산 없이 0 을 돌려줍니다.</b> 회피값이 얼마든 무조건 맞습니다.</div>
-  <p><b>그래서 「딱 맞는 회피」는 위험합니다.</b> 넘어짐 하나에 &minus;2, 실명이면 &minus;4 입니다.
-     완방을 노린다면 <b>필요치보다 5 는 여유를 두세요.</b>
-     상태이상 저항은 <b>힘</b>(정신계는 마법 방어)이므로, 회피탱이라도 힘을 버리면 안 됩니다.</p>
-  <p class="src">EffectOnCreature.HitRateModifiers / AvoidRateModifiers / DefensePointModifiers /
-     CriticalDefensePointModifiers (.cctor @0x26FAB74) &middot; BattleCreature.AvoidRate</p>
-
-  <h2 id="pers"><span class="n">9</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
-  <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
-  <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
-  <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num">30%</td><td class="num">+3</td><td class="num">+Rand(3)</td></tr>
-  <tr><td><b>이기적</b></td><td class="num">24</td><td class="num">50%</td><td class="num">30%</td><td class="num">+2</td><td class="num">+Rand(2)</td></tr>
-  <tr><td><b>사교적</b></td><td class="num">16</td><td class="num">50%</td><td class="num">20%</td><td class="num">&minus;1</td><td class="num">&mdash;</td></tr>
-  <tr><td><b>신중한</b></td><td class="num">8</td><td class="num"><b>70%</b></td><td class="num">5%</td><td class="num">0</td><td class="num">&mdash;</td></tr>
-  <tr><td><b>합리적</b></td><td class="num">14</td><td class="num">60%</td><td class="num">15%</td><td class="num">+3</td><td class="num">&mdash;</td></tr>
-  <tr><td><b>신경질적</b></td><td class="num">12</td><td class="num">60%</td><td class="num">20%</td><td class="num">&minus;1</td><td class="num">0</td></tr>
-  <tr><td><b>감정적</b></td><td class="num">7&ndash;29<br><span style="font-size:11px;color:var(--faint)">매번 다시 굴림</span></td><td class="num">50%</td><td class="num">30%</td><td class="num">+1</td><td class="num">0</td></tr>
-  </tbody></table>
-  <p class="src">Party.GetRetreatThreshold &middot; BattleSkill.CanUse &middot; Character.GetShoutRate &middot; Party.LeaderBonus &middot; InviteAdventureDialog.TapInviteButton</p>
-
-  <h3>★ 어떤 성격이 나오는가 &mdash; 종족과 성별이 정합니다</h3>
-  <p>성격은 <b>뽑을 때 한 번</b> 정해지고 그 뒤로 바뀌지 않습니다
-     (<code>Character.personality</code> 에 쓰는 곳이 <code>CreateParam</code> 하나뿐입니다).
-     고르는 방식은 «칸 뽑기»입니다 &mdash; 캐릭터 마스터마다 <b>성격 칸 목록</b>이 있고
-     거기서 <b>균등 추첨</b>합니다.</p>
-  <div class="eq">personality = personalities[ <b>Random.Range(0, personalities.Count)</b> ]</div>
-  <div class="note"><b>같은 성격이 여러 칸 들어 있으면 그만큼 확률이 높습니다.</b>
-     마스터는 <b>18종</b>뿐이고(종족 4 &times; 성별 2, 휴먼만 5단계) 칸 수는 6 또는 7 입니다.</div>
-  <table class="t"><thead><tr><th>마스터</th><th class="num">칸</th>
-    <th class="num">무모한</th><th class="num">이기적</th><th class="num">사교적</th><th class="num">신중한</th>
-    <th class="num">합리적</th><th class="num">신경질적</th><th class="num">감정적</th></tr></thead><tbody>
-    <tr><td>휴먼 남 1~5 · 여 1~5 <span class="sm">(10종)</span></td><td class="num">7</td>
-      <td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
-      <td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td></tr>
-    <tr><td><b>드워프 남</b> 1·2</td><td class="num"><b>6</b></td>
-      <td class="num"><b>1/6</b></td><td class="num"><b>3/6</b></td><td class="num">&middot;</td><td class="num">1/6</td>
-      <td class="num">&middot;</td><td class="num">&middot;</td><td class="num">1/6</td></tr>
-    <tr class="hi"><td><b>드워프 여</b> 1·2</td><td class="num">7</td>
-      <td class="num"><b>&middot;</b></td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
-      <td class="num">1/7</td><td class="num">&middot;</td><td class="num"><b>3/7</b></td></tr>
-    <tr><td>엘프 남</td><td class="num">7</td>
-      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
-      <td class="num">&middot;</td><td class="num">2/7</td><td class="num">2/7</td></tr>
-    <tr><td>엘프 여</td><td class="num">7</td>
-      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">1/7</td>
-      <td class="num">&middot;</td><td class="num">1/7</td><td class="num">3/7</td></tr>
-    <tr><td>풋워커 남</td><td class="num">7</td>
-      <td class="num">1/7</td><td class="num">2/7</td><td class="num">&middot;</td><td class="num">&middot;</td>
-      <td class="num">1/7</td><td class="num">1/7</td><td class="num">2/7</td></tr>
-    <tr><td>풋워커 여</td><td class="num">7</td>
-      <td class="num">&middot;</td><td class="num">2/7</td><td class="num">1/7</td><td class="num">&middot;</td>
-      <td class="num">2/7</td><td class="num">1/7</td><td class="num">1/7</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>무모한이 아예 안 나오는 쪽이 넷 있습니다</b> &mdash;
-     <b>드워프 여 · 엘프 남 · 엘프 여 · 풋워커 여</b>. 칸에 없으니 0% 입니다.
-     후퇴를 안 하는 리더(무모한)를 찾는다면 <b>휴먼(1/7) · 드워프 남(1/6) · 풋워커 남(1/7)</b>
-     세 곳에서만 나옵니다.</div>
-  <div class="note"><b>드워프 남자는 절반이 이기적입니다</b> &mdash; 6칸 중 3칸.
-     드워프 여자는 <b>감정적이 3/7</b> 이고, 엘프도 감정적·신경질적으로 몰려 있습니다.
-     감정적은 후퇴 기준점을 <b>매번 7~29 로 다시 굴리는</b> 성격이라 리더로는 예측이 안 됩니다(아래).</div>
-  <p class="src">CharacterMaster.personalities <span class="sm">(마스터 18종 전수)</span> &middot;
-     Character.CreateParam <span class="sm">(0x26d2340&mdash;0x26d2358)</span> &middot;
-     ListExtensions.Random <span class="sm">(0x2cbd560 &mdash; Random.Range(0, Count))</span></p>
-
-  <h3>후퇴 &mdash; 리더의 성격만 봅니다</h3>
-  <p>후퇴는 <b>리더 한 명의 성격</b>으로 정해집니다. 나머지 파티원의 성격은 여기에 아무 영향이 없습니다. 방식은 «점수 적립»입니다 &mdash; 사건이 하나 끝날 때마다 파티에 <b>후퇴 점수</b>가 쌓이고, 그 합이 기준점에 닿는 순간 되돌아섭니다.</p>
-  <div class="eq">A = 살아 있는 인원 &nbsp; N = 전체 인원
-
-무모한   &rarr; int.MaxValue          <i>// 사실상 없음 — 전멸까지 안 돌아선다</i>
-이기적   &rarr; N == 1 ? 30 : 24
-사교적   &rarr; N &lt;  2 ? 2  : A &times; 4
-신중한   &rarr; A &gt;  1 ? A &times; 2 : 3
-합리적   &rarr; A &ge;  2 ? A &times; 3 + 2 : 3
-신경질적 &rarr; A == 1 ? 4  : A &times; 3
-감정적   &rarr; Rand(7, 30)          <i>// 판정할 때마다 새로 굴린다</i>
-
-리더가 죽어 있으면 &rarr; 0  <i>// 다음 사건에서 바로 돌아선다</i></div>
-  <div class="note warn"><b>기준점은 살아 있는 인원에 비례합니다.</b> 한 명 죽으면 기준점 자체가 내려가서, 남은 점수로도 곧바로 넘길 수 있습니다 &mdash; 무너지기 시작하면 가속이 붙습니다. 무모한 리더만 이 사다리 밖에 있습니다.</div>
-  <h3>★ 혼자 갈 때 &mdash; «이기적» 에 전용 분기가 있습니다</h3>
-  <p>위 식에서 <b>N</b>(전체 인원)을 보는 성격이 <b>둘</b>뿐인데, 방향이 정반대입니다.
-     나머지는 <b>A</b>(살아 있는 수)에만 비례하므로 <b>A = 1 에서 3~4 로 주저앉습니다</b>.</p>
-  <table class="t"><thead><tr><th>성격</th><th class="num">혼자일 때<br>후퇴 기준점</th><th class="num">4인</th>
-    <th class="num">리더 보너스<br><span style="font-weight:400">금고 발견</span></th>
-    <th class="num">자기 회복<br><span style="font-weight:400">이 HP 이하에</span></th></tr></thead><tbody>
-    <tr><td><b>무모한</b></td><td class="num"><b>&infin;</b> <span class="sm">안 돌아섭니다</span></td><td class="num">&infin;</td><td class="num"><b>+3</b></td><td class="num">50%</td></tr>
-    <tr class="hi"><td><b>이기적</b></td><td class="num"><b>30</b> <span class="sm">← 전용 분기</span></td><td class="num">24</td><td class="num">+2</td><td class="num">50%</td></tr>
-    <tr class="hi"><td><b>합리적</b></td><td class="num">3</td><td class="num">14</td><td class="num"><b>+3</b></td><td class="num"><b>60%</b></td></tr>
-    <tr><td>감정적</td><td class="num">7~29 <span class="sm">매번 다시</span></td><td class="num">7~29</td><td class="num">+1</td><td class="num">50%</td></tr>
-    <tr><td>신경질적</td><td class="num">4</td><td class="num">12</td><td class="num">&minus;1</td><td class="num">60%</td></tr>
-    <tr><td>신중한</td><td class="num">3</td><td class="num">8</td><td class="num">0</td><td class="num"><b>70%</b></td></tr>
-    <tr><td>사교적</td><td class="num"><b>2</b> <span class="sm">← 전용 분기</span></td><td class="num">16</td><td class="num">&minus;1</td><td class="num">50%</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>리더 보너스는 «혼자» 일 때 가장 크게 작용합니다.</b>
-     리더가 자기 자신이라 금고 <b>발견</b> 판정에 그대로 들어가고,
-     게다가 <b>발견의 통찰 보너스는 «도둑 레벨 + 리더 보너스 &ge; 1» 일 때만 붙습니다</b>(<a href="#chest">&sect;3</a>).
-     도둑을 안 키운 캐릭터라면 <b>사교적(&minus;1) · 신경질적(&minus;1) · 신중한(0)</b> 은
-     <b>통찰이 아무리 높아도 0 으로 굴립니다</b>. 감정적(+1)은 턱걸이로 살아납니다.</div>
-  <div class="note"><b>그래서 «무모한» 일 필요는 없습니다.</b> 혼자 가는 캐릭터에게 필요한 것은
-     «절대 안 돌아서는 것» 이 아니라 <b>«퀘스트 하나를 버티는 것»</b> 입니다.
-     퀘스트 하나의 사건이 <b>19개 안팎</b>이고 사건마다 붙는 점수가 보통 <b>0~1</b> 이므로,
-     <b>기준점 30 이면 한 판을 넉넉히 넘깁니다</b>.</div>
-  <div class="note warn"><b>무모한은 혼자일 때 위험합니다.</b> 기준점이 <code>int.MaxValue</code> 라
-     <b>HP 가 바닥나도 돌아서지 않습니다</b>. 파티였다면 남은 사람이 있지만 혼자면 그대로 쓰러지고,
-     캐릭터에는 <b>구출 비용</b>(<code>rescueCost</code>)과 <b>잃은 장비</b>(<code>lostEquipments</code>)가
-     따로 기록됩니다. 이득은 리더 보너스 +3 뿐인데(이기적은 +2) 값이 안 맞습니다.</div>
-  <div class="note"><b>«무모한» 이 안 나오는 종족에서는 «합리적» 이 그 자리입니다.</b>
-     드워프 여 · 엘프 남녀 · 풋워커 여에게는 무모한 칸이 없는데(위 &laquo;어떤 성격이 나오는가&raquo;),
-     <b>합리적이 리더 보너스 +3 으로 무모한과 같고</b> 회복도 60% 로 한 칸 빠릅니다.
-     약점은 <b>후퇴 기준점 3</b> 하나뿐입니다.</div>
-  <div class="note"><b>그 3 이 문제가 되느냐는 «맞느냐» 에 달렸습니다.</b>
-     아래 &laquo;실제로 점수를 굴리는 사건&raquo; 에서 보듯, 한 대도 안 맞고 상태이상도 안 걸리면
-     점수가 <b>0 으로 고정</b>이라 기준점이 3이든 30이든 안 닿습니다.
-     반대로 상태이상을 자주 받는 자리라면 <b>이기적(30)</b> 이나 <b>감정적(최소 7)</b> 의 여유가 필요합니다.</div>
-  <table class="t"><thead><tr><th>혼자 보낼 캐릭터라면</th><th>고를 것</th></tr></thead><tbody>
-    <tr class="hi"><td><b>회피탱</b> &mdash; 물리를 거의 안 맞음</td>
-      <td><b>합리적</b> <span class="sm">(리더 +3 · 회복 60%)</span>.
-        무모한이 나오는 종족이면 무모한도 같지만 <b>죽을 때까지 안 돌아서는</b> 위험이 붙습니다</td></tr>
-    <tr><td><b>맞아 가며 버티는 자리</b> · 상태이상을 자주 받음</td>
-      <td><b>이기적</b> <span class="sm">(30)</span> &gt; <b>감정적</b> <span class="sm">(최소 7 · 리더 +1)</span></td></tr>
-    <tr style="color:var(--faint)"><td>피할 것</td><td><b>사교적</b> &mdash; 기준점 2 에 리더 &minus;1 로 양쪽 다 최악입니다</td></tr>
-  </tbody></table>
-  <div class="note"><b>궁합은 혼자일 때 아예 안 돕니다.</b>
-     <code>CheckCompatibility</code> 는 <b>상대 캐릭터</b>를 받는 함수라 파티에서만 굴러갑니다 &mdash;
-     «이기적이라 파티가 껄끄럽다» 는 <b>키우는 동안</b>의 문제이고, 쏠플 중에는 아무 영향이 없습니다.</div>
-  <p class="src">Party.GetRetreatThreshold <span class="sm">(0x26f6930 이기적 &mdash; <code>N==1 ? 30 : 24</code> · 0x26f6898 사교적 &mdash; <code>N&lt;2 ? 2 : A*4</code>)</span></p>
-
-  <h4 style="font-size:13px;margin:20px 0 8px">점수가 붙는 자리</h4>
-  <p>퀘스트 이벤트마다 <code>retreatCondition</code> 이 달려 있고, 그 값이 <b>None</b> 이면 그 사건은 점수를 안 만듭니다. 값이 있을 때만 아래를 굴립니다.</p>
-  <table><thead><tr><th>조건</th><th>붙는 점수</th></tr></thead><tbody>
-  <tr><td><b>IfBattleOrTrap</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">전투·함정·금고 이벤트에서만</span></td><td>사건 중 <b>죽은 사람마다 +5</b><br>최대 MP 5 이상인 사람의 MP가 줄고, 그 결과 최대의 &frac14; 이하가 되면 +1<br>HP가 사건 직전의 절반 미만이면 +1 &mdash; 아니면 MP가 절반 미만일 때 +1</td></tr>
-  <tr><td><b>Happen</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">사건 종류를 안 가림</span></td><td><code>clamp((퀘스트 레벨 &minus; 파티 평균 레벨) &times; 10 + 50, 5, 95)</code>% 로 +1</td></tr>
-  <tr><td colspan="2" style="color:var(--muted)"><b>그리고 두 조건 모두 공통으로</b> &mdash; HP가 최대의 &frac13; 미만이거나 상태이상이 하나라도 걸린 사람마다,<br>&nbsp;&nbsp;&middot; 이번 사건으로 HP가 줄었으면 +1<br>&nbsp;&nbsp;&middot; 새로 걸린 상태이상 <b>개수만큼</b> +N</td></tr>
-  </tbody></table>
-  <p>점수는 <b>퀘스트 내내 누적</b>됩니다. 초반에 크게 다치면 그 점수를 안고 끝까지 갑니다.</p>
-
-  <h4 style="font-size:13px;margin:20px 0 8px">★ 실제로 점수를 굴리는 «사건» 은 생각보다 적습니다</h4>
-  <p><code>IfBattleOrTrap</code> 은 조건이 붙어 있다고 굴리는 것이 아닙니다 &mdash;
-     <b>이벤트 종류가 전투·금고·함정일 때만</b> 굴립니다(<code>kind == 11 · 70 · 80</code>).
-     퀘스트 이벤트의 절반이 넘는 <b>메시지</b>는 조건이 붙어 있어도 <b>0점</b>입니다.</p>
-  <table class="t"><thead><tr><th>이벤트 종류</th><th class="num">전체 개수</th><th>점수를 굴리나</th></tr></thead><tbody>
-    <tr style="color:var(--muted)"><td>메시지</td><td class="num">15,184</td><td><b>안 굴립니다</b> &mdash; 조건은 붙어 있지만 종류가 안 맞습니다</td></tr>
-    <tr class="hi"><td><b>전투</b></td><td class="num">5,885</td><td>굴립니다</td></tr>
-    <tr class="hi"><td><b>함정</b></td><td class="num">1,470</td><td>굴립니다</td></tr>
-    <tr class="hi"><td><b>금고</b></td><td class="num">1,194</td><td>굴립니다</td></tr>
-    <tr><td>동굴 진입·탈출 · 금화 · 아이템</td><td class="num">2,974</td><td>굴립니다</td></tr>
-    <tr><td colspan="3" style="color:var(--muted)"><b>Happen</b>(<code>retreatCondition == 2</code> &mdash; 종류를 안 가리는 확률 조항)은
-      <b>992개(3.7%)</b> 뿐이고,
-      <b>퀘스트 1403개 중 814개(58%)는 Happen 이 하나도 없습니다</b> &mdash; 퀘스트당 중앙값 <b>0개</b>.
-      <span class="sm">퀘스트 1403개 · 이벤트 26,707개 전수 (7.0)</span></td></tr>
-  </tbody></table>
-  <div class="eq">Happen 확률 = clamp( (<b>퀘스트 난이도 &minus; 파티 평균 레벨</b>) &times; 10 + 50 , <b>5</b> , 95 )%
-
-⇒ 평균 레벨이 난이도보다 <b>4.5 이상 높으면 5% 하한</b>에 눌립니다.</div>
-
-  <h4 style="font-size:13px;margin:20px 0 8px">★ 그래서 «안 맞으면» 점수가 거의 안 쌓입니다</h4>
-  <p>전투·금고·함정 이벤트에서 점수가 붙는 네 자리를 <b>한 대도 안 맞은 캐릭터</b>로 따져 보면 이렇습니다.</p>
-  <table class="t"><thead><tr><th>붙는 조건</th><th>안 맞았다면</th></tr></thead><tbody>
-    <tr><td>죽은 사람마다 <b>+5</b></td><td class="num">0</td></tr>
-    <tr><td>최대 MP <b>5 이상</b>인데 MP 가 줄고 최대의 &frac14; 이하 &rarr; +1</td><td class="num">0 <span class="sm">(최대 MP 가 5 미만이면 아예 건너뜁니다)</span></td></tr>
-    <tr><td>HP 가 사건 직전의 <b>절반 미만</b> &rarr; +1 &mdash; 아니면 MP 가 절반 미만일 때 +1</td><td class="num">0</td></tr>
-    <tr class="hi"><td><b>공통</b> &mdash; <b>HP 가 최대의 &frac13; 미만이거나 상태이상이 하나라도 있을 때만</b> 열립니다.
-      열리면 HP 가 줄었으면 +1, <b>새로 걸린 상태이상 개수만큼 +N</b></td>
-      <td class="num"><b>상태이상만 조심</b></td></tr>
-  </tbody></table>
-  <div class="note"><b>회피로 물리를 완봉하면 후퇴 점수가 거의 안 쌓입니다.</b>
-     그러면 <b>기준점이 3이든 30이든 닿지 않습니다</b> &mdash; 성격이 사실상 무관해집니다.
-     혼자 갈 때 «이기적» 을 억지로 맞출 필요도 그만큼 줄어듭니다.</div>
-  <div class="note warn"><b>구멍은 «상태이상» 입니다.</b>
-     회피는 <b>물리 공격에만</b> 통합니다(<a href="#avoid">&sect;8</a> &mdash;
-     <code>AvoidRate</code> 를 부르는 곳이 <code>PhysicsAttack</code> 한 곳뿐입니다).
-     마법도 상태이상도 회피 판정을 안 거치므로, 한 번 걸리면 공통 조항이 열리고
-     <b>걸린 개수만큼</b> 점수가 붙습니다. 함정(<a href="#trap">&sect;4</a>)도 회피와 별개 규칙입니다.</div>
-  <p class="src">AdventureMain.EvaluateLeaderRetreat &middot; Party.AddRetreatPoint &middot; Party.StartReturning</p>
-
-  <h3>회복 마법을 언제 쓰는가</h3>
-  <p>회복 주문의 설명문에 «시전자의 성격에 따라 사용 타이밍이 달라집니다» 라고 적혀 있는 그 부분입니다. <b>시전자</b>의 성격이 기준선을 올립니다.</p>
-  <div class="eq">T = min(스킬의 healTiming + 성격 보정, 8)
-  신중한 +2 &nbsp;&middot;&nbsp; 합리적 +1 &nbsp;&middot;&nbsp; 신경질적 +1 &nbsp;&middot;&nbsp; 나머지 +0
-
-대상으로 고른다  &hArr;  HP &le; 최대 HP &times; T / 10
-              또는  HP == 1
-              또는  잃은 HP &gt; (마법력 + (최소회복+최대회복)/2) &minus; 2</div>
-  <p><b>게임 안의 모든 스킬이 <code>healTiming = 5</code> 입니다</b> (152건 전수). 그래서 실질적으로 성격만 남습니다 &mdash; <b>신중한 70% · 합리적/신경질적 60% · 나머지 50%</b>. 상한 8(80%)에는 어떤 조합으로도 닿지 않습니다.</p>
-  <div class="note"><b>힐러는 신중한이 가장 빠릅니다.</b> 다른 성격의 힐러는 HP가 절반으로 떨어질 때까지 기다립니다 &mdash; 한 방에 절반 넘게 맞는 구간에서는 그 차이가 그대로 사망으로 이어집니다. 마지막 줄(«잃은 HP가 회복량보다 크면») 덕분에 최대 HP가 큰 캐릭터는 기준선 위에서도 힐을 받습니다.</div>
-  <p class="src">BattleSkill.CanUse &middot; SkillMaster.healTiming [Range(2,8)]</p>
-
-  <h3>전투 중 대사</h3>
-  <p><code>GetShoutRate()</code> 는 <b>대사 출력 확률</b>입니다 &mdash; 크리티컬을 냈을 때, 그리고 몬스터의 정체를 간파했을 때 말풍선이 뜰 확률. 행동 자체는 바꾸지 않습니다. 신중한(5%)은 거의 말이 없고 무모한·이기적·감정적(30%)은 시끄럽습니다.</p>
-
-  <h3>궁합 &mdash; 그리고 코드에 남은 버그</h3>
-  <p>친밀도가 오르내릴 때 성격 궁합이 배수로 곱해집니다. <b>«잘 맞음»을 먼저 보고, 아니면 «안 맞음»을 봅니다.</b></p>
-  <table><thead><tr><th>판정</th><th class="num">친밀도가 오를 때</th><th class="num">내릴 때</th></tr></thead><tbody>
-  <tr><td>잘 맞음</td><td class="num"><b>&times;1.5</b></td><td class="num">&times;0.8</td></tr>
-  <tr><td>안 맞음</td><td class="num">&times;0.3</td><td class="num"><b>&times;2.0</b></td></tr>
-  <tr><td>둘 다 아님</td><td class="num">&times;1.0</td><td class="num">&times;1.0</td></tr>
-  </tbody></table>
-  <table><thead><tr><th>내 성격</th><th>잘 맞음</th><th>안 맞음 (코드)</th><th>실제로 도는가</th></tr></thead><tbody>
-  <tr><td><b>무모한</b></td><td>감정적</td><td>이기적 · 신중한 · 신경질적</td><td>둘 다 산다</td></tr>
-  <tr><td><b>이기적</b></td><td>무모한 · 합리적</td><td>신중한 · 신경질적 · 감정적</td><td>둘 다 산다</td></tr>
-  <tr><td><b>사교적</b></td><td>이기적 · 감정적</td><td>이기적 · 감정적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
-  <tr><td><b>신중한</b></td><td>합리적 · 신경질적</td><td>합리적 · 신경질적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
-  <tr><td><b>합리적</b></td><td>이기적 · 신중한 · 신경질적</td><td>신중한 · 신경질적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
-  <tr><td><b>신경질적</b></td><td>신중한 · 합리적</td><td>신중한 · 합리적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
-  <tr><td><b>감정적</b></td><td>무모한 · 사교적</td><td>무모한 · 사교적</td><td style="color:var(--f-heal)">«안 맞음» 죽은 코드</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>일곱 중 다섯은 «잘 맞음»과 «안 맞음»의 목록이 완전히 같습니다.</b> <code>IsGood</code> 을 먼저 보기 때문에, 그 다섯 성격에게 <code>IsBad</code> 는 한 번도 실행되지 않습니다. 합리적의 «안 맞음»(신중한·신경질적)도 «잘 맞음»에 통째로 들어 있어서 마찬가지입니다. <b>실제로 «안 맞음»이 도는 건 무모한과 이기적, 둘뿐입니다.</b> 두 함수의 <code>switch</code> 가지가 한 칸씩 어긋나 있는 모양이라, 게임 쪽 실수로 보입니다.</div>
-  <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
-  <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
-
-  <h2 id="tank"><span class="n">10</span>근접은 왜 맞아죽는가 &mdash; 구조가 아니라 «장비 칸» 입니다</h2>
-  <div class="note warn"><b>이 절은 통째로 고쳐 썼습니다 (2026-08-31).</b>
-     예전에 여기 «방어는 절반만 깎는다» 고 적혀 있었습니다. 그건 <b>치명타 갈래</b>였습니다
-     &mdash; <code>sub w8, w27, w28, lsr #1</code> 만 보고 바로 아래의 평타 갈래
-     <code>subs w24, w27, w28</code> 를 놓쳤습니다. <b>평타는 방어를 전액 뺍니다.</b>
-     그리고 <b>방패 방어를 빼 놓은 것</b>도 고쳤습니다 &mdash; 방패는 방어에 더해지고,
-     막기에 성공하면 그 위에 한 번 더 깎습니다. 표도 결론도 전부 바뀝니다.
-     <span class="sm">(하루 뒤 한 번 더 고쳤습니다 &mdash; 갑옷과 의복이 «다른 칸» 인 줄 알았는데
-     몸 한 칸을 나눠 씁니다. 아래 «지금 낄 수 있는 최고 방어» 를 보세요.)</span></div>
-
-  <h3>한 대가 얼마인가</h3>
-  <div class="eq">몬스터 공격력 = <b>3L + (L&gt;4 ? 2L&minus;8 : 0)</b> + 조정   <span class="cmt">// 주사위 없음 — 고정값</span>
-
-<b>평타</b>   피해 = 공격력 &minus; <b>대상 방어</b>              <span class="cmt">// ★ 전액</span>
-        방어가 더 크면 &rarr; <b>35% 로 1, 아니면 0</b>     <span class="cmt">// RandSuccess(35)</span>
-<b>치명타</b> 피해 = 공격력 &minus; <b>&lfloor;대상 방어 &divide; 2&rfloor;</b>, 최소 1
-        확률 = <b>공격자 치명타 &minus; 대상 치명타 저항</b> (100 중, <b>2~98 로 잘린다</b>)
-<b>방패</b>   방어에 <b>더해지고</b>, 막기에 성공하면 <b>또</b> 상대 공격력에서 빠집니다
-공통    피해 &minus;= Protect 보정 ; <b>1 미만이면 없던 일</b></div>
-  <div class="note"><b>«1 미만» 은 정말로 없던 일이 됩니다.</b>
-     피해가 1 미만이면 <code>ReflectAfterPhysicsAttack</code> 과
-     <code>ReflectEffectAfterPhysicsAttack</code> 을 <b>둘 다 건너뜁니다</b>
-     &mdash; 무기가 붙이는 <b>상태이상도, 반사도 안 돕니다</b>.
-     방어로 0 을 만드는 것은 회피와 같은 값어치가 있습니다.
-     <span class="sm">(마법으로 거는 상태이상은 이 경로가 아니라 그대로 들어옵니다 &mdash; §11)</span></div>
-  <div class="note warn"><b>그래서 «반사» 장비는 방어탱과 상극입니다.</b>
-     반사 피해는 <code>&lfloor;받은 피해 &times; 반사율 &divide; 100&rfloor;</code> 인데
-     (<code>BattleCreature.DamageReflectionRate</code>, <code>0x26c7be4</code>),
-     이것도 <b>피해가 1 이상인 경로에만</b> 있습니다.
-     <b>피해를 0 으로 만들면 반사도 0 입니다.</b>
-     데이터에 반사가 붙은 장비는 <b>10종</b>(반사율 10~50%)인데,
-     제대로 짠 방어탱에게는 <b>아무 일도 안 합니다</b>.</div>
-  <p>방어는 매 대 <code>Rand(최소, 최대)</code> 로 굴립니다.</p>
-  <div class="note"><b>방패는 두 번 셉니다.</b> <code>Armor::MinDefense</code> 에는
-     종류 가드가 없어서 방패 방어는 <code>DefensePoint</code> 에 <b>그냥 더해집니다</b>.
-     그리고 «막기» 판정에 성공하면 그 위에 <b>한 번 더</b> 상대 공격력에서 빠집니다
-     (막기 판정식은 <a href="#avoid">§8</a>에 있습니다 &mdash;
-     <code>방패 회피 &ge; 명중 + 1</code>, 천장이 30 이라 상위 지역에서는 다 못 막습니다).
-     <span class="sm">(2026-08-30 에 여기 «방패는 DefensePoint 에 안 들어간다» 고 적었습니다.
-     <code>Armor::ShieldMinDefense</code> 가 따로 있는 것만 보고 그렇게 읽었는데,
-     그건 «막기 몫만 따로 뽑는» 함수였습니다.)</span></div>
-
-  <h3>지금 낄 수 있는 최고 방어</h3>
-  <div class="note warn"><b>★ 갑옷과 의복은 «같은 칸» 입니다 (2026-09-01 정정).</b>
-     <code>JobMaster.canEquipArmors</code> 에 모험가만 둘 다 들어 있어서
-     «다섯 칸» 으로 읽고 방어 <b>128~190</b> 이라고 적었는데, 게임에서 확인해 보니
-     <b>몸 한 칸에 갑옷이나 의복 중 하나</b>만 들어갑니다. 실제 칸은 <b>넷</b>입니다.
-     아래 숫자는 전부 다시 잰 것입니다.</div>
-  <table class="t"><thead><tr><th>칸</th><th>장비</th><th class="num">요구 힘</th>
-    <th class="num">요구 레벨</th><th class="num">방어</th><th class="num">치명타 저항</th></tr></thead><tbody>
-    <tr><td rowspan="2">몸 <span class="sm">(둘 중 하나)</span></td><td>왕단의 갑옷</td><td class="num"><b>35</b></td><td class="num">30</td><td class="num"><b>60~63</b></td><td class="num">3</td></tr>
-    <tr><td>왕단의 옷</td><td class="num">2</td><td class="num">30</td><td class="num">55~61</td><td class="num">0</td></tr>
-    <tr><td>투구</td><td>짐승의 눈의 투구</td><td class="num">28</td><td class="num">29</td><td class="num">5~35</td><td class="num">1</td></tr>
-    <tr><td>방패</td><td>송곳니왕의 호세방패</td><td class="num"><b>41</b></td><td class="num">29</td><td class="num">8~31</td><td class="num">8</td></tr>
-    <tr><td>부적</td><td>늪왕의 부적</td><td class="num">1</td><td class="num">29</td><td class="num">0</td><td class="num">0</td></tr>
-    <tr class="hi"><td colspan="4"><b>장비 합계</b></td><td class="num"><b>73~129</b></td><td class="num"><b>12</b></td></tr>
-  </tbody></table>
-  <div class="note warn"><b>«요구 힘» 과 «요구 레벨» 은 다른 값입니다.</b>
-     둘 다 넘어야 낍니다 &mdash; 요구 레벨은 <b>최고 직업 레벨</b>로 봅니다.
-     meta 의 <code>pw</code> 가 힘, <code>nl</code> 이 레벨인데
-     여기 한동안 <b>레벨을 힘이라고 적어 뒀습니다</b>. 특히
-     <b>송곳니왕의 호세방패는 요구 힘이 29 가 아니라 41</b> 이라,
-     힘을 안 준 캐릭터는 이 방패를 못 낍니다.</div>
-  <p class="meta">방패는 여기에 더해진 뒤, «막기» 에 성공한 대에서 <b>8~31 을 한 번 더</b> 깎습니다.
-     부적은 방어가 0 이라 «공짜 칸» 입니다 &mdash; 늪왕의 부적이면 마법 방어 39 와 HP 자동회복 8 이 그냥 붙습니다.</p>
-
-  <div class="note warn"><b>장비만으로는 아무도 Lv30 평타를 0 으로 못 만듭니다.</b>
-     최고로 껴도 73~129 라 Lv30 몬스터(공격 130)에게 <b>1~57</b> 을 맞습니다.
-     <b>여기서부터는 직업 몫이 주인공입니다</b> &mdash; 방어력이 붙는 부직업이
-     <b>중도사 부 8</b> · 가드 부 6 · 무장병 부 4 로 아주 큽니다.
-     셋만 최대로 올려도 <code>⌈(25&times;8 + 15&times;6 + 30&times;4) &divide; 10⌉ = <b>41</b></code> 이
-     통째로 더해져 <b>114~170</b> 이 됩니다.</div>
-
-  <h3>직업마다 쓸 수 있는 칸이 다릅니다</h3>
-  <p>여기가 진짜 갈림길입니다 (<code>JobMaster.canEquipArmors</code>, 주직업만 봅니다).
-     아래는 <b>장비만</b> 이고 직업 몫은 뺐습니다.</p>
-  <table class="t"><thead><tr><th>주직업</th><th>쓸 수 있는 칸</th><th>장비 방어</th>
-    <th class="num">치명타 저항</th><th class="num">Lv30 평타</th></tr></thead><tbody>
-    <tr class="hi"><td><b>모험가</b></td><td>몸·투구·방패·<b>부적</b> <span class="sm">(넷)</span></td>
-      <td class="num"><b>73~129</b></td><td class="num">12</td><td class="num">1~57</td></tr>
-    <tr class="hi"><td><b>중도사 · 가드</b></td><td>갑옷·투구·방패 <span class="sm">(셋)</span></td>
-      <td class="num"><b>73~129</b></td><td class="num">12</td><td class="num">1~57</td></tr>
-    <tr><td>전술병 · 랜서</td><td>갑옷·투구·부적</td><td class="num">65~98</td><td class="num">4</td><td class="num">32~65</td></tr>
-    <tr><td>검투사 · 블레이드브레이커 · 대검전사 · 파쇄병</td><td>갑옷·투구</td><td class="num">65~98</td><td class="num">4</td><td class="num">32~65</td></tr>
-    <tr><td>무장병 · 검술사 · 베테랑 파이터</td><td>갑옷·방패</td><td class="num">68~94</td><td class="num">11</td><td class="num">36~62</td></tr>
-    <tr><td>마검사 · 숨은 칼날의 궁사</td><td>의복·방패·부적</td><td class="num">63~92</td><td class="num">8</td><td class="num">38~67</td></tr>
-    <tr><td>도둑</td><td>의복·방패</td><td class="num">63~92</td><td class="num">8</td><td class="num">38~67</td></tr>
-    <tr><td>법사 · 레인저 · 현자 외 9</td><td>의복·부적</td><td class="num">55~61</td><td class="num"><b>0</b></td><td class="num">69~75</td></tr>
-  </tbody></table>
-  <div class="note"><b>방어만 보면 모험가와 중도사·가드가 같습니다.</b>
-     모험가가 하나 더 가진 «부적» 은 방어가 0 이기 때문입니다.
-     <b>모험가의 값어치는 방어가 아니라 다른 데 있습니다</b> &mdash;
-     부적 칸(마법 방어 39 · 자동회복 8) · 최대 레벨 31 ·
-     경험치 지수 면제 · 모든 무기. 그리고 중도사는 최대 25, 가드는 15 라
-     <b>주직업으로 쓰면 레벨이 모자랍니다</b> &mdash; 둘은 부직업으로 넣을 때 값이 큽니다.</div>
-
-  <h3>그래서 방어가 정확히 몇이면 되나</h3>
-  <p>평타는 <code>공격력 &minus; 방어</code> 이고 방어는 매 대
-     <code>Rand(최소, 최대)</code> 로 굴립니다. 그러니 기준은 <b>최대값이 아니라 최소값</b>입니다
-     &mdash; <b>방어 최소 굴림이 그 지역 몬스터의 최고 공격력 이상</b>이면
-     평타는 <b>언제나 0 또는 1</b>(35% 로 1)입니다.</p>
-  <table class="t"><thead><tr><th>지역</th><th class="num">최고 몬스터</th>
-    <th class="num">최고 공격력</th><th class="num">필요한 방어 <span class="sm">(최소 굴림)</span></th>
-    <th class="num">최고 치명타</th></tr></thead><tbody>
-    <tr><td>미스토리아 반도</td><td class="num">Lv5</td><td class="num">18</td><td class="num"><b>18</b></td><td class="num">5%</td></tr>
-    <tr><td>바르디아 평원</td><td class="num">Lv9</td><td class="num">38</td><td class="num"><b>38</b></td><td class="num">5%</td></tr>
-    <tr><td>뤼미에르 힐스</td><td class="num">Lv11</td><td class="num">49</td><td class="num"><b>49</b></td><td class="num">11%</td></tr>
-    <tr><td>아르디오스 왕국</td><td class="num">Lv16</td><td class="num">70</td><td class="num"><b>70</b></td><td class="num">11%</td></tr>
-    <tr><td>바람의 거친 경계</td><td class="num">Lv23</td><td class="num">108</td><td class="num"><b>108</b></td><td class="num">11%</td></tr>
-    <tr class="hi"><td>발두나의 황야</td><td class="num">Lv29</td><td class="num">135 <span class="sm">(다크엘프 리더)</span></td><td class="num"><b>135</b></td><td class="num">11%</td></tr>
-  </tbody></table>
-  <div class="note"><b>지금 갈 수 있는 어디서든 안 아프려면 방어 최소 굴림이 135 입니다.</b>
-     장비 최고가 <b>73</b>(최소 굴림)이니 <b>직업에서 62 를 채워야</b> 합니다.
-     방어력 부직업을 전부 최대로 올리면 <b>61</b> 이라 아슬아슬하게 모자랍니다 &mdash;
-     즉 <b>발두나의 최상위 몬스터를 완전히 0 으로 만드는 것은 지금 불가능합니다</b>.
-     현실적인 목표는 <b>중도사 25 · 가드 15 · 무장병 30</b> 으로 <b>41</b> 을 채워
-     <b>114~170</b> 을 만드는 것입니다 &mdash; 그러면 Lv30 상대 평타가 <b>0~16</b>,
-     최강(공격 135) 상대로도 <b>0~21</b> 입니다.</div>
-
-  <h3>레벨별로 한 대가 얼마인가</h3>
-  <p>열린 지역 몬스터 242종의 <b>실제 공격력 중앙값</b>으로 잰 값입니다.
-     평타는 «방어 최대 굴림 ~ 최소 굴림» 순입니다.</p>
-  <table class="t"><thead><tr><th>몬스터</th><th>모험가 · 중도사 · 가드<br><span class="sm">73~129</span></th>
-    <th>무장병 · 검술사<br><span class="sm">68~94</span></th>
-    <th>도둑 · 마검사<br><span class="sm">63~92</span></th>
-    <th>법사 · 레인저<br><span class="sm">55~61</span></th></tr></thead><tbody>
-    <tr><td>Lv15 <span class="sm">(공격 68)</span></td><td><b>0</b> <span class="sm">/ 치명 4~32</span></td><td>0 <span class="sm">/ 치명 21~34</span></td><td>0~5 <span class="sm">/ 치명 22~37</span></td><td>7~13 <span class="sm">/ 치명 38~41</span></td></tr>
-    <tr><td>Lv20 <span class="sm">(공격 88)</span></td><td>0~15 <span class="sm">/ 치명 24~52</span></td><td>0~20 <span class="sm">/ 치명 41~54</span></td><td>0~25 <span class="sm">/ 치명 42~57</span></td><td>27~33 <span class="sm">/ 치명 58~61</span></td></tr>
-    <tr><td>Lv25 <span class="sm">(공격 119)</span></td><td>0~46 <span class="sm">/ 치명 55~83</span></td><td>25~51 <span class="sm">/ 치명 72~85</span></td><td>27~56 <span class="sm">/ 치명 73~88</span></td><td>58~64 <span class="sm">/ 치명 89~92</span></td></tr>
-    <tr class="hi"><td>Lv30 <span class="sm">(공격 130)</span></td><td><b>1~57</b> <span class="sm">/ 치명 66~94</span></td><td>36~62 <span class="sm">/ 치명 83~96</span></td><td>38~67 <span class="sm">/ 치명 84~99</span></td><td>69~75 <span class="sm">/ 치명 100~103</span></td></tr>
-  </tbody></table>
-  <div class="note"><b>장비만 놓고 보면 아무도 Lv30 평타를 0 으로 못 만듭니다.</b>
-     0 을 만드는 것은 <b>방어력 부직업</b>입니다 &mdash; 중도사 25 · 가드 15 · 무장병 30 이면
-     <b>+41</b> 이 붙어 모험가·중도사·가드 계열이 <b>114~170</b> 이 되고,
-     그때 Lv30 평타가 <b>0~16</b> 으로 떨어집니다.
-     예전 글의 «레벨이 오를수록 격차가 벌어진다» 는 절반 공식에서 나온 말이고, 사실이 아닙니다.</div>
-
-  <h3>그러면 치명타는</h3>
-  <p>치명타만 방어를 반으로 봅니다. 그런데 확률이 <b>공격자 치명타 &minus; 내 치명타 저항</b>
-     이고(<code>MonsterMaster.Critical() = criticalPoint &minus; 2</code>), 몬스터 쪽 값이 아주 낮습니다.</p>
-  <table class="t"><thead><tr><th>열린 지역 몬스터 242종</th><th>치명타 확률</th></tr></thead><tbody>
-    <tr><td>중앙값</td><td><b>1%</b></td></tr>
-    <tr><td>Lv25 이상 최대 <span class="sm">(어쌔신 Lv30)</span></td><td>6%</td></tr>
-    <tr><td>전체 최대 <span class="sm">(검술사 · 시체 브로커 · 나이프 러너)</span></td><td>11% <span class="sm">&mdash; 5종뿐</span></td></tr>
-  </tbody></table>
-  <div class="note warn"><b>★ 0 으로는 못 만듭니다 &mdash; 2% 는 남습니다.</b>
-     판정이 <code>RandSuccess100</code> 인데 이 함수는 값을 <b>2~98 로 자릅니다</b>
-     (<code>0x276b544</code>). 치명타 저항을 아무리 올려도
-     <b>매 대 2% 로 치명타가 납니다</b>. 여기에 «치명타가 아예 안 난다» 고
-     적어 뒀던 것을 고칩니다 &mdash; 하한을 못 봤습니다.</div>
-  <p>그래도 저항의 값어치는 큽니다. «방어 최고» 한 벌은 치명타 저항 <b>12</b> 를
-     이미 들고 있고(갑옷 3 + 방패 8 + 투구 1), 열린 지역 최대 치명타가 11% 이니
-     <b>11% → 2% 로 내려갑니다</b>. 저항만 노리고 짜면 <b>17</b> 까지 갑니다
-     (소호의 갑옷 Lv11 이 혼자 8). <b>다만 세 부위(갑옷·방패·투구)에만 붙습니다</b>
-     &mdash; 의복과 부적에는 없어서, 도둑·마검사는 방패 8 이 전부고 법사는 <b>0</b> 입니다.</p>
-
-  <h3>그럼 왜 죽었나</h3>
-  <p>방어로 버티는 길이 막혀 있는 게 아니라, <b>그 길에 들어가는 조건이 좁습니다</b>.</p>
-  <ul>
-    <li><b>칸이 셋 이상인 직업이 몇 안 됩니다.</b> 마검사 · 도둑은
-        <b>갑옷도 투구도 못 낍니다</b> &mdash; Lv30 상대로 평타가 <b>38~67</b>,
-        법사 · 레인저는 <b>69~75</b> 씩 들어옵니다. 이쪽은 정말로 방어로 못 버팁니다.
-        치명타 저항도 법사 계열은 <b>0</b> 이라 치명타를 그대로 맞습니다.</li>
-    <li><b>요구 힘이 41 까지 듭니다.</b> 갑옷 35 · 투구 28 · <b>방패 41</b> 입니다
-        (부적과 의복은 1~2 로 거의 안 듭니다).
-        힘을 안 준 캐릭터는 애초에 이 표에 못 들어갑니다 &mdash;
-        드워프 남(기본 힘 9)에 힘이 붙는 부직업(무장병 부 4 · 중도사 부 3)을
-        얹어야 닿습니다.</li>
-    <li><b>마법은 방어를 안 탑니다.</b> 명중 굴림도 없어서 쏘면 들어갑니다 &mdash;
-        그쪽은 <b>마법 방어</b>가 따로 막습니다(§11).</li>
-    <li><b>상태이상도 방어와 무관합니다.</b> 저항 굴림은 <b>마법 방어 또는 힘</b>으로 굴립니다(§11).</li>
-    <li><b>여럿이 때립니다.</b> 한 대가 0 이어도 전열에 몰리면 대수가 늘고,
-        <code>attackCount</code> 가 붙은 무기는 한 행동에 여러 대를 칩니다.</li>
-  </ul>
-
-  <h3>HP 는 어디까지 오르나</h3>
-  <p>세이브의 용병 87명 중 <b>가장 HP가 높은 것이 61</b> 입니다 (중앙값 31).</p>
-  <div class="eq">HP = 생명점 + <b>&lceil;주Lv&times;주생명&divide;10&rceil;</b> + <b>&lceil;&Sigma;(부Lv&times;부생명)&divide;10&rceil;</b>
-     + <b>&Sigma;&lfloor;직업Lv&divide;10&rfloor;</b> + 장비</div>
-  <p>부직업 몫은 <b>전부 더한 뒤 한 번만 올림</b>하므로 직업을 많이 키울수록 계속 붙습니다.
-     그래서 «천장» 은 사실 <b>경험치가 정합니다</b>. 드워프 남(생명점 12)에
-     모험가 31 을 주직업으로 놓고, 부직업을 <b>싼 것부터</b> 채워 보면:</p>
-  <table class="t"><thead><tr><th>부직업 수</th><th>HP</th><th>누적 경험치</th><th>시간당 10만이면</th></tr></thead><tbody>
-    <tr><td>0</td><td>22</td><td>0.7M</td><td>7시간</td></tr>
-    <tr><td>6</td><td>36</td><td>0.8M</td><td>8시간</td></tr>
-    <tr><td>10</td><td>46</td><td>1.3M</td><td>13시간</td></tr>
-    <tr class="hi"><td>15</td><td><b>81</b></td><td>26M</td><td><b>11일</b></td></tr>
-    <tr><td>20</td><td>118</td><td>20억</td><td>2,300년</td></tr>
-    <tr><td>31 (전부)</td><td>222</td><td>1000경</td><td>&mdash;</td></tr>
-  </tbody></table>
-  <p><b>현실적인 천장은 HP 80~90</b> 입니다. 그 위는
-     <code>1.05^(다른 직업 레벨 합)</code> 때문에 벽에 부딪힙니다(§능력치 계산기).
-     방어 부직업까지 채우면 Lv30 평타가 0~16 이니 <b>이 HP 로 넉넉히 넘칩니다</b>.
-     도둑·마검사는 38~67 이라 <b>두 대</b>, 법사는 69~75 라 <b>한 대</b>입니다.
-     다만 <b>치명타는 2% 로 계속 들어옵니다</b> &mdash; 방어 114~170 이어도 한 방이 <b>45~73</b> 이라
-     HP 가 낮으면 그것 하나로 죽습니다.</p>
-
-  <h3>회복은 따라갑니다 &mdash; 갑옷을 낄 수 있으면</h3>
-  <p>가장 센 회복이 <b>바이탈라이즈 28~48</b>(단일 · Lv30 · MP9), 전체 회복은
-     <b>살바 16~24</b> 입니다. Lv30 평타가 <b>0~16</b> 이면 힐 한 번이 여러 대를 덮습니다.
-     자동회복 장비를 섞으면 <b>매 턴 27</b> 이 그냥 붙어서 힐을 안 써도 됩니다.
-     예전 글의 «한 대 되돌리는 데 두세 번» 은 절반 공식에서 나온 수였습니다.
-     다만 <b>갑옷 없는 캐릭터에게는 그 말이 그대로 맞습니다</b> &mdash;
-     38~67 은 힐 한 번으로 안 메워집니다.</p>
-
-  <h3>모험가 주직업이 나쁘지 않은 이유</h3>
-  <p><b>방어만 보면 모험가와 중도사·가드가 같습니다</b>(둘 다 73~129).
-     모험가가 하나 더 가진 부적은 방어가 0 이기 때문입니다.
-     그런데도 모험가를 주직업으로 쓸 이유가 넷 있습니다.</p>
-  <ul>
-    <li><b>최대 레벨 31</b> &mdash; 지금 서비스에서 유일하게 30 을 넘습니다.</li>
-    <li><b>주직업이면 방어에 보정이 더 붙습니다</b>
-        (<code>MinDefensePoint</code> 가 <code>MainJob().GetKind()</code> 를 봅니다).</li>
-    <li><b>부적 자리</b> &mdash; 방어는 0 이지만 <b>회피 +5</b>(세라믹스틸 오멘워드 탈리스만 Lv27)
-        같은 것이 붙습니다. 회피 빌드에서는 이 한 자리가 큽니다.</li>
-    <li><b>경험치 지수에 안 들어갑니다</b> &mdash; 현자와 모험가만
-        <code>1.05^(다른 직업 레벨 합)</code> 의 지수에서 빠집니다.</li>
-    <li>모든 무기를 씁니다.</li>
-  </ul>
-  <p>대신 <b>주직업 생명점 보너스가 2</b> 로 낮습니다(무장병 13 · 중도사 14).
-     31레벨을 다 채워도 +7 뿐입니다. 그래도 위 표대로 <b>HP 는 부직업 쪽이 대부분</b>이라
-     손해가 작습니다.</p>
-
-  <h3>회피는 여전히 최고입니다 &mdash; 다만 «유일한 답» 은 아니었습니다</h3>
-  <p>회피는 <b>확률이 아니라 결정</b>입니다 &mdash; <code>명중 &minus; 회피 &ge; &minus;1</code>
-     이면 맞고, 아니면 <b>안 맞습니다</b>. 몬스터의 명중은 주사위 없이 고정이라,
-     회피값이 충분하면 <b>물리 공격은 100% 안 맞습니다</b>(§8).
-     방어를 다 껴도 «0 또는 1» 인데 회피는 «판정 자체가 없음» 이라 여전히 위입니다.
-     <b>바뀐 것은 «방어로는 아예 안 된다» 가 틀렸다는 것</b>입니다 &mdash;
-     갑옷을 낄 수 있는 캐릭터에게는 방어도 답입니다.</p>
-  <p>갑옷을 <b>못 끼는</b> 직업에게 회피 말고 길이 없다는 결론은 그대로입니다.
-     민첩 20(흔들림 최솟값 15 &rarr; +5)이면 <b>회피값 39</b> 면 물리를 다 피합니다.</p>
-  <table class="t"><thead><tr><th>주직업</th><th>주직업 몫</th><th>낄 수 있는 회피 장비</th><th>부직업에서 더 필요한 몫</th></tr></thead><tbody>
-    <tr class="hi"><td>도둑 30</td><td>21</td><td>7 <span class="sm">(단검·의복)</span></td><td><b>&Sigma; &ge; 101</b> &mdash; 쉽습니다</td></tr>
-    <tr><td>마검사 30</td><td>12</td><td>12 <span class="sm">(단검·의복·부적)</span></td><td>&Sigma; &ge; 141 &mdash; 됩니다</td></tr>
-    <tr><td>숨은 칼날의 궁사 20</td><td>8</td><td>12</td><td>&Sigma; &ge; 181</td></tr>
-    <tr><td>무장병 30 · 검술사 15</td><td>6</td><td><b>0</b></td><td>&Sigma; &ge; 321 &mdash; <b>사실상 불가</b></td></tr>
-  </tbody></table>
-  <p><b>무장병 계열은 회피 장비를 아예 못 낍니다</b> &mdash; 회피가 붙는 것은
-     의복·부적·단검인데, 무장병은 갑옷·방패만 끼고 단검을 안 듭니다.
-     대신 <b>갑옷은 낍니다</b> &mdash; 그쪽은 방어로 가는 게 맞습니다.</p>
-  <h3>그래서 무엇을 키울 것인가 &mdash; 나란히 재 봤습니다</h3>
-  <p>같은 «물리를 안 맞는» 목표를 회피로 가는 길과 방어로 가는 길을
-     실제 장비·직업 값으로 계산했습니다. <b>기준은 칼레바스 고원</b>(120종 · 공격력 중앙 140 · 최대 181)이고,
-     빌드 자체는 <a href="builds.html#deftank">빌드 &sect;1</a>·<a href="builds.html#dodge">&sect;3</a> 에 있습니다.</p>
-  <table class="t"><thead><tr><th>빌드</th><th class="num">HP</th><th class="num">방어</th>
-    <th class="num">칼레바스 한 대<br><span style="font-weight:400">중앙 / 최악</span></th>
-    <th class="num">마법 방어</th><th class="num">자동회복</th><th class="num">평타</th>
-    <th class="num">누적 경험치</th></tr></thead><tbody>
-    <tr><td>회피탱 <b>마검사 30</b> <span class="sm">(도둑·궁사·검술사·현자)</span></td>
-      <td class="num">40</td><td class="num">39~58</td>
-      <td class="num"><b>0</b> <span class="sm">/ 뚫리면 <b>92</b></span></td>
-      <td class="num"><b>51</b></td><td class="num">0</td><td class="num">74~101 <span class="sm">전체</span></td>
-      <td class="num"><b>17.6M</b> <span class="sm">(7일)</span></td></tr>
-    <tr class="hi"><td>방어탱 <b>모험가 31</b> <span class="sm">드워프 · 부직업 다섯</span></td>
-      <td class="num"><b>75</b></td><td class="num"><b>130~188</b></td>
-      <td class="num"><b>1.2 / 22.5</b></td>
-      <td class="num">39</td><td class="num">8/턴</td><td class="num">84~120</td>
-      <td class="num">21.9M <span class="sm">(9일)</span></td></tr>
-    <tr><td>같은 빌드 · <span class="sm">자동회복 장비로 바꿈</span></td>
-      <td class="num">75</td><td class="num">125~172</td><td class="num">2.7 / 32.5</td>
-      <td class="num"><b>48</b></td><td class="num"><b>27/턴</b></td><td class="num">84~120</td>
-      <td class="num">21.9M <span class="sm">(9일)</span></td></tr>
-    <tr><td>방어탱 · <span class="sm"><b>부직업 둘</b>(중도사 25 · 무장병 30)</span></td>
-      <td class="num">55</td><td class="num">116~174</td><td class="num">5.3 / 36.0</td>
-      <td class="num">39</td><td class="num">8/턴</td><td class="num">68~104</td>
-      <td class="num"><b>5.0M</b> <span class="sm">(2.1일)</span></td></tr>
-  </tbody></table>
-  <p class="meta">방어탱 장비 = 유령의 검 · 단향의 갑옷 · 짐승의 눈의 투구 · 단향의 방패 · 늪왕의 부적
-     <span class="sm">(요구 레벨 31 &mdash; 모험가 31 이라 껴집니다)</span>.
-     «자동회복» 판은 갑옷을 리젠플레이트(+9), 투구를 반조의 투구(+10)로 바꾼 것 &mdash;
-     부적(+8)까지 27/턴, 대신 방어를 5~16 잃습니다.
-     회피탱의 «뚫리면» 은 혼란·수면·마비로 회피가 0 이 됐을 때 들어오는 한 대입니다.
-     시간당 10만 경험치 기준.</p>
-  <div class="note warn"><b>경험치는 거의 같습니다 &mdash; 갈리는 것은 «상태이상» 하나입니다.</b>
-     17.6M 대 21.9M 이라 <b>어느 쪽도 싸지 않습니다</b>.
-     회피탱은 물리를 <b>100% 피하지만</b> 혼란·수면·마비가 걸린 턴에
-     <b>HP 40 에 92</b> 가 들어옵니다 &mdash; <b>한 대</b>입니다.
-     방어탱은 평소에 한 대 1.2 를 맞는 대신 그 턴에도 그냥 버팁니다.
-     상태이상 저항을 굴리는 값도 방어탱이 <b>힘 57</b>, 회피탱이 <b>마법 방어 51</b> 로
-     <b>둘 다 방어선이 있습니다</b>(도둑 주직업 판은 마법 방어가 11 이라 없었습니다).</div>
-  <div class="note"><b>다만 «완봉» 은 방어로도 회피로도 안 됩니다.</b>
-     치명타가 <b>2% 하한</b>으로 계속 들어오고(위), 마법은 방어를 아예 안 탑니다.
-     회피탱이 «24시간 돌아도 안 죽는» 것은 그 구역에 마법 쓰는 몬스터가 없어서입니다.</div>
-  <p>회피가 여전히 이기는 자리는 <b>갑옷을 못 끼는 직업으로 이미 키워 놨을 때</b>와
-     <b>몸·투구·방패를 다 못 쓰는 파티원</b>입니다. 새로 뽑는다면 방어 쪽이 훨씬 쌉니다.</p>
-  <div class="note"><b>드워프의 민첩 0 은 명중과 상관없습니다.</b>
-     명중은 <code>2d6 + &lfloor;재주 흔들림 &divide; 3&rfloor; + 직업 명중률 몫</code> 이고
-     &mdash; <b>재주</b>지 민첩이 아닙니다(<code>Character.Dexterity</code>, <code>0x26b6230</code>).
-     민첩이 하는 일은 <b>회피</b>와 <b>행동 순서</b> 둘뿐입니다.
-     <ul>
-       <li><b>명중</b> &mdash; 부직업 다섯이면 <b>46~57</b> 입니다. 발두나의 최고 회피가 42 이니
-           <code>명중 &ge; 회피 &minus; 1</code> 을 늘 넘깁니다. <b>다 맞힙니다.</b></li>
-       <li><b>부직업 둘짜리 싼 빌드는 명중이 29~40</b> 이라
-           <b>회피 42 짜리에게는 못 맞힙니다</b> &mdash; 딜을 기대하려면
-           명중률이 붙는 부직업(무장병 부 4 · 검술사 부 4)을 더 넣어야 합니다.</li>
-       <li><b>행동 순서는 꼴찌</b>입니다. 몬스터 민첩 중앙값이 12 인데 드워프는 0 입니다.
-           탱커라면 «맞고 나서 움직인다» 는 뜻이라 손해가 작지만,
-           <b>먼저 때려서 끝내는 역할은 못 합니다.</b></li>
-     </ul></div>
-  <div class="note"><b>다만 회피는 물리 전용입니다.</b> <code>AvoidRate</code> 는
-     <code>PhysicsAttack</code> 에서만 불립니다. 마법과 광역 마법은 회피탱도 그대로 맞습니다
-     &mdash; 그쪽은 <b>마법 방어</b>와 HP 로 버텨야 합니다.</div>
-  <p class="src">BattlePhysicalAttackExecutor.PhysicsAttack <span class="sm">(0x26c7990 치명타 · 0x26c79a8 평타)</span> &middot;
-     ArmorMaster.MinDefense/MaxDefense <span class="sm">(0x2704ecc · 0x2704fd0 — 311개 중 308개가 _defense 문자열과 일치, 나머지 3개는 문자열 쪽이 낡음)</span> &middot;
-     BattleCreature.DefensePoint / CriticalRate / CriticalDefense &middot;
-     Character.MinDefensePoint &middot; MonsterMaster.Critical &middot;
-     열린 지역 몬스터 242종 &middot; 세이브 Character 87건</p>
-
-  <h2 id="magic"><span class="n">11</span>마법 &mdash; 명중 굴림이 아예 없습니다</h2>
-  <p>물리는 <code>명중 &minus; 회피</code> 를 견주고 안 맞으면 그만입니다(§8).
-     <b>마법에는 그 비교가 없습니다.</b> <code>BattleSkill.DamageSkill</code> 은
-     빗나가는 갈래를 갖고 있지 않습니다 &mdash; <b>쏘면 들어갑니다.</b></p>
-  <div class="eq">피해 = Rand(스킬최소, 스킬최대) + <b>시전자 마력</b>
-     <span class="cmt">// 대상 약점 +2 · 저항 &minus;2</span>
-<b>while</b> 2d6 &gt; 9: 피해 += &lfloor;Rand(최소,최대) &divide; 2&rfloor;   <span class="cmt">// 1/6 로 터지고, 터지면 또 굴린다</span>
-피해 &minus;= <b>대상 마법 방어</b>          <span class="cmt">// ★ 전액 &mdash; 물리처럼 반으로 안 나눈다</span>
-<b>if</b> 피해 &le; 0: 피해 <b>+=</b> Rand(3)       <span class="cmt">// 0~2 를 더할 뿐이라 결과도 2 를 못 넘는다</span></div>
-
-  <h3>★ 스킬최소 · 스킬최대 · MP 는 «레벨»에서 나옵니다</h3>
-  <p>마법의 세기는 데이터에 적혀 있지 않습니다 &mdash; <b>스킬 레벨</b>에서 계산됩니다.
-     <code>minDamage</code>/<code>maxDamage</code> 는 거기에 얹는 보정일 뿐이고,
-     배울 수 있는 마법 <b>28개 중 27개가 0</b> 입니다 (성스러운 폭발만 +3).</p>
-  <div class="eq">스킬최소 = 레벨 + minDamage + <b>1</b>   <span class="cmt">// 관통이면 &minus;1 · 전체면 &minus;2</span>
-스킬최대 = 레벨 + maxDamage + <b>4</b>   <span class="cmt">//              전체면 &minus;3</span>
-소모 MP  = 레벨 + useMp    + <b>3</b>   <span class="cmt">// 물리 스킬이면 +2</span>
-
-굴림은 <b>Rand(최소, 최대)</b> 라 <b>최대는 안 나옵니다</b>.</div>
-  <div class="note"><b>그래서 «레벨이 높은 마법 = 센 마법» 이 예외 없이 성립합니다.</b>
-     다크페인(Lv30 단일)이 31~33, 뇌우(Lv35 전체)가 34~35 입니다.
-     속성이 세기를 바꾸는 일은 없습니다 &mdash; <b>속성은 약점 &plusmn;2 와 무효 0 에만</b> 씁니다.</div>
-  <div class="note warn"><b>MP 가 모자라는 마법은 «고르는 목록»에서 아예 빠집니다.</b>
-     <code>BattleSkill.CanUse</code> 가 <code>Mp &lt; 소모 MP</code> 면 <code>false</code> 를 돌려주고,
-     그 걸러진 뒤의 목록으로 정렬·선택을 합니다. 그래서 MP 가 떨어지면
-     <b>자동으로 한 단계 싼 마법으로 내려갑니다</b> &mdash; 「아껴 쓰는」 로직은 없지만
-     「못 쓰면 건너뛴다」 는 있습니다.</div>
-  <p class="src">SkillMaster.MinDamage <span class="sm">(0x2706480)</span> &middot;
-     SkillMaster.MaxDamage <span class="sm">(0x2706590)</span> &middot;
-     SkillMaster.get_UseMp <span class="sm">(0x2706294)</span> &middot;
-     BattleSkill.CanUse <span class="sm">(0x26c4a68&mdash;0x26c4a84)</span></p>
-  <div class="note"><b>규칙만 보면 마법 방어가 물리 방어보다 낫습니다.</b>
-     물리도 평타는 방어를 전액 뺍니다(§10). 다른 점은 <b>넘어섰을 때</b>입니다 &mdash;
-     마법은 피해가 <b>0~2</b> 로 내려가고, 물리는 <b>35% 로 1</b> 이 남습니다.
-     그리고 <b>마법에는 치명타 갈래가 없어서</b> 방어가 반으로 깎이는 대가 없습니다.
-     <b>문제는 올릴 수단이 없다는 것입니다.</b></div>
-
-  <h3>★ 어떤 마법을 쓸지는 이렇게 고릅니다</h3>
-  <p>전투는 자동이고, 마법 하나하나에 <b>「사용」</b>과 <b>「보스에서만」</b> 을 켤 수 있습니다.
-     그 뒤의 고르는 순서가 이렇습니다 (<code>BattleActionSelector.SelectActions</code>).</p>
-  <div class="eq"><b>1</b> Character.EnableSkills(isBoss)   <span class="cmt">// 「사용」 켠 것만. 「보스에서만」 은 보스전에서만 들어온다</span>
-   그중 <b>BattleSkill.CanUse</b> 를 통과한 것만 남긴다   <span class="cmt">// MP · 대상 조건</span>
-<b>2</b> 목록을 정렬한다 &mdash; <b>종류 &rarr; 사거리 &rarr; 레벨</b> (전부 <b>오름차순</b>)
-<b>2.5</b> ★ 목록에 <b>회복(HealHp)</b> 이 하나라도 남아 있으면 &mdash; <b>그것을 쓰고 끝낸다</b>
-     <span class="cmt">// 공격 선택까지 아예 안 간다. 첫 번째로 걸린 회복 하나.</span>
-<b>3</b> 회복이 없고 마법을 쓸 수 있으면(CanMagicAction):
-     <b>a.</b> <b>전체</b> 마법 중에서 가장 좋은 것을 고른다
-     <b>b.</b> 없으면 <b>관통</b> 마법 중에서
-     <b>c.</b> 둘 다 없으면 <b>단일 대상</b> 으로 내려간다 (아래)
-<b>4</b> 점수 = <b>약점인 적 &times; 2 &minus; 무효인 적</b>   <span class="cmt">// 속성이 없으면 0</span></div>
-  <div class="note"><b>속성 상성은 알아서 봅니다.</b>
-     <code>GetAllTargetDamageSkillPriority</code> 가 지금 서 있는 적을 세어
-     <b>약점 하나당 +2, 무효 하나당 &minus;1</b> 로 점수를 매기고 가장 높은 것을 씁니다.
-     이건 «다 켜 두면 알아서 한다» 가 맞습니다.</div>
-  <div class="note warn"><b>그런데 피해량은 안 봅니다 &mdash; 동점이면 «약한» 마법이 뽑힙니다.</b>
-     정렬이 <b>레벨 오름차순</b>이고 고를 때 «지금까지보다 <u>더 높은</u> 점수» 일 때만 바꾸므로,
-     점수가 같으면 <b>먼저 나온 것 = 레벨이 낮은 것 = 피해가 작은 것</b>이 이깁니다.
-     속성이 없는 전체 마법끼리는 점수가 <b>둘 다 0</b> 이라 <b>언제나 약한 쪽</b>을 씁니다.</div>
-  <div class="note warn"><b>그리고 전체 마법이 하나라도 «쓸 수 있으면» 단일 마법은 아예 안 봅니다.</b>
-     적이 하나만 남아도 전체 마법을 씁니다. 초기 최고점이 <code>int.MinValue</code> 라
-     <b>점수가 음수여도(전부 무효여도) 하나는 고릅니다.</b>
-     단일로 내려가는 것은 <b>MP 가 모자라 전체·관통이 전부 빠졌을 때</b>뿐입니다.</div>
-  <h4 style="font-size:13px;margin:20px 0 8px">단일까지 내려오면 &mdash; 규칙이 또 다릅니다</h4>
-  <p>전체·관통이 하나도 안 남았을 때만 도는 갈래입니다. 여기엔 <b>점수가 없습니다</b>.
-     정렬된 순서(= <b>레벨 낮은 것부터</b>)로 훑으면서 아래를 봅니다.</p>
-  <div class="eq"><b>1</b> 이 마법의 속성에 <b>약점인 적이 하나라도</b> 있으면 &rarr; <b>그 자리에서 확정</b>
-<b>2</b> 아니면 <b>물리가 안 통하는 적</b>(InvalidPhysics)이 하나라도 있으면 &rarr; <b>그 자리에서 확정</b>
-<b>3</b> 둘 다 아니면 후보에 담아 두고 다음 마법으로
-
-전부 훑고도 확정이 없으면 &mdash; <b>RandBool()</b> 로
-   50% : 담아 둔 후보 중 <b>무작위</b> 하나
-   50% : 그냥 <b>평타</b></div>
-  <div class="note warn"><b>1번이 «레벨 낮은 것부터» 이기 때문에 여기서 사고가 납니다.</b>
-     단일 마법을 전부 켜 두면, 적 중 하나라도 화염에 약할 때
-     <b>다크페인(31~33)이 아니라 화재(2~4)가 나갑니다</b> &mdash; 화재가 Lv1 이라 먼저 걸립니다.
-     전체 마법과 달리 여기엔 «점수 비교» 자체가 없어서, 더 센 마법이 뒤에 있어도 안 봅니다.</div>
-  <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c1154 단일 루프 · 0x26c13f8 / 0x26c1458 즉시 확정 · 0x26c1740 RandBool · 0x26c1a48 무작위)</span> &middot;
-     &lt;SelectActions&gt;b__2 <span class="sm">(약점)</span> &middot; &lt;SelectActions&gt;b__2_3 <span class="sm">(InvalidPhysics)</span></p>
-  <div class="note warn"><b>★ 이 절의 앞선 판은 여기서 틀렸습니다 (2026-09-06 고침).</b>
-     「속성이 다른 전체 마법은 여럿 켜도 좋다 &mdash; 약점 판단을 해 준다」 고 적어 뒀는데,
-     <b>약점이 주는 이득이 «+2» 뿐</b>이라는 것을 그때는 안 재 봤습니다.
-     점수는 약점 하나당 <b>+2점</b>이라 <b>레벨이 30 낮은 마법도 이깁니다</b> &mdash;
-     피해 30 을 버리고 2 를 얻는 교환입니다. 실제로 켜는 법은
-     <a href="builds.html#spells">빌드 &sect;7</a> 에 정리했습니다.</div>
-  <div class="note"><b>그래서 기준은 «속성» 이 아니라 «레벨» 입니다.</b>
-     피해가 <code>레벨 + 1 ~ 레벨 + 4</code> 에서만 나오므로
-     <b>레벨이 같으면 피해도 같습니다</b> &mdash; 그러면 속성만 다른 셈이라
-     <b>같은 레벨끼리는 여럿 켜는 쪽이 이득</b>입니다. 손해는 <b>레벨이 다른 것</b>을 섞을 때만 납니다.
-     <span class="sm">(예외 하나 &mdash; 성스러운 폭발만 <code>minDamage/maxDamage</code> 가 +3 이라
-     같은 Lv5 인데 7~8 입니다.)</span></div>
-  <table class="t"><thead><tr><th>그래서 이렇게 켭니다</th><th>왜</th></tr></thead><tbody>
-    <tr class="hi"><td><b>«가장 레벨이 높은 급» 만 켭니다 &mdash; 그 급은 통째로</b></td>
-      <td>같은 레벨이면 피해가 같으니, 여러 속성을 켜 두면 <b>약점 +2 를 먹고 무효를 서로 덮어 줍니다</b></td></tr>
-    <tr class="hi"><td><b>레벨이 낮은 급은 전부 끕니다</b></td>
-      <td>동점이면 레벨 낮은 쪽이 이기고, 약점이 하나만 걸려도 점수로도 이깁니다 &mdash; 얻는 것은 <b>+2</b> 뿐입니다</td></tr>
-    <tr><td>단일도 같은 규칙입니다</td><td>단일 갈래는 약점이 걸리는 <b>첫(=레벨 낮은)</b> 마법을 그대로 씁니다</td></tr>
-    <tr><td>MP 폴백은 <b>안 켜도 됩니다</b></td><td>MP 가 모자라면 그 마법이 목록에서 빠져 <b>저절로</b> 내려갑니다</td></tr>
-    <tr><td><b>보스에서만</b> 은 «보스전에서 대신 쓸 것» 스위치입니다</td><td>보스전에선 켠 것이 <b>전부</b> 후보라, 레벨이 <b>더 낮은</b> 것을 걸어야 바뀝니다</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>점수가 «무효» 를 싸게 봅니다.</b>
-     약점 하나는 <b>+2점</b>인데 무효 하나는 <b>&minus;1점</b>뿐입니다 &mdash;
-     실제로는 약점이 피해 <b>+2</b> 를 주고 무효는 피해를 <b>전부</b> 없앱니다.
-     그래서 «약점 둘 + 무효 하나» 같은 판에서는 <b>잘못 고릅니다</b>.</div>
-  <div class="note warn"><b>★ 회복이 공격보다 앞섭니다.</b>
-     <code>SelectActions</code> 는 정렬된 목록을 훑다가 <b>종류가 회복(32)인 것을 만나면</b>
-     그 자리에서 행동을 만들고 <b>바로 반환합니다</b>(0x26c0c40 &rarr; 0x26c0fc0).
-     그래서 <b>회복을 켜 둔 캐릭터는 다친 사람이 있는 한 계속 회복만 합니다</b> &mdash;
-     공격 마법 고르는 데까지 가지도 않습니다.
-     «다친 사람» 의 기준은 성격이 정합니다(<a href="#pers">§9</a> &mdash; 신중한 70% · 나머지 50~60%).</div>
-  <div class="note warn"><b>그리고 정렬이 «사거리 오름차순» 이라 단일이 전체보다 먼저입니다.</b>
-     단일 회복을 켜 두면 <b>전체 회복은 영영 안 나갑니다</b>. 같은 사거리 안에서는 레벨 낮은 쪽이 먼저입니다.</div>
   <div class="eq">회복량 = <b>Rand(최소회복, 최대회복) + 시전자 마력</b>   <span class="cmt">// BattleSkill.SkillHeal</span></div>
   <div class="note"><b>여기도 마력이 본체입니다.</b> 스킬의 회복값은 2~4 에서 28~47 까지인데
      마력이 51 이면 결과는 <b>53 에서 98 사이</b>로 몰립니다 &mdash;
      전체 회복끼리는 차이가 <b>4~7</b> 밖에 안 납니다.</div>
-  <p class="src">BattleActionSelector.SelectActions <span class="sm">(0x26c0bf8 회복 우선 · 0x26c0efc / 0x26c0f10 — 전체 → 관통 순서)</span> &middot;
-     SelectBestRangeSkillAction <span class="sm">(0x26c393c 최고점 초기값 int.MinValue)</span> &middot;
+  <p class="src">BattleActionSelector.SelectActions &middot;
+     SelectBestRangeSkillAction &middot;
      GetAllTargetDamageSkillPriority &middot; &lt;SelectActions&gt;b__2_1 <span class="sm">(정렬 비교자)</span> &middot;
      Skill.enable / Skill.enableBossOnly</p>
 
@@ -1674,14 +1247,14 @@ T0  혜주  쓰러짐</div>
      Util.Dice2DWithCritical &middot; JobMaster.mainJobBonusesMagicDefense</p>
 
 
-  <h2 id="farm"><span class="n">12</span>탐색지 쩔 &mdash; 전투는 «불려 나와서» 늘어납니다</h2>
+  <h2 id="farm"><span class="n">13</span>탐색지 쩔 &mdash; 전투는 «불려 나와서» 늘어납니다</h2>
   <p>제작자가 짚은 것에서 시작합니다 &mdash;
      <b>카샨</b>(Lv28 · 발두나)은 1~2턴 만에 몬스터가 바로바로 나오는데
      <b>롱넥 글레이저</b>(Lv33 · 칼레바스 라펠 계곡)는 안 나옵니다.
      <b>탐색지 탓이 아닙니다.</b> 두 곳은 전투가 걸리는 속도가 <b>소수점까지 같습니다</b>.</p>
 
   <h3>① 탐색지가 전투를 거는 속도 &mdash; 344곳 중 303곳이 똑같습니다</h3>
-  <div class="eq"><b>AdventureMain.GetWanderingMonsterGroup</b>   <span class="cmt">// 0x2721ad4</span>
+  <div class="eq"><b>AdventureMain.GetWanderingMonsterGroup</b>
   monsterGroups 를 <b>frequency 로 GroupBy</b> &rarr; 등급마다 <code>RandSuccess(1, iv)</code> 를 <b>한 번씩</b>
   iv = 표[freq &minus; 5] &divide; AdventureInterval(<b>10</b>)
        <b>퀘스트가 없으면(자유 탐색) 다시 &divide; 7</b>       <span class="cmt">// csel w21,w8,w21,eq — quest == null 일 때만</span>
@@ -1717,11 +1290,11 @@ T0  혜주  쓰러짐</div>
   <h3>② 진짜 차이는 «부름» 입니다</h3>
   <p>몬스터의 행동표에 <code>command = 97 (Call)</code> 짜리가 있으면 <b>같은 편을 불러냅니다</b>.
      불려 나온 놈도 쓰러뜨리면 경험치가 그대로 들어옵니다.</p>
-  <div class="eq"><b>ActionPattern.CanExecute</b>   <span class="cmt">// 0x26c8a0c</span>
+  <div class="eq"><b>ActionPattern.CanExecute</b>
   HP 창(minHpPercent ~ maxHpPercent) <b>and</b> turnInterval <b>and</b>
   (frequency == Always ? 참 : <b>GetRandom() == frequency</b>)   <span class="cmt">// 패턴마다 따로 굴린다</span>
 
-<b>actionSelectType</b>   <span class="cmt">// 0x26c0d68</span>
+<b>actionSelectType</b>
   <b>All(1)</b>    &rarr; 통과한 패턴을 <b>전부</b> 그 턴에 실행   <span class="cmt">// FindAll</span>
   <b>Normal(0)</b> &rarr; 통과한 <b>첫 하나만</b></div>
   <table class="t"><thead><tr><th></th><th>카샨 <span class="sm">Lv28</span></th><th>롱넥 글레이저 <span class="sm">Lv33</span></th></tr></thead><tbody>
@@ -1743,13 +1316,13 @@ T0  혜주  쓰러짐</div>
      이번 턴에 이미 불려 나온 것이 있으면 <b>그 부름을 버립니다</b>(실패 로그만 남습니다).
      그러니 «턴당 기대 마릿수» 는 <b>«그 턴에 부름이 한 번이라도 걸릴 확률» 과 같고 1 을 못 넘습니다</b> &mdash;
      카샨 3마리라도 <b>턴당 0.94마리</b>입니다.</div>
-  <div class="eq"><b>Battle.Action</b>   <span class="cmt">// 0x26bebb4</span>
+  <div class="eq"><b>Battle.Action</b>
   cmp w8, #0x61                  <span class="cmt">// 97 = Call</span>
   bl  IsThisTurnWithCalledMonster
   tbz w8, #0, &lt;성공&gt;              <span class="cmt">// 거짓일 때만 소환한다</span>
   &hellip; 실패 로그(0x54) 만 남기고 끝
 
-<b>술어</b>   <span class="cmt">// 0x26c69e8</span>  entry.turn == ctx.currentTurn</div>
+<b>술어</b>  entry.turn == ctx.currentTurn</div>
   <div class="note"><b>상한이 둘 더 있습니다.</b>
      부름은 <b>같은 열의 생존 아군이 4 미만</b>일 때만 성공하고(전열 4 + 후열 4 = 동시 8마리),
      전투가 <b>15턴</b>을 넘기면 무승부인데 <b>무승부는 경험치가 0</b> 입니다.
@@ -1782,8 +1355,7 @@ T0  혜주  쓰러짐</div>
       <td><code>PhysicsAttack</code> 이 <code>HitRate</code> · <code>ShieldAvoidRate</code> 를 굴립니다</td></tr>
     <tr class="hi"><td><b>평타에 붙은 효과</b> <span class="sm">카샨의 Slimy · 아이스 핸드의 잡기</span></td>
       <td><b>같이 피합니다</b></td>
-      <td><code>Run</code> 이 <code>physicsType</code> 을 보고 <b>None(빗나감)이면 건너뜁니다</b>
-        <span class="sm">(0x26c1ea0 &mdash; Touch/Damage 일 때만 적용)</span></td></tr>
+      <td><code>Run</code> 이 <code>physicsType</code> 을 보고 <b>None(빗나감)이면 건너뜁니다</b></td></tr>
     <tr style="color:var(--f-vault)"><td><b>스킬</b> <span class="sm">command 10</span></td><td><b>못 피합니다</b></td>
       <td><code>DamageSkill</code>·<code>PhysicsDamageSkill</code> 이 <code>AvoidRate</code> 를 <b>한 번도 안 부릅니다</b></td></tr>
     <tr style="color:var(--f-vault)"><td><b>반격</b> <span class="sm">monster.skillMasters</span></td><td><b>못 피합니다</b></td>
@@ -1861,16 +1433,61 @@ T0  혜주  쓰러짐</div>
   <div class="note"><b>«사디르의 묘표군» 과 «밀제아의 썩은 무덤» 은 리치 때문에 상위였는데, 둘 다 빠집니다.</b>
      리치가 <b>톡식노바(전체)·독성바이트·썬더 랜스</b> 를 <b>스킬로</b> 씁니다 &mdash;
      회피탱도 뒷줄의 쩔 대상도 그대로 맞습니다.</div>
-  <p class="src">BattlePhysicalAttackExecutor.Run <span class="sm">(0x26c1ea0 &mdash; physicsType 이 None 이면 부가 효과를 건너뜁니다)</span> &middot;
-     PhysicsAttack <span class="sm">(0x26c7460 <code>mov w29, #1</code> 명중 · 0x26c7604 <code>mov w29, wzr</code> 빗나감)</span> &middot;
-     ReflectEffectAfterPhysicsAttack <span class="sm">(0x26c86ac &mdash; 때린 쪽에 건다)</span> &middot;
+  <p class="src">BattlePhysicalAttackExecutor.Run &middot;
+     PhysicsAttack <span class="sm"></span> &middot;
+     ReflectEffectAfterPhysicsAttack &middot;
      Trap.ActionPoint <span class="sm">(최소 1)</span> &middot;
      EffectOnCreature.CanAction <span class="sm">(넘어짐·혼란·수면·마비 등은 행동불가)</span> &middot;
-     탐색지 344곳 · 몬스터 377종 · 스킬 155종 전수</p>
+     탐색지 354곳 · 몬스터 383종 · 스킬 159종 전수</p>
+
+
+
+  <h2 id="va"><span class="n">부록</span>함수 주소표 <span class="sm" style="font-weight:400">7.1 기준</span></h2>
+  <p>본문에서 주소를 뺐습니다. 판올림 때 고칠 곳이 <b>여기 한 표</b>뿐이도록 모아 둡니다.</p>
+  <table class="t"><thead><tr><th>무엇</th><th>함수</th><th class="num">VA</th></tr></thead><tbody>
+  <tr><td rowspan="4">굴림 <span class="sm">&sect;1</span></td><td><code>Util.CreateRandomValue</code></td><td class="num">0x276C71C</td></tr>
+  <tr><td><code>Util.Dice2D</code> <span class="sm">Random.Range(1,7) 두 번</span></td><td class="num">0x276C630</td></tr>
+  <tr><td><code>Util.Dice2DWithCritical</code> <span class="sm">1+1 이면 &minus;100</span></td><td class="num">0x276C6A4</td></tr>
+  <tr><td>÷6 자리 <span class="sm">0x2AAAAAAB &times; 상위 32비트</span></td><td class="num">회피 0x26B72FC · 명중 0x26B7088</td></tr>
+  <tr><td rowspan="4">수치 <span class="sm">&sect;2</span></td><td><code>Character.AddJobBonuses</code></td><td class="num">0x26D4EE0</td></tr>
+  <tr><td><code>Character.GetParamData</code> <span class="sm">체력 몫 sdiv</span></td><td class="num">0x26E2DCC</td></tr>
+  <tr><td>체력 나눗수 4 <span class="sm"><code>mov w9,#4</code></span></td><td class="num">0x26E3854</td></tr>
+  <tr><td><code>Weapon.CriticalRate</code> <span class="sm">전체 공격이면 ÷4</span></td><td class="num">0x270AB2C</td></tr>
+  <tr><td rowspan="2">직업 <span class="sm">&sect;3</span></td><td><code>Character.CanEquipWeapons</code> <span class="sm">풋워커 활</span></td><td class="num">0x26D9EB0</td></tr>
+  <tr><td><code>Job.MaxLevel</code> <span class="sm">모험가 = 최고 + 1</span></td><td class="num">0x26E9B0C</td></tr>
+  <tr><td rowspan="5">전투 <span class="sm">&sect;5&middot;&sect;6</span></td><td><code>BattlePhysicalAttackExecutor.PhysicsAttack</code></td><td class="num">0x26C8110</td></tr>
+  <tr><td>명중 판정 <span class="sm"><code>sub</code>&middot;<code>cmn w8,#1</code>&middot;<code>b.mi</code></span></td><td class="num">0x26C83C0</td></tr>
+  <tr><td><code>BattleCreature.AvoidRate</code> <span class="sm">부르는 곳 0x26C8350 하나뿐</span></td><td class="num">0x26B72FC</td></tr>
+  <tr><td><code>TargetTypeExtensions.IsFront</code> <span class="sm">활이면 false</span></td><td class="num">0x270A670</td></tr>
+  <tr><td><code>BattleCreature.IsUseMagicWeapon</code></td><td class="num">0x26B95C8</td></tr>
+  <tr><td rowspan="2">상태이상</td><td><code>EffectOnCreature</code> 보정 사전 <span class="sm">.cctor</span></td><td class="num">0x26FBBB4</td></tr>
+  <tr><td><code>MonsterMaster.AvoidPoint</code> <span class="sm">÷6</span></td><td class="num">0x26CD99C</td></tr>
+  <tr><td rowspan="3">판정 <span class="sm">&sect;8</span></td><td><code>AdventureMain.OpenTreasureBox</code> <span class="sm">발견·해제 둘 다 여기 인라인</span></td><td class="num">0x27252B8</td></tr>
+  <tr><td><code>AdventureMain.FoundItem</code> <span class="sm">+6</span></td><td class="num">0x2724B18</td></tr>
+  <tr><td><code>Trap.DisarmTrap</code></td><td class="num">0x27271A4</td></tr>
+  <tr><td rowspan="2">퀘스트 <span class="sm">&sect;9</span></td><td><code>Town.CanAcceptQuest</code></td><td class="num">0x275E570</td></tr>
+  <tr><td><code>Quest.Finish</code> <span class="sm">addLevel &plusmn;1</span></td><td class="num">0x2729050</td></tr>
+  <tr><td>성격 <span class="sm">&sect;4</span></td><td><code>Party.GetRetreatThreshold</code></td><td class="num">0x26F781C</td></tr>
+  </tbody></table>
+  <div class="note"><b><code>AdventureMain.UnlockChest</code> 는 쓰지 않습니다.</b>
+     .so 전체에서 부르는 곳이 한 군데도 없는 <b>죽은 코드</b>입니다 &mdash;
+     이 자료실이 한동안 그 함수를 읽고 금고 해제식을 적어서, 퀘스트 레벨이 빠진 채로 나가 있었습니다.</div>
+
+  <h2 id="todo"><span class="n">부록</span>아직 확인 못 한 것</h2>
+  <p>본문에는 유보 표현을 한 곳도 안 남겼습니다. 대신 여기 모읍니다.</p>
+  <ul>
+    <li><code>FromTop</code> 의 정확한 의미 &mdash; 부름 대상 선택에 쓰이는데 분기를 아직 못 갈랐습니다</li>
+    <li>강화 미해결 둘 &mdash; «민첩 +5» 와 «요구 레벨 감소 +2» 가 어느 단계에서 붙는지</li>
+    <li>화면의 «주점 최대» 식</li>
+    <li>평타가 1 미만일 때 스킬 쪽에만 있는 «일정 확률로 1» 경로의 정확한 값</li>
+  </ul>
 
   </div>
 
   <footer class="foot">
-    <p>이 문서는 <b>클라이언트 판번호 6061</b> 에서 뽑았습니다 (세이브의 <code>GameData.currentVersion</code> 과 같은 값). 게임이 업데이트되면 낡습니다 — 퀘스트 색인에 세이브를 넣으면 판번호가 달라졌는지 알려 줍니다.</p>
+    <p>이 문서는 <b>7.1</b>(versionCode 144) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
+       <a href="save.html">내 세이브</a> 에 세이브를 넣으면 판번호가 달라졌는지 알려 줍니다.</p>
+    <p style="margin-top:6px">회피식과 화면 수치는 <code>avoidcheck.py</code> · <code>statcheck.mjs</code> 가
+       매 빌드마다 <b>게임 화면에서 읽은 값</b>과 맞춰 봅니다 &mdash; 어긋나면 배포가 섭니다.</p>
   </footer>
 </div>
