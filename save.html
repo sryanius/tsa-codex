@@ -1161,7 +1161,22 @@ function gearSum(c, key){
   return t;
 }
 function avoidValue(c){ return jobBonus(c,"av") + gearSum(c,"av"); }
-function hitValue(c){ return jobBonus(c,"hr") + gearSum(c,"hr"); }
+/* 명중률 = 직업 몫 + 무기 몫 + 방어구 몫.
+   ★ 무기 몫은 «종류표 + 조정» 이다 — meta.json 의 ht 가 그 값이다(hr 은 조정만).
+     단검 +1 · 검 0 · 대검 −2 · 도끼 −2 · 활 −1 · 창 −1 · 지팡이 −2
+   ★ 무기가 없으면 그 자리에 «주직업 레벨» 이 들어간다 (Character::HitRate 0x26DBFE4).
+     hr 만 세다가 게임보다 낮게 나왔다 — 무기 든 사람은 1, 맨손인 사람은 레벨만큼. */
+function hitValue(c){
+  var w=weaponOf(c), t=jobBonus(c,"hr");
+  t += w ? ((w.ht||0) + enhPart(c,true,"명중률"))
+         : ((c.jobs||[]).reduce(function(a,j){ return j.cur ? (j.lv||0) : a; }, 0));
+  equipsOf(c).forEach(function(x){
+    if(x.g.c==="무기") return;
+    t += (x.g.hr||0);
+    x.enh.forEach(function(e){ if(ENH[e.k]==="명중률") t += (e.v||0); });
+  });
+  return t;
+}
 
 /* ── 게임 상세 화면과 같은 수치들 ──────────────────────────────────
    전부 «장비 합(강화 포함) + 직업 몫» 이다. 장비의 실제 수치는
@@ -1233,7 +1248,12 @@ function defenseRange(c){
   var mj=JOB[c.main], cut=[0,0];
   // 주직업이 참수형(Kind 26)이면 방패 몫의 절반이 깎인다
   if(mj && mj.k===26){ var sr=shieldRange(c); cut=[sr[0]>>1, sr[1]>>1]; }
-  return [dr[0]+jb+wd-cut[0], dr[1]+jb+wd-cut[1]];
+  // ★ 체력 몫 — 화면 값은 여기에 ⌊체력 ÷ 4⌋ 를 더한 것이다.
+  //   Character::GetParamData 0x26E2DCC (bl PhysicalStrength → sdiv → add),
+  //   나눗수 4 는 코드에 박혀 있다 (7.1 0x26E3854 mov w9,#4 · 세 판본 모두 같다).
+  //   이 항이 빠져 있어서 게임보다 낮게 나왔다 — 체력 26 이면 6, 13 이면 3 만큼.
+  var ps = Math.floor(statOf(c,"체력")/4);
+  return [dr[0]+jb+wd-cut[0]+ps, dr[1]+jb+wd-cut[1]+ps];
 }
 /* ★ 방패도 여기 들어간다. Armor::MinDefense 에 종류 가드가 없어서
    방패 방어는 DefensePoint 에 그대로 더해지고, «막기» 에 성공하면
@@ -1246,9 +1266,25 @@ function shieldRange(c){
   var e=enhSum(c,"방패 방어");
   return [gearField(c,"sd",0)+e, gearField(c,"sd",1)+e];
 }
-/* ★ 치명타만 나눔수가 20 이다 — 다른 항목은 전부 10 인데 여기만 다르다.
-   혜주(4+5=9)·동일(0+5=5) 두 명으로 확인했다. */
-function critRate(c){ return gearField(c,"cr")+jobBonus2(c,"치명타",20)+enhSum(c,"치명타"); }
+/* ★ 나눗수는 다른 항목과 같은 10 이다. 한동안 20 으로 적어 뒀는데 우연히 맞아 보였다 —
+   전체 공격 무기의 치명타가 ⌊base/4⌋ 로 깎이는 것을 안 세는 바람에, 두 오차가 서로 지워졌다.
+   Weapon::CriticalRate 0x270AB2C — allTarget 이면 ⌊base/4⌋ · withBackTarget 이면 base/3. */
+function weaponCrit(c){
+  var w=weaponOf(c); if(!w) return 0;
+  var base=(w.cr||0)+enhPart(c,true,"치명타");
+  if(w.at) return (base/4)|0;
+  if(w.wb) return (base/3)|0;
+  return base;
+}
+function critRate(c){
+  var t=jobBonus2(c,"치명타")+weaponCrit(c);
+  equipsOf(c).forEach(function(x){                 // 방어구 쪽 치명타도 들어간다
+    if(x.g.c==="무기") return;
+    t += ((x.g.b&&x.g.b["치명타"])||0);
+    x.enh.forEach(function(e){ if(ENH[e.k]==="치명타") t += (e.v||0); });
+  });
+  return t;
+}
 function critDef(c){ return gearField(c,"cd")+jobBonus2(c,"치명 저항")+enhSum(c,"치명 저항"); }
 function magicDef(c){ return gearField(c,"md")+jobBonus2(c,"마법 방어")+enhSum(c,"마법 방어"); }
 function shieldAvoid(c){ return gearField(c,"sv")+jobBonus(c,"sav")+enhSum(c,"방패 회피"); }

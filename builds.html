@@ -409,9 +409,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      전부 <b>2% 하한</b>에 눌립니다. 50 대에 한 번입니다.</div>
 
   <h3>명중 &mdash; 칼레바스에서 처음으로 아슬아슬해집니다</h3>
-  <div class="eq">내 명중 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + &lfloor;재주 흔들림 &divide; 3&rfloor; + <b>명중값 37</b>
-   재주 = 기본 7 + 직업 <b>10</b> = <b>17</b> &rarr; 흔들림 최솟값 13 &rarr; 몫 <b>4</b>
-   <b>최악의 굴림 = 2 + 4 + 37 = 43</b>          <span class="cmt">// 직업 몫을 6 으로 적어 뒀던 것을 고쳤다</span>
+  <div class="eq">내 명중 = <b>2d6</b>(10 이상이면 다시 굴려 더함) + &lfloor;재주 흔들림 &divide; <b>6</b>&rfloor; + <b>명중값 37</b>
+   재주 = 기본 7 + 직업 <b>10</b> = <b>17</b> &rarr; 흔들림 최솟값 13 &rarr; 몫 <b>2</b>
+   <b>최악의 굴림 = 2 + 2 + 37 = 41</b>          <span class="cmt">// 나눗수를 3 으로 적어 뒀던 것을 고쳤다 (0x26b62cc)</span>
 
 맞습니다 &hArr; 명중 &minus; 상대 회피 &ge; &minus;1</div>
   <table class="t"><thead><tr><th>지역</th><th class="num">몬스터 회피<br><span style="font-weight:400">중앙 / 최대</span></th>
@@ -547,35 +547,41 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <dt>부적</dt><dd>세라믹스틸 오멘워드 탈리스만 <span class="meta">요구 Lv27 · 힘 1 · <b>회피 +5</b> · <b>마법 방어 37</b></span></dd>
       <dt>방패</dt><dd>테라 버클러 <span class="meta">요구 Lv16 · 힘 20 · 막기 판정용 — 회피와는 별개입니다</span></dd>
     </dl>
-    <div class="chips"><span>회피값 <b>39</b></span><span>민첩 <b>39</b></span><span>회피 최솟값 <b>53</b></span>
-      <span>물리 <b>100% 회피</b> <span class="meta">칼레바스 완봉선 53 에 딱</span></span>
+    <div class="chips"><span>회피값 <b>39</b></span><span>민첩 <b>39</b></span><span>회피 최솟값 <b>47</b></span>
+      <span>물리 <b>100% 회피</b> <span class="meta">발두나까지 &mdash; 칼레바스는 6 모자랍니다</span></span>
       <span>마법 방어 <b>51</b></span><span>치명 저항 43</span><span>HP 40</span>
       <span>평타 <b>74~101</b> 전체</span><span>통찰 <b>33</b></span><span>경험치 <b>17.6M</b></span></div>
   </div>
 
   <h3>회피값 &mdash; 어디까지 채워야 하나</h3>
-  <div class="eq">내 회피 = <b>2d6</b> + &lfloor;CreateRandomValue(민첩) &divide; 3&rfloor; + 회피값 + 지형
+  <div class="eq">내 회피 = <b>2d6</b> + &lfloor;CreateRandomValue(민첩) &divide; <b>6</b>&rfloor; + 회피값 + 지형
 빗나갑니다 &hArr; <b>내 회피 &ge; 상대 명중 + 2</b>
 
-⇒ <b>완봉선 = 2</b>(2d6 최소) <b>+ &lfloor;민첩 최솟값 &divide; 3&rfloor; + 회피값 &ge; 몬스터 명중 + 2</b></div>
+⇒ <b>완봉선 = 2</b>(2d6 최소) <b>+ &lfloor;민첩 최솟값 &divide; <b>6</b>&rfloor; + 회피값 &ge; 몬스터 명중 + 2</b></div>
   <table class="t"><thead><tr><th class="num">이 빌드의 회피</th><th class="num">값</th><th>어디서</th></tr></thead><tbody>
     <tr><td>주직업 몫</td><td class="num">12</td><td>마검사 30 &times; 주 회피 4</td></tr>
     <tr><td>부직업 몫</td><td class="num">16</td><td>도둑 30&times;3 + 숨은 칼날의 궁사 20&times;2 + 검술사 15&times;2 = 160</td></tr>
     <tr><td>장비</td><td class="num">11</td><td>통풍이 잘되는 옷 +6 · 오멘워드 탈리스만 +5</td></tr>
     <tr class="hi"><td><b>회피값 합계</b></td><td class="num"><b>39</b></td><td></td></tr>
     <tr><td>2d6 최소</td><td class="num">+2</td><td></td></tr>
-    <tr><td><b>민첩 39 의 몫</b></td><td class="num">+12</td><td>흔들림 최솟값 37 &rarr; &lfloor;37&divide;3&rfloor;</td></tr>
-    <tr class="hi"><td><b>회피 최솟값</b></td><td class="num"><b>53</b></td><td>아래 완봉선을 전부 넘습니다</td></tr>
+    <tr><td><b>민첩 39 의 몫</b></td><td class="num">+6</td><td>흔들림 최솟값 37 &rarr; &lfloor;37&divide;<b>6</b>&rfloor;</td></tr>
+    <tr class="hi"><td><b>회피 최솟값</b></td><td class="num"><b>47</b></td><td>발두나까지는 넘습니다 &mdash; 칼레바스는 못 넘습니다</td></tr>
   </tbody></table>
   <table class="t"><thead><tr><th>지역</th><th class="num">몬스터 최고 명중</th><th class="num">완봉선</th><th class="num">여유</th></tr></thead><tbody>
-    <tr><td>아르디오스 왕국</td><td class="num">34</td><td class="num">36</td><td class="num">+17</td></tr>
-    <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">40</td><td class="num">+13</td></tr>
-    <tr><td>발두나의 황야</td><td class="num">45</td><td class="num">47</td><td class="num">+6</td></tr>
-    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num"><b>51</b></td><td class="num"><b>53</b></td><td class="num"><b>0</b></td></tr>
+    <tr><td>아르디오스 왕국</td><td class="num">34</td><td class="num">36</td><td class="num">+11</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">40</td><td class="num">+7</td></tr>
+    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num"><b>45</b></td><td class="num"><b>47</b></td><td class="num"><b>0</b></td></tr>
+    <tr style="color:var(--f-vault)"><td><b>칼레바스 고원</b></td><td class="num"><b>51</b></td><td class="num"><b>53</b></td><td class="num"><b>&minus;6</b></td></tr>
   </tbody></table>
-  <div class="note warn"><b>칼레바스 완봉선 53 에 «딱» 맞습니다 &mdash; 여유가 없습니다.</b>
-     넘어짐 하나에 회피 &minus;2, 실명이면 &minus;4 라 그 턴은 뚫립니다(<a href="notes.html#avoid">원리 &sect;8</a>).
-     부직업으로 사면(마도병 20 = 회피 +4) 경험치가 <b>17.6M &rarr; 49.8M</b> 입니다.</div>
+  <div class="note warn"><b>★ 칼레바스는 <span style="color:var(--f-vault)">6 이 모자랍니다</span> &mdash; 완봉이 안 됩니다.</b>
+     딱 맞는 곳은 <b>발두나(47)</b> 이고, 거기서도 넘어짐 &minus;2 · 실명 &minus;4 면 그 턴은 뚫립니다
+     (<a href="notes.html#avoid">원리 &sect;8</a>).
+     <span class="sm">이 페이지는 오래 «칼레바스 완봉선 53 에 딱 맞는다» 고 적고 있었습니다 &mdash;
+     민첩 몫을 &divide;3 으로 계산한 탓입니다. 실제 나눗수는 <b>6</b> 입니다.</span></div>
+  <div class="note"><b>칼레바스까지 끌어올리려면 회피값을 6 더 벌어야 합니다</b> (39 &rarr; 45).
+     부직업 마도병 20(회피 +4)만으로는 <b>51 &mdash; 아직 2 모자랍니다</b>. 경험치는 <b>17.6M &rarr; 49.8M</b> 입니다.
+     아래 강화가 세 칸 다 최대로 뜨면 45 가 되어 <b>겨우 53</b> 이 됩니다 &mdash;
+     다만 강화 폭이 <code>Random.Range(1,3)</code> 이라 <b>확정이 아닙니다</b>(최소면 42 &rarr; 50).</div>
   <div class="note"><b>강화로 사는 편이 쌉니다 &mdash; 다만 «아무 단계나» 는 아닙니다.</b>
      <code>Armor.Craft</code> 를 읽어 보면 회피(+1~2)가 붙는 것은
      <b>2단계일 때, 그리고 «옷» 이면 1·3 단계에서도</b> 입니다 &mdash;
@@ -646,25 +652,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      카샨이 부를 턴을 잃습니다. <b>평타 84~111</b> 이 그 지점입니다.</div>
 
   <h4>그 화력을 만드는 법 &mdash; 회피를 안 깎고</h4>
-  <div class="note"><b>라그네스는 발두나라 완봉선이 47 입니다.</b>
-     §3 빌드의 회피 최솟값이 <b>53</b> 이니 여기서는 <b>6 이 남습니다</b> &mdash;
-     칼레바스용으로 짠 여유를 화력으로 바꿀 수 있습니다.</div>
-  <table class="t"><thead><tr><th>부직업</th><th class="num">평타</th><th class="num">회피 최솟값</th><th class="num">명중 최솟값</th><th class="num">경험치</th></tr></thead><tbody>
+  <div class="note warn"><b>라그네스는 발두나라 완봉선이 47 이고, §3 빌드의 회피 최솟값도 <b>47</b> 입니다 &mdash;
+     <span style="color:var(--f-vault)">남는 여유가 없습니다</span>.</b>
+     아래 «검술사를 검투사로» 는 <b>회피값이 39 로 그대로라 여전히 성립</b>하지만,
+     «여유를 화력으로 바꾼다» 는 설명은 더 이상 맞지 않습니다 &mdash;
+     <b>회피를 한 칸도 안 깎는 맞바꿈만</b> 됩니다.</div>
+  <table class="t"><thead><tr><th>부직업</th><th class="num">평타</th><th class="num">회피 최솟값</th><th class="num">명중 최솟값 <span class="sm">&divide;3 기준 &mdash; 약 6 낮습니다</span></th><th class="num">경험치</th></tr></thead><tbody>
     <tr><td>도둑 30 · 숨은 칼날의 궁사 20 · <b>검술사 15</b> · 현자 30 <span class="sm">§3 기본</span></td>
-      <td class="num">74~101</td><td class="num">53</td><td class="num">53</td><td class="num"><b>17.6M</b></td></tr>
+      <td class="num">74~101</td><td class="num">47</td><td class="num">53</td><td class="num"><b>17.6M</b></td></tr>
     <tr class="hi"><td>도둑 30 · 숨은 칼날의 궁사 20 · <b>검투사 25</b> · 현자 30 <span class="sm">검술사와 맞바꿈</span></td>
-      <td class="num"><b>84~111</b></td><td class="num"><b>53</b></td><td class="num">64</td><td class="num">42.3M</td></tr>
+      <td class="num"><b>84~111</b></td><td class="num"><b>47</b></td><td class="num">64</td><td class="num">42.3M</td></tr>
     <tr style="color:var(--muted)"><td>위에 검술사 15 를 도로 얹으면</td>
-      <td class="num">84~111</td><td class="num">56</td><td class="num">65</td><td class="num">78.0M</td></tr>
+      <td class="num">84~111</td><td class="num">50</td><td class="num">65</td><td class="num">78.0M</td></tr>
     <tr style="color:var(--f-vault)"><td>숨은 칼날의 궁사까지 빼면</td>
-      <td class="num">76~103</td><td class="num" style="color:var(--f-vault)">46</td><td class="num">56</td><td class="num">20.6M</td>
+      <td class="num">76~103</td><td class="num" style="color:var(--f-vault)">41</td><td class="num">56</td><td class="num">20.6M</td>
       </tr>
     <tr><td colspan="5" style="color:var(--muted)"><b>검술사를 검투사로 바꾸는 것이 요점입니다.</b>
       검술사는 검 전용이라 <b>단검을 든 채로는 공격 몫이 0</b> 이고 회피 3 만 줍니다.
       검투사는 <b>단검을 들 수 있어</b> 부 공격력 4 가 그대로 들어옵니다(최대 25 &rarr; 공격 +10).
-      회피는 검투사 부 1 이 메워서 <b>53 그대로</b>입니다.
+      회피는 검투사 부 1 이 메워서 <b>47 그대로</b>입니다.
       대가는 경험치 <b>17.6M &rarr; 42.3M</b> 입니다 &mdash; 마지막 줄처럼 회피를 46 으로 떨어뜨리면
-      발두나 완봉선 47 을 못 넘어 <b>맞기 시작합니다</b>.</td></tr>
+      발두나 완봉선 47 을 <b>6 이나</b> 못 넘어 <b>크게 맞기 시작합니다</b>.</td></tr>
   </tbody></table>
   <div class="note warn"><b>★ 쩔 대상이 세지면 이 자리가 스스로 나빠집니다.</b>
      같은 탱커(74~101)로 쩔 대상 셋의 평타만 바꿔 보면 &mdash;
@@ -684,6 +692,29 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      부름 60.9%/턴 · 턴당 1마리 상한 · 열당 4 · 무승부 15턴 &middot;
      평균 조우 간격 17.0분(자유 탐색)</p>
 
+  <h3>★ 풋워커는 주직업이 못 드는 무기여도 «활» 을 낍니다</h3>
+  <div class="note"><b>이 빌드가 풋워커인 이유가 하나 더 있습니다.</b>
+     <code>Character::CanEquipWeapons()</code> 는 <b>주직업의 무기 목록만</b> 복사하는데,
+     그 다음 <b>종족이 풋워커면 활(Weapon.Kind 14)을 하나 더 얹습니다</b>.
+     그래서 <b>단검 전용인 마검사를 주직업으로 두고도 활이 끼워집니다.</b>
+     <span class="sm">7.1 0x26D9EB0 &mdash; <code>ldr w8,[characterMaster+0x4c]</code> &middot;
+     <code>cmp w8,#3</code>(FootWorker) &middot; <code>mov w1,#0xe</code> &middot; Add.
+     Race: Human 0 · Dwarf 1 · Elf 2 · <b>FootWorker 3</b>.
+     게임 «상태» 화면에서도 마검사인데 장착 아이콘이 다섯 개로 뜹니다.</span></div>
+  <div class="note warn"><b>다만 활이 회피를 올려 주지는 <span style="color:var(--f-vault)">않습니다</span>.</b>
+     «활이면 회피 +3» 이 코드에 있긴 한데, 바로 앞에
+     <b>«상대가 비행 몬스터인가»</b> 를 보는 가드가 있습니다 &mdash;
+     <b>나는 놈에게 맞을 때만</b> 붙습니다.
+     <span class="sm">0x26b7480 앞의 <code>ldrb w8,[상대 monsterMaster+0xe8]</code>(isFly) &middot;
+     <code>cbz w8, →건너뜀</code>. 8-26 · 7.0 · 7.1 전부 같습니다.</span></div>
+  <div class="note"><b>그래도 활을 들 값어치는 있습니다 &mdash; <b>반사를 통째로 안 받습니다</b>.</b>
+     <code>PhysicsAttack</code> 이 반격 구역에 들어가기 전에 <code>IsFront(무기종류)</code> 를 보는데,
+     활이면 <b>false</b> 라 <b>반격 · 상태반사 · 피해반사를 전부 건너뜁니다</b>
+     (<a href="notes.html#avoid">원리 &sect;8</a>).
+     글레이셜 리브처럼 <code>damageReflect</code> 를 가진 놈을 팰 때
+     <b>단검이면 준 피해의 30%를 되받고, 활이면 0</b> 입니다.
+     대가는 <b>사거리가 단일·원거리로 바뀌어 전체 공격을 잃는 것</b>입니다.</div>
+
   <h3>왜 도둑이 아니라 마검사인가</h3>
   <div class="eq"><b>BattleCreature.IsUseMagicWeapon()</b>   <span class="cmt">// 0x26b85d0</span>
   <b>if</b> 주직업이 <b>마검사</b> <b>and</b> 든 무기가 <b>단검</b>  &rarr; <b>true</b>   <span class="cmt">// 무기의 isMagic 을 «안 봅니다»</span>
@@ -697,11 +728,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <table class="t"><thead><tr><th>주직업 / 무기</th><th class="num">평타</th><th>사거리</th>
     <th class="num">회피<br>최솟값</th><th class="num">마법<br>방어</th><th class="num">HP</th><th class="num">경험치</th></tr></thead><tbody>
     <tr class="hi"><td><b>마검사 30</b> / <b>용맥의 단검</b></td><td class="num">74~101</td><td><b>전체 공격</b></td>
-      <td class="num">53</td><td class="num"><b>51</b></td><td class="num"><b>40</b></td><td class="num">17.6M</td></tr>
+      <td class="num">47</td><td class="num"><b>51</b></td><td class="num"><b>40</b></td><td class="num">17.6M</td></tr>
     <tr><td>마검사 30 / 왕단의 단검</td><td class="num"><b>87~121</b></td><td>근접 · 단일</td>
-      <td class="num">53</td><td class="num">51</td><td class="num">40</td><td class="num">17.6M</td></tr>
+      <td class="num">47</td><td class="num">51</td><td class="num">40</td><td class="num">17.6M</td></tr>
     <tr><td>도둑 30 / 라이프드레인보우 <span class="sm">HP 흡수 30%</span></td><td class="num">83~117</td><td>원거리 · <b>단일</b></td>
-      <td class="num"><b>57</b></td><td class="num" style="color:var(--f-vault)"><b>11</b></td><td class="num">37</td><td class="num"><b>16.1M</b></td></tr>
+      <td class="num"><b>49</b></td><td class="num" style="color:var(--f-vault)"><b>11</b></td><td class="num">37</td><td class="num"><b>16.1M</b></td></tr>
   </tbody></table>
   <div class="note warn"><b>도둑 쪽이 회피도 높고 조금 싸지만, «마법 방어 11» 에서 무너집니다.</b>
      도둑은 방어구 칸이 <b>의복 · 방패</b> 뿐이라 부적을 못 끼고, 부 마법 방어를 주는 직업도 없습니다.
@@ -1359,8 +1390,8 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr><td rowspan="4"><b>회피탱</b><br><span class="meta">마검사는 30 이 끝입니다<br>도둑은 30 에 둡니다</span></td>
       <td>무기를 <b>진악의 단검</b>(단일)으로 바꿀지가 갈림길</td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
     <tr><td>평타 &mdash; 용맥(전체) / 진악(단일)</td><td class="num">74~101</td><td class="num">74~101 / <b>95~133</b></td></tr>
-    <tr><td>회피 최솟값 <span class="sm">칼레바스 완봉선 53</span></td><td class="num">53 <span class="sm">여유 0</span></td>
-      <td class="num">53 <span class="sm">여유 0 · 도둑 35 면 55</span></td></tr>
+    <tr><td>회피 최솟값 <span class="sm">칼레바스 완봉선 53</span></td><td class="num">47 <span class="sm" style="color:var(--f-vault)">여유 &minus;6</span></td>
+      <td class="num">47 <span class="sm" style="color:var(--f-vault)">여유 &minus;6 · 도둑 35 면 49</span></td></tr>
     <tr><td>마방 · 통찰 / 경험치</td><td class="num">51 · 33 / 17.6M</td><td class="num">52 · <b>36</b> / 18.3M</td></tr>
     <tr><td rowspan="3"><b>마법사</b><br><span class="meta">부적만 바꿉니다</span></td>
       <td>현맥의 부적 &rarr; <b>고목의 부적</b></td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
