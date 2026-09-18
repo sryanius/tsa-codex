@@ -1,0 +1,1773 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>침묵의 기록자 계산기</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --f-lodge:#3F8F63; --f-ware:#C2762E; --f-heal:#BC4F68;
+  --f-vault:#B08A16; --f-forge:#3B7FA8; --f-arch:#7160B8; --f-train:#5A6470;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+    --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+  --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px
+}
+.mast h1{
+  font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
+  margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em
+}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
+}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
+
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--ground);
+  padding:14px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px
+}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
+}
+.seg button+button,.seg a+a,.seg button+a,.seg a+button{border-left:1px solid var(--line)}
+.seg a.xtab{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;
+  color:var(--muted);text-decoration:none;white-space:nowrap;display:flex;align-items:center}
+.seg a.xtab:hover{color:var(--ink);background:var(--raised)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type="search"],select{
+  font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink);min-width:0
+}
+input[type="search"]{flex:1 1 240px}
+.chip{
+  font:inherit;font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex:none}
+.chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
+.filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
+.filebtn:hover{border-color:var(--accent)}
+.filebtn.alt{color:var(--muted)}
+.mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
+  border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
+.hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
+.lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+  border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
+.lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lvin input{-moz-appearance:textfield}
+.lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
+.row.locked{opacity:.62}
+.nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+/* 퀴스트 라인 — 깊이만큼 세로 안내선을 깔아 «어느 가지에 붙은 것인가» 를 보인다.
+   ★ 아래쪽 .chain li.undone 이 padding 단축으로 들여쓰기를 통째 먹었다
+     — 같은 우선순위에 뒤에 있어 이겼다. 그래서 여기서 다시 잡는다. */
+.chain.qline{--step:18px}
+.chain.qline ul{padding-left:0}
+.chain.qline li,
+.chain.qline li.undone{position:relative;margin:0 0 7px;border-radius:0;
+  padding:0 0 0 calc(var(--d,0)*var(--step) + var(--step));
+  background:repeating-linear-gradient(to right,var(--line-soft) 0 1px,transparent 1px var(--step))
+             left top/calc(var(--d,0)*var(--step)) 100% no-repeat}
+.chain.qline li::before{left:calc(var(--d,0)*var(--step) + 2px);content:"│"}
+.chain.qline li.up::before{content:"↑";color:var(--f-lodge)}
+.chain.qline li.down::before{content:"↓";color:var(--f-arch)}
+.chain.qline li.now,
+.chain.qline li.now.undone{background:var(--raised);border:1px solid var(--accent);
+  border-radius:6px;margin-bottom:9px;
+  padding:6px 8px 6px calc(var(--d,0)*var(--step) + var(--step))}
+.chain.qline li.now::before{content:"▶";color:var(--accent);
+  left:calc(var(--d,0)*var(--step) + 8px)}
+.chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
+.chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+/* 즐겨찾기 별과 «다시 가능» 표시 */
+.row{position:relative}
+.star{position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+  border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:6px;
+  color:var(--line);transition:color .1s}
+.star:hover{color:var(--f-vault)}
+.star.on{color:var(--f-vault)}
+.row .qn{padding-left:18px}
+.again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+.again{color:var(--f-heal);border-color:currentColor}
+.chain.again-box h4{color:var(--f-vault)}
+.qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
+.qkey b{font-weight:700}
+.qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
+@media (max-width:560px){ .chain.qline{--step:12px} }
+.gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
+.gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
+.gnote p.meta{margin:10px 0 0;font-size:12.5px}
+.gnote table{width:100%;max-width:560px;border-collapse:collapse;font-size:12.5px}
+.gnote th,.gnote td{padding:4px 8px;border-bottom:1px solid var(--line-soft);text-align:left}
+.gnote th{color:var(--faint);font-weight:600}
+.gnote td.num,.gnote th.num{text-align:right;font-variant-numeric:tabular-nums}
+.gnote td.plus{color:var(--f-heal);font-weight:600}
+.gnote td.minus{color:var(--f-vault)}
+.gnote tr.zero td{color:var(--faint)}
+.party{font-style:normal;font-size:10px;font-weight:600;color:var(--f-heal);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+.monlist{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.monchip{display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;border-radius:4px;
+  background:var(--raised);border:1px solid var(--line);font-size:12px;text-decoration:none;
+  color:var(--text)}
+.monchip:hover{border-color:var(--f-heal)}
+.monchip i{font-style:normal;font-size:11px;color:var(--faint)}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+
+.group{margin-top:34px}
+.ghead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ghead h2{
+  font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  color:var(--ink);margin:0;letter-spacing:-.01em
+}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
+
+/* 읽는 페이지의 표에서 «이 줄이 요점» 표시. 여태 클래스만 있고 규칙이 없었다. */
+.doc tr.hi{background:var(--raised)}
+.doc tr.hi td{border-bottom-color:var(--line)}
+.doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+
+.list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.row{display:grid;gap:6px 12px;align-items:center;padding:10px 14px;
+  border-top:1px solid var(--line-soft);cursor:pointer;font-size:13.5px}
+@media (max-width:760px){
+  /* 좁은 화면에서는 오른쪽 숫자들을 아래로 내린다 — 잘리는 것보다 낫다 */
+  .row{grid-template-columns:1fr auto !important}
+  .row .nm{grid-column:1 / -1}
+}
+.row:first-child{border-top:0}
+.row:hover{background:var(--raised)}
+.row.open{background:var(--raised)}
+.nm{min-width:0}
+.nm b{display:block;color:var(--ink);font-weight:600;font-size:14px}
+.nm span{display:block;color:var(--muted);font-size:11.5px;margin-top:1px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--body);
+  text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.num.dim{color:var(--faint)}
+.tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
+  border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
+.t-w{color:var(--accent)} .t-m{color:var(--f-arch)} .t-hall{color:var(--f-forge)}
+.detail{padding:14px 16px 18px;background:var(--raised);border-top:1px solid var(--line-soft);font-size:13px}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px 16px;margin:0 0 4px}
+.dcell dt{font-size:10.5px;color:var(--faint);letter-spacing:.04em}
+.dcell dd{margin:1px 0 0;color:var(--body)}
+.dcell dd.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.blk{margin:14px 0 0;padding:12px 15px;background:var(--surface);border:1px solid var(--line);
+  border-radius:8px;max-width:80ch}
+.blk h4{margin:0 0 8px;font-family:"Gowun Batang",Georgia,serif;font-size:14px;font-weight:700;color:var(--ink)}
+.blk ul{margin:0;padding-left:16px;list-style:none}
+.blk li{position:relative;margin:0 0 7px;line-height:1.7}
+.blk li .meta{display:block;margin-top:1px;white-space:normal}
+.blk li::before{content:"·";position:absolute;left:-12px;color:var(--faint)}
+.meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.story{margin:12px 0 0;padding:11px 14px;border-left:2px solid var(--line);background:var(--surface);
+  border-radius:0 7px 7px 0;font-size:13px;color:var(--body);white-space:pre-wrap;max-width:74ch}
+.bonus{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 0}
+.bonus i{font-style:normal;font-size:11px;font-family:"IBM Plex Mono",monospace;
+  border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--body);background:var(--surface)}
+.bonus.sub i{color:var(--muted)}
+.lvtable{max-height:240px;overflow-y:auto;margin:8px 0 0}
+.lvtable table{border-collapse:collapse;width:100%;font-size:12px;font-variant-numeric:tabular-nums}
+.lvtable th{position:sticky;top:0;background:var(--surface);text-align:right;font-size:10.5px;
+  color:var(--faint);font-weight:600;padding:4px 10px 4px 0;border-bottom:1px solid var(--line)}
+.lvtable th:first-child{text-align:left}
+.lvtable td{padding:3px 10px 3px 0;text-align:right;color:var(--body);
+  border-bottom:1px solid var(--line-soft);font-family:"IBM Plex Mono",monospace}
+.lvtable td:first-child{text-align:left}
+.mapbox{border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  box-shadow:var(--shadow);padding:10px;overflow:hidden}
+.mapbox svg{display:block;margin:0 auto;width:auto;height:auto;
+  max-width:100%;max-height:78vh}
+.mapbox{background:#11131a}
+.mc circle{fill:none;stroke:#fff;stroke-width:2;opacity:.55;cursor:pointer;transition:opacity .12s,fill .12s}
+.mc:hover circle{opacity:1;fill:#fff}
+.mt circle{fill:#f4d35e;stroke:#2b2416;stroke-width:3;cursor:pointer}
+.mt:hover circle{fill:#fff}
+.mt text{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;
+  fill:#fff;paint-order:stroke;stroke:#1a1a22;stroke-width:5;stroke-linejoin:round;cursor:pointer}
+.seglab{font-size:11px;letter-spacing:.08em;color:var(--faint);font-weight:600;
+  align-self:center;margin:0 -2px 0 4px}
+.seglab:first-child{margin-left:0}
+.tabnote{font-size:13px;color:var(--muted);margin:14px 0 0}
+.calc{border:1px solid var(--line);border-radius:10px;background:var(--surface);
+  padding:14px 16px;margin:0 0 16px;box-shadow:var(--shadow)}
+.crow{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;margin:0 0 12px}
+.crow:last-child{margin:0}
+.crow .lvlabel{min-width:82px;padding-top:5px}
+button.mini{font:inherit;font-size:12px;padding:4px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--muted);cursor:pointer}
+button.mini:hover{color:var(--ink);border-color:var(--accent)}
+table.sct{width:100%;max-width:520px;border-collapse:collapse;margin:0 0 14px;
+  font-variant-numeric:tabular-nums}
+table.sct th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--faint);
+  font-weight:600;padding:0 12px 6px 0;border-bottom:1px solid var(--line)}
+table.sct td{padding:6px 12px 6px 0;border-bottom:1px solid var(--line-soft);color:var(--body);font-size:13px}
+table.sct th.num,table.sct td.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+table.sct tr.zero td{color:var(--faint)}
+ol.explist{margin:0;padding-left:1.5em}
+ol.explist li{margin:2px 0}
+details.fine{margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+details.fine summary{cursor:pointer;color:var(--faint);font-size:12px;
+  letter-spacing:.02em;list-style:none}
+details.fine summary::-webkit-details-marker{display:none}
+details.fine summary::before{content:"▸ ";color:var(--faint)}
+details.fine[open] summary::before{content:"▾ "}
+details.fine p{margin:6px 0 0;line-height:1.6}
+#out .blk{margin:16px 0 0}
+.crow select{font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);
+  border-radius:7px;background:var(--raised);color:var(--ink)}
+.statbox{display:flex;flex-wrap:wrap;gap:6px}
+.statbox .lvin{font-size:11.5px}
+.statbox .lvin input{width:44px}
+.t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
+.crow .lvin input{width:54px}
+.crow .lvin input.wide{width:96px;text-align:right}
+.sumline{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:12px 0 8px}
+.sumline b{color:var(--accent);font-size:16px}
+.lvin .rg{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  color:var(--faint);letter-spacing:-.02em;margin:0 0 0 3px}
+.empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
+.group{margin:24px 0 0}
+.regname{font-family:"Gowun Batang",Georgia,serif;font-size:15px;font-weight:700;
+  color:var(--faint);margin:34px 0 0;letter-spacing:.02em}
+.ghead{display:flex;align-items:baseline;gap:10px;margin:0 0 9px;flex-wrap:wrap}
+.ghead h2{font-family:"Gowun Batang",Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin:0}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px}
+
+.gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  background:var(--ground);padding:24px}
+.gatebox{max-width:420px;text-align:center;background:var(--surface);border:1px solid var(--line);
+  border-radius:14px;padding:32px 28px;box-shadow:var(--shadow)}
+.gatebox h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
+  color:var(--ink);margin:0 0 10px}
+.gatebox p{margin:0 0 16px;font-size:14px;color:var(--muted)}
+.gatebox button{font:inherit;font-size:14px;font-weight:500;padding:10px 22px;
+  border:1px solid var(--accent);border-radius:99px;background:var(--accent);
+  color:var(--on-accent,#fff);cursor:pointer}
+.gatebox button:hover{filter:brightness(1.08)}
+.gatenote{font-size:12px!important;color:var(--faint)!important;margin:16px 0 0!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+<a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="builds.html">빌드</a>
+  </nav>
+  <header class="mast">
+    <p class="eyebrow">The Silent Archivist &middot; 세계와 용병단</p>
+    <h1>도감</h1>
+    <p class="lede">세계에 무엇이 있고 용병단이 무엇으로 이루어지는지 &mdash; 탐색지·몬스터·아이템, 그리고 클래스·종족·마법·도시 시설. 여기에 <b>지도</b>와 <b>뽑기 계산기</b>가 붙어 있습니다.</p>
+    <p class="tabnote" id="tabnote"></p>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="bar">
+    <div class="bar-row">
+      <span class="seglab">계산기</span>
+      <div class="seg" role="group" aria-label="계산기 전환">
+      <button id="v-calc" type="button" aria-pressed="false">용병 뽑기</button>
+      <button id="v-stat" type="button" aria-pressed="false">능력치</button>
+      </div>
+      <label class="lockbox" style="margin-left:auto"><input type="checkbox" id="showlocked"> 잠긴 것도 보기</label>
+    </div>
+  </div>
+
+  <main id="out"></main>
+
+  <footer class="foot">
+    <p>클래스 설명은 게임의 원문(<code>LCDetail</code>)입니다. 주/부 보너스는 <code>mainJobBonuses*</code> / <code>subJobBonuses*</code>, 훈련소와 시설 비용은 <code>BuildingMaster.levelManagers</code>, 종족 능력치는 <code>CharacterMaster.ability</code>, 뽑기 계산은 <code>Character.CreateParam</code> 과 <code>InviteAdventureDialog</code>, 지도는 번들 안의 <code>Tilemap</code> 을 직접 합성한 것입니다.</p>
+    <p>모든 수치는 <b>클라이언트 판번호 6061</b> 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
+    <p>창고·숙소·치료소·금고·대장간·아카이브 여섯은 골드로 못 올립니다 — 퀘스트로만 오릅니다. 어떤 퀘스트가 무엇을 올려주는지는 <a href="quests.html">퀘스트 색인</a>에 있습니다.</p>
+  </footer>
+</div>
+
+<script>
+window.__TSA_BOOT=function(D){
+"use strict";
+
+var el=function(id){return document.getElementById(id)};
+/* 아직 못 가는 지역 — 규칙은 lockrule.md 에 있다.
+   ① 세이브에 열린 지역 목록이 있으면 그게 진실이다 (업데이트되면 저절로 풀린다)
+   ② 없으면 데이터의 locked 를 쓴다 (빌드가 정한 것: 빈 지역 + 손으로 적은 한 줄) */
+var LOCKED_SET = (function(){
+  var open=null;
+  try{ open=JSON.parse(localStorage.getItem("tsa.maps.v1")||"null"); }catch(e){}
+  var out={}; (D.locked||[]).forEach(function(r){ out[r]=1; });
+  if(open && open.length && D.maps){
+    var got={}; open.forEach(function(i){ got[i]=1; });
+    out={};
+    D.maps.forEach(function(m){ if(!got[m.i]) out[m.n]=1; });
+  }
+  return out;
+})();
+function isLockedRegion(r){ return !!LOCKED_SET[r]; }
+/* 훈련소를 여는 퀘스트가 못 가는 지역에만 있으면 그 직업은 아직 못 얻는다.
+   판정은 build 쪽 locklib 이 하고, 여기서는 그 결과(j.lock)를 쓴다. */
+function visJobs(){ return D.jobs.filter(function(j){ return state.showLocked || !j.lock; }); }
+
+// 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
+// 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
+var LKEY2="tsa.showlocked.v1";
+var state={view:"job",q:"",wk:"",showLocked:false};
+try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
+function okTown(t){ return state.showLocked || !(t.lock || isLockedRegion(t.r)); }
+function visTowns(){ return D.towns.filter(okTown); }
+
+/* 퀘스트 색인에서 세이브를 넣으면 도시별 주점·상점 레벨과 훈련소 레벨이
+   여기 저장된다. 있으면 «내 레벨» 과 «지금 살 수 있는 것» 을 같이 보여 준다. */
+var FAC=null;
+try{ FAC=JSON.parse(localStorage.getItem("tsa.fac.v1")||"null"); }catch(e){}
+function myTownLv(townId, kind){
+  if(!FAC||!FAC.towns) return null;
+  var t=FAC.towns[townId]; if(!t) return null;
+  var key = kind==="무기 상점" ? "무기상점" : (kind==="방어구 상점" ? "방어구상점" : kind);
+  var v=t[key];
+  return (typeof v==="number") ? v : null;
+}
+function myHallLv(jobId){
+  return (FAC&&FAC.halls&&typeof FAC.halls[jobId]==="number") ? FAC.halls[jobId] : null;
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
+function gold(n){ return n>=10000 ? (n/1000).toFixed(0)+"K" : n.toLocaleString(); }
+function mins(n){ var h=Math.floor(n/60); return (h?h+"시간 ":"")+(n%60)+"분"; }
+
+// 무기 필터는 실제로 있는 것만
+var wks=[]; D.jobs.forEach(function(j){ j.w.forEach(function(w){ if(wks.indexOf(w)<0) wks.push(w); }); });
+if(el("wk")) wks.forEach(function(w){ var o=document.createElement("option"); o.value=w; o.textContent=w; el("wk").appendChild(o); });
+
+function bonusHTML(o,cls){
+  var ks=Object.keys(o); if(!ks.length) return '<span class="meta">없음</span>';
+  return '<span class="bonus '+(cls||"")+'">'+ks.map(function(k){
+    return '<i>'+esc(k)+' +'+o[k]+'</i>'; }).join("")+'</span>';
+}
+// base 는 «levelManagers[0] 이 몇 레벨로 올리는 비용인가». 훈련소는 1(짓는 값),
+// 상점·주점은 이미 1레벨로 서 있어서 2다. 여기를 틀리면 표가 한 칸씩 밀린다.
+function lvTable(lv, base, shop){
+  base = base || 1;
+  var byLv = {}; (shop||[]).forEach(function(r){ byLv[r.lv]=r; });
+  if(!lv.length && !(shop||[]).length) return "";
+  var rows=[], seen={};
+  lv.forEach(function(r){
+    var L=r.lv + base - 1; seen[L]=1;
+    rows.push('<tr><td>'+L+'</td><td>'+r.g.toLocaleString()+'</td><td>'+(r.r||"–")+'</td><td>'
+      +mins(r.t)+'</td>'+(shop&&shop.length?'<td>'+(byLv[L]?soldTxt(byLv[L]):"–")+'</td>':"")+'</tr>');
+  });
+  (shop||[]).forEach(function(r){          // 1레벨은 올리는 비용이 없다 — 맨 앞에 끼운다
+    if(seen[r.lv]) return;
+    rows.unshift('<tr><td>'+r.lv+'</td><td class="meta">처음부터</td><td>–</td><td>–</td>'
+      +'<td>'+soldTxt(r)+'</td></tr>');
+  });
+  return '<div class="lvtable"><table><thead><tr><th>레벨</th><th>골드</th><th>평판</th><th>시간</th>'
+    + (shop&&shop.length?'<th>파는 물건</th>':"")
+    + '</tr></thead><tbody>'+rows.join("")+'</tbody></table></div>';
+}
+function soldTxt(r){ return r.min===r.max ? ("Lv"+r.max) : ("Lv"+r.min+"–"+r.max); }
+
+/* ---------- 클래스 ---------- */
+function jobRow(j){
+  var mh=myHallLv(j.i);
+  var lockTag = j.lock ? '<em class="tag t-lock" title="이 직업의 훈련소를 여는 퀘스트가 아직 못 가는 지역에 있습니다">미출시</em>' : "";
+  return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
+    +'<span class="nm"><b>'+lockTag+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
+    +'<span>'+esc(j.o||j.d.split("\n")[0])+'</span></span>'
+    +'<span class="num dim">'+esc(j.w.join("·"))+'</span>'
+    +'<span class="num">'+(mh!=null? '<b style="color:var(--accent)">Lv'+mh+'</b> / '+j.max : 'Lv'+j.max)+'</span>'
+    +'<span class="num'+(j.exp>=5?"":" dim")+'">×'+(1+(j.exp-1)/4).toFixed(2)+'</span></div>';
+}
+function jobDetail(j){
+  var sk=j.sk.length? '<div class="blk"><h4>배우는 마법</h4><ul>'+j.sk.map(function(s){
+      return '<li><b>'+esc(s.n)+'</b><span class="meta"> — '+s.lv+'레벨</span></li>'; }).join("")+'</ul></div>' : "";
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>장착 무기</dt><dd>'+(esc(j.w.join(" · "))||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>장착 방어구</dt><dd>'+(esc(j.a.join(" · "))||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+j.max+'</dd></div>'
+    +(myHallLv(j.i)!=null?'<div class="dcell"><dt>내 훈련소 레벨</dt><dd class="mono" style="color:var(--accent)">'
+        +myHallLv(j.i)+'</dd></div>':"")
+    +'<div class="dcell"><dt>경험치 계수</dt><dd class="mono">×'+(1+(j.exp-1)/4).toFixed(2)+' <span class="meta">(expLevel '+j.exp+')</span></dd></div>'
+    +'<div class="dcell"><dt>훈련소</dt><dd>'+(esc(j.hall)||"—")+'</dd></div>'
+    +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(j.i)+'</dd></div>'
+    +'</dl>'
+    +'<div class="blk"><h4>주직업일 때</h4>'+bonusHTML(j.main)+'</div>'
+    +'<div class="blk"><h4>부직업일 때</h4>'+bonusHTML(j.sub,"sub")+'</div>'
+    + sk
+    + (j.lv.length?'<div class="blk"><h4>훈련소 올리는 비용</h4>'+lvTable(j.lv,1)+'</div>':"")
+    + (j.d?'<div class="story">'+esc(j.d)+'</div>':"")+'</div>';
+}
+
+/* ---------- 종족 ---------- */
+var STAT=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
+function raceRow(r){
+  var tw = state.showLocked ? r.towns : (r.open||r.towns);
+  var top=STAT.slice().sort(function(a,b){ return r.ab[b]-r.ab[a]; }).slice(0,3)
+            .filter(function(k){ return r.ab[k]>0; });
+  return '<div class="row" data-k="r" data-i="'+esc(r.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 170px 58px 52px">'
+    +'<span class="nm"><b>'+esc(r.race)+' · '+(r.man?"남":"여")+' <span class="meta">'+esc(r.i)+'</span></b>'
+    +'<span>'+(tw.length? "주점: "+esc(tw.join(", ")) : (r.towns.length?"미출시 지역 주점뿐":"주점 배치 없음"))+'</span></span>'
+    +'<span class="num dim">'+esc(top.join("·"))+'</span>'
+    +'<span class="num">기준합 '+r.sum+'</span>'
+    +'<span class="num dim">Lv'+r.lv+'</span></div>';
+}
+/* 주점 레벨이 초빙 포인트를 바꾼다. 세이브가 붙어 있으면 이 종족을 뽑는
+   주점의 «내 레벨» 로 실제 값을 보여 준다. */
+function barBlock(r){
+  var tw = state.showLocked ? r.towns : (r.open||r.towns);
+  if(!tw.length) return "";
+  var rows=tw.map(function(tn){
+    var t=null; D.towns.forEach(function(x){ if(x.n===tn) t=x; });
+    var my = t ? myTownLv(t.i, "주점") : null;
+    return '<li><b>'+esc(tn)+'</b>'
+      + (my!=null ? '<span class="meta"> — 주점 '+my+'레벨 · 포인트 <b>+'+my+'</b>'
+          + ' · 10% 로 최대 +'+Math.max(0,my-1)+' 더 · <b>실제 최대 '+(my*2+3)+'</b>'
+          + '</span><span class="meta" style="display:block;opacity:.75">'
+          + '게임 화면은 최대치를 '+(my+3)+' 로 그리지만, 실제로는 '+(my*2+3)+' 까지 나옵니다 '
+          + '&mdash; 표시용 상한이 <code>주점레벨 + 3</code> 으로 따로 박혀 있습니다.</span>'
+        : '<span class="meta"> — 세이브를 넣으면 내 주점 레벨로 계산합니다</span>')
+      + '</li>';
+  }).join("");
+  return '<div class="blk"><h4>초빙 포인트 — 주점 레벨이 정한다</h4><ul>'+rows+'</ul>'
+    + '<span class="meta">포인트 = Rand(3) + 주점레벨 + 성격보정, 그리고 10% 로 + Rand(주점레벨). '
+    + '성격보정은 무모한 Rand(3) · 이기적 Rand(2) · 나머지는 없습니다. '
+    + '이건 뽑은 뒤 <b>내가 직접 능력치에 나눠 넣는</b> 몫이라, 위 능력치 숫자에는 안 들어 있습니다.</span></div>';
+}
+function raceDetail(r){
+  var tot=0;
+  var cells=STAT.map(function(k){
+    var v=r.ab[k], b=statBand(k,[r]), d=statFinal(r.ab,k), m=0;
+    for(var x in d) m+=(+x)*d[x];
+    tot+=m;
+    return '<div class="dcell"><dt>'+esc(k)+'</dt><dd class="mono">'+(b?b[0]+"–"+b[1]:v)
+         +' <span class="meta">기준 '+v+' · 평균 '+m.toFixed(1)+'</span></dd></div>'; }).join("");
+  return '<div class="detail"><dl class="dgrid">'+cells+'</dl>'
+    +'<div class="blk"><h4>뽑히는 주점</h4><ul>'
+    + (function(){ var tw2 = state.showLocked ? r.towns : (r.open||r.towns);
+        return tw2.length? tw2.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("")
+             : '<li>'+(r.towns.length?"미출시 지역에만 있습니다":"이 판본에는 배치가 없습니다")+'</li>'; })()
+
+    + '</ul></div>'
+    +'<div class="blk"><h4>가능한 성격</h4><span class="bonus">'
+    + r.pers.map(function(p){ return '<i>'+esc(p)+'</i>'; }).join("")+'</span></div>'
+    + (r.no.length? '<div class="blk"><h4>가질 수 없는 직업</h4><span class="bonus sub">'
+        + r.no.map(function(p){ return '<i>'+esc(p)+'</i>'; }).join("")+'</span></div>' : "")
+    + barBlock(r)
+    +'<div class="blk"><h4>이 숫자는 어떻게 나오나</h4>'
+    +'<span class="meta">두 단계입니다(<code>Character.CreateParam</code>). '
+    +'<b>① 흔들기</b> — 능력치마다 <code>CreateRandomValue</code> 로 기준값을 흔듭니다. '
+    +'기준 1~8은 ±0~2, 9~30은 ±(기준/3), 31~99는 ±(기준/10), 0 밑으로는 안 갑니다. '
+    +'<b>② 남는 포인트</b> — <code>pp = Σ⌊CreateRandomValue(기준ᵢ)/2⌋</code> (상한 = 기준합 '+r.sum+') 만큼 '
+    +'공을 하나씩 던져 넣습니다. 던질 때마다 <code>Rand('+r.sum+')</code> 룰렛이라 '
+    +'<b>기준값이 큰 능력치에 잘 붙고, 기준값 0 인 곳에는 절대 안 붙습니다.</b> '
+    +'마지막에 생명점은 4, 힘은 2 로 바닥이 깔립니다. '
+    +'그래서 기준합 '+r.sum+' 짜리가 실제로는 <b>합 '+tot.toFixed(0)+'</b> 쯤으로 나옵니다 — '
+    +'큰 숫자는 <b>1~99% 구간</b>이고 기준·평균을 옆에 적어 뒀습니다. '
+    +'초빙 포인트는 여기에 더해 <b>내가</b> 나눠 넣는 몫이라 위 숫자에는 안 들어 있습니다.</span></div></div>';
+}
+// CreateRandomValue 의 흔들림 폭 — 원리 페이지의 그 함수와 같다
+function rnd(v){
+  if(v<1) return [0,0];
+  var n = v<=8 ? 3 : (v<=30 ? (v*171>>9) : (v<=99 ? (v*205>>11) : (v>>4)));
+  var s = n>0 ? n-1 : 0;
+  return [Math.max(0,v-s), v+s];
+}
+
+/* ── 지도 ────────────────────────────────────────────────────────────
+   «맵 이미지» 라는 파일은 애초에 없다. 유니티 Tilemap 이라 셀 배치와
+   타일 스프라이트가 따로 들어 있어서, build_mapimg.py 가 그걸 합성해
+   지역마다 한 장으로 굽는다. 여기서는 그 그림을 깔고 그 위에 표를 얹는다.
+
+   셀 → 그림 좌표는 유니티 육각 격자 규칙 그대로다.
+     ux = 셀x + (셀y 가 홀수면 0.5)     uy = 셀y × 0.75
+     px = (ux − x0) × s                 py = (y1 − uy) × s   ← y 를 뒤집는다
+   도시·탐색지의 x,y 가 바로 그 셀 좌표라 자를 대고 맞출 필요가 없다. */
+function cellPx(cx, cy, g){
+  var ux = cx + ((cy % 2) ? 0.5 : 0), uy = cy * 0.75;
+  return [(ux - g.x0) * g.s, (g.y1 - uy) * g.s];
+}
+function mapSVG(m){
+  var g = D.mapimg && D.mapimg[m.i];
+  if(!g) return '<p class="empty">이 지역은 배경을 못 구웠습니다.</p>';
+  var caves=m.c.map(function(c){
+    var q=cellPx(c.x, c.y, g);
+    return '<g class="mc" data-go="p:'+esc(c.n)+'">'
+      +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(g.s*0.34).toFixed(1)+'"></circle>'
+      +'<title>'+esc(c.n)+' · Lv'+c.lv+'</title></g>';
+  }).join("");
+  var towns=m.t.map(function(t){
+    var q=cellPx(t.x, t.y, g);
+    return '<g class="mt" data-go="t:'+esc(t.n)+'">'
+      +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(g.s*0.5).toFixed(1)+'"></circle>'
+      +'<text x="'+q[0]+'" y="'+(q[1]-g.s*0.72).toFixed(1)+'" text-anchor="middle" '
+        +'style="font-size:'+(g.s*0.62).toFixed(1)+'px">'+esc(t.n)+'</text>'
+      +'<title>'+esc(t.n)+'</title></g>';
+  }).join("");
+  return '<div class="mapbox"><svg viewBox="0 0 '+g.w+' '+g.h+'" '
+    +'preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+esc(m.n)+' 지도">'
+    +'<image data-map="'+esc(m.i)+'" x="0" y="0" width="'+g.w+'" height="'+g.h+'" '
+      +'style="image-rendering:auto"></image>'
+    + caves + towns + '</svg></div>';
+}
+/* 배경 그림은 나중에 채운다. 로컬은 파일이 그냥 있고, 클라우드는
+   비공개 버킷이라 로그인해서 받아야 한다 — 그쪽에서 이 함수를 갈아끼운다. */
+window.__TSA_MAPIMG = window.__TSA_MAPIMG || function(id){
+  return Promise.resolve("mapimg/" + id + ".webp");
+};
+var mapImgDone={};
+function fillMapImages(){
+  Array.prototype.forEach.call(document.querySelectorAll("#out image[data-map]"), function(el){
+    var id=el.getAttribute("data-map");
+    if(mapImgDone[id]){ el.setAttributeNS("http://www.w3.org/1999/xlink","href",mapImgDone[id]);
+                        el.setAttribute("href",mapImgDone[id]); return; }
+    window.__TSA_MAPIMG(id).then(function(u){
+      if(!u) return;
+      mapImgDone[id]=u;
+      el.setAttributeNS("http://www.w3.org/1999/xlink","href",u);
+      el.setAttribute("href",u);
+    }).catch(function(){});
+  });
+}
+function mapBlock(m){
+  return '<section class="group"><div class="ghead"><h2>'+esc(m.n)+'</h2>'
+    +'<span class="sub">도시 '+m.t.length+'곳 · 탐색지 '+m.c.length+'곳'
+    +(m.lock?' · 미출시 지역':'')+'</span><span class="rule"></span></div>'
+    + mapSVG(m) + '</section>';
+}
+/* ---------- 마법 ---------- */
+function skillRow(s){
+  return '<div class="row" data-k="s" data-i="'+esc(s.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 130px 60px 52px">'
+    +'<span class="nm"><b>'+esc(s.n||s.i)+'</b><span>'+esc(s.jobs.map(function(j){return j.j+" "+j.lv+"렙"}).join(", "))+'</span></span>'
+    +'<span class="num dim">'+esc(s.rng)+'</span>'
+    +'<span class="num">'+(s.mp>0?"MP "+s.mp:"–")+'</span>'
+    +'<span class="num dim">Lv'+s.lv+'</span></div>';
+}
+function skillDetail(s){
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>범위</dt><dd>'+esc(s.rng)+'</dd></div>'
+    +'<div class="dcell"><dt>MP 소모</dt><dd class="mono">'+(s.mp>0?s.mp:"없음")+'</dd></div>'
+    +'<div class="dcell"><dt>요구 레벨</dt><dd class="mono">'+s.lv+'</dd></div>'
+    +(s.dmg[1]?'<div class="dcell"><dt>피해</dt><dd class="mono">'+s.dmg[0]+' – '+s.dmg[1]+'</dd></div>':"")
+    +(s.heal[1]?'<div class="dcell"><dt>회복</dt><dd class="mono">'+s.heal[0]+' – '+s.heal[1]+'</dd></div>':"")
+    +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(s.i)+'</dd></div>'
+    +'</dl><div class="blk"><h4>배우는 직업</h4><ul>'
+    + s.jobs.map(function(j){ return '<li><b>'+esc(j.j)+'</b><span class="meta"> — '+j.lv+'레벨</span></li>'; }).join("")
+    + '</ul></div>'+(s.d?'<div class="story">'+esc(s.d)+'</div>':"")+'</div>';
+}
+
+/* ---------- 도시 시설 ---------- */
+function townBlock(t){
+  var rows=t.b.map(function(b){
+    var my=myTownLv(t.i, b.kind);
+    var cur="–";
+    if(b.kind==="주점"){ cur = my!=null ? ("포인트 +"+my+" · 최대 "+(my*2+3)) : "주점"; }
+    else if(b.shop&&b.shop.length){
+      var rr = my!=null ? b.shop[Math.min(my,b.shop.length)-1] : b.shop[b.shop.length-1];
+      cur = (my!=null?"":"만렙 ") + (rr?soldTxt(rr):"–");
+    } else if(b.lv.length) cur = gold(b.lv[b.lv.length-1].g)+"G";
+    return '<div class="row" data-k="b" data-i="'+esc(t.n+"|"+b.n)+'" tabindex="0" role="button" '
+      +'style="grid-template-columns:88px minmax(0,1fr) auto auto">'
+      +'<span class="num dim" style="text-align:left">'+esc(b.kind)+'</span>'
+      +'<span class="nm"><b>'+esc(b.n)+'</b></span>'
+      +'<span class="num">'+(my!=null? '<b style="color:var(--accent)">Lv'+my+'</b> / '+b.max : 'Lv'+b.max)+'</span>'
+      +'<span class="num dim">'+cur+'</span></div>';
+  }).join("");
+  return '<section class="group"><div class="ghead"><h2>'+esc(t.n)+'</h2>'
+    +'<span class="sub">'+t.b.length+'곳 · 합계 '+t.b.reduce(function(a,b){return a+b.max},0)+'단계</span>'
+    +'<span class="rule"></span></div><div class="list">'+rows+'</div></section>';
+}
+function buildDetail(key){
+  var p=key.split("|"), t=null, b=null;
+  D.towns.forEach(function(x){ if(x.n===p[0]) t=x; });
+  if(t) t.b.forEach(function(x){ if(x.n===p[1]) b=x; });
+  if(!b) return '<div class="detail">찾을 수 없습니다</div>';
+  var tot=b.lv.reduce(function(a,r){return a+r.g},0);
+  var time=b.lv.reduce(function(a,r){return a+r.t},0);
+  var my=myTownLv(t.i, b.kind);
+  var nextIdx = my!=null ? my-(b.base-1) : -1;   // levelManagers 에서 «다음 레벨» 자리
+  var mine = my==null ? "" :
+    '<div class="dcell"><dt>내 레벨</dt><dd class="mono" style="color:var(--accent)">'+my+'</dd></div>'
+    + (b.shop&&b.shop.length&&b.shop[my-1] ?
+        '<div class="dcell"><dt>지금 살 수 있는 것</dt><dd class="mono">'+soldTxt(b.shop[my-1])+'</dd></div>' : "")
+    + (b.kind==="주점" ?
+        '<div class="dcell"><dt>초빙 포인트</dt><dd class="mono">+'+my+' · 최대 '+(my*2+3)+'</dd></div>' : "")
+    + '<div class="dcell"><dt>다음 레벨까지</dt><dd class="mono">'
+    + (my>=b.max ? "만렙"
+        : (b.lv[nextIdx] ? b.lv[nextIdx].g.toLocaleString()+"G · "+mins(b.lv[nextIdx].t)
+            + (b.lv[nextIdx].r?" · 평판 "+b.lv[nextIdx].r:"") : "–"))
+    + '</dd></div>';
+  var top=b.shop&&b.shop.length? b.shop[b.shop.length-1] : null;
+  return '<div class="detail"><dl class="dgrid">'
+    +'<div class="dcell"><dt>종류</dt><dd>'+esc(b.kind)+'</dd></div>'
+    +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+b.max+'</dd></div>'
+    + mine
+    +'<div class="dcell"><dt>만렙까지 골드</dt><dd class="mono">'+tot.toLocaleString()+'</dd></div>'
+    +'<div class="dcell"><dt>만렙까지 시간</dt><dd class="mono">'+mins(time)+'</dd></div>'
+    +(top?'<div class="dcell"><dt>만렙에서 파는 것</dt><dd class="mono">'+soldTxt(top)+'</dd></div>':"")
+    +'</dl>'
+    + (b.kind==="주점" ? BAR_NOTE : "")
+    +'<div class="blk"><h4>레벨별 비용'+(top?" · 파는 물건":"")+'</h4>'
+    + lvTable(b.lv, b.base, b.shop)+'</div></div>';
+}
+
+var BAR_NOTE = '<div class="blk"><h4>주점 레벨이 하는 일</h4>'
+ + '<ul><li><b>초빙 포인트에 주점 레벨이 그대로 더해집니다.</b> 능력치를 정하는 그 포인트입니다.</li>'
+ + '<li><b>10% 확률로 0 ~ (주점 레벨 − 1) 만큼 더 붙습니다.</b> 주사위가 한 번 더 돌아가는 자리입니다.</li>'
+ + '<li>화면에 뜨는 «최대»는 <b>주점 레벨 + 3</b> 입니다.</li></ul>'
+ + '<span class="meta">InviteAdventureDialog.TapInviteButton 을 디스어셈블해 확인</span></div>';
+
+function block(title,sub,rows){
+  if(!rows.length) return "";
+  return '<section class="group"><div class="ghead"><h2>'+esc(title)+'</h2>'
+    +'<span class="sub">'+esc(sub)+'</span><span class="rule"></span></div>'
+    +'<div class="list">'+rows.join("")+'</div></section>';
+}
+
+
+/* ── 능력치 계산기 ───────────────────────────────────────────────────
+   Character 의 각 수치는 이렇게 쌓인다.
+     기본 능력치 + 직업 몫 + 무기 + Σ방어구   (+ 상태이상 보정은 여기선 뺀다)
+   직업 몫 = ⌈주직업레벨 × 주보너스 ÷ 10⌉ + ⌈Σ(부직업레벨 × 부보너스) ÷ 10⌉
+   주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
+var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
+var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0, goal:0};
+
+function scJobs(){ return visJobs().slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
+function scGear(cat){
+  return Object.keys(D.gear).map(function(k){ var g=D.gear[k]; return {i:k,g:g}; })
+    .filter(function(x){ return x.g.c===cat; })
+    .sort(function(a,b){ return (a.g.lv-b.g.lv) || a.g.n.localeCompare(b.g.n); });
+}
+function scJobPart(label){
+  var main=0, sub=0;
+  var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+  if(mj && mj.main[label]) main += (sc.mainLv||0) * mj.main[label];
+  sc.subs.forEach(function(s2){
+    var j=D.jobs.filter(function(x){ return x.i===s2.i; })[0];
+    if(j && j.sub[label]) sub += (s2.lv||0) * j.sub[label];
+  });
+  return Math.ceil(main/10) + Math.ceil(sub/10);
+}
+function scGearPart(label){
+  var t=0;
+  scEquipped().forEach(function(id){ var g=D.gear[id]; if(g && g.b && g.b[label]) t += g.b[label]; });
+  return t;
+}
+/* ── 공격력 · 방어력만 셈이 다릅니다 ──────────────────────────────
+   ★ 공격력의 직업 몫은 «지금 든 무기를 들 수 있는 직업» 만 셉니다
+     (Character.<MinAttackPoint>b__153_1/2 가 canEquipWeapons 를 봅니다).
+     방어력 쪽에는 그 조건이 없습니다.
+   ★ 장비 몫도 g.b 가 아니라 dm/df 범위에서 옵니다 — g.b 의 «방어력» 은
+     ability.addDefense 라 거의 다 0 입니다. */
+function scWeaponKind(){
+  var id=sc.slot["무기"], g=id?D.gear[id]:null; return g?g.k:null;
+}
+function scJobPartW(label){
+  var wk=scWeaponKind(); if(!wk) return 0;
+  var main=0, sub=0;
+  var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+  if(mj && (mj.w||[]).indexOf(wk)>=0 && mj.main[label]) main += (sc.mainLv||0)*mj.main[label];
+  sc.subs.forEach(function(s2){
+    var j=D.jobs.filter(function(x){ return x.i===s2.i; })[0];
+    if(j && (j.w||[]).indexOf(wk)>=0 && j.sub[label]) sub += (s2.lv||0)*j.sub[label];
+  });
+  return Math.ceil(main/10)+Math.ceil(sub/10);
+}
+function scGearRange(key){
+  var lo=0, hi=0;
+  scEquipped().forEach(function(id){
+    var g=D.gear[id]; if(!g||!g[key]) return;
+    lo += g[key][0]||0; hi += g[key][1]||0;
+  });
+  return [lo,hi];
+}
+function scRows(){
+  return SC_BASE.concat(SC_DERIV).map(function(label){
+    if(label==="공격력"){
+      var r=scGearRange("dm"), jb=scJobPartW(label);
+      var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+      // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다
+      if(mj && mj.k===200 && scWeaponKind()==="활") r=[r[0]>>1, r[1]>>1];
+      return {k:label, base:0, job:jb, gear:r[0], gear2:r[1], sum:r[0]+jb, sum2:r[1]+jb};
+    }
+    if(label==="방어력"){
+      var r2=scGearRange("df"), jb2=scJobPart(label);
+      var mj2=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
+      var cut=[0,0];
+      // 주직업이 참수형(Kind 26)이면 방패 몫의 절반이 깎인다
+      if(mj2 && mj2.k===26){ var sr=scGearRange("sd"); cut=[sr[0]>>1, sr[1]>>1]; }
+      return {k:label, base:0, job:jb2, gear:r2[0], gear2:r2[1],
+              sum:r2[0]+jb2-cut[0], sum2:r2[1]+jb2-cut[1]};
+    }
+    var base = SC_BASE.indexOf(label)>=0 ? (sc.base[label]||0) : 0;
+    var jb3=scJobPart(label), gp=scGearPart(label);
+    return {k:label, base:base, job:jb3, gear:gp, sum:base+jb3+gp};
+  });
+}
+/* 종족을 고르면 기본 능력치를 그 종족 기준값으로 채운다.
+   «새로 짤 때» 여덟 칸을 손으로 넣지 않아도 되게 하려는 것이다. */
+function raceOpts(){
+  var out='<option value="">&mdash; 직접 넣기</option>';
+  (D.races||[]).forEach(function(r){
+    if(r.lock && !state.showLocked) return;
+    var lb=r.race+" "+(r.man?"남":"여")+" (합 "+r.sum+")";
+    out+='<option value="'+esc(r.i)+'"'+(sc.race===r.i?" selected":"")+'>'+esc(lb)+'</option>';
+  });
+  return out;
+}
+function scSetRace(id){
+  sc.race=id;
+  var r=(D.races||[]).filter(function(x){ return x.i===id; })[0];
+  if(!r) return;
+  sc.base={}; SC_BASE.forEach(function(k){ sc.base[k]=(r.ab&&r.ab[k])||0; });
+  sc.elf = (r.race==="엘프");
+  sc.from = r.race+" "+(r.man?"남":"여")+" 기준값";
+}
+function scAgiFloor(a){
+  if(a<1) return 0;
+  var n = a<=8 ? 3 : (a<=30 ? (a*171>>9) : (a<=99 ? (a*205>>11) : (a>>4)));
+  return n<=0 ? a : Math.max(0, a-(n-1));
+}
+function scCrewRoot(){
+  try{ return JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){ return null; }
+}
+/* 은퇴자(status 6)는 다시 못 쓴다 — 목록에 둘 이유가 없다. */
+function scCrew(){
+  var c=scCrewRoot();
+  return (c && c.chars) ? c.chars.filter(function(x){ return x.st!==6; }) : [];
+}
+function scLoad(id){
+  var c=scCrew().filter(function(x){ return x.id===id; })[0];
+  if(!c) return;
+  sc.from=c.n||id;
+  sc.base={}; SC_BASE.forEach(function(k){ sc.base[k]=(c.ab&&c.ab[k])||0; });
+  var mj=(c.jobs||[]).filter(function(j){ return j.cur; })[0] || (c.jobs||[])[0];
+  sc.main = mj ? mj.i : "";
+  sc.mainLv = mj ? (mj.lv||0) : 0;
+  sc.subs = (c.jobs||[]).filter(function(j){ return j!==mj && (j.lv||0)>0; })
+              .map(function(j){ return {i:j.i, lv:j.lv||0}; });
+  // «지금 레벨» 을 따로 적어 둔다 — 올릴 때 드는 경험치를 여기서부터 센다
+  sc.was={}; (c.jobs||[]).forEach(function(j){ sc.was[j.i]=j.lv||0; });
+  var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
+  sc.elf = !!(rc && rc.race==="엘프");
+  sc.race = rc ? rc.i : "";
+  sc.slot={};
+  // ★ c.eq 는 장비 «파일 GUID» 다 — D.gear 는 «에셋 이름» 으로 키를 쓴다.
+  //   CREW.equips 를 거쳐야 한다. 안 거치면 장비가 하나도 안 실린다.
+  (c.eq||[]).forEach(function(id2){
+    var root=scCrewRoot();
+    var e=(root&&root.equips)?root.equips[id2]:null;
+    var key=e? e.i : id2;
+    var g=D.gear[key]; if(!g) return;
+    sc.slot[g.c==="무기" ? "무기" : g.k] = key;
+  });
+}
+function scName(i){ var g=D.gear[i]; return g? g.n+" (Lv"+g.lv+" "+g.k+")" : i; }
+/* Character.CanEquipArmors / CanEquipWeapons — «주직업 하나» 만 본다.
+   부직업은 관계없다. 엘프는 주직업과 무관하게 부적이 하나 더 붙는다. */
+function scMainJob(){ return D.jobs.filter(function(j){ return j.i===sc.main; })[0] || null; }
+/* 직업마다 최대 레벨이 다르다 — 베테랑 파이터 10, 검술사 15, 도둑 30 … */
+function scJobMax(id){
+  var j=D.jobs.filter(function(x){ return x.i===id; })[0];
+  return j ? (j.max||0) : 0;
+}
+function scClamp(id, v){ return Math.max(0, Math.min(scJobMax(id), v|0)); }
+function scCanKinds(){
+  var mj=scMainJob();
+  var arm = mj ? mj.a.slice() : [], wep = mj ? mj.w.slice() : [];
+  if(sc.elf && arm.indexOf("부적")<0) arm.push("부적");
+  return {arm:arm, wep:wep};
+}
+/* Character.CanEquip 은 세 가지를 본다.
+     ① 요구 레벨 ≤ 내 최고 직업 레벨
+     ② 요구 힘   ≤ 내 «힘»
+     ③ 그 부위를 주직업이 허락하는가
+   ②의 «힘» 은 기본 힘이 아니라 직업·장비까지 더한 값이다. */
+/* Job.NeedNextExp — 레벨 L 에서 L+1 로 갈 때 드는 경험치.
+   다른 직업 레벨 합이 1.05 의 지수로 붙어서, 부직업을 키울수록 전부 비싸진다. */
+function needNextExp(jobId, lv, others){
+  var j=D.jobs.filter(function(x){ return x.i===jobId; })[0];
+  if(!j) return 0;
+  return Math.floor(Math.pow(lv+1, 2.5) * 14 * (((j.exp||1)-1)/4 + 1) * Math.pow(1.05, others));
+}
+/* ★ 현자(Job.Kind 202)와 모험가(0)는 «다른 직업 레벨 합» 에 안 들어간다.
+   Character.SumOtherJobLevels 의 술어가 이 둘을 빼고 센다. 그래서 이 둘은
+   아무리 올려도 다른 직업의 경험치를 안 비싸게 만든다. */
+function expCounts(jobId){
+  var j=D.jobs.filter(function(x){ return x.i===jobId; })[0];
+  if(!j) return false;
+  return !(j.k===202 || j.k===0 || j.k==null);
+}
+/* 지금 상태에서 입력한 레벨까지 올리는 데 드는 총 경험치.
+
+   Character.GetExpToNextLevel 은 MainJob() 하나만 본다 — 모험으로 얻는
+   경험치는 «지금 지정한 주직업» 에만 들어간다. 그래서 어느 직업부터
+   올릴지 고를 수 있고, 순서가 총합을 크게 바꾼다.
+     한 레벨의 값 = (레벨+1)^2.5 × 14 × 직업계수 × 1.05^(다른 직업 레벨 합)
+
+   ★ 한 직업을 쭉 올리는 동안 «다른 직업 합» 은 안 변하므로, 그 직업이
+   치르는 값은 S(그 직업의 기본값 합) × 1.05^(먼저 끝낸 레벨 수) 다.
+   그러면 순서 문제는 Σ Pᵢ Sᵢ 꼴이 되고, 인접교환으로 정확한 최적이 나온다:
+
+       S / (1.05^레벨수 − 1)  내림차순
+
+   면제 직업(현자·모험가)은 분모가 0 이라 맨 앞 — 지수를 안 올리니
+   가장 쌀 때 해치우는 게 맞다. 무작위 300판을 전수 최적과 맞춰 확인했다. */
+function expPlan(){
+  var rows=[{i:sc.main, to:sc.mainLv||0, main:true}]
+    .concat(sc.subs.map(function(x){ return {i:x.i, to:x.lv||0, main:false}; }))
+    .filter(function(r){ return r.i; });
+  rows.forEach(function(r){ r.from=Math.min(sc.was[r.i]||0, r.to); });
+  rows = rows.filter(function(r){ return r.to > r.from; });
+  // 그 직업만 올릴 때 드는 기본값 합(1.05 를 뺀 값)과, 올릴 레벨 수
+  rows.forEach(function(r){
+    var S=0;
+    for(var L=r.from; L<r.to; L++) S += needNextExp(r.i, L, 0);
+    r.S = S;
+    r.n = expCounts(r.i) ? (r.to - r.from) : 0;   // 지수에 보태는 레벨 수
+  });
+  rows.sort(function(a,b){
+    var ga=Math.pow(1.05,a.n), gb=Math.pow(1.05,b.n);
+    var ka = ga<=1 ? Infinity : a.S/(ga-1);
+    var kb = gb<=1 ? Infinity : b.S/(gb-1);
+    return kb-ka;
+  });
+  var others=0, total=0;
+  rows.forEach(function(r){
+    var cost=0;
+    for(var L=r.from; L<r.to; L++) cost += needNextExp(r.i, L, others);
+    r.cost=cost; total+=cost; others+=r.n;
+  });
+  return {rows:rows, total:total};
+}
+/* ── 목표 회피 풀이 ───────────────────────────────────────────────────
+   Σ(부레벨 × 부보너스) ≥ 필요값 을 만족하는 «레벨 합 최소» 조합을 찾는다.
+   보너스가 큰 직업부터 채우면 최소가 된다(보너스가 1·2·3 뿐이라 그렇다).
+   같은 레벨 합이면 경험치 계수가 낮고 레벨이 낮게 흩어진 쪽이 싸다. */
+function solveAvoid(target, key){
+  key = key || "회피";
+  var mj=scMainJob();
+  if(!mj) return null;
+  var mainPart = Math.ceil((sc.mainLv||0) * (mj.main[key]||0) / 10);
+  var gearPart = scGearPart(key);
+  var need = target - mainPart - gearPart;
+  if(need <= 0) return {ok:true, need:0, rows:[], mainPart:mainPart, gearPart:gearPart};
+  var S = (need-1)*10 + 1;                     // ⌈Σ/10⌉ ≥ need  ⟺  Σ ≥ 10(need−1)+1
+  var pool = visJobs().filter(function(j){ return j.i!==sc.main && (j.sub[key]||0)>0; })
+    .map(function(j){ return {i:j.i, n:j.n, av:j.sub[key], max:j.max, exp:j.exp}; })
+    .sort(function(a,b){ return (b.av-a.av) || (a.exp-b.exp) || (b.max-a.max); });
+  // 1) 보너스 큰 것부터 채워 «필요한 최소 레벨 합» 을 구한다
+  var left=S, lv={}, total=0;
+  for(var i=0;i<pool.length && left>0;i++){
+    var p=pool[i], take=Math.min(p.max, Math.ceil(left/p.av));
+    if(take<=0) continue;
+    lv[p.i]=take; left-=take*p.av; total+=take;
+  }
+  if(left>0) return {ok:false, need:need, short:left, mainPart:mainPart, gearPart:gearPart};
+  // 2) 같은 레벨 합을 유지하면서, 비싼 «높은 레벨» 을 싼 직업의 낮은 레벨로 옮긴다
+  var used=Object.keys(lv).filter(function(k){ return lv[k]>0; });
+  for(var pass=0; pass<200; pass++){
+    var moved=false;
+    for(var a=0;a<used.length;a++){
+      var A=pool.filter(function(p){ return p.i===used[a]; })[0];
+      for(var b=0;b<pool.length;b++){
+        var B=pool[b];
+        if(B.i===A.i || (lv[B.i]||0)>=B.max) continue;
+        if(A.av!==B.av) continue;                 // 같은 효율끼리만 옮긴다
+        var la=lv[A.i]||0, lb=lv[B.i]||0;
+        if(la<=0 || la-1 < lb+1) continue;        // 더 고르게 될 때만
+        lv[A.i]=la-1; lv[B.i]=lb+1;
+        if(used.indexOf(B.i)<0) used.push(B.i);
+        moved=true;
+      }
+    }
+    if(!moved) break;
+  }
+  var rows=Object.keys(lv).filter(function(k){ return lv[k]>0; })
+    .map(function(k){ var p=pool.filter(function(x){ return x.i===k; })[0];
+                      return {i:k, n:p.n, lv:lv[k], av:p.av}; })
+    .sort(function(x,y){ return y.lv-x.lv; });
+  return {ok:true, need:need, S:S, rows:rows, total:total,
+          mainPart:mainPart, gearPart:gearPart};
+}
+function scMaxJobLv(){
+  var m=sc.mainLv||0;
+  sc.subs.forEach(function(x){ if((x.lv||0)>m) m=x.lv||0; });
+  return m;
+}
+function scPower(){
+  var base=sc.base["힘"]||0;
+  return base + scJobPart("힘") + scGearPart("힘");
+}
+function scWhyNot(id){
+  var g=D.gear[id]; if(!g) return "";
+  var k=scCanKinds();
+  if((g.c==="무기" ? k.wep : k.arm).indexOf(g.k) < 0) return "부위";
+  if((g.nl||0) > scMaxJobLv()) return "레벨 "+g.nl;
+  if((g.pw||0) > scPower())    return "힘 "+g.pw;
+  return "";
+}
+function scCanEquip(id){ return !scWhyNot(id); }
+/* 장비는 부위마다 하나씩이다. 무기는 한 칸, 방어구는 종류가 곧 부위다. */
+function scSlots(){
+  var k=scCanKinds();
+  return [{key:"무기", kinds:k.wep, cat:"무기"}]
+    .concat(k.arm.map(function(a){ return {key:a, kinds:[a], cat:"방어구"}; }));
+}
+function scPick(slot){
+  return Object.keys(D.gear).filter(function(id){
+    var g=D.gear[id];
+    if(g.lock && !state.showLocked) return false;   // 아직 못 가는 지역에서만 나오는 것
+    return g.c===slot.cat && slot.kinds.indexOf(g.k)>=0; })
+    .sort(function(a,b){ var x=D.gear[a], y=D.gear[b];
+      return (x.lv-y.lv) || x.n.localeCompare(y.n); });
+}
+function scBonusText(id){
+  var g=D.gear[id]; if(!g || !g.b) return "";
+  var ks=Object.keys(g.b);
+  return ks.length ? ks.map(function(k){ return k+" "+(g.b[k]>0?"+":"")+g.b[k]; }).join(" · ") : "";
+}
+function scEquipped(){
+  var out=[];
+  scSlots().forEach(function(sl){ var id=sc.slot[sl.key]; if(id) out.push(id); });
+  return out;
+}
+
+function statHTML(){
+  var crew=scCrew();
+  var jobOpts=function(sel){ return '<option value="">—</option>'
+    + scJobs().map(function(j){ return '<option value="'+esc(j.i)+'"'+(j.i===sel?" selected":"")
+        +'>'+esc(j.n)+'</option>'; }).join(""); };
+  var rows=scRows();
+  var kinds=scCanKinds();
+  var agi=rows.filter(function(r){ return r.k==="민첩"; })[0].sum;
+  var avo=rows.filter(function(r){ return r.k==="회피"; })[0].sum;
+  var dodge=avo + Math.floor(scAgiFloor(agi)/3);
+
+  var crewSel = crew.length
+    ? '<select id="sc-crew"><option value="">— 직접 입력 —</option>'
+      + crew.map(function(c){ return '<option value="'+esc(c.id)+'"'+(sc.from===(c.n||c.id)?" selected":"")
+          +'>'+esc(c.n||c.id)+' (Lv'+(c.mainLv||0)+')</option>'; }).join("")+'</select>'
+    : '<span class="meta"><a href="save.html">세이브를 넣으면</a> 내 용병을 불러올 수 있습니다</span>';
+
+  var subRows = sc.subs.map(function(s2,i){
+    return '<div class="crow"><span class="lvlabel">부직업 '+(i+1)+'</span>'
+      +'<select data-sub="'+i+'">'+jobOpts(s2.i)+'</select>'
+      +'<label class="lvin">Lv<input type="number" min="0" max="'+scJobMax(s2.i)+'" data-sublv="'+i+'" value="'+(s2.lv||0)+'"></label>'
+      +'<span class="meta">/'+scJobMax(s2.i)+'</span>'
+      +'<button type="button" class="mini" data-submain="'+i+'" title="지금 주직업과 자리를 맞바꿉니다 — 착용 가능 부위도 같이 바뀝니다">&#9650; 주직업으로</button>'
+      +'<button type="button" class="mini" data-subdel="'+i+'">빼기</button></div>'; }).join("");
+
+  var eqRows = scSlots().map(function(sl){
+    var cur=sc.slot[sl.key]||"";
+    var opts='<option value="">— 없음 —</option>'
+      + scPick(sl).map(function(id){
+          var g=D.gear[id], bn=scBonusText(id), why=scWhyNot(id);
+          return '<option value="'+esc(id)+'"'+(id===cur?" selected":"")+'>'
+            +(why? "✕ " : "")+esc(g.n)+' · Lv'+(g.nl||g.lv)+' 힘'+(g.pw||0)
+            +(bn? ' · '+esc(bn) : '')+(why? ' — '+esc(why)+' 모자람' : '')
+            +(g.lock? ' [미출시]' : '')+'</option>'; }).join("");
+    return '<div class="crow"><span class="lvlabel">'+esc(sl.key)+'</span>'
+      +'<select data-slot="'+esc(sl.key)+'">'+opts+'</select>'
+      +'<span class="meta"'+(cur&&scWhyNot(cur)?' style="color:var(--f-heal)"':'')+'>'
+      +(cur? (scWhyNot(cur)? "<b>못 낌</b> — "+esc(scWhyNot(cur))+" 모자람"
+                           : esc(scBonusText(cur)||"보너스 없음")) : "")
+      +'</span></div>'; }).join("");
+
+  var baseRow = SC_BASE.map(function(k){
+    return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-base="'+esc(k)+'" value="'
+      +(sc.base[k]||0)+'"></label>'; }).join("");
+
+  var plan=expPlan();
+  var expBlock="";
+  if(plan.total>0){
+    var hrs = sc.xph>0 ? plan.total/sc.xph : 0;
+    expBlock='<div class="blk"><h4>여기까지 올리는 데 드는 경험치</h4>'
+      + '<p class="meta" style="margin:0 0 6px">싼 순서가 <b>이 차례</b>입니다 — 주직업을 이 순서로 바꿔 가며 올리세요.</p><ol class="explist">'
+      + plan.rows.map(function(r){
+          var j=D.jobs.filter(function(x){ return x.i===r.i; })[0];
+          return '<li><b>'+esc(j?j.n:r.i)+'</b>'+(r.main?' <span class="meta">(끝 주직업)</span>':'')
+            +'<span class="meta"> — Lv'+r.from+' → '+r.to+' · '
+            +Math.round(r.cost).toLocaleString()+' 경험치</span></li>'; }).join("")
+      + '</ol>'
+      + '<div class="sumline">합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치</div>'
+      + '<div class="crow"><span class="lvlabel">시간당 경험치</span>'
+      + '<label class="lvin"><input type="number" min="0" step="1000" id="sc-xph" class="wide" value="'+(sc.xph||"")+'" placeholder="50000"></label>'
+      + (hrs>0 ? '<span class="meta">→ 약 <b>'+(hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일')+'</b></span>'
+               : '<span class="meta">넣으면 걸리는 시간을 계산합니다</span>')
+      + '</div>'
+      + '<details class="fine"><summary>어떤 순서로 올린다고 보았나</summary>'
+      + '<p>경험치는 <b>지금 지정한 주직업 하나에만</b> 들어갑니다 (<code>Character.GetExpToNextLevel</code> 이 <code>MainJob()</code> 만 봅니다). 그래서 올리는 <b>차례를 내가 고를 수 있고</b>, 한 레벨의 값이 <code>(레벨+1)^2.5 × 1.05^(다른 직업 레벨 합)</code> 이라 차례에 따라 총합이 열 배 넘게 벌어집니다.</p>'
+      + '<p>한 직업을 쭉 올리는 동안 «다른 직업 합» 은 안 변하므로, 그 직업이 치르는 값은 <code>S × 1.05^(먼저 끝낸 레벨 수)</code> 입니다. 여기서 <b>가장 싼 차례가 정확히 정해집니다</b> &mdash; <code>S ÷ (1.05^레벨수 − 1)</code> 이 큰 직업부터. <b>«싼 한 칸부터» 집어 가는 방식은 오히려 가장 비쌉니다</b> (비싼 레벨을 지수가 다 오른 뒤로 미루게 됩니다).</p>'
+      + '<p><b>현자와 모험가는 «다른 직업 레벨 합» 에 안 들어갑니다</b> — 올려도 나머지를 비싸게 만들지 않습니다. 위 식에서 분모가 0 이라 <b>맨 앞</b>에 옵니다.</p></details>'
+      + '</div>';
+  }
+  var sol = sc.goal>0 ? solveAvoid(sc.goal) : null;
+  var solBlock='<div class="blk"><h4>목표 회피로 부직업 짜기</h4>'
+    +'<div class="crow"><span class="lvlabel">목표 회피값</span>'
+    +'<label class="lvin"><input type="number" min="0" max="99" id="sc-goal" class="wide" value="'+(sc.goal||"")+'" placeholder="40"></label>'
+    +'</div>'
+    +'<p class="meta" style="margin:0 0 6px">지금 갈 수 있는 곳의 최고 명중은 <b>44</b> 입니다 &mdash; '
+    +'<code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ 44</code> 면 물리 공격은 다 피합니다.</p>';
+  if(sol && !sol.ok){
+    solBlock += '<p class="meta" style="color:var(--f-heal)">이 주직업·장비로는 못 채웁니다 &mdash; '
+      +'부직업을 전부 최대로 올려도 '+sol.short+' 모자랍니다.</p>';
+  } else if(sol && sol.rows && sol.rows.length){
+    solBlock += '<p class="meta">주직업 <b>'+sol.mainPart+'</b> + 장비 <b>'+sol.gearPart+'</b> '
+      +'→ 부직업에서 <b>'+sol.need+'</b> 이 더 필요합니다 (Σ 부레벨×부보너스 ≥ '+sol.S+').</p>'
+      +'<table class="sct" style="max-width:400px"><thead><tr><th>부직업</th><th class="num">레벨</th><th class="num">레벨당</th><th class="num">몫</th></tr></thead><tbody>'
+      + sol.rows.map(function(r){
+          return '<tr><td>'+esc(r.n)+'</td><td class="num">'+r.lv+' <span class="meta">/'+scJobMax(r.i)+'</span></td>'
+            +'<td class="num">'+(r.av/10).toFixed(1)+'</td><td class="num">'+(r.lv*r.av/10).toFixed(1)+'</td></tr>'; }).join("")
+      + '<tr><td><b>합</b></td><td class="num"><b>'+sol.total+'</b></td><td class="num"></td>'
+      + '<td class="num"><b>'+(sol.rows.reduce(function(a,r){return a+r.lv*r.av;},0)/10).toFixed(1)+'</b></td></tr>'
+      + '</tbody></table>'
+      +'<div class="crow"><button type="button" class="mini" id="sc-apply">이대로 넣기</button>'
+      +'<span class="meta">부직업 칸에 채워 넣고 경험치를 계산합니다</span></div>';
+  } else if(sol && sol.ok){
+    solBlock += '<p class="meta">주직업 '+sol.mainPart+' + 장비 '+sol.gearPart+' 만으로 이미 넘습니다.</p>';
+  }
+  solBlock += '<details class="fine"><summary>왜 여럿에 나눠 담는가</summary>'
+    +'<p>부직업은 <b>전부 더한 뒤 한 번만 올림</b>합니다 &mdash; 직업마다 올림하지 않으므로 '
+    +'여럿에 얇게 나눠 담아도 손해가 없습니다. 그리고 한 레벨의 경험치가 '
+    +'<code>(레벨+1)^2.5</code> 로 커지므로, 한 직업을 30까지 올리는 것보다 '
+    +'셋을 10 안팎으로 올리는 쪽이 훨씬 쌉니다.</p></details></div>';
+  var table='<table class="sct"><thead><tr><th>수치</th><th class="num">기본</th><th class="num">직업</th><th class="num">장비</th><th class="num">합계</th></tr></thead><tbody>'
+    + rows.map(function(r){
+        var z=(!r.base&&!r.job&&!r.gear&&!r.gear2);
+        return '<tr'+(z?' class="zero"':'')+'><td>'+esc(r.k)+'</td>'
+          +'<td class="num">'+(SC_BASE.indexOf(r.k)>=0?r.base:"—")+'</td>'
+          +'<td class="num">'+(r.job||"")+'</td>'
+          +'<td class="num">'+(r.gear2!=null ? r.gear+'&ndash;'+r.gear2 : (r.gear||""))+'</td>'
+          +'<td class="num"><b>'+(r.sum2!=null ? r.sum+'&ndash;'+r.sum2 : r.sum)+'</b></td></tr>'; }).join("")
+    + '</tbody></table>';
+
+  return '<section class="group"><div class="ghead"><h2>능력치 계산기</h2>'
+    +'<span class="sub">주/부 직업과 장비를 바꿔 가며 수치를 봅니다</span><span class="rule"></span></div>'
+    +'<div class="calc">'
+    +'<div class="crow"><span class="lvlabel">불러오기</span>'+crewSel+'</div>'
+    +'<div class="crow"><span class="lvlabel">주직업</span><select id="sc-main">'+jobOpts(sc.main)+'</select>'
+      +'<label class="lvin">Lv<input type="number" min="0" max="'+scJobMax(sc.main)+'" id="sc-mainlv" value="'+(sc.mainLv||0)+'"></label>'
+      +'<span class="meta">/'+(scJobMax(sc.main)||"—")+'</span>'
+      +'<span class="meta">주직업은 하나만 셉니다 &mdash; 부직업과 계수가 다릅니다</span></div>'
+    + subRows
+    +'<div class="crow"><span class="lvlabel"></span><button type="button" class="mini" id="sc-subadd">부직업 추가</button></div>'
+    +'<div class="crow"><span class="lvlabel">종족</span><select id="sc-race">'+raceOpts()+'</select>'
+      +'<span class="meta">고르면 <b>기본 능력치가 그 종족의 기준값으로</b> 채워집니다 &mdash; 뽑을 때 더 받는 점수는 직접 얹으세요</span></div>'
+    +'<div class="crow"><span class="lvlabel">기본 능력치</span><div class="statbox">'+baseRow+'</div>'
+      +'<span class="meta">'+(sc.from? '<b>'+esc(sc.from)+'</b> 에서 가져왔습니다' : '종족을 고르거나 직접 넣으세요')+'</span></div>'
+    + eqRows
+    +'<div class="crow"><span class="lvlabel">내 착용 한도</span><span class="meta">'
+      +'힘 <b>'+scPower()+'</b> · 최고 직업 레벨 <b>'+scMaxJobLv()+'</b> &mdash; '
+      +'장비의 «힘 N» 과 «Lv N» 이 이 값을 넘으면 못 낍니다</span></div>'
+    +'<div class="crow"><span class="lvlabel"></span><span class="meta">'
+      +(kinds.wep.length||kinds.arm.length
+          ? '주직업이 <b>'+esc(kinds.wep.concat(kinds.arm).join(" · "))+'</b> 만 허락합니다'
+            +(sc.elf? ' (엘프라 부적이 하나 더)' : '')
+          : '주직업을 먼저 고르세요')+'</span></div>'
+    +'</div>'
+    + table + solBlock + expBlock
+    +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
+      +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
+    +'<details class="fine"><summary>계산에 안 들어간 것</summary><p><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
+      +'<b>착용 가능 부위는 주직업 하나로만 정해집니다</b> &mdash; 부직업은 관계없습니다. '
+      +'엘프는 주직업과 무관하게 부적을 하나 더 낍니다. '
+      +'강화로 붙은 값과 상태이상 보정은 빠져 있습니다 &mdash; 마스터 데이터에 있는 몫만 셉니다.</p></details>'
+    +'</section>';
+}
+
+/* ── 용병 뽑기 계산기 ───────────────────────────────────────────────
+   시뮬레이션하지 않고 분포를 그대로 접는다. 굴림이 이렇다.
+     1) 종족   — 주점의 barCharacters 에서 균등 추출
+     2) 성격   — 그 종족의 personalities 목록에서 균등 추출
+                 (목록에 중복이 있고 그게 곧 가중치다)
+     3) 능력치 — 두 단계다. Character.CreateParam 을 그대로 옮겼다.
+        (가) 기준값 8종을 각각 CreateRandomValue 로 흔든다
+        (나) 그리고 «남는 포인트» 를 하나씩 더 얹는다
+               pp = Σ ⌊CreateRandomValue(기준값ᵢ) / 2⌋ , 상한은 기준값 합 S
+               한 개씩 Rand(S) 룰렛 — 기준값이 큰 쪽에 잘 붙는다
+             기준값이 0 인 능력치(풋워커의 마나·지능)에는 절대 안 붙는다.
+             마지막에 생명점은 4, 힘은 2 로 바닥이 깔린다.
+        (나) 때문에 능력치끼리 상관이 생긴다. 공을 어디에 몇 개 넣었는지로
+             DP 를 돌려서 8종 조건을 «동시에» 만족할 확률을 정확히 접는다.
+     4) 초빙 포인트 — Rand(3) + 주점레벨 + 성격보정, 10% 로 + Rand(주점레벨)
+        성격보정: 무모한 Rand(3) · 이기적 Rand(2) · 신경질적·감정적 Rand(1)=0
+                  사교적·신중한·합리적은 아예 없다
+        이건 뽑은 뒤 «내가» 나눠 넣는 몫이라 (3) 과 별개다.            */
+var STAT_FLOOR={"생명점":4,"힘":2};   // CreateParam 끝에서 깔리는 바닥
+var PERS_ALL=["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
+var PERS_BONUS={"무모한":3,"이기적":2,"신경질적":1,"감정적":1};
+var calc={bar:"", sex:"", pers:{}, min:{}, pt:0};
+
+function conv(a,b){
+  var out={};
+  for(var x in a) for(var y in b){ var k=(+x)+(+y); out[k]=(out[k]||0)+a[x]*b[y]; }
+  return out;
+}
+function uniform(n, from){
+  from=from||0; var m={};
+  if(n<=0){ m[from]=1; return m; }
+  for(var i=0;i<n;i++) m[from+i]=1/n;
+  return m;
+}
+function crvDist(base){
+  if(base<1) return {0:1};
+  var n = base<=8 ? 3 : (base<=30 ? (base*171>>9) : (base<=99 ? (base*205>>11) : (base>>4)));
+  if(n<=0){ var one={}; one[base]=1; return one; }
+  var m={};
+  for(var s2=0;s2<n;s2++){
+    [base+s2, Math.max(0, base-s2)].forEach(function(v){ m[v]=(m[v]||0)+0.5/n; });
+  }
+  return m;
+}
+function pointDist(lv, pb){
+  var d=conv(uniform(3), uniform(1, lv));
+  if(pb) d=conv(d, uniform(pb));
+  var bo=conv(d, uniform(lv));
+  var out={}, k;
+  for(k in d)  out[k]=(out[k]||0)+d[k]*0.9;
+  for(k in bo) out[k]=(out[k]||0)+bo[k]*0.1;
+  return out;
+}
+/* ⌊CreateRandomValue(base)/2⌋ — 나눠 줄 포인트에 보태지는 몫 */
+function halfDist(base){
+  var d=crvDist(base), m={};
+  for(var k in d){ var v=(+k)>>1; m[v]=(m[v]||0)+d[k]; }
+  return m;
+}
+function sumAb(ab){ var S=0; STAT.forEach(function(k){ S+=ab[k]||0; }); return S; }
+/* 나눠 줄 포인트의 분포. 상한이 기준값 합이라 거기서 뭉친다. */
+function ppDist(ab){
+  var S=sumAb(ab), d={0:1};
+  STAT.forEach(function(k){ d=conv(d, halfDist(ab[k]||0)); });
+  var m={};
+  for(var k in d){ var v=Math.min(+k, S); m[v]=(m[v]||0)+d[k]; }
+  return m;
+}
+/* r 개를 확률 p 로 골랐을 때 k 개가 걸릴 확률 (k = 0..r) */
+function binomRow(r, p){
+  var out=new Array(r+1), c=1, i;
+  if(p<=0){ for(i=0;i<=r;i++) out[i]=0; out[0]=1; return out; }
+  if(p>=1){ for(i=0;i<=r;i++) out[i]=0; out[r]=1; return out; }
+  for(i=0;i<=r;i++){ out[i]=c*Math.pow(p,i)*Math.pow(1-p,r-i); c=c*(r-i)/(i+1); }
+  return out;
+}
+/* 능력치 하나의 «최종» 분포 — 흔든 값에 공 k 개를 얹고 바닥을 깐 것 */
+function statFinal(ab, st){
+  var S=sumAb(ab), w=(ab[st]||0)/(S||1), fl=STAT_FLOOR[st]||0;
+  var base=crvDist(ab[st]||0), pp=ppDist(ab), out={};
+  for(var P in pp){
+    var row=binomRow(+P, w), pw=pp[P];
+    for(var k=0;k<row.length;k++){
+      if(!row[k]) continue;
+      for(var v in base){
+        var x=Math.max(fl, (+v)+k);
+        out[x]=(out[x]||0)+pw*row[k]*base[v];
+      }
+    }
+  }
+  return out;
+}
+/* 여러 종족을 섞은 뒤 1~99% 구간. 이론상 최대치는 거의 안 나오는 값이라
+   그대로 적으면 오히려 헷갈린다. */
+function statBand(st, rs){
+  if(!rs.length) return null;
+  var mix={};
+  rs.forEach(function(r){
+    var d=statFinal(r.ab, st);
+    for(var k in d) mix[k]=(mix[k]||0)+d[k]/rs.length;
+  });
+  var keys=Object.keys(mix).map(Number).sort(function(a,b){return a-b;});
+  var acc=0, lo=null, hi=keys[keys.length-1];
+  for(var i=0;i<keys.length;i++){
+    acc+=mix[keys[i]];
+    if(lo===null && acc>=0.01) lo=keys[i];
+    if(acc>=0.99){ hi=keys[i]; break; }
+  }
+  return [lo===null?keys[0]:lo, hi];
+}
+/* 8종 조건을 «동시에» 만족할 확률. 공을 어디에 몇 개 넣었는지로 DP. */
+function statJointProb(ab, need){
+  var any=false; STAT.forEach(function(k){ if((need[k]||0)>0) any=true; });
+  if(!any) return 1;
+  var S=sumAb(ab), pp=ppDist(ab), R=0, P;
+  for(P in pp) if(+P>R) R=+P;
+  // ok[j][k] = j번째 능력치가 공 k 개를 받았을 때 조건을 넘길 확률
+  var ok=STAT.map(function(st){
+    var m=need[st]||0, d=crvDist(ab[st]||0), fl=STAT_FLOOR[st]||0, arr=[], k;
+    for(k=0;k<=R;k++){
+      if(!m){ arr[k]=1; continue; }
+      var q=0;
+      for(var v in d) if(Math.max(fl,(+v)+k) >= m) q+=d[v];
+      arr[k]=q;
+    }
+    return arr;
+  });
+  // 뒤에서부터 남은 무게
+  var W=[], acc=0, j;
+  for(j=STAT.length-1;j>=0;j--){ acc+=ab[STAT[j]]||0; W[j]=acc; }
+  // g[r] = 여기부터 끝까지, 공 r 개가 남았을 때의 확률
+  var g=new Array(R+1).fill(0); g[0]=1;
+  for(j=STAT.length-1;j>=0;j--){
+    var wj=W[j]?(ab[STAT[j]]||0)/W[j]:0, ng=new Array(R+1).fill(0), r, k;
+    for(r=0;r<=R;r++){
+      if(W[j]===0){ ng[r] = (r===0) ? ok[j][0]*g[0] : 0; continue; }
+      var row=binomRow(r, wj), t=0;
+      for(k=0;k<=r;k++) if(row[k] && ok[j][k] && g[r-k]) t+=row[k]*ok[j][k]*g[r-k];
+      ng[r]=t;
+    }
+    g=ng;
+  }
+  var out=0;
+  for(P in pp) out += pp[P]*(g[+P]||0);
+  return out;
+}
+/* 초빙 포인트의 폭. 고른 성격만 본다 — 안 골랐으면 전부. */
+function ptRange(lv){
+  var ps=Object.keys(calc.pers); if(!ps.length) ps=PERS_ALL.slice();
+  var lo=null, hi=null;
+  ps.forEach(function(pp){
+    var d=pointDist(lv, PERS_BONUS[pp]||0);
+    for(var k in d){ var v=+k;
+      if(lo===null||v<lo) lo=v; if(hi===null||v>hi) hi=v; }
+  });
+  return lo===null ? null : [lo, hi];
+}
+function pAtLeast(d, min){ var p=0; for(var k in d) if((+k)>=min) p+=d[k]; return p; }
+
+function barTowns(){
+  var out=[];
+  D.races.forEach(function(r){
+    (state.showLocked?r.towns:(r.open||r.towns)).forEach(function(t){
+      if(out.indexOf(t)<0) out.push(t); });
+  });
+  return out.sort();
+}
+function racesAt(town){ return D.races.filter(function(r){ return r.towns.indexOf(town)>=0; }); }
+// 성별을 고르면 절반만 남는다 — 종족·성별이 각각 한 레코드다
+function racesSel(){
+  return racesAt(calc.bar).filter(function(r){
+    return !calc.sex || (calc.sex==="man") === !!r.man; });
+}
+function barLvOf(town){
+  var t=null; D.towns.forEach(function(x){ if(x.n===town) t=x; });
+  return t ? myTownLv(t.i,"주점") : null;
+}
+function calcRun(){
+  var rs=racesSel();
+  if(!rs.length) return null;
+  var lv=barLvOf(calc.bar), useLv = lv!=null ? lv : 1;
+  var total=0, per=[];
+  rs.forEach(function(r){
+    var pStat=statJointProb(r.ab, calc.min);
+    var cnt={}; r.pers.forEach(function(pp){ cnt[pp]=(cnt[pp]||0)+1; });
+    var pAll=0;
+    // 성격을 하나도 안 고르면 «아무거나» 로 본다 — 0% 를 띄우는 것보다 낫다
+    var anyPers=true; for(var pk in calc.pers){ anyPers=false; break; }
+    Object.keys(cnt).forEach(function(pp){
+      if(!anyPers && !calc.pers[pp]) return;
+      var pPt = calc.pt>0 ? pAtLeast(pointDist(useLv, PERS_BONUS[pp]||0), calc.pt) : 1;
+      pAll += (cnt[pp]/r.pers.length) * pPt;
+    });
+    var p=(1/rs.length)*pStat*pAll;
+    per.push({r:r, p:p, pStat:pStat, pPers:pAll});
+    total+=p;
+  });
+  return {p:total, per:per, lv:lv, useLv:useLv};
+}
+function calcHTML(){
+  var towns=barTowns();
+  if(!calc.bar && towns.length) calc.bar=towns[0];
+  var lv=barLvOf(calc.bar);
+  var opts=towns.map(function(t){
+    var l=barLvOf(t);
+    return '<option value="'+esc(t)+'"'+(t===calc.bar?" selected":"")+'>'+esc(t)
+      +(l!=null?" (주점 "+l+"레벨)":"")+'</option>'; }).join("");
+  var persBox=PERS_ALL.map(function(pp){
+    return '<label class="ab'+(calc.pers[pp]?" on":"")+'"><input type="checkbox" data-p="'+esc(pp)+'"'
+      +(calc.pers[pp]?" checked":"")+'>'+esc(pp)+'</label>'; }).join("");
+  var rsel=racesSel();
+  var statBox=STAT.map(function(k){
+    var rg=statBand(k, rsel);
+    return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-s="'+esc(k)+'" value="'
+      +(calc.min[k]||"")+'" placeholder="–">'
+      +'<i class="rg">'+(rg? rg[0]+"–"+rg[1] : "–")+'</i></label>'; }).join("");
+  var ptrg=ptRange(lv!=null?lv:1);
+  var sexBox=[["","전체"],["man","남"],["woman","여"]].map(function(x){
+    return '<label class="ab'+(calc.sex===x[0]?" on":"")+'"><input type="radio" name="c-sex" data-x="'
+      +x[0]+'"'+(calc.sex===x[0]?" checked":"")+'>'+x[1]+'</label>'; }).join("");
+  var res=calcRun(), body;
+  if(!res || !res.p){
+    body='<p class="empty">'+(!res?"이 주점에서 뽑히는 종족이 없습니다."
+      :"이 조건으로는 <b>나오지 않습니다.</b> 어떤 종족도 못 채우는 최소값입니다 — 능력치나 포인트를 낮춰 보세요.")+'</p>';
+  } else {
+    var tries=1/res.p;
+    body='<div class="dgrid" style="margin:0 0 12px">'
+      +'<div class="dcell"><dt>한 번에 나올 확률</dt><dd class="mono" style="color:var(--accent);font-size:17px">'
+        +(res.p*100<0.01?(res.p*100).toFixed(4):(res.p*100).toFixed(2))+'%</dd></div>'
+      +'<div class="dcell"><dt>평균 시도</dt><dd class="mono" style="font-size:17px">'
+        +(tries>=1000?Math.round(tries).toLocaleString():tries.toFixed(1))+'번</dd></div>'
+      +'<div class="dcell"><dt>절반 확률로</dt><dd class="mono">'
+        +Math.ceil(Math.log(0.5)/Math.log(1-res.p))+'번 안에</dd></div>'
+      +'<div class="dcell"><dt>90% 확률로</dt><dd class="mono">'
+        +Math.ceil(Math.log(0.1)/Math.log(1-res.p))+'번 안에</dd></div>'
+      +'</div>'
+      + (res.lv==null?'<div class="note" style="margin:0 0 12px">주점 레벨을 몰라 <b>1레벨</b>로 계산했습니다 &mdash; <a href="save.html">세이브를 넣으면</a> 실제 레벨로 바뀝니다.</div>':"")
+      +'<div class="blk"><h4>종족별로 뜯어보면</h4><ul>'
+      + res.per.map(function(x){
+          return '<li><b>'+esc(x.r.race+" · "+(x.r.man?"남":"여"))+'</b>'
+            +'<span class="meta"> &mdash; 뽑힐 확률 '+(x.p*100).toFixed(3)+'%'
+            +' (성격·포인트 '+(x.pPers*100).toFixed(1)+'% × 능력치 '+(x.pStat*100).toFixed(1)+'%)</span></li>';
+        }).join("")
+      + '</ul></div>';
+  }
+  return '<section class="group"><div class="ghead"><h2>용병 뽑기 계산기</h2>'
+    +'<span class="sub">조건을 넣으면 확률과 평균 시도 횟수를 계산합니다</span>'
+    +'<span class="rule"></span></div>'
+    +'<div class="calc">'
+    +'<div class="crow"><span class="lvlabel">주점</span><select id="c-bar">'+opts+'</select>'
+      +'<span class="meta">'+(lv!=null?"내 주점 "+lv+"레벨":"세이브 없음 &rarr; 1레벨로 계산")+'</span></div>'
+    +'<div class="crow"><span class="lvlabel">성별</span><div class="abils-box">'+sexBox+'</div>'
+      +'<span class="meta">'+rsel.length+'종 &mdash; '+(rsel.map(function(r){return esc(r.race)+(calc.sex?"":"·"+(r.man?"남":"여"));}).join(", ")||"없음")+'</span></div>'
+    +'<div class="crow"><span class="lvlabel">원하는 성격</span><div class="abils-box">'+persBox+'</div></div>'
+    +'<div class="crow"><span class="lvlabel">최소 능력치</span><div class="statbox">'+statBox+'</div>'
+      +'<span class="meta">칸 옆은 이 주점에서 <b>거의 다(98%) 이 안에 들어오는 폭</b>입니다 &mdash; 기준값을 흔든 뒤 남는 포인트까지 얹은 값</span></div>'
+    +'<div class="crow"><span class="lvlabel">최소 포인트</span>'
+      +'<label class="lvin"><input type="number" id="c-pt" min="0" max="40" value="'+(calc.pt||"")+'" placeholder="–">'
+      +'<i class="rg">'+(ptrg? ptrg[0]+"–"+ptrg[1] : "–")+'</i></label>'
+      +'<span class="meta">화면에 별처럼 뜨는 그 숫자입니다 &mdash; 이 주점에서 <b>최대 '+(ptrg?ptrg[1]:"?")+'</b>'
+      +(Object.keys(calc.pers).length?' (고른 성격 기준)':'')+'</span></div>'
+    +'</div>'+body+'</section>';
+}
+
+/* 탭이 여섯이라 머리글도 탭을 따라가야 한다.
+   한 줄 설명과 숫자를 여기서 갈아 끼운다. */
+var TABNOTE = {
+  job:  "무엇을 들고 무엇에 능한지, 주직업일 때와 부직업일 때 뭐가 다른지.",
+  race: "어느 주점에서 뽑히는지, 기준값이 실제로 얼마가 되는지, 어떤 성격이 나오는지.",
+  skill:"어느 클래스가 몇 레벨에 배우는지. 회복 주문은 시전자 성격이 시점을 바꿉니다.",
+  town: "도시마다 어떤 시설이 몇 레벨까지 있고, 올리는 데 얼마가 드는지.",
+  calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
+  map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다.",
+  stat: "주/부 직업과 장비를 바꿔 가며 수치를 봅니다. 내 용병을 불러와 거기서 고칠 수 있습니다."
+};
+function headStats(){
+  var out=[];
+  if(state.view==="job"){
+    var wk={}, mg=0;
+    D.jobs.forEach(function(j){ j.w.forEach(function(w){ wk[w]=1; }); if(j.sk && j.sk.length) mg++; });
+    out=[[visJobs().length,"클래스"],[Object.keys(wk).length,"무기 종류"],[mg,"마법 쓰는 클래스"]];
+  } else if(state.view==="race"){
+    var bt={}; D.races.forEach(function(r){ (r.open||r.towns).forEach(function(t){ bt[t]=1; }); });
+    out=[[D.races.length,"종족·성별"],[Object.keys(bt).length,"뽑는 주점"],[7,"성격"]];
+  } else if(state.view==="skill"){
+    var jb={}; D.skills.forEach(function(s2){ s2.jobs.forEach(function(j){ jb[j.j]=1; }); });
+    out=[[D.skills.length,"마법"],[Object.keys(jb).length,"배우는 클래스"]];
+  } else if(state.view==="town"){
+    var ts=visTowns();
+    out=[[ts.length,"도시"],[ts.reduce(function(a,t){return a+t.b.length},0),"시설"]];
+  } else if(state.view==="stat"){
+    var nb=0; Object.keys(D.gear).forEach(function(k){ if(D.gear[k].b && Object.keys(D.gear[k].b).length) nb++; });
+    out=[[D.jobs.length,"클래스"],[nb,"보너스 붙은 장비"],[scCrew().length,"불러올 용병"]];
+  } else if(state.view==="calc"){
+    var bt2=barTowns();
+    out=[[bt2.length,"주점"],[D.races.length,"종족·성별"],[7,"성격"]];
+  } else {
+    var ms=D.maps.filter(function(m){ return state.showLocked || !m.lock; });
+    out=[[ms.length,"지역"],
+         [ms.reduce(function(a,m){return a+m.t.length},0),"도시"],
+         [ms.reduce(function(a,m){return a+m.c.length},0),"탐색지"]];
+  }
+  el("stats").innerHTML = out.map(function(x){
+    return '<div class="stat"><b>'+x[0]+'</b><span>'+esc(x[1])+'</span></div>'; }).join("");
+  el("tabnote").textContent = TABNOTE[state.view] || "";
+  // 계산기에서는 검색칸이 아무 일도 안 한다
+  if(el("q")) el("q").style.display = state.view==="calc" ? "none" : "";
+}
+
+function render(){
+  var html="", n=0;
+  headStats();
+  if(state.view==="job"){
+    var rows=visJobs().filter(function(j){
+      if(state.wk && j.w.indexOf(state.wk)<0) return false;
+      return hit(j.n+" "+j.i+" "+j.o+" "+j.d+" "+j.w.join(" ")+" "+j.a.join(" ")+" "+j.hall
+        +" "+j.sk.map(function(s){return s.n}).join(" "));
+    });
+    n=rows.length;
+    html+=block("클래스", n+"종 · 최대 레벨 높은 순", rows.map(jobRow));
+  } else if(state.view==="race"){
+    var rs=D.races.filter(function(r){
+      return hit(r.race+" "+r.i+" "+r.towns.join(" ")+" "+r.pers.join(" ")); });
+    n=rs.length;
+    var by={};
+    rs.forEach(function(r){ (by[r.race]=by[r.race]||[]).push(r); });
+    Object.keys(by).forEach(function(k){
+      html+=block(k, by[k].length+"종", by[k].map(raceRow)); });
+  } else if(state.view==="skill"){
+    var ss=D.skills.filter(function(s){
+      return hit(s.n+" "+s.i+" "+s.d+" "+s.jobs.map(function(j){return j.j}).join(" ")); });
+    n=ss.length;
+    html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
+  } else if(state.view==="map"){
+    var ms=D.maps.filter(function(m){ return (state.showLocked || !m.lock)
+      && (!state.q || m.n.toLowerCase().indexOf(state.q.toLowerCase())>=0); });
+    el("out").innerHTML = ms.length ? ms.map(mapBlock).join("")
+      : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
+    if(el("count")) el("count").textContent=ms.length+" 지역";
+    if(el("wk")) el("wk").style.display="none";
+    fillMapImages();
+    return;
+  } else if(state.view==="stat"){
+    el("out").innerHTML=statHTML();
+    if(el("count")) el("count").textContent="";
+    if(el("wk")) el("wk").style.display="none";
+    return;
+  } else if(state.view==="calc"){
+    el("out").innerHTML=calcHTML();
+    if(el("count")) el("count").textContent="";
+    if(el("wk")) el("wk").style.display="none";
+    return;
+  } else {
+    var ts=visTowns().filter(function(t){
+      return hit(t.n+" "+t.r+" "+t.b.map(function(b){return b.n+" "+b.kind}).join(" ")); });
+    n=ts.reduce(function(a,t){return a+t.b.length},0);
+    var byR={};
+    ts.forEach(function(t){ (byR[t.r||"기타"]=byR[t.r||"기타"]||[]).push(t); });
+    Object.keys(byR).forEach(function(r){
+      html+='<h2 class="regname">'+esc(r)+'</h2>'+byR[r].map(townBlock).join(""); });
+  }
+  if(el("count")) el("count").textContent=n+" 건";
+  el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
+  if(el("wk")) el("wk").style.display = state.view==="job" ? "" : "none";
+}
+
+function detailFor(kind,id){
+  if(kind==="j"){ for(var i=0;i<D.jobs.length;i++) if(D.jobs[i].i===id) return jobDetail(D.jobs[i]); }
+  if(kind==="r"){ for(var i=0;i<D.races.length;i++) if(D.races[i].i===id) return raceDetail(D.races[i]); }
+  if(kind==="s"){ for(var i=0;i<D.skills.length;i++) if(D.skills[i].i===id) return skillDetail(D.skills[i]); }
+  if(kind==="b") return buildDetail(id);
+  return "";
+}
+/* 상세는 화면보다 클 수 있다(모바일에서 900px 넘음). 아래쪽 줄을 누르면
+   상세가 화면 밖에 열려 «안 열린 것» 처럼 보인다 — 줄을 위로 올려 준다. */
+function revealDetail(row){
+  var d=row.nextElementSibling;
+  if(!d || !d.classList.contains("detail")) return;
+  // rAF 는 탭이 안 보이면 안 돈다 — setTimeout 이 안전하다
+  setTimeout(function(){
+    var r=row.getBoundingClientRect(), b=d.getBoundingClientRect();
+    if(r.top < 0 || b.bottom > innerHeight){
+      // behavior:"smooth" 가 안 먹는 브라우저가 있어 즉시 옮긴다
+      scrollTo(0, Math.max(0, r.top+scrollY-8));
+    }
+  }, 0);
+}
+function openRow(row){
+  var nx=row.nextElementSibling;
+  if(nx && nx.classList.contains("detail")){ nx.remove(); row.classList.remove("open"); return; }
+  var cur=row.parentNode.querySelector(".detail");
+  if(cur){ var pr=cur.previousElementSibling; if(pr) pr.classList.remove("open"); cur.remove(); }
+  var h=detailFor(row.getAttribute("data-k"), row.getAttribute("data-i"));
+  if(!h) return;
+  row.insertAdjacentHTML("afterend",h);
+  revealDetail(row);
+  row.classList.add("open");
+}
+el("out").addEventListener("click",function(e){
+  var row=e.target.closest(".row"); if(row) openRow(row);
+});
+el("out").addEventListener("keydown",function(e){
+  if(e.key!=="Enter"&&e.key!==" ") return;
+  var row=e.target.closest(".row"); if(!row) return;
+  e.preventDefault(); openRow(row);
+});
+var t;
+if(el("q")) el("q").addEventListener("input",function(e){
+  clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
+if(el("wk")) el("wk").addEventListener("change",function(e){ state.wk=e.target.value; render(); });
+var lk=el("showlocked");
+if(lk){ lk.checked=state.showLocked;
+lk.addEventListener("change",function(e){
+  state.showLocked=e.target.checked;
+  try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
+  render();
+}); }
+var VIEWS=["calc","stat"];
+function setView(v){
+  state.view=v;
+  VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
+  render();
+}
+VIEWS.forEach(function(v){ el("v-"+v).onclick=function(){ setView(v); }; });
+// 도감의 다른 반쪽에서 넘어오면 ?v= 가 붙어 온다
+var _v=(new URLSearchParams(location.search)).get("v");
+if(VIEWS.indexOf(_v)>=0) state.view=_v;
+setView(state.view);
+// 계산기 입력 — 결과가 바뀔 때마다 화면을 다시 그리므로 위임으로 받는다
+// 지도에서 도시·탐색지를 누르면 그 자료로 보낸다
+el("out").addEventListener("click",function(e){
+  var b=e.target.closest("button.mini");
+  if(b){
+    if(b.id==="sc-subadd"){ sc.subs.push({i:"",lv:1}); render(); return; }
+    if(b.id==="sc-apply"){
+      var so=solveAvoid(sc.goal);
+      if(so && so.ok && so.rows){
+        /* «그대로 넣는다» 는 뜻이다 — 올리기만 하면 목표를 낮춰도 그대로였다.
+           회피를 주는 부직업만 걷어내고 풀이대로 다시 깐다.
+           회피 0 인 부직업(현자·모험가 등)은 건드리지 않는다. */
+        sc.subs = sc.subs.filter(function(x){
+          var j=D.jobs.filter(function(y){ return y.i===x.i; })[0];
+          return !j || !(j.sub["회피"]||0);
+        });
+        so.rows.forEach(function(r){ sc.subs.push({i:r.i, lv:scClamp(r.i, r.lv)}); });
+      }
+      render(); return;
+    }
+    if(b.dataset.submain!=null){
+      // 주직업과 자리를 맞바꾼다. 지금 주직업이 비어 있으면 그냥 올린다.
+      var k=+b.dataset.submain, was={i:sc.main, lv:sc.mainLv};
+      sc.main=sc.subs[k].i; sc.mainLv=sc.subs[k].lv;
+      if(was.i) sc.subs[k]=was; else sc.subs.splice(k,1);
+      render(); return;
+    }
+    if(b.dataset.subdel!=null){ sc.subs.splice(+b.dataset.subdel,1); render(); return; }
+  }
+  var g=e.target.closest("[data-go]"); if(!g) return;
+  e.stopPropagation();
+  var v=g.getAttribute("data-go"), kind=v.slice(0,1), name=v.slice(2);
+  if(kind==="t"){ location.href="quests.html?q="+encodeURIComponent(name); }
+  else { location.href="codex.html?q="+encodeURIComponent(name); }
+}, true);
+el("out").addEventListener("change",function(e){
+  var t=e.target;
+  if(t.id==="c-bar"){ calc.bar=t.value; render(); return; }
+  if(t.name==="c-sex"){ calc.sex=t.dataset.x; render(); return; }
+  if(t.id==="sc-crew"){ if(t.value) scLoad(t.value); else { sc.from=""; } render(); return; }
+  if(t.id==="sc-race"){ scSetRace(t.value); render(); return; }
+  if(t.id==="sc-main"){ sc.main=t.value; sc.mainLv=scClamp(t.value, sc.mainLv||0); render(); return; }
+  if(t.dataset && t.dataset.slot!=null){
+    if(t.value) sc.slot[t.dataset.slot]=t.value; else delete sc.slot[t.dataset.slot];
+    render(); return;
+  }
+  if(t.dataset && t.dataset.sub!=null){
+    var k2=+t.dataset.sub;
+    sc.subs[k2].i=t.value;
+    sc.subs[k2].lv=scClamp(t.value, sc.subs[k2].lv||0);
+    render(); return;
+  }
+  if(t.dataset && t.dataset.p!=null){
+    if(t.checked) calc.pers[t.dataset.p]=1; else delete calc.pers[t.dataset.p];
+    render();
+  }
+});
+var ct;
+el("out").addEventListener("input",function(e){
+  var t=e.target;
+  if(t.id==="sc-goal"){
+    clearTimeout(ct);
+    var v4=t.value;
+    ct=setTimeout(function(){
+      sc.goal=Math.max(0,parseInt(v4,10)||0); render();
+      var a3=el("out").querySelector("#sc-goal");
+      if(a3){ a3.focus(); try{ a3.setSelectionRange(a3.value.length,a3.value.length); }catch(e){} }
+    }, 350);
+    return;
+  }
+  if(t.id==="sc-xph"){
+    clearTimeout(ct);
+    var v3=t.value;
+    ct=setTimeout(function(){
+      sc.xph=Math.max(0,parseInt(v3,10)||0); render();
+      var a2=el("out").querySelector("#sc-xph");
+      if(a2){ a2.focus(); try{ a2.setSelectionRange(a2.value.length,a2.value.length); }catch(e){} }
+    }, 350);
+    return;
+  }
+  if(t.id==="sc-mainlv" || (t.dataset && (t.dataset.sublv!=null || t.dataset.base!=null))){
+    clearTimeout(ct);
+    var el2=t, v2=t.value;
+    ct=setTimeout(function(){
+      var n3=Math.max(0,parseInt(v2,10)||0);
+      if(el2.id==="sc-mainlv") sc.mainLv=scClamp(sc.main, n3);
+      else if(el2.dataset.sublv!=null){
+        var si=+el2.dataset.sublv;
+        sc.subs[si].lv=scClamp(sc.subs[si].i, n3);
+      }
+      else sc.base[el2.dataset.base]=n3;
+      render();
+      var sel = el2.id ? "#"+el2.id
+        : (el2.dataset.sublv!=null ? '[data-sublv="'+el2.dataset.sublv+'"]' : '[data-base="'+el2.dataset.base+'"]');
+      var again=el("out").querySelector(sel);
+      if(again){ again.focus(); try{ again.setSelectionRange(again.value.length, again.value.length); }catch(err){} }
+    }, 350);
+    return;
+  }
+  if(t.id!=="c-pt" && !(t.dataset && t.dataset.s!=null)) return;
+  clearTimeout(ct);
+  var isPt=(t.id==="c-pt"), key=isPt?null:t.dataset.s, v=t.value;
+  ct=setTimeout(function(){
+    if(isPt) calc.pt=Math.max(0,parseInt(v,10)||0);
+    else { var n2=Math.max(0,parseInt(v,10)||0); if(n2) calc.min[key]=n2; else delete calc.min[key]; }
+    render();
+    // 다시 그렸으니 커서를 그 칸으로 돌려놓는다
+    var again=el("out").querySelector(isPt?"#c-pt":'[data-s="'+key+'"]');
+    if(again){ again.focus(); try{ again.setSelectionRange(again.value.length, again.value.length); }catch(err){} }
+  }, 350);
+});
+};
+</script>
+
+<div id="gate" class="gate">
+  <div class="gatebox">
+    <h2>침묵의 기록자 자료실</h2>
+    <p id="gatemsg">데이터를 받는 중…</p>
+    <button type="button" id="gatebtn" hidden>구글로 로그인</button>
+    <p class="gatenote">데이터는 로그인한 사람만 받을 수 있습니다. 한 번 받으면 이 기기에 저장돼 다음부터는 오프라인에서도 열립니다.</p>
+  </div>
+</div>
+<script src="tsacloud.js"></script>
+<script>
+// 지도 배경은 비공개 버킷에 있다. 로그인해서 받아 Blob URL 로 꽂는다.
+window.__TSA_MAPIMG = function(id){
+  return window.TSA_CLOUD.fetchBlob("map" + id + ".webp");
+};
+(async function(){
+  var gate=document.getElementById("gate"), msg=document.getElementById("gatemsg"),
+      btn=document.getElementById("gatebtn"), C=window.TSA_CLOUD;
+  function fail(t){ msg.textContent=t; btn.hidden=false; }
+  function start(D){
+    gate.remove();
+    window.__TSA_BOOT(D);
+    // 캐시로 떴을 수 있다. 로그인이 끊긴 채로 «올라간 줄 알고» 넘어가는 게
+    // 제일 나쁜 실패라서, 상태 줄에 못을 박아 둔다.
+    if(!C.signedIn()){
+      if(window.__TSA_CLOUD_STATUS)
+        window.__TSA_CLOUD_STATUS("저장된 데이터로 열었습니다 — 로그인해야 동기화됩니다");
+      return;
+    }
+    // 클라우드에 저장된 상태가 있으면 그대로 되살린다
+    C.getProgress().then(function(p){
+      if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
+      else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
+    }).catch(function(e){
+      if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("받기 실패: "+e.message);
+    });
+  }
+  var r=await C.completeOAuth();
+  if(r.error) fail(r.error);
+  btn.onclick=function(){ C.signIn(true); };
+
+  var booted=false, cachedRaw=null;
+  var d=await C.fetchData("meta.json", function(cached){
+    if(!booted){ booted=true; cachedRaw=JSON.stringify(cached); start(cached); }  // 캐시가 있으면 즉시 띄운다
+  });
+  if(booted){
+    // 캐시로 띄운 뒤 새 자료가 왔으면 알린다. 조용히 지나가면 며칠씩 옛 자료를 본다.
+    if(d && cachedRaw && JSON.stringify(d)!==cachedRaw){
+      var bar=document.createElement("div");
+      bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
+        +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
+        +"gap:12px;align-items:center;justify-content:center";
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      var btn=document.createElement("button");
+      btn.type="button"; btn.textContent="새로고침";
+      btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"
+        +"border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer";
+      btn.onclick=function(){ location.reload(); };
+      bar.appendChild(btn);
+      document.body.appendChild(bar);
+    }
+    return;
+  }
+  if(d) start(d);
+  else if(!C.signedIn()) fail("이 자료실을 보려면 로그인이 필요합니다.");
+  else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 meta.json 이 있는지 확인해 주세요.");
+})();
+</script>
+
+</body>
+</html>
