@@ -297,8 +297,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     그 위        →  &lfloor;기준 &divide; 16&rfloor;
 
 <b>최솟값 = 기준값 &minus; (n &minus; 1)</b>     <i>폭이 좁아질수록 바닥이 올라갑니다</i></div>
-  <p>그리고 이 값이 능력치로 쓰일 때는 <b>거의 언제나 6 으로 나눕니다.</b>
-     회피 · 명중 · 금고 발견 · 금고 해제 · 함정 · 선제공격 &mdash; 전부 같은 나눗수입니다.</p>
+  <p>그리고 이 값이 능력치로 쓰일 때는 <b>거의 언제나 6 으로 나눕니다</b> &mdash;
+     회피 · 명중 · 금고 발견 · 금고 해제 · 함정, 그리고 선제공격의 <b>내 쪽</b>.
+     <b>예외가 하나 있습니다: 선제공격의 «몬스터 쪽» 만 &divide;3 입니다</b> &mdash;
+     나눗수가 절반이라 몬스터의 통찰 몫이 <b>두 배로</b> 들어갑니다.</p>
   <table><thead><tr><th class="num">기준값</th><th class="num">10</th><th class="num">15</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">32</th><th class="num">38</th><th class="num">45</th><th class="num">52</th></tr></thead><tbody>
   <tr><td>흔들림 최솟값</td><td class="num">8</td><td class="num">11</td><td class="num">15</td><td class="num">18</td><td class="num">21</td><td class="num">29</td><td class="num">30</td><td class="num">36</td><td class="num">42</td><td class="num">48</td></tr>
   <tr class="hi"><td><b>더해지는 몫</b> <span class="sm">&lfloor;최솟값 &divide; 6&rfloor;</span></td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">3</td><td class="num"><b>4</b></td><td class="num"><b>5</b></td><td class="num">6</td><td class="num">7</td><td class="num">8</td></tr>
@@ -314,7 +316,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>8-26 · 7.0 · 7.1 세 판본 모두 같습니다.</b>
      3 으로 잘못 두면 완봉선이 7 쯤 높게 나오고 몬스터 회피가 최대 5 높게 찍힙니다.</div>
   <p>능력치 한 칸은 몫을 거의 안 움직입니다 &mdash; 계단 사이가 <b>평균 여섯</b>이고,
-     간격이 1(31&rarr;32)부터 8(8&rarr;16)까지 고르지 않습니다.
+     간격이 1(31&rarr;32)부터 <b>9(16&rarr;25)</b>까지 고르지 않습니다.
      회피값·명중값은 한 칸당 그대로 1 입니다.</p>
 
   <h2 id="stat"><span class="n">2</span>수치 &mdash; 화면의 숫자가 어디서 나오나</h2>
@@ -347,8 +349,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>화면 값과 전투 값은 다릅니다.</b>
      화면은 <b>범위의 양끝</b>(최소~최대)을 그대로 보여 주지만, 전투에서는
      <code>Rand(최소, 최대)</code> 로 한 번 굴립니다 &mdash; <b>상한은 안 나옵니다</b>(&sect;1).
-     그리고 <b>회피·명중에는 2d6 과 흔들림 몫</b>이, <b>방어력에는 체력 자리에 흔들림</b>이 붙습니다
-     &mdash; 전투의 체력 몫은 &lfloor;체력&divide;4&rfloor; 가 아니라 &lfloor;흔들린 체력&divide;4&rfloor; 입니다.</div>
+     그리고 전투에서는 거의 모든 값에 흔들림이 한 번 더 붙습니다 &mdash;
+     <b>회피·명중에는 2d6 과 흔들림 몫</b>, <b>방어력에는 체력 자리에 흔들림</b>,
+     그리고 <b>공격력에는 &lfloor;힘 &divide; 6&rfloor; 만큼의 흔들림이 통째로 더해집니다.</b></div>
+  <div class="note warn"><b>★ 그래서 실제 평타는 화면의 «최대» 를 넘습니다.</b>
+     전투 공격력 = <code>Rand(화면 최소, 화면 최대)</code> <b>+ 흔들림(&lfloor;힘 &divide; 6&rfloor;)</b> 입니다.
+     굴림 자체는 상한을 안 내지만(&sect;1), 그 위에 힘에서 나온 몫이 더 붙습니다 &mdash;
+     힘 57 이면 <b>+7~9</b> 쯤입니다. <b>이 항은 몬스터에게는 없습니다.</b></div>
   <p class="src">이 여섯 식은 <code>statcheck.mjs</code> 가 매 빌드마다 게임 화면에서 읽은 값과 맞춰 봅니다 &mdash;
      한 항이라도 빠지면 배포가 섭니다.</p>
 
@@ -705,13 +712,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 
   <h2 id="dmg"><span class="n">6</span>전투 ② &mdash; 얼마나 아픈가</h2>
-  <div class="eq">평타 피해 = 공격력 &minus; <b>방어력 전액</b>      <i>0 이하면 피해가 없습니다</i>
-치명타     = 공격력 &minus; &lfloor;방어력 &divide; 2&rfloor;   <i>확률에 2% 하한이 있습니다(&sect;1)</i></div>
+  <div class="eq">평타 피해 = 공격력 &minus; <b>방어력 전액</b>      <i>0 이하면 <b>35% 로 1</b></i>
+치명타     = 공격력 &minus; &lfloor;방어력 &divide; 2&rfloor;   <i>바닥이 <b>1</b> · 확률에 2% 하한(&sect;1)</i></div>
   <p><b>«전액» 이 핵심입니다.</b> 비율이 아니라 뺄셈이라, 방어를 상대 공격력까지 올리면
      피해가 <b>0 으로 수렴합니다</b>. 회피가 «안 맞는다» 라면 방어는 «맞아도 안 아프다» 입니다.</p>
-  <div class="note warn"><b>★ 피해가 1 미만이면 그 뒤가 통째로 건너뛰어집니다.</b>
-     반사도, 평타에 붙은 상태이상도 안 옵니다.
-     <b>방어로 0 을 만드는 것은 회피로 안 맞는 것과 거의 같은 값어치입니다.</b></div>
+  <div class="note warn"><b>★ 방어로는 «0» 을 못 만듭니다 &mdash; 35% 로 1 이 새어 들어옵니다.</b>
+     그리고 <b>그 1 도 «피해» 라</b> 반사와 평타에 붙은 상태이상이 정상적으로 따라옵니다.
+     방어를 아무리 올려도 <b>세 번에 한 번은 관문을 통과합니다</b> &mdash;
+     «안 맞는» 회피와 «덜 맞는» 방어의 진짜 차이가 여기 있습니다.</div>
   <div class="note"><b>방어력에는 체력 몫이 들어 있습니다</b>(&sect;2) &mdash;
      <code>&lfloor;체력 &divide; 4&rfloor;</code>. 방패도 방어력에 그대로 들어가고,
      <b>막기에 성공하면 그 위에 한 번 더 빠집니다</b>(두 번 셉니다).</div>
