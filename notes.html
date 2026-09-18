@@ -717,26 +717,35 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   회피 = 몬스터 레벨 + avoidPoint + ⌊민첩/3⌋ + 7 &minus; 2 (+2 비행)
 
 <b>캐릭터</b> (굴림)
-  명중 = <b>2d6</b> + ⌊CreateRandomValue(재주)/3⌋ + 명중값 + 지형 + 상태
-  회피 = <b>2d6</b> + ⌊CreateRandomValue(민첩)/3⌋ + <b>회피값</b> + 지형 + 상태</div>
+  명중 = <b>2d6</b> + ⌊CreateRandomValue(재주)/<b>6</b>⌋ + 명중값 + 지형 + 상태
+  회피 = <b>2d6</b> + ⌊CreateRandomValue(민첩)/<b>6</b>⌋ + <b>회피값</b> + 지형 + 상태 + <b>(활이면 3)</b></div>
   <p>여기 <b>7</b> 은 <code>Util.Dice2DAvg</code> 입니다 &mdash; 2d6 의 기댓값을 몬스터에게 상수로 준 것입니다. 그래서 몬스터는 «평균만큼 굴린 셈» 으로 고정됩니다.</p>
+  <div class="note warn"><b>★ 이 나눗수는 <span style="color:var(--f-vault)">3 이 아니라 6</span> 입니다 &mdash; 자료실이 오래 틀려 있었습니다.</b>
+     기계어가 <code>0x2AAAAAAB</code> 를 곱해 <b>상위 32비트만</b> 취합니다
+     (<code>smull</code> &rarr; <code>lsr x8, x8, #0x20</code>). <code>2<sup>32</sup> &divide; 0x2AAAAAAB = 6.000</code> 입니다.
+     ÷3 이었다면 <code>0xAAAAAAAB</code> 에 <code>#0x21</code> 이어야 합니다.
+     <b>8-26 · 7.0 · 7.1 세 판본 모두 같습니다</b> &mdash; 업데이트로 바뀐 것이 아니라 처음부터 6 이었습니다.
+     <span class="sm">회피 0x26b650c·0x26b6620 / 명중 0x26b6264·0x26b62cc (8-26 기준)</span><br>
+     이 때문에 자료실은 <b>완봉선을 7 쯤 높게</b> 적어 놨었고, 실제로 그 오차에 물렸습니다 &mdash;
+     회피 40·민첩 43 인 용병을 «완봉선 53» 으로 적어 두었는데 <b>명중 49 짜리한테 맞아 죽었습니다</b>.
+     <code>avoidcheck.py</code> 가 이제 그 세 줄을 기대값으로 붙잡고 있습니다.</div>
   <h3>그래서 회피가 얼마면 다 피하나</h3>
   <p>2d6 의 최솟값이 2 이므로, 아래를 채우면 <b>그 몬스터의 물리 공격은 한 대도 안 맞습니다.</b></p>
-  <div class="eq">회피값 + ⌊CreateRandomValue(민첩)의 <b>최솟값</b>/3⌋ + 지형 &ge; 몬스터 명중</div>
+  <div class="eq">회피값 + ⌊CreateRandomValue(민첩)의 <b>최솟값</b>/<b>6</b>⌋ + 지형 + (활이면 3) &ge; 몬스터 명중</div>
   <p>이 몫이 <b>민첩에 따라 달라집니다</b> &mdash; 민첩이 낮으면 회피값이 더 필요합니다.</p>
   <table><thead><tr><th class="num">민첩</th><th class="num">10</th><th class="num">15</th><th class="num">20</th><th class="num">25</th><th class="num">30</th><th class="num">31</th><th class="num">35</th><th class="num">40</th></tr></thead><tbody>
-  <tr><td>회피에 더해지는 최솟값</td><td class="num">2</td><td class="num">3</td><td class="num">5</td><td class="num">6</td><td class="num">7</td><td class="num"><b>9</b></td><td class="num">11</td><td class="num">12</td></tr>
+  <tr><td>회피에 더해지는 최솟값</td><td class="num">1</td><td class="num">1</td><td class="num">2</td><td class="num">3</td><td class="num">3</td><td class="num"><b>4</b></td><td class="num">5</td><td class="num">6</td></tr>
   </tbody></table>
-  <div class="note warn"><b>민첩 30 → 31 에서 두 칸이 뜁니다.</b> <code>CreateRandomValue</code> 의 흔들림 폭이 «기준/3»(≤30)에서 «기준/10»(31~99)으로 확 줄기 때문입니다. 흔들림이 작아지니 최솟값이 올라가고, 그만큼 <b>바닥이 높아집니다</b>. 회피탱을 키운다면 <b>민첩 31 이 30보다 눈에 띄게 낫습니다.</b></div>
-  <p>즉 <b>회피값 ≥ 몬스터 명중 &minus; (위 표의 값)</b> 이면 완봉입니다. 명중 35 짜리 구역이라면 민첩 15는 회피 <b>32</b>, 민첩 30은 <b>28</b>, 민첩 31은 <b>26</b> 이 필요합니다.</p>
+  <div class="note warn"><b>민첩 30 → 31 에서 한 칸이 뜁니다.</b> <code>CreateRandomValue</code> 의 흔들림 폭이 «기준/3»(≤30)에서 «기준/10»(31~99)으로 확 줄기 때문입니다. 흔들림이 작아지니 최솟값이 올라가고, 그만큼 <b>바닥이 높아집니다</b>. 회피탱을 키운다면 <b>민첩 31 이 30보다 눈에 띄게 낫습니다.</b></div>
+  <p>즉 <b>회피값 ≥ 몬스터 명중 &minus; (위 표의 값)</b> 이면 완봉입니다. 명중 35 짜리 구역이라면 민첩 15는 회피 <b>34</b>, 민첩 30은 <b>32</b>, 민첩 31은 <b>31</b> 이 필요합니다.</p>
   <table><thead><tr><th>어디</th><th class="num">그 구역 최고 명중</th><th class="num">필요 회피값<br><span style="font-weight:400">민첩 30 기준</span></th></tr></thead><tbody>
-  <tr><td>Lv0~4 탐색지</td><td class="num">12</td><td class="num">5</td></tr>
-  <tr><td>Lv5~9</td><td class="num">19</td><td class="num">12</td></tr>
-  <tr><td>Lv10~14</td><td class="num">27</td><td class="num">20</td></tr>
-  <tr><td>Lv15~19</td><td class="num">28</td><td class="num">21</td></tr>
-  <tr><td>Lv20~24</td><td class="num">38</td><td class="num">31</td></tr>
-  <tr><td>Lv25~29</td><td class="num">44</td><td class="num">37</td></tr>
-  <tr><td><b>Lv30 이상</b></td><td class="num"><b>51</b></td><td class="num"><b>44</b></td></tr>
+  <tr><td>Lv0~4 탐색지</td><td class="num">12</td><td class="num">9</td></tr>
+  <tr><td>Lv5~9</td><td class="num">19</td><td class="num">16</td></tr>
+  <tr><td>Lv10~14</td><td class="num">27</td><td class="num">24</td></tr>
+  <tr><td>Lv15~19</td><td class="num">28</td><td class="num">25</td></tr>
+  <tr><td>Lv20~24</td><td class="num">38</td><td class="num">35</td></tr>
+  <tr><td>Lv25~29</td><td class="num">44</td><td class="num">41</td></tr>
+  <tr><td><b>Lv30 이상</b></td><td class="num"><b>51</b></td><td class="num"><b>48</b></td></tr>
   </tbody></table>
   <p><b>탐색지마다 정확한 값을 도감에 적어 뒀습니다</b> &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «회피 NN+» 이 민첩 30 기준으로 필요한 회피값이고, 상세를 열면 민첩별 표가 나옵니다. 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</p>
   <div class="note warn"><b>회피는 물리 공격에만 통합니다.</b> <code>AvoidRate</code> 를 부르는 자리는 <code>BattlePhysicalAttackExecutor.PhysicsAttack</code> <b>단 한 곳</b>입니다. 마법 피해도, 상태이상도 회피 판정을 거치지 않습니다. 회피탱은 물리만 막습니다.</div>

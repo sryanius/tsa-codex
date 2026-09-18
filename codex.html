@@ -639,7 +639,8 @@ function agiFloor(agi){
   return Math.max(0, agi-(n-1));
 }
 /* 2d6 이 최소(2)로 나와도 빗나가려면 필요한 «회피값». 지형은 0 기준. */
-function needAvoid(hit, agi){ return Math.max(0, hit - Math.floor(agiFloor(agi)/3)); }
+// ★ 나눗수 6 — 0x2AAAAAAB 곱하고 상위 32비트 (AvoidRate 0x26b6620). 3 으로 두면 필요 회피가 과소평가된다
+function needAvoid(hit, agi){ return Math.max(0, hit - Math.floor(agiFloor(agi)/6)); }
 function avoidNote(p){
   if(!p.mh) return "";
   var warn=[];

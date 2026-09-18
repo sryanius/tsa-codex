@@ -1005,7 +1005,7 @@ function crewDetail(c){
     +'<div class="dcell"><dt>방패 차단 확률</dt><dd class="mono">'+shieldAvoid(c)+'</dd></div>'
     +'<div class="dcell"><dt>방패 방어</dt><dd class="mono">'+shieldRange(c).join(' – ')+'</dd></div>'
     +'<div class="dcell"><dt>크리티컬 저항</dt><dd class="mono">'+critDef(c)+'</dd></div>'
-    +'<div class="dcell"><dt>완봉 가능한 최대 명중 <span class="fld">회피값+⌊민첩최소/3⌋</span></dt>'
+    +'<div class="dcell"><dt>완봉 가능한 최대 명중 <span class="fld">회피값+⌊민첩최소/6⌋</span></dt>'
       +'<dd class="mono" style="color:var(--f-lodge)">'+maxDodge(c)+'</dd></div>'
     + ab + '</dl>' + spellBlock(c) + jobs + gear + eb + '</div>';
 }
@@ -1123,7 +1123,7 @@ function showVersion(v, dv){
 
      직업 몫 = ⌈주직업레벨 × 주보너스 / 10⌉ + ⌈Σ(부직업레벨 × 부보너스) / 10⌉
      회피값  = 직업 몫 + 방어구 회피 합 + 무기 회피 − 상태이상 페널티
-     실제 회피 = 2d6 + ⌊CreateRandomValue(민첩)/3⌋ + 회피값 + 지형
+     실제 회피 = 2d6 + ⌊CreateRandomValue(민첩)/6⌋ + 회피값 + 지형 (+ 활이면 3)
 
    몬스터 명중에는 주사위가 없으니, 2d6 이 최소(2)로 나와도 넘기면
    «그 명중까지는 한 대도 안 맞는다». 그 경계가 maxDodge 다. */
@@ -1301,7 +1301,11 @@ function agiFloor(a){
   return n<=0 ? a : Math.max(0, a-(n-1));
 }
 function maxDodge(c){
-  return avoidValue(c) + Math.floor(agiFloor(statOf(c,"민첩"))/3);
+  // ★ 나눗수는 6 이다. 코드가 0x2AAAAAAB 을 곱하고 상위 32비트만 취한다
+  //   (2^32 / 0x2AAAAAAB = 6.000). 3 으로 잘못 두면 완봉선이 7 정도 높게 나온다 —
+  //   실제로 그랬다: 회피 40·민첩 43 인 용병을 53 으로 적어 놓고, 명중 49 에 맞아 죽었다.
+  //   BattleCreature.AvoidRate 0x26b6620~0x26b662c (8-26판, 두 분기 모두 같다)
+  return avoidValue(c) + Math.floor(agiFloor(statOf(c,"민첩"))/6);
 }
 
 /* ── 클라우드 ── */
