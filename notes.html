@@ -963,17 +963,35 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      OpenTreasureBox &middot; 퀘스트 1425개 전수</p>
 
   <h2 id="craft"><span class="n">11</span>강화 &mdash; 무엇이 붙고 몇 단계가 붙나</h2>
-  <p>두 옵션은 마스터 데이터에 없습니다. <b>강화(craft)가 굴립니다.</b> 그리고 결정적인 조건이 있습니다 &mdash; <b>한 번에 5단계 이상 강화될 때만 도는 블록</b> 안에만 들어 있습니다.</p>
+  <div class="note"><b>강화는 장비 하나에 딱 한 번입니다.</b>
+     대장간에서 다이아를 내고 하며, <b>대장간 레벨보다 높은 장비는 못 합니다.</b>
+     한 번 하면 <code>isCrafted</code> 가 켜져 다시 못 합니다 &mdash; 되돌리는 길도 없습니다.</div>
+  <div class="eq"><b>1.</b> 단계 수를 정한다   n = 대장간 레벨 &minus; 장비 레벨   <i>(못 하는 경우가 걸러졌으니 n &ge; 0)</i>
+   p = 50
+   <b>while</b> RandSuccess(p): n += 1; p &minus;= 5      <i>// 50 · 45 · 40 … %</i>
+   단계 = <b>clamp(n + 1, 3, 15)</b>            <i>// 바닥이 3 이다</i>
+
+<b>2.</b> 단계를 <b>i = 단계, 단계&minus;1, …, 1</b> 로 내려가며 한 번씩 돈다.
+   각 i 에서 «붙을 수 있는 것» 을 <b>후보 목록</b>에 담고,
+   <b>★ 그 목록에서 무작위로 하나만 뽑아</b> 붙인다. 후보가 없으면 그 단계는 건너뛴다.</div>
+  <div class="note warn"><b>★ 그래서 «확정» 은 하나도 없습니다.</b>
+     아래 표의 «확정» 은 «그 단계의 <b>후보에 반드시 오른다</b>» 는 뜻이고,
+     실제로 붙을 확률은 <b>1 &divide; 그 단계의 후보 수</b> 입니다.
+     후보가 적은 단계일수록 원하는 것이 잘 붙습니다.</div>
+  <p>무기의 두 옵션은 마스터 데이터에 없고 <b>강화만이 만듭니다.</b>
+     그리고 <b>한 번에 5단계 이상 갈 때만 도는 블록</b> 안에 들어 있습니다.</p>
   <table><thead><tr><th>옵션</th><th class="num">일반 무기</th><th class="num">마법 무기</th></tr></thead><tbody>
   <tr><td>추가 공격</td><td class="num">5%</td><td class="num">15%</td></tr>
   <tr><td>후열 포함</td><td class="num">15%</td><td class="num">25%</td></tr>
   <tr><td>전체 공격</td><td class="num">5%</td><td class="num">15%</td></tr>
   </tbody></table>
-  <div class="note warn"><b>후열 포함과 전체 공격은 추가 공격이 먼저 붙어야만 굴립니다.</b> 추가 공격 판정에 실패하면 두 줄을 통째로 건너뜁니다.</div>
+  <div class="note warn"><b>후열 포함과 전체 공격은 추가 공격이 먼저 후보에 올라야만 굴립니다.</b>
+     추가 공격 판정에 실패하면 두 줄을 통째로 건너뜁니다.
+     <span class="sm">활(무기 종류 14)은 5단계 조건 없이 추가 공격이 후보에 오릅니다.</span></div>
   <h3>상점에서 살 때 붙는 등급</h3>
   <div class="eq">if RandSuccess100(20)   craft = 1           <i>// 20%</i>
 if RandSuccess100(5)    craft = 2           <i>//  5%</i>
-if RandSuccess100(1)    craft = 3           <i>//  1%</i>
+if RandSuccess100(1)    craft = 3           <i>//  2% — 확률 하한에 걸립니다</i>
 if RandSuccess(1,1000)  craft = Rand(3,6)   <i>// 0.1% → +3·+4·+5</i>
 RunCraft(craft)</div>
   <p><b>+5로 나올 확률이 0.1% × ⅓ = 약 1/3000</b> 입니다. 곱하면 상점 무기에 추가 공격이 붙을 확률은 <b>약 1/60,000</b>, 전체 공격은 <b>약 1/1,200,000</b> 입니다. 돈을 아무리 모아도 상점으로는 사실상 불가능합니다.</p>
@@ -998,23 +1016,23 @@ RunCraft(craftIndex)</div>
   <p><b>다이아 강화가 상점보다 최소 수백 배 유리합니다.</b> 다만 «전체 공격»은 5단계 블록이 딱 한 번만 돌기 때문에 5%×5% = 0.25% 가 천장입니다 &mdash; 장비 레벨을 낮춰도 더 오르지 않습니다. 마법 무기라면 15%×15% = 2.25% 로 아홉 배가 됩니다.</p>
 
   <h3>활만 예외입니다</h3>
-  <p>강화 단계마다 도는 5% 관문을 통과하면, <code>Weapon.Kind.Bow</code> 는 <b>5단계 조건 없이 추가 공격이 확정</b>으로 붙습니다.</p>
+  <p>강화 단계마다 도는 5% 관문을 통과하면, <code>Weapon.Kind.Bow</code> 는 <b>5단계 조건 없이 추가 공격이 후보에 오릅니다</b>.</p>
   <h3>방어구는 규칙이 다릅니다 &mdash; 단계마다 «무엇이 붙는지» 가 정해져 있습니다</h3>
   <p>무기는 5단계 블록 하나에 몰려 있었지만, <b>방어구는 단계 번호 자체가 조건</b>입니다. <code>RunCraft(n)</code> 은 <code>Craft(i)</code> 를 <b>i = n, n−1, …, 1</b> 로 <b>n번</b> 부릅니다. 그래서 «3단계 강화» 는 i=3, 2, 1 을 한 번씩 지나갑니다.</p>
-  <table><thead><tr><th>언제</th><th>붙는 것</th><th class="num">확률</th></tr></thead><tbody>
+  <table><thead><tr><th>언제</th><th>후보에 오르는 것</th><th class="num">오를 확률</th></tr></thead><tbody>
   <tr><td rowspan="2"><b>매 단계</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)">방어력이 1 이상인 방어구만</span></td>
-      <td>최소 방어 또는 최대 방어 <b>+1~2</b>, 그리고 방어 <b>+1</b></td><td class="num">확정</td></tr>
+      <td>최소 방어 또는 최대 방어 <b>+1~2</b>, 그리고 방어 <b>+1</b></td><td class="num">언제나</td></tr>
   <tr><td>최대 방어 +1~5 · 방어 +1~4 · <b>회피 +1</b> · 민첩 +2~4 <span class="meta">(한 묶음)</span></td><td class="num"><b>5%</b></td></tr>
-  <tr><td><b>매 단계</b></td><td>민첩 <b>+1~2</b></td><td class="num">확정</td></tr>
-  <tr><td><b>i = 2</b> &mdash; 모든 방어구<br><span class="meta" style="font-size:11.5px;color:var(--faint)">옷은 i = 1 · 3 에서도</span></td><td><b>회피 +1~2</b></td><td class="num"><b>확정</b></td></tr>
-  <tr><td><b>i = 3</b>, 또는 <b>마법 방어구</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)"><code>ability.isMagic</code> &mdash; 326종 중 58종</span></td><td>HP · MP · 마법력 · 마법방어 각각 <b>+ Rand(장비레벨/2) + 1</b></td><td class="num">확정</td></tr>
+  <tr><td><b>매 단계</b></td><td>민첩 <b>+1~2</b></td><td class="num">언제나</td></tr>
+  <tr><td><b>i = 2</b> &mdash; 모든 방어구<br><span class="meta" style="font-size:11.5px;color:var(--faint)">옷은 i = 1 · 3 에서도</span></td><td><b>회피 +1~2</b></td><td class="num"><b>언제나</b></td></tr>
+  <tr><td><b>i = 3</b>, 또는 <b>마법 방어구</b><br><span class="meta" style="font-size:11.5px;color:var(--faint)"><code>ability.isMagic</code> &mdash; 326종 중 58종</span></td><td>HP · MP · 마법력 · 마법방어 각각 <b>+ Rand(장비레벨/2) + 1</b></td><td class="num">언제나</td></tr>
   <tr><td><b>i = 5</b> 이고 이미 자동회복이 붙어 있을 때<br><span class="meta" style="font-size:11.5px;color:var(--faint)">데이터상 19종</span></td><td>HP 자동회복 <b>+1</b></td><td class="num">10%</td></tr>
-  <tr><td><b>방패</b> (매 단계)</td><td>방패 방어 +1 <span class="meta">(최소&lt;최대/2 일 때)</span> · <b>방패 회피 +1</b></td><td class="num">확정</td></tr>
+  <tr><td><b>방패</b> (매 단계)</td><td>방패 방어 +1 <span class="meta">(최소&lt;최대/2 일 때)</span> · <b>방패 회피 +1</b></td><td class="num">언제나</td></tr>
   </tbody></table>
   <div class="note warn"><b>회피는 5% 관문 뒤에 숨어 있지 않습니다 &mdash; 2단계만 지나면 «후보» 에 오릅니다.</b>
      무기의 추가 공격과는 다릅니다. <b>옷은 1·3 단계에서도 후보에 올라서</b>, 3단계 강화면 세 번(i=3·2·1) 기회가 옵니다.
-     <span class="sm">★ 단계마다 후보가 여럿 생기고 그중 하나만 붙는지, 해당하는 것이 전부 붙는지는
-     아직 못 갈랐습니다 &mdash; 부록 B 에 올려 뒀습니다.</span></div>
+     <span class="sm">다만 «후보에 오르는 것» 과 «붙는 것» 은 다릅니다 &mdash;
+     그 단계의 후보 중 하나만 뽑힙니다.</span></div>
   <p>거꾸로 <b>1단계 강화에서는 회피가 5% 묶음으로만 후보가 됩니다</b> &mdash; 상점 물건이 대부분 여기입니다.
      대장간 다이아 강화는 <b>최소 3단계</b>가 보장되므로 회피 기회가 여러 번 옵니다.</p>
   <p><b>부적은 방어력이 0 이라</b> 위 표의 첫 두 줄(5% 묶음 포함)을 통째로 건너뜁니다. 대신 i=2 의 회피와 매 단계 민첩은 그대로 받습니다.</p>
@@ -1063,11 +1081,6 @@ RunCraft(craftIndex)</div>
     <tr class="hi"><td>요구 근력</td><td class="num">141</td><td class="num">&minus;1 이 133 · +1 이 8</td><td>깎는 강화가 훨씬 흔합니다 &mdash; 대부분 드랍</td></tr>
     <tr><td>요구 레벨 감소</td><td class="num">24</td><td class="num">+1 이 21 · <b>+2 가 3</b></td><td>상수는 +1 뿐 &mdash; <b>+2 는 아직 출처를 못 찾았습니다</b></td></tr>
   </tbody></table>
-  <div class="note warn"><b>5% 묶음이 세이브에서는 한 번도 안 걸렸습니다.</b>
-     걸렸다면 방어력이 +1~4, 최대 공격이 +1~5 로 나와야 하는데
-     방어력 13개가 전부 +1 이고 최대 공격 102개가 전부 2 이하입니다.
-     무기 쪽만 봐도 기댓값이 세 번쯤이라 <b>0 회는 약 5% 확률</b>입니다 &mdash;
-     운일 수도 있고, 제가 못 본 조건이 더 있을 수도 있습니다. 그대로 적어 둡니다.</div>
   <p class="src">Armor.Craft · Weapon.Craft · Equipment.RunCraft ·
      Equipment.GetNeedLevel · MonsterMaster.GetReward · Util.Rand / RandSuccess ·
      세이브 장비 370개 · 강화 항목 717개</p>
@@ -1487,9 +1500,6 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <li>강화 미해결 둘 &mdash; «민첩 +5» 와 «요구 레벨 감소 +2» 가 어느 단계에서 붙는지</li>
     <li>화면의 «주점 최대» 식</li>
     <li>평타가 1 미만일 때 스킬 쪽에만 있는 «일정 확률로 1» 경로의 정확한 값</li>
-    <li><b>강화가 «단계마다 후보 중 하나만» 인지 «해당하는 것이 전부» 인지</b> &mdash;
-      <code>Craft</code> 가 «대기 목록»(<code>pendingEnhancements</code>)을 받는 것으로 보아
-      앞쪽으로 보이지만 뽑는 자리를 아직 못 찾았습니다. &sect;11 의 «확정» 표현을 그래서 «후보» 로 낮춰 뒀습니다</li>
     <li>강화 미해결 둘 &mdash; «민첩 +5» 와 «요구 레벨 감소 +2» 가 어느 단계에서 붙는지</li>
   </ul>
 
