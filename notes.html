@@ -629,8 +629,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <code>회피 &ge; 명중 + 2</code> 면 <b>무조건</b> 빗나갑니다.</div>
   <p>그리고 <b>몬스터 쪽에는 주사위가 없습니다.</b> 캐릭터만 2d6 을 굴립니다 &mdash;
      그래서 «회피가 얼마면 한 대도 안 맞나» 에 정확한 답이 나옵니다.</p>
-  <div class="eq"><b>몬스터</b> (고정값)
-  명중 = 몬스터 레벨 + hitPoint + <b>7</b>
+  <div class="eq"><b>몬스터</b> (주사위 없음)
+  명중 = 몬스터 레벨 + hitPoint + <b>7</b> + 레벨 보정 + <b>그 공격의 addHitRate</b>
   회피 = 몬스터 레벨 + avoidPoint + &lfloor;민첩 &divide; 6&rfloor; + 5   (+2 비행)
 
 <b>캐릭터</b> (굴림)
@@ -638,6 +638,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   회피 = <b>2d6</b> + &lfloor;흔들림(민첩) &divide; 6&rfloor; + 회피값 + 지형 + 상태
          <i>(상대가 비행 몬스터이고 내가 활을 들었으면 +3)</i></div>
   <p>여기 <b>7</b> 은 2d6 의 기댓값(&sect;1)을 몬스터에게 상수로 준 것입니다.</p>
+  <div class="note warn"><b>★ 몬스터 명중은 «주사위가 없을» 뿐 «늘 같은 값» 은 아닙니다.</b>
+     공격 패턴마다 <code>addHitRate</code> 가 데이터로 박혀 있습니다 &mdash;
+     472개 중 <b>양수가 11개</b>이고 전부 평타입니다.
+     <b>버킷 미믹 +8</b> · 갈레 스콜피온 +6 · 빅 렐릭 골렘 +5 ·
+     빅 샌드웜/셸 드래곤/바실리스크/스켈레톤 워리어/자이언트 스콜피온 +2 ·
+     밴딧 아처/샌드 스콜피온/자이언트 센티피드 +1.
+     <b>이 몬스터들에게는 아래 «필요 회피» 가 그만큼 모자랍니다.</b></div>
 
   <h3>완봉선 &mdash; 그 명중까지는 한 대도 안 맞습니다</h3>
   <p>2d6 의 최솟값 2 와 빗나가는 문턱 «+2» 가 정확히 상쇄됩니다. 남는 것은 이 한 줄입니다.</p>
@@ -658,12 +665,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <table class="t"><thead><tr><th>지역</th><th class="num">자유 탐색</th><th class="num">퀘스트 <span style="font-weight:400">(보정 최대)</span></th></tr></thead><tbody>
   <tr><td>미스토리아 반도</td><td class="num">13</td><td class="num">21</td></tr>
   <tr><td>바르디아 평원</td><td class="num">17</td><td class="num">30</td></tr>
-  <tr><td>뤼미에르 힐스</td><td class="num">20</td><td class="num">30</td></tr>
+  <tr><td>뤼미에르 힐스</td><td class="num">21</td><td class="num">30</td></tr>
   <tr><td>아르디오스 왕국</td><td class="num">23</td><td class="num">37</td></tr>
   <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">41</td></tr>
   <tr><td>발두나의 황야</td><td class="num">44</td><td class="num">48</td></tr>
-  <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num"><b>48</b></td><td class="num"><b>54</b></td></tr>
-  <tr style="color:var(--muted)"><td>발케인 지방 <span class="sm">잠김</span></td><td class="num">48</td><td class="num">51</td></tr>
+  <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num"><b>48</b></td><td class="num"><b>55</b></td></tr>
+  <tr style="color:var(--muted)"><td>발케인 지방 <span class="sm">잠김</span></td><td class="num">48</td><td class="num">55</td></tr>
   </tbody></table>
   <p>즉 <b>완봉선이 이 수 이상</b>이면 그 구역에서 평타를 한 대도 안 맞습니다.
      탐색지마다 정확한 값은 <a href="codex.html?v=place">도감</a> 에 적어 뒀습니다.</p>
@@ -693,7 +700,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>반격을 가진 몬스터는 활로 때리거나(&sect;6) 아예 안 때리는 것이 답입니다.</b></div>
   <div class="note"><b>깎는 쪽도 있습니다.</b> 넘어짐 &minus;2 · 실명 &minus;4 · 잡힘/삼켜짐 &minus;4 ·
      걸려 넘어짐 &minus;4 · 춤 &minus;2 · 이동 곤란 &minus;2 · 붙잡힘 &minus;2 · 놀람 &minus;2 ·
-     광신 &minus;2(명중은 +2) · 정신 교란 &minus;1.
+     광신 &minus;2(명중은 +2) · 정신 교란 &minus;1 ·
+     <b>생명 흡수 &minus;2 · 매우 이동 곤란 &minus;4 · 지속 피해 &minus;4</b>.
      <b>그래서 «딱 맞는 회피» 는 위험합니다 &mdash; 필요치보다 5 는 여유를 두세요.</b>
      상태이상 저항은 <b>힘</b>(정신계는 마법 방어)이므로 회피탱이라도 힘을 버리면 안 됩니다.</div>
 
@@ -704,8 +712,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
               <i>민첩이 한 글자도 안 들어갑니다</i></div>
   <div class="note"><b>공격자 명중을 <code>addHitRate = 0</code> 으로 다시 부릅니다</b> &mdash;
      스킬이 명중을 얹어 회피를 뚫었어도, 막기에서는 그 보너스가 빠진 값과 겨룹니다.</div>
-  <div class="note warn"><b>방패 회피값이 붙은 장비는 790개 중 <span style="color:var(--f-vault)">둘뿐</span>입니다.</b>
-     테라 버클러(+5) 와 바위왕의 대방패(+2). 나머지는 전부 직업 몫이고 천장은 30 쯤입니다.
+  <div class="note warn"><b>방패 회피값이 붙은 장비는 <span style="color:var(--f-vault)">셋뿐</span>이고, 그나마 반으로 깎입니다.</b>
+     방패는 원값을 <b>&lceil;&divide;2&rceil;</b> 해서 넣기 때문에 실효값이
+     <b>테라 버클러 +3 · 묘수의 방패 +2 · 바위왕의 대방패 +1</b> 입니다.
+     나머지는 전부 직업 몫이고 천장은 30 쯤입니다.
      그리고 <b>막았다고 «안 맞은» 것도 아닙니다</b> &mdash; 방패 방어만큼만 덜 맞습니다.
      <b>같은 노력을 회피값에 쓰는 쪽이 거의 항상 낫습니다.</b></div>
   <div class="note"><b>회피는 물리 공격에만 통합니다.</b>
@@ -827,16 +837,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="eq"><b>내 값</b>  = Dice2DWithCritical(10) + 담당 직업 레벨 + (리더 보너스) + &lfloor;흔들림(스탯) &divide; 6&rfloor;
 <b>상대</b>   = <b>퀘스트 레벨</b> + 난이도 + 2d6
 
-<b>살아 있는 파티원을 차례로 굴려, 한 명만 통과하면 성공입니다.</b>
-  <i>인원수가 곧 굴림 횟수입니다 &mdash; 한 명만 키워도 파티 전체의 금고가 열립니다.</i>
+<b>살아 있는 파티원이 한 명씩 굴려, 한 명만 통과하면 성공입니다.</b>
+  <i>인원수가 곧 굴림 횟수입니다 &mdash; 한 명만 키워도 파티 전체의 금고가 열립니다.
+  금고는 편성 순서대로, 함정은 <b>매번 섞어서</b> 굴립니다(성공률은 같고 로그에 찍히는 이름만 바뀝니다).
+  다만 <b>함정 «해제» 만은 파티가 아니라 그 함정에 걸린 사람이 굴립니다.</b></i>
 
 <b>확정선</b> = 상대의 고정부 + <b>9</b>
   <i>Dice2DWithCritical 의 (대실패 아닌) 최솟값 3, 상대 2d6 의 최댓값 12 ⇒ 12 &minus; 3 = 9</i></div>
+  <div class="note warn"><b>★ 그런데 «확정» 이 아닙니다.</b>
+     첫 굴림이 1+1 이면 <b>&minus;100</b> 이 되는 대실패가 있어서(&sect;1),
+     확정선을 넘겨도 <b>36번에 한 번은 집니다</b> &mdash; 한 사람 기준 천장이 <b>97.22%</b> 이고,
+     더 올려도 그대로입니다. <b>사람을 늘리는 것만이 그 위로 올라가는 길입니다</b>(두 명이면 1/1296).</div>
   <table class="t"><thead><tr><th>판정</th><th>담당 직업</th><th>스탯</th><th class="num">리더</th><th>상대 자리</th></tr></thead><tbody>
   <tr class="hi"><td><b>금고 발견</b></td><td>도적</td><td>통찰</td><td class="num">○</td><td>퀘스트 레벨 + 발견값</td></tr>
   <tr class="hi"><td><b>금고 해제</b></td><td>도적</td><td>재주</td><td class="num">&times;</td><td>퀘스트 레벨 + 해제 난이도</td></tr>
-  <tr><td>습득물</td><td>도적</td><td>통찰</td><td class="num">○</td><td>여기에 <b>+6</b> 이 더 붙습니다</td></tr>
-  <tr><td>함정 탐지</td><td><code>TrapMaster.jobKind</code><br><span class="sm">레인저 113 · 도적 98 · 현자 29</span></td><td>통찰</td><td class="num">○</td><td>퀘스트 레벨 + 함정 레벨</td></tr>
+  <tr><td>습득물</td><td>도적</td><td>통찰</td><td class="num">○</td><td>금고와 같되 <b>내 값에 +6</b> 이 더 붙습니다 <span class="sm">(그만큼 쉽습니다)</span></td></tr>
+  <tr><td>함정 탐지</td><td><code>TrapMaster.jobKind</code><br><span class="sm">133종 &mdash; 레인저 63 · 도적 52 · 현자 18</span></td><td>통찰</td><td class="num">○</td><td>퀘스트 레벨 + 함정 레벨</td></tr>
   <tr><td>함정 해제</td><td>같음</td><td>물리 → 재주<br>효과 부여 → 통찰</td><td class="num">&times;</td><td>같음</td></tr>
   <tr style="color:var(--muted)"><td>선제공격 <span class="sm">틀이 다릅니다</span></td><td>max(도둑+2, 레인저)</td><td>통찰</td><td class="num">○</td><td>addLevel + 몬스터 값 <b>+ 8</b></td></tr>
   </tbody></table>
@@ -850,8 +866,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>레인저가 가장 많습니다.</b> 도적만 키우면 절반을 못 봅니다.</div>
   <div class="note"><b>리더 보너스는 «찾는» 쪽에만 붙습니다.</b>
      금고 발견 · 함정 탐지에는 붙고, <b>금고 해제 · 함정 해제에는 안 붙습니다.</b>
-     그리고 통찰 몫은 <b>«담당 직업 레벨 + 리더 보너스 &ge; 1» 일 때만</b> 붙습니다 &mdash;
-     도적을 안 키운 파티원은 통찰이 아무리 높아도 0 으로 굴립니다.</div>
+     그리고 <b>스탯 몫에는 가드가 붙는데, 판정마다 다릅니다.</b>
+     금고 발견·습득물은 «담당 레벨 + 리더 보너스 &ge; 1», 금고 해제는 «도적 레벨 &ge; 1»,
+     함정 탐지는 «담당 레벨 &ge; 1»(리더 보너스는 값에만 더하고 가드에서는 뺍니다),
+     함정 해제는 «그 직업을 갖고만 있으면»(레벨 0 도 통과), 선제공격은 가드가 아예 없습니다.
+     <b>어느 쪽이든 «그 직업을 안 키운 사람» 은 통찰이 아무리 높아도 0 으로 굴립니다.</b></div>
   <div class="note warn"><b>★ 확정선은 시간이 갈수록 올라갑니다.</b>
      <code>퀘스트 레벨 = master.level + min(addLevel, maxAddLevel)</code> 이고,
      <b>클리어할 때마다 addLevel 이 1 씩 오릅니다</b>(실패하면 1 내려갑니다).
