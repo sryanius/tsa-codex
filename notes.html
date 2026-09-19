@@ -421,7 +421,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      활을 드는 값어치는 회피가 아니라 <b>반사를 안 받는 것</b>입니다(<a href="#dmg">&sect;6</a>).
      그리고 <b>주직업이 도둑일 때의 «활 공격력 절반» 도 풋워커는 면제</b>받습니다(&sect;2).</div>
 
-  <h2 id="pers"><span class="n">4</span>성격 &mdash; 능력치에는 안 붙지만 다섯 곳에서 굴립니다</h2>
+  <h2 id="pers"><span class="n">4</span>성격 &mdash; 능력치에는 안 붙지만 <b>일곱 곳</b>에서 굴립니다</h2>
   <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
   <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
   <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num">30%</td><td class="num">+3</td><td class="num">+Rand(3)</td></tr>
@@ -782,13 +782,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>마법에는 명중/회피 비교가 없습니다. 쏘면 들어갑니다.</b>
      회피탱이 마법에 약한 이유가 이것이고, 마법사가 명중을 안 챙겨도 되는 이유도 이것입니다.</div>
   <div class="eq">피해 = Rand(스킬최소, 스킬최대) + 시전자 마력
-       → 2d6 이 9 를 넘으면 <b>한 번 더 굴려 더함</b>
+       → 2d6 이 10 이상인 <b>동안</b> 계속 굴려, 그때마다 <b>굴림값의 절반</b>을 더함
        → 대상의 <b>마법 방어를 전액</b> 뺀다  <i>(물리 마법이면 «방어력» 을 뺀다)</i>
        → 0 이하면 <b>거기에 Rand(3)</b> 을 더한다   <i>// 크게 음수면 그냥 0 입니다</i>
 
 스킬최소 = 레벨 + minDamage + 1   <i>(관통 &minus;1 · 전체 &minus;2)</i>
 스킬최대 = 레벨 + maxDamage + 4   <i>(전체 &minus;3)</i>
-소모 MP  = 레벨 &minus; useMp + 3   <i>(물리 마법이면 3 대신 2)</i></div>
+소모 MP  = 레벨 <b>+</b> useMp + 3   <i>(물리 마법이면 3 대신 2 &mdash; useMp 는 음수가 많습니다)</i></div>
   <div class="note warn"><b>★ «물리 마법» 은 피해식이 통째로 다릅니다.</b>
      <code>isPhysics</code> 가 켜진 둘(<b>그래블 버스트 · 어스퀘이크</b>)은 사거리 보정 전에
      이렇게 부풀려집니다:</div>
@@ -829,7 +829,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      MP 가 모자란 마법은 1단계에서 저절로 빠져 한 급 아래로 내려갑니다 &mdash;
      «떨어졌을 때를 대비해» 약한 것을 같이 켜 두면 <b>멀쩡할 때도 그게 나갑니다.</b></div>
   <div class="note warn"><b>대부분의 상태이상은 «힘» 이 막습니다.</b>
-     마법 방어로 저항하는 상태이상은 <b>159개 중 27개</b> 뿐입니다 &mdash;
+     마법 방어로 저항하는 상태이상은 <b>83개 중 27개</b>(약 3분의 1) 뿐입니다 &mdash;
      나머지는 힘으로 겨룹니다. 회피도 마법 방어도 안 통하는 자리가 있다는 뜻입니다.</div>
 
   <h2 id="check"><span class="n">8</span>판정 한 틀 &mdash; 금고 · 함정 · 선제공격</h2>
@@ -919,7 +919,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
 }</div>
   <h3>내려가는 건 기한이 지날 때뿐</h3>
   <p>게시된 퀘스트는 <b><code>deadline</code>(분+시+일)이 지나야</b> 내려갑니다. 그때 카운터가 <code>questSpawnInterval</code> 로 <b>리셋되어 처음부터 다시</b> 셉니다 &mdash; 깨서 <code>Finish()</code> 했을 때도 똑같습니다. 그러니 <b>안 받을 퀘스트를 게시판에 오래 묵혀 두는 것 자체는 손해가 아닙니다.</b> 다만 기한이 지나 내려가면 그 퀘스트는 카운터를 처음부터 다시 채워야 합니다.</p>
-  <p><b>기한은 퀘스트마다 다릅니다</b> &mdash; <code>deadlineDays·Hours·Minutes</code> 세 칸을 합친 값이고, 1,364건에 <b>145가지</b>가 있습니다. <b>2시간에서 12일까지</b>, 중앙값은 1.7일입니다. 레벨과는 거의 무관합니다(어느 레벨대나 중앙값 1.5~1.8일).</p>
+  <p><b>기한은 퀘스트마다 다릅니다</b> &mdash; <code>deadlineDays·Hours·Minutes</code> 세 칸을 합친 값이고, 1,425건에 <b>146가지</b>가 있습니다. <b>2시간에서 12일까지</b>, 중앙값은 1.7일입니다. 레벨과는 거의 무관합니다(어느 레벨대나 중앙값 1.5~1.8일).</p>
   <div class="note warn"><b>1회성 퀘스트는 기한이 유난히 짧습니다.</b> 주기 99(1회성) 273건의 중앙값이 <b>18시간</b>이고 <b>81%가 하루 안에</b> 내려갑니다. 반복 퀘스트는 10%뿐입니다. 어렵게 띄운 1회성을 하루 넘겨 두면 다시 카운터를 처음부터 채워야 합니다 &mdash; <b>퀘스트 색인</b>의 각 퀘스트에 «게시판 유효기간» 으로 적어 뒀습니다.</div>
   <p>수주하고 나면 이 시계는 멈춥니다. 기한 검사는 <b>게시 중(<code>NotAccepted</code>)</b> 일 때만 돌고, 수주해서 <code>InProgress</code> 가 되면 기한으로 실패하는 길이 없습니다.</p>
 
@@ -980,7 +980,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      <code>RandSuccess(75)</code> 실패면 Always, 통과하면 <code>RandSuccess(50)</code> 실패면 Usually &hellip;
      이런 식으로 <b>50 &middot; 50 &middot; 50 &middot; 25 &middot; 25 &middot; 5</b> 를 내려갑니다.</p>
   <div class="note"><b>금고 이벤트 1,206개 중 166개(14%)가 Always 가 아닙니다.</b>
-     금고가 있는 퀘스트 <b>843개</b> 중 <b>77개</b>는 <b>Always 금고가 하나도 없어서</b>,
+     금고가 있는 퀘스트 <b>854개</b> 중 <b>78개</b>는 <b>Always 금고가 하나도 없어서</b>,
      운이 나쁘면 그 퀘스트에서 금고 이야기를 <b>한 줄도 못 봅니다</b>.</div>
   <h4 style="font-size:13px;margin:20px 0 8px">★ 추첨은 «이벤트마다 딱 한 번» 입니다</h4>
   <p>「매 순간 굴리니까 언젠가는 뜨겠지」 가 아닙니다. <b>이벤트마다 기회가 한 번뿐</b>입니다.</p>
@@ -1187,10 +1187,10 @@ p = 50
   <h3>은퇴 — 골드와 경험치가 여기서 나온다</h3>
   <p>은퇴시킨 용병은 사라지지 않고 <b>둘을 계속 벌어 줍니다.</b> 은퇴 정원은 <code>숙소 레벨 × 5</code> 입니다.</p>
   <h4 style="margin:18px 0 6px;font-size:14px">① 경험치 보너스</h4>
-  <div class="eq">보너스% = min( <b>조건을 통과한 은퇴자 수 × 5</b>, <b>100</b> )
+  <div class="eq">보너스% = min( <b>조건을 통과한 은퇴자 수 × 5</b>, <b>150</b> )
 
 조건: 은퇴자의 최고 직업 레벨 &gt; 경험치를 받는 캐릭터의 레벨</div>
-  <p><b>스무 명이면 +100% 로 상한에 닿습니다.</b> 그 위로는 아무 소용이 없습니다 — 다만 «내 레벨보다 높은» 은퇴자여야 세어지므로, 주력이 성장할수록 조건을 통과하는 인원이 줄어듭니다. 모험 경험치(<code>AddAdventureExp</code>)에 붙습니다.</p>
+  <p><b>서른 명이면 +150% 로 상한에 닿습니다.</b> 그 위로는 아무 소용이 없습니다 — 다만 «내 레벨보다 높은» 은퇴자여야 세어지므로, 주력이 성장할수록 조건을 통과하는 인원이 줄어듭니다. 모험 경험치(<code>AddAdventureExp</code>)에 붙습니다.</p>
   <h4 style="margin:18px 0 6px;font-size:14px">② 광산 골드</h4>
   <div class="eq">광산 레벨 = 은퇴자를 최고 직업 레벨 순으로 <b>상위 20명</b>만 골라 그 합을 계단에 대입
              계단: 5, 15, 30, 50, 75, 105, …  (누적 5·(L−1)L/2)
@@ -1516,7 +1516,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      ReflectEffectAfterPhysicsAttack &middot;
      Trap.ActionPoint <span class="sm">(최소 1)</span> &middot;
      EffectOnCreature.CanAction <span class="sm">(넘어짐·혼란·수면·마비 등은 행동불가)</span> &middot;
-     탐색지 354곳 · 몬스터 383종 · 스킬 159종 전수</p>
+     탐색지 354곳 · 몬스터 383종 · 스킬 마스터 159건 전수</p>
 
 
 

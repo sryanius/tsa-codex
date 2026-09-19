@@ -272,7 +272,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <table class="t" style="margin-top:12px"><thead><tr><th>기준</th><th class="num">발두나의 황야</th><th class="num">칼레바스 고원</th></tr></thead><tbody>
       <tr><td>자유 탐색에서 안 맞으려면</td><td class="num">완봉선 <b>44</b></td><td class="num">완봉선 <b>48</b></td></tr>
       <tr><td>퀘스트까지 안 맞으려면</td><td class="num">48</td><td class="num"><b>55</b></td></tr>
-      <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대</span></td><td class="num">120 / 168</td><td class="num">140 / <b>181</b></td></tr>
+      <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대</span></td><td class="num">117 / 143</td><td class="num">140 / <b>181</b></td></tr>
     </tbody></table>
     <div class="toc">
       <a href="#why">전제</a><a href="#which">두 길</a><a href="#deftank">방어탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#spells">마법 켜기</a><a href="#gear">무기·방어구</a><a href="#party">파티</a><a href="#halls">훈련소</a>
@@ -313,7 +313,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h3>④ 파티에 «마법 무기» 를 든 사람이 하나는 있어야 합니다</h3>
   <p>물리 무효 몬스터가 <b>37종</b> 있고, 마법 공격으로 표시된 공격만 통합니다.
-     마법 무기는 <b>464자루 중 128자루</b>이고, <b>강화로는 못 붙입니다.</b></p>
+     마법 무기는 <b>464자루 중 70자루</b>이고, <b>강화로는 못 붙입니다.</b></p>
   <div class="note"><b>무기 없이 뚫는 길이 둘 있습니다.</b>
      <b>마검사 주직업 + 단검</b>, 그리고 <b>모래 환상 사수 주직업 + 활</b>(7.1 신규 · 지금은 잠김).
      둘 다 <b>주직업</b>일 때만 걸립니다.</div>
@@ -343,13 +343,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      방어탱은 그 순간에도 «조금 더 맞을» 뿐입니다.
      <b>갈 곳이 회피 완봉선 안이면 회피, 넘으면 방어</b>가 갈림입니다.</div>
   <h3>명중은 얼마면 안 빗나가나</h3>
-  <p>회피와 짜임이 같습니다 &mdash; <b>내 명중의 바닥이 «몬스터 회피 + 2» 를 넘으면 한 대도 안 빗나갑니다.</b>
+  <p>회피와 짜임이 <b>거꾸로</b>입니다 &mdash; 맞는 조건이 «명중 &minus; 회피 &ge; &minus;1» 이라,
+     <b>내 명중의 바닥이 «몬스터 회피 &minus; 1» 이상이면 한 대도 안 빗나갑니다.</b>
      바닥은 «명중값 + 흔들림 몫 + 2» 입니다(<a href="notes.html#hit">원리 &sect;5</a>).</p>
   <table class="t"><thead><tr><th>지역</th><th class="num">자유 탐색</th><th class="num">퀘스트</th></tr></thead><tbody>
-    <tr><td>아르디오스 왕국</td><td class="num">31</td><td class="num">36</td></tr>
-    <tr><td>바람의 거친 경계</td><td class="num">34</td><td class="num">39</td></tr>
-    <tr><td>발두나의 황야</td><td class="num">40</td><td class="num">45</td></tr>
-    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num"><b>43</b></td><td class="num"><b>50</b></td></tr>
+    <tr><td>아르디오스 왕국</td><td class="num">28</td><td class="num">33</td></tr>
+    <tr><td>바람의 거친 경계</td><td class="num">31</td><td class="num">36</td></tr>
+    <tr><td>발두나의 황야</td><td class="num">37</td><td class="num">42</td></tr>
+    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num"><b>40</b></td><td class="num"><b>47</b></td></tr>
   </tbody></table>
   <div class="note"><b>카드의 «명중값» 은 장비와 직업에서 오는 고정분입니다.</b>
      여기에 흔들림 몫(재주)과 2d6 이 더 붙습니다 &mdash;
