@@ -727,6 +727,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h2 id="dmg"><span class="n">6</span>전투 ② &mdash; 얼마나 아픈가</h2>
   <div class="eq">평타 피해 = 공격력 &minus; <b>방어력 전액</b>      <i>0 이하면 <b>35% 로 1</b></i>
 치명타     = 공격력 &minus; &lfloor;방어력 &divide; 2&rfloor;   <i>바닥이 <b>1</b> · 확률에 2% 하한(&sect;1)</i></div>
+  <div class="note"><b>«0 이하면 어떻게 되는가» 는 세 자리가 다 다릅니다.</b>
+     <b>평타</b>는 <b>35%</b> 로 1(0x26C8A10), <b>물리 스킬</b>은 <b>25%</b> 로 1(0x26CA5E0),
+     <b>마법 스킬</b>은 1 이 아니라 <b>음수 그대로에 Rand(3)</b> 을 더합니다(0x26CA6EC) &mdash;
+     크게 음수면 그냥 0 입니다.
+     <b>즉 «샌다» 는 것은 평타와 물리 스킬뿐이고, 마법은 방어로 정말 0 이 됩니다.</b></div>
   <p><b>«전액» 이 핵심입니다.</b> 비율이 아니라 뺄셈이라, 방어를 상대 공격력까지 올리면
      피해가 <b>0 으로 수렴합니다</b>. 회피가 «안 맞는다» 라면 방어는 «맞아도 안 아프다» 입니다.</p>
   <div class="note warn"><b>★ 방어로는 «0» 을 못 만듭니다 &mdash; 35% 로 1 이 새어 들어옵니다.</b>
@@ -1095,10 +1100,12 @@ RunCraft(craftIndex)</div>
      대장간 다이아 강화는 <b>최소 3단계</b>가 보장되므로 회피 기회가 여러 번 옵니다.</p>
   <p><b>부적은 방어력이 0 이라</b> 위 표의 첫 두 줄(5% 묶음 포함)을 통째로 건너뜁니다. 대신 i=2 의 회피와 매 단계 민첩은 그대로 받습니다.</p>
 
-  <h3>단계마다 «바깥에서» 붙는 두 줄</h3>
+  <h3>단계마다 «바깥에서» 후보에 더해지는 세 줄</h3>
   <p>위 표는 <code>Armor.Craft</code> 안의 이야기입니다. 그걸 부르는
-     <code>Equipment.RunCraft</code> 가 <b>매 단계 먼저</b> 두 줄을 더 굴립니다 &mdash;
-     장비 종류와 무관하게 무기·방어구 모두에 붙습니다.</p>
+     <code>Equipment.RunCraft</code> 가 <b>매 단계 먼저</b> 세 줄을 <b>같은 후보 목록에</b> 넣습니다 &mdash;
+     장비 종류와 무관하게 무기·방어구 모두에 해당합니다.
+     아래 «확률» 은 <b>후보에 오를 확률</b>이지 붙을 확률이 아닙니다 &mdash;
+     한 단계에서 실제로 붙는 것은 <b>후보 전체 중 하나</b>뿐입니다.</p>
   <table class="t"><thead><tr><th>언제</th><th>붙는 것</th><th class="num">확률</th></tr></thead><tbody>
     <tr><td>요구 근력이 <b>3 이상</b>인 장비</td><td>요구 근력 <b>+1</b> <span class="sm">(대가)</span></td><td class="num">10%</td></tr>
     <tr class="hi"><td>요구 레벨이 <b>5 이상</b>인 장비</td><td>요구 레벨 감소 <b>+1</b></td>
@@ -1108,9 +1115,21 @@ RunCraft(craftIndex)</div>
   <div class="note"><b>요구 레벨 감소는 대장간이 낮을수록 잘 붙습니다.</b>
      식이 <code>요구레벨 &minus; 대장간레벨</code> 이라, 대장간보다 높은 장비를 강화할수록
      확률이 올라갑니다 &mdash; 같으면 50%, 10 높으면 98% 입니다(확률 상한).
+     <b>다만 대장간에서는 «50% 위» 를 볼 일이 거의 없습니다</b> &mdash;
+     <code>CanCraft</code> 가 <b>장비 레벨 &le; 대장간 레벨</b> 을 요구해서입니다.
+     50% 를 넘는 쪽은 <b>이미 강화된 채로 떨어지는 몬스터 드랍</b>의 몫입니다.
      그리고 이건 <b>실제로 요구 레벨을 내립니다</b>:
      <code>GetNeedLevel()</code> 이 마스터 요구 레벨에서 이 몫의 합을 뺍니다.
-     단계가 많이 걸린 저레벨 장비가 «요구 레벨 0» 이 되는 길이 이것입니다.</div>
+     단계가 많이 걸린 저레벨 장비가 «요구 레벨 0» 이 되는 길이 이것입니다.
+     그리고 <code>GetNeedLevel()</code> 은 <b>단계마다 다시 불립니다</b> &mdash;
+     한 번 붙을 때마다 다음 단계의 확률이 5%p 씩 내려갑니다.</div>
+  <div class="note warn"><b>★ «민첩 +5» 나 «요구 레벨 감소 +2» 같은 큰 수는 한 번에 안 붙습니다.</b>
+     붙는 값은 위 표에 적힌 그대로(<b>민첩 +1~2</b>, <b>요구 레벨 감소 +1</b>)가 전부입니다.
+     <code>Equipment.AddEnhancement</code> 는 같은 종류를 <b>합치지 않고 그냥 덧붙이고</b>,
+     화면이 종류별로 더해서 보여 줍니다 &mdash;
+     <b>«민첩 +5» 는 민첩이 세 단계 이상 뽑힌 결과</b>이고,
+     «요구 레벨 감소 +2» 는 그 줄이 <b>두 단계에서 뽑힌</b> 결과입니다.
+     그래서 이 둘은 <b>단계가 많이 걸린 장비에서만</b> 보입니다.</div>
   <div class="note"><b>강화 단계는 음수일 수도 있습니다.</b>
      <code>MonsterMaster.GetReward</code> 는 보상표의 craft 값에 몬스터 보정을 더해
      그대로 <code>RunCraft</code> 에 넘깁니다. 음수면 <b>깎는 방향</b>으로 돌아서
@@ -1372,9 +1391,29 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   HP 창(minHpPercent ~ maxHpPercent) <b>and</b> turnInterval <b>and</b>
   (frequency == Always ? 참 : <b>GetRandom() == frequency</b>)   <span class="cmt">// 패턴마다 따로 굴린다</span>
 
-<b>actionSelectType</b>
-  <b>All(1)</b>    &rarr; 통과한 패턴을 <b>전부</b> 그 턴에 실행   <span class="cmt">// FindAll</span>
-  <b>Normal(0)</b> &rarr; 통과한 <b>첫 하나만</b></div>
+<b>actionSelectType</b> &mdash; 세 갈래다 (0x26C1DA8 의 cmp #2 / cmp #1)
+  <b>All(1)</b>     &rarr; 통과한 패턴을 <b>전부</b> 그 턴에 실행      <span class="cmt">// FindAll 뒤 전부 담는다</span>
+  <b>FromTop(2)</b> &rarr; <b>맨 위부터</b> 훑어 통과한 <b>첫 하나</b>에서 멈춘다  <span class="cmt">// 되돌아가는 가지가 없다</span>
+  <b>Normal(0)</b>  &rarr; <b>순환</b>. selectActionIndex % 패턴수 자리부터
+                  통과할 때까지 칸을 옮기고, 옮길 때마다 인덱스를 +1 한다</div>
+  <div class="note warn"><b>★ Normal 은 «무작위» 가 아니라 «차례» 입니다.</b>
+     몬스터마다 <code>selectActionIndex</code> 가 하나씩 있고 시도할 때마다 올라갑니다 &mdash;
+     그래서 패턴이 여럿이면 <b>돌아가며</b> 나오고, 빈도만 곱해서는 맞지 않습니다.
+     <b>FromTop 은 순서가 곧 우선순위입니다</b> &mdash;
+     맨 위에 «언제나 통과하는» 줄이 하나 있으면 <b>그 아래는 영영 안 닿습니다.</b></div>
+  <h3>빈도 여덟 단계는 이런 확률입니다</h3>
+  <p><code>GetRandom()</code>(0x275EB50)이 사다리를 타고 내려가며 빈도 하나를 뽑고,
+     <b>그것이 내 패턴의 빈도와 같아야</b> 통과합니다. 그래서 표기가 곧 확률입니다.</p>
+  <table class="t"><thead><tr><th>빈도</th><th class="num">확률</th><th>비고</th></tr></thead><tbody>
+    <tr><td>Always</td><td class="num"><b>100%</b></td><td>굴림을 아예 건너뜁니다</td></tr>
+    <tr><td>Usually</td><td class="num">37.5%</td><td></td></tr>
+    <tr><td>Often</td><td class="num">18.75%</td><td></td></tr>
+    <tr><td>Sometimes</td><td class="num">9.375%</td><td></td></tr>
+    <tr><td>Occasionally</td><td class="num">7.03%</td><td>Sometimes 와 별로 차이가 없습니다</td></tr>
+    <tr><td>Infrequently</td><td class="num">1.76%</td><td></td></tr>
+    <tr><td>Rare</td><td class="num">0.557%</td><td></td></tr>
+    <tr><td>SuperRare</td><td class="num">0.029%</td><td>Rare 보다 19배 드뭅니다</td></tr>
+  </tbody></table>
   <table class="t"><thead><tr><th></th><th>카샨 <span class="sm">Lv28</span></th><th>롱넥 글레이저 <span class="sm">Lv33</span></th></tr></thead><tbody>
     <tr><td>actionSelectType</td><td><b>All(1)</b></td><td>Normal(0)</td></tr>
     <tr><td>부름 패턴</td><td><b>2개</b> <span class="sm">(전열 · 후열)</span></td><td>1개 <span class="sm">(전열)</span></td></tr>
@@ -1406,23 +1445,35 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      전투가 <b>15턴</b>을 넘기면 무승부인데 <b>무승부는 경험치가 0</b> 입니다.
      &mdash; 부름이 파티의 처치 속도를 넘어서면 <b>오히려 빈손으로 끝납니다</b>.</div>
 
-  <h3>③ 언제나 부르는 몬스터는 열한 종뿐입니다</h3>
-  <p>HP 조건이 <b>0~100%</b> 인 부름만 쩔에 쓸모가 있습니다. 전수로 세면 이렇습니다.</p>
-  <table class="t"><thead><tr><th>몬스터</th><th class="num">Lv</th><th>고르기</th><th class="num">턴당 부름</th><th class="num">불려 나오는 놈의 경험치</th></tr></thead><tbody>
-    <tr class="hi"><td><b>리치</b></td><td class="num">25</td><td>All</td><td class="num"><b>100%</b></td><td class="num"><b>4,101</b></td></tr>
-    <tr><td>킹스 레머넌트 <span class="sm">발케인 · 잠김</span></td><td class="num">35</td><td>All</td><td class="num">100%</td><td class="num">5,435</td></tr>
-    <tr><td>피 이끼</td><td class="num">14</td><td>All</td><td class="num">100%</td><td class="num">550</td></tr>
-    <tr><td>여왕 개미</td><td class="num">10</td><td>All</td><td class="num">75.6%</td><td class="num">296</td></tr>
-    <tr class="hi"><td><b>카샨</b></td><td class="num">28</td><td>All</td><td class="num"><b>60.9%</b></td><td class="num"><b>3,111</b></td></tr>
-    <tr><td>위스퍼 리프 · 붉은 개미</td><td class="num">9 · 5</td><td>Normal</td><td class="num">37.5%</td><td class="num">182 · 41</td></tr>
-    <tr><td>가짜 유물</td><td class="num">12</td><td>FromTop</td><td class="num">37.5%</td><td class="num">467</td></tr>
-    <tr class="hi"><td><b>아이스 핸드</b></td><td class="num">31</td><td>FromTop</td><td class="num">18.8%</td><td class="num"><b>4,012</b></td></tr>
-    <tr><td>고블린 드러머</td><td class="num">11</td><td>FromTop</td><td class="num">18.8%</td><td class="num">300</td></tr>
-    <tr><td>도적 용병</td><td class="num">14</td><td>Normal</td><td class="num">9.4%</td><td class="num">550</td></tr>
-    <tr><td colspan="5" style="color:var(--muted)"><b>열한 종 전부 «자기 자신» 을 부릅니다</b> &mdash;
-      불려 나온 놈도 똑같이 부르므로 자리만 비어 있으면 계속 채워집니다.
-      <b>롱넥 글레이저는 이 목록에 없습니다</b>(HP 0~40% 짜리라 빠졌습니다).</td></tr>
+  <h3>③ 만피에서 부르는 몬스터는 열두 종입니다</h3>
+  <p>HP 조건이 <b>만피에 닿는</b> 부름만 쩔에 쓸모가 있습니다.
+     그리고 «턴당 부름» 은 <b>고르기 방식까지 넣어</b> 돌려 본 값입니다 &mdash;
+     빈도만 곱하면 Normal 과 FromTop 에서 크게 틀립니다.</p>
+  <table class="t"><thead><tr><th>몬스터</th><th class="num">Lv</th><th>고르기</th><th class="num">턴당 부름</th><th>부르는 대상 <span class="sm">경험치</span></th></tr></thead><tbody>
+    <tr class="hi"><td><b>아이스 핸드</b></td><td class="num">31</td><td>FromTop</td><td class="num"><b>46.4%</b></td><td><b>아이스 핸드 4,012</b> &middot; 프로스트 저 4,012</td></tr>
+    <tr class="hi"><td><b>카샨</b></td><td class="num">28</td><td>All</td><td class="num"><b>61.0%</b></td><td><b>카샨 3,111</b></td></tr>
+    <tr><td>킹스 레머넌트 <span class="sm">발케인 · 잠김</span></td><td class="num">35</td><td>All</td><td class="num">100%</td><td>스피넬 스켈레톤 3,111</td></tr>
+    <tr><td>렘레이스</td><td class="num">23</td><td>FromTop</td><td class="num">37.5%</td><td>랜턴 갉아먹는 사람 1,515</td></tr>
+    <tr><td>리치</td><td class="num">25</td><td>All</td><td class="num">100%</td><td>미드 뱀파이어 1,030</td></tr>
+    <tr><td>피 이끼</td><td class="num">14</td><td>All</td><td class="num">100%</td><td>피 이끼 550</td></tr>
+    <tr><td>도적 용병</td><td class="num">14</td><td>Normal</td><td class="num">9.4%</td><td>도적 용병 550</td></tr>
+    <tr><td>가짜 유물</td><td class="num">12</td><td>FromTop</td><td class="num">74.3%</td><td>스켈레톤 워리어 &middot; Mimic &middot; 고블린 드러머 300 &middot; 스파인 하운드 237</td></tr>
+    <tr><td>고블린 드러머</td><td class="num">11</td><td>FromTop</td><td class="num" style="color:var(--f-vault)"><b>0%</b></td><td>고블린 드러머 300 &middot; 홉고블린 66</td></tr>
+    <tr><td>위스퍼 리프</td><td class="num">9</td><td>Normal</td><td class="num">54.6%</td><td>위스퍼 리프 182</td></tr>
+    <tr><td>여왕 개미</td><td class="num">10</td><td>All</td><td class="num">75.7%</td><td>검은 개미 97 &middot; 붉은 개미 41</td></tr>
+    <tr><td>붉은 개미</td><td class="num">5</td><td>Normal</td><td class="num">37.5%</td><td>붉은 개미 41</td></tr>
   </tbody></table>
+  <div class="note warn"><b>★ 고블린 드러머는 «0%» 입니다 &mdash; FromTop 이 위에서 막습니다.</b>
+     맨 윗줄이 <code>Always</code> 로 거는 버프(Brave)라 <b>부름 줄까지 내려가질 않습니다.</b>
+     다만 그 버프는 MP 를 9 쓰는데 드러머의 MP 는 <b>11</b> 이라 <b>한 번 쓰고 나면 못 씁니다</b> &mdash;
+     그때부터는 아래 두 줄이 닿아 <b>34.0%</b> 가 됩니다.
+     <span class="sm">(MP 를 보는 자리는 <code>BattleSkill.CanUse</code> 0x26C589C 입니다.)</span></div>
+  <div class="note"><b>«자기 자신을 부른다» 는 절반뿐입니다.</b>
+     아이스 핸드 &middot; 카샨 &middot; 피 이끼 &middot; 위스퍼 리프 &middot; 붉은 개미 &middot; 도적 용병 &middot; 고블린 드러머는
+     <b>자기를 부르므로</b> 불려 나온 놈이 또 불러 자리가 계속 채워집니다.
+     나머지(리치 &middot; 킹스 레머넌트 &middot; 여왕 개미 &middot; 가짜 유물 &middot; 렘레이스)는 <b>다른 놈</b>을 부르고
+     <b>불려 나온 그놈은 부르지 않습니다</b> &mdash; 연쇄가 한 번에 끊깁니다.
+     <b>롱넥 글레이저는 이 목록에 없습니다</b>(HP 0~40% 짜리라 빠졌습니다).</div>
 
   <h3>④ 회피탱이 못 피하는 것 &mdash; 쩔 자리를 여기서 고릅니다</h3>
   <p>쩔은 보통 <b>회피탱 하나에 쩔 받을 저레벨 1~3명</b>으로 굴립니다.
@@ -1461,7 +1512,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th>
     <th class="num">평균 간격</th><th class="num">조우 경험치<br><span style="font-weight:400">한 판</span></th>
     <th class="num">부르는 놈</th><th class="num">시간당 경험치</th></tr></thead><tbody>
-    <tr class="hi"><td class="num">1</td><td><b>라그네스 강창의 흔적</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">4,531</td><td class="num"><b>카샨</b> <span class="sm">38%</span></td><td class="num"><b>49,446</b></td></tr>
+    <tr class="hi"><td class="num">1</td><td><b>라그네스 강창의 흔적</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">4,531</td><td class="num"><b>카샨</b> <span class="sm">턴당 61%</span></td><td class="num"><b>49,446</b></td></tr>
     <tr class="hi"><td class="num">2</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>42,479</b></td></tr>
     <tr class="hi"><td class="num">3</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>34,288</b></td></tr>
     <tr><td class="num">4</td><td><b>호수가 거칠게 일렁이는 카레키하라</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">8,062</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>28,455</b></td></tr>
@@ -1480,7 +1531,9 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b>1위 «라그네스 강창의 흔적» 이 유일하게 «자가증식 + 안전» 을 겸합니다.</b>
      카샨이 나오는 세 곳 중 <b>함정이 없는 유일한 곳</b>이고, 같이 나오는
      타로스·스컬크로우 골렘은 <b>평타만</b> 칩니다.
-     카샨이 두 그룹 중 하나에만 있어서 효율은 모래시계의 절반이지만, 셋업이 필요 없습니다.</div>
+     카샨이 두 그룹 중 하나에만 있어서 효율은 모래시계의 절반이지만, 셋업이 필요 없습니다.
+     <span class="sm">«턴당 61%» 는 카샨이 나온 판에서 <b>한 턴에 부름이 한 번이라도 걸릴</b> 확률입니다
+     (부름 패턴 둘 &times; Usually 37.5% ⇒ 1 &minus; 0.625&sup2;). 판 자체가 뜰 확률은 두 그룹 중 하나입니다.</span></div>
   <div class="note"><b>여기서 쓸 회피탱 세팅은 따로 있습니다.</b>
      «안 맞는 것» 보다 <b>15턴 안에 다 잡는 것</b>이 어려운 자리라,
      화력을 <b>승률이 95% 를 막 넘는 지점</b>에 맞춰야 합니다 &mdash;
@@ -1554,12 +1607,16 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <h2 id="todo"><span class="n">부록</span>아직 확인 못 한 것</h2>
   <p>본문에는 유보 표현을 한 곳도 안 남겼습니다. 대신 여기 모읍니다.</p>
   <ul>
-    <li><code>FromTop</code> 의 정확한 의미 &mdash; 부름 대상 선택에 쓰이는데 분기를 아직 못 갈랐습니다</li>
-    <li>강화 미해결 둘 &mdash; «민첩 +5» 와 «요구 레벨 감소 +2» 가 어느 단계에서 붙는지</li>
+    <li><b>맨손 공격력의 바닥</b> &mdash; 화면이 맨손인 용병에게 <b>0~1</b> 을 찍는데,
+        <code>MaxAttackPoint</code> 의 «무기 없음» 가지가 <code>Enumerable.Sum</code> 을 거쳐
+        직업 보너스로 빠집니다. 정적 초기화 패턴이라 아직 못 짚었습니다.
+        <span class="sm">맨손으로 싸울 일이 없어 실전에서는 영향이 없습니다.</span></li>
     <li>화면의 «주점 최대» 식</li>
-    <li>평타가 1 미만일 때 스킬 쪽에만 있는 «일정 확률로 1» 경로의 정확한 값</li>
-    <li>강화 미해결 둘 &mdash; «민첩 +5» 와 «요구 레벨 감소 +2» 가 어느 단계에서 붙는지</li>
   </ul>
+  <div class="note"><b>여기 있던 셋은 이번에 풀려서 본문으로 갔습니다.</b>
+     <code>FromTop</code> 의 의미는 <a href="#farm">&sect;13 ①</a> 로,
+     «민첩 +5»·«요구 레벨 감소 +2» 의 정체는 <a href="#craft">&sect;11</a> 로,
+     스킬의 «일정 확률로 1» 은 <a href="#dmg">&sect;6</a> 로 옮겼습니다.</div>
 
   </div>
 

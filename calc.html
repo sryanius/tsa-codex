@@ -314,6 +314,23 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .ghead h2{font-family:"Gowun Batang",Georgia,serif;font-size:19px;font-weight:700;color:var(--ink);margin:0}
 .ghead .sub{font-size:12px;color:var(--faint)}
 .ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px}
+.group .repbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.group .repbar label{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+.group .repbar input[type=range]{width:220px;accent-color:var(--accent)}
+.group .repbar output{font-family:"IBM Plex Mono",monospace;font-size:18px;font-weight:500;
+  color:var(--ink);min-width:2.5ch;font-variant-numeric:tabular-nums}
+.group table{width:100%;border-collapse:collapse;font-size:13px;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.group th,.group td{text-align:left;padding:8px 12px;border-top:1px solid var(--line-soft)}
+.group th{background:var(--raised);color:var(--muted);font-weight:600;font-size:11.5px;
+  letter-spacing:.05em;border-top:0}
+.group td.mono,.group th.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.group .note{margin-top:14px;font-size:12.5px;color:var(--faint);max-width:70ch}
+.group .code{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.75;
+  background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:12px 15px;overflow-x:auto;color:var(--body);margin:0}
+.group h3{font-family:"Gowun Batang",Georgia,serif;font-size:18px;font-weight:700;
+  color:var(--ink);margin:0 0 12px}
 
 .gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
   background:var(--ground);padding:24px}
@@ -335,9 +352,11 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a class="here" href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="builds.html">빌드</a>
   </nav>
   <header class="mast">
-    <p class="eyebrow">The Silent Archivist &middot; 세계와 용병단</p>
-    <h1>도감</h1>
-    <p class="lede">세계에 무엇이 있고 용병단이 무엇으로 이루어지는지 &mdash; 탐색지·몬스터·아이템, 그리고 클래스·종족·마법·도시 시설. 여기에 <b>지도</b>와 <b>뽑기 계산기</b>가 붙어 있습니다.</p>
+    <p class="eyebrow">The Silent Archivist &middot; 넣으면 답이 나오는 것들</p>
+    <h1>계산기</h1>
+    <p class="lede">읽는 문서가 아니라 <b>값을 넣는 곳</b>입니다 &mdash;
+       주점에서 원하는 용병이 나올 확률, 장비를 바꿨을 때의 능력치,
+       그리고 지금 평판에서 어느 도시의 어느 퀘스트가 평판을 올려 주는지.</p>
     <p class="tabnote" id="tabnote"></p>
     <div class="stats" id="stats"></div>
   </header>
@@ -348,6 +367,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       <div class="seg" role="group" aria-label="계산기 전환">
       <button id="v-calc" type="button" aria-pressed="false">용병 뽑기</button>
       <button id="v-stat" type="button" aria-pressed="false">능력치</button>
+      <button id="v-rep" type="button" aria-pressed="false">평판</button>
       </div>
       <label class="lockbox" style="margin-left:auto"><input type="checkbox" id="showlocked"> 잠긴 것도 보기</label>
     </div>
@@ -1432,7 +1452,8 @@ var TABNOTE = {
   town: "도시마다 어떤 시설이 몇 레벨까지 있고, 올리는 데 얼마가 드는지.",
   calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
   map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다.",
-  stat: "주/부 직업과 장비를 바꿔 가며 수치를 봅니다. 내 용병을 불러와 거기서 고칠 수 있습니다."
+  stat: "주/부 직업과 장비를 바꿔 가며 수치를 봅니다. 내 용병을 불러와 거기서 고칠 수 있습니다.",
+  rep:  "슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다."
 };
 function headStats(){
   var out=[];
@@ -1455,6 +1476,8 @@ function headStats(){
   } else if(state.view==="calc"){
     var bt2=barTowns();
     out=[[bt2.length,"주점"],[D.races.length,"종족·성별"],[7,"성격"]];
+  } else if(state.view==="rep"){
+    out=[[repTowns().length,"도시"],[state.rep,"지금 평판"],[99,"평판 상한"]];
   } else {
     var ms=D.maps.filter(function(m){ return state.showLocked || !m.lock; });
     out=[[ms.length,"지역"],
@@ -1465,7 +1488,8 @@ function headStats(){
     return '<div class="stat"><b>'+x[0]+'</b><span>'+esc(x[1])+'</span></div>'; }).join("");
   el("tabnote").textContent = TABNOTE[state.view] || "";
   // 계산기에서는 검색칸이 아무 일도 안 한다
-  if(el("q")) el("q").style.display = state.view==="calc" ? "none" : "";
+  if(el("q")) el("q").style.display =
+    (state.view==="calc"||state.view==="rep"||state.view==="stat") ? "none" : "";
 }
 
 function render(){
@@ -1508,6 +1532,12 @@ function render(){
     return;
   } else if(state.view==="calc"){
     el("out").innerHTML=calcHTML();
+    if(el("count")) el("count").textContent="";
+    if(el("wk")) el("wk").style.display="none";
+    return;
+  } else if(state.view==="rep"){
+    el("out").innerHTML=repHTML();
+    repWire();
     if(el("count")) el("count").textContent="";
     if(el("wk")) el("wk").style.display="none";
     return;
@@ -1576,7 +1606,42 @@ lk.addEventListener("change",function(e){
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
 }); }
-var VIEWS=["calc","stat"];
+
+/* ── 평판 — 예전 표지(index)에 있던 도구를 여기로 옮겼다 ──────────────
+   CAPS 는 손으로 구운 스냅샷이다. d = 지금 레벨(세이브의 addLevel 반영),
+   dm = 연속 클리어로 maxAddLevel 까지 올렸을 때. */
+var CAPS=[{"n":"윈달리온 마을","m":0,"inst":15,"cap":80,"d":{"1":14,"0":7,"2":32,"3":23,"4":20,"5":11,"6":5},"dm":{"10":2,"0":7,"1":10,"11":3,"4":7,"5":24,"2":7,"12":6,"6":11,"7":11,"14":2,"3":8,"13":5,"8":5,"15":2,"9":2}},{"n":"브란샤르","m":1,"inst":11,"cap":55,"d":{"2":3,"3":7,"4":24,"5":25,"6":28,"7":7,"8":4},"dm":{"2":1,"5":7,"6":11,"7":25,"4":4,"8":22,"9":19,"10":8,"11":1}},{"n":"실바드 타운","m":2,"inst":13,"cap":60,"d":{"2":2,"3":3,"4":8,"5":12,"6":19,"7":23,"8":14,"9":6,"10":3},"dm":{"2":2,"3":1,"6":2,"7":10,"8":15,"9":19,"10":20,"11":13,"5":1,"12":4,"13":3}},{"n":"사하리오","m":3,"inst":13,"cap":55,"d":{"4":4,"5":7,"6":8,"7":11,"8":16,"9":9,"10":3},"dm":{"7":5,"8":6,"9":8,"10":14,"11":17,"12":4,"6":1,"13":3}},{"n":"루페리아 그로브","m":4,"inst":13,"cap":50,"d":{"4":4,"5":4,"8":9,"7":11,"6":6,"9":12,"10":5},"dm":{"7":5,"8":4,"11":11,"10":9,"9":7,"12":14,"13":1}},{"n":"밀레아 마을","m":5,"inst":18,"cap":70,"d":{"5":1,"7":8,"9":13,"10":18,"8":10,"6":1,"11":14,"13":9,"12":6,"14":4,"15":1,"16":1},"dm":{"8":3,"10":8,"12":14,"13":18,"11":11,"9":1,"14":13,"15":8,"16":6,"17":3,"18":1}},{"n":"군벨 마을","m":6,"inst":17,"cap":60,"d":{"7":2,"8":2,"9":9,"10":17,"11":17,"12":15,"14":7,"13":11,"15":1},"dm":{"9":1,"11":6,"12":11,"13":17,"14":15,"15":16,"17":6,"10":2,"16":7}},{"n":"세라피오스","m":12,"inst":28,"cap":85,"d":{"10":2,"11":1,"12":5,"13":11,"14":12,"15":11,"16":16,"17":14,"18":8,"20":1,"9":1,"19":7,"26":1,"22":1},"dm":{"10":1,"14":3,"15":7,"16":12,"19":14,"17":14,"20":12,"21":6,"22":7,"11":1,"13":1,"18":11,"28":1,"25":1}},{"n":"풋워커의 마을","m":12,"inst":26,"cap":75,"d":{"13":4,"14":7,"17":16,"18":16,"19":11,"12":1,"15":10,"16":12,"20":5,"21":1,"23":3},"dm":{"16":3,"17":11,"20":13,"21":18,"15":2,"18":10,"19":11,"22":12,"23":3,"26":3}},{"n":"국경을 넘는 숙소","m":19,"inst":28,"cap":50,"d":{"16":2,"19":8,"22":13,"23":13,"20":10,"21":20,"24":8,"18":1,"27":1,"25":2,"26":2},"dm":{"19":2,"21":3,"22":8,"24":17,"25":13,"26":11,"23":17,"27":7,"28":2}},{"n":"드라이레이크 헤이븐","m":20,"inst":28,"cap":45,"d":{"20":4,"21":7,"22":13,"23":17,"25":9,"24":5,"26":3,"27":1},"dm":{"23":6,"24":9,"25":14,"26":13,"27":7,"22":1,"28":9}},{"n":"리스티아","m":20,"inst":28,"cap":45,"d":{"18":1,"21":4,"22":4,"23":11,"25":16,"26":12,"24":15,"27":2},"dm":{"21":2,"23":1,"24":3,"26":20,"27":17,"25":5,"28":17}},{"n":"용광로 마을","m":22,"inst":33,"cap":60,"d":{"27":19,"28":27,"26":6,"30":11,"25":3,"29":25,"31":10,"33":2},"dm":{"27":6,"28":6,"29":33,"30":28,"26":1,"31":19,"32":5,"33":5}},{"n":"트레반의 마을","m":25,"inst":33,"cap":45,"d":{"29":20,"27":7,"31":19,"26":1,"32":15,"28":9,"30":18,"33":7},"dm":{"29":6,"27":1,"30":14,"31":23,"32":28,"33":24}},{"n":"자르간트 마을","m":29,"inst":39,"cap":55,"d":{"29":2,"30":3,"31":18,"33":24,"32":11,"34":13,"35":17,"36":4},"dm":{"32":2,"33":3,"34":18,"36":24,"35":11,"37":13,"38":17,"39":4}},{"n":"노르그레이 마을","m":31,"inst":39,"cap":45,"d":{"31":14,"32":14,"33":19,"35":13,"34":24,"36":4},"dm":{"34":14,"35":14,"36":19,"38":13,"37":24,"39":4}}];
+var LOCKED_TOWNS={"자르간트 마을":1,"노르그레이 마을":1}, RKEY="tsa.rep.v1";
+state.rep=20;
+try{ var _rv=localStorage.getItem(RKEY); if(_rv!==null && +_rv>=0 && +_rv<=99) state.rep=+_rv; }catch(e){}
+function repTowns(){
+  return CAPS.filter(function(x){ return state.showLocked || !LOCKED_TOWNS[x.n]; });
+}
+function repHTML(){ return "<section class=\"group\">\n    <h3>평판별 최소 퀘스트 레벨</h3>\n    <p class=\"note\" style=\"margin:0 0 14px\">\n      <b>바이너리에서 직접 확인한 규칙입니다</b> &mdash; <code>Town.MaxReputation(Quest)</code> 와\n      <code>Town.ApplyReputationChange(Quest)</code> 를 역어셈블해 얻었습니다.\n      퀘스트마다 «올릴 수 있는 평판 상한»이 있고, 현재 평판이 그 상한을 넘으면 더 이상 오르지 않습니다.\n    </p>\n    <pre class=\"code\">퀘스트레벨 = master.level + Min(addLevel, master.maxAddLevel)\n평판상한   = 5 &times; (퀘스트레벨 &minus; maxReputationLevel + 1)      // 최소 5\nif (평판상한 &ge; 현재평판) 현재평판 += master.reputation             // 최대 99</pre>\n\n    <div class=\"repbar\">\n      <label>내 평판 <input type=\"range\" id=\"rep\" min=\"0\" max=\"99\" value=\"20\"></label>\n      <output id=\"repout\">20</output>\n      <span class=\"note\" style=\"margin:0\">슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다.</span>\n    </div>\n    <div style=\"overflow-x:auto\"><table>\n      <thead><tr><th>도시</th><th class=\"mono\">기준</th><th class=\"mono\">필요 레벨</th>\n        <th class=\"mono\">평판 오르는 퀘스트<br><span style='font-weight:400'>지금 / 최대</span></th><th class=\"mono\">평판 한계</th></tr></thead>\n      <tbody id=\"reptable\"></tbody>\n    </table></div>\n    <p class=\"note\">«필요 레벨»은 그 평판에서 평판을 올려주는 최소 퀘스트 레벨,\n      «평판 오르는 퀘스트»의 <b>앞 숫자는 지금</b>(세이브의 실제 addLevel 기준), <b>뒤 숫자는 최대</b>(연속 클리어로 +maxAddLevel 까지 올렸을 때) 조건을 만족하는 퀘스트 수입니다. 레벨 보너스는 <b>실패하거나 시간이 지나면 리셋</b>되므로 앞 숫자는 스냅샷입니다.\n      <b>&mdash;</b> 는 그 도시에서 더는 평판을 못 올리는 상태입니다.</p>\n  </section>"; }
+function repWire(){
+  var r=el("rep"), o=el("repout"); if(!r) return;
+  r.value=state.rep;
+  r.oninput=function(){ state.rep=+r.value;
+    try{ localStorage.setItem(RKEY, r.value); }catch(e){}
+    o.textContent=state.rep; repRows(); headStats(); };
+  o.textContent=state.rep; repRows();
+}
+function repRows(){
+  var R=state.rep, tb=el("reptable"); if(!tb) return;
+  tb.innerHTML=repTowns().map(function(c){
+    var need=c.m-1+Math.ceil(R/5), dead=need>c.inst, n=0, nm=0;
+    for(var lv in c.d){ if(+lv>=need) n+=c.d[lv]; }
+    for(var l2 in c.dm){ if(+l2>=need) nm+=c.dm[l2]; }
+    return "<tr><td>"+esc(c.n)+"</td><td class='mono'>"+c.m+"</td>"
+      +"<td class='mono'>"+(dead?"<span style='color:var(--faint)'>&mdash;</span>"
+        :"<b>"+Math.max(need,0)+"</b>")+"</td>"
+      +"<td class='mono'>"+(dead?"<span style='color:var(--faint)'>0</span>"
+        :(n+" <span style='color:var(--faint)'>/ "+nm+"</span>"))+"</td>"
+      +"<td class='mono'"+(R>=c.cap?" style='color:var(--c-codex);font-weight:600'":"")
+      +">"+c.cap+"</td></tr>";
+  }).join("");
+}
+var VIEWS=["calc","stat","rep"];
 function setView(v){
   state.view=v;
   VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
