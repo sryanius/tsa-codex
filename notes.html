@@ -667,10 +667,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </tbody></table>
   <p>즉 <b>완봉선이 이 수 이상</b>이면 그 구역에서 평타를 한 대도 안 맞습니다.
      탐색지마다 정확한 값은 <a href="codex.html?v=place">도감</a> 에 적어 뒀습니다.</p>
-  <div class="note"><b>지형은 캐릭터에게만 붙습니다.</b> 근접끼리는 서로 깎여 상쇄되지만,
-     <b>거친 지형에서 활에게 맞을 때는 내 회피만 깎입니다.</b>
-     그리고 <b>활은 비행 몬스터에게 명중 +2</b> 를 받습니다.</div>
-  <table><thead><tr><th>지형</th><th class="num">내 회피</th><th class="num">공격자 명중</th></tr></thead><tbody>
+  <div class="note warn"><b>★ 지형은 «내 쪽» 에만 붙습니다 &mdash; 상쇄되지 않습니다.</b>
+     몬스터 공격자에게는 무기 종류와 상관없이 <b>한 번도 안 붙습니다.</b>
+     그래서 <b>이동 곤란이면 근접 몬스터에게 맞을 때도 내 회피만 &minus;2</b>,
+     매우 곤란이면 &minus;4 입니다 &mdash; <b>완봉선이 그만큼 통째로 내려갑니다.</b>
+     아래 표의 «공격자 명중» 열은 <b>«내가 때릴 때 내 명중»</b> 으로 읽으세요.
+     «활은 비행 몬스터에게 +2» 도 내 명중에만 붙습니다.</div>
+  <table><thead><tr><th>지형</th><th class="num">내 회피</th><th class="num">내가 때릴 때 내 명중</th></tr></thead><tbody>
   <tr><td>평지</td><td class="num">0</td><td class="num">0</td></tr>
   <tr><td>이동 곤란</td><td class="num">&minus;2</td><td class="num">활 0 · 그 외 &minus;2</td></tr>
   <tr><td>매우 곤란</td><td class="num">&minus;4</td><td class="num">활 0 · 그 외 &minus;4</td></tr>
@@ -723,9 +726,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>방어력에는 체력 몫이 들어 있습니다</b>(&sect;2) &mdash;
      <code>&lfloor;체력 &divide; 4&rfloor;</code>. 방패도 방어력에 그대로 들어가고,
      <b>막기에 성공하면 그 위에 한 번 더 빠집니다</b>(두 번 셉니다).</div>
-  <div class="note warn"><b>치명타에는 완봉이 없습니다.</b>
-     확률이 2~98 로 잘리므로(&sect;1), 치명 저항을 아무리 올려도 <b>50 대에 한 번은</b> 들어옵니다.
-     방어탱은 «절대 안 죽는다» 가 아니라 «가끔 크게 맞는다» 로 잡아야 합니다.</div>
+  <div class="note warn"><b>치명 저항으로는 치명타를 못 막습니다.</b>
+     확률이 2~98 로 잘리므로(&sect;1), 아무리 올려도 <b>50 대에 한 번은</b> 들어옵니다.
+     <b>다만 막는 길이 둘 있습니다</b> &mdash; <b>방패로 막아낸 타격은 치명타가 아예 안 뜨고</b>,
+     방어력이 2 미만인 대상도 판정을 안 굴립니다.
+     그리고 <b>내가 때리는 쪽</b>에서는 치명타가 영영 안 뜨는 몬스터가 <b>17종</b>,
+     둔기로만 뜨는 몬스터가 <b>24종</b> 있습니다.</div>
 
   <h3>반사 &mdash; 때리면 되받습니다</h3>
   <p><code>damageReflect</code> 를 가진 몬스터를 <b>평타로</b> 때리면 준 피해의 그 비율을 되받습니다
@@ -767,27 +773,47 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      회피탱이 마법에 약한 이유가 이것이고, 마법사가 명중을 안 챙겨도 되는 이유도 이것입니다.</div>
   <div class="eq">피해 = Rand(스킬최소, 스킬최대) + 시전자 마력
        → 2d6 이 9 를 넘으면 <b>한 번 더 굴려 더함</b>
-       → 대상의 <b>마법 방어를 전액</b> 뺀다
-       → 0 이하면 Rand(3)
+       → 대상의 <b>마법 방어를 전액</b> 뺀다  <i>(물리 마법이면 «방어력» 을 뺀다)</i>
+       → 0 이하면 <b>거기에 Rand(3)</b> 을 더한다   <i>// 크게 음수면 그냥 0 입니다</i>
 
 스킬최소 = 레벨 + minDamage + 1   <i>(관통 &minus;1 · 전체 &minus;2)</i>
 스킬최대 = 레벨 + maxDamage + 4   <i>(전체 &minus;3)</i>
 소모 MP  = 레벨 &minus; useMp + 3   <i>(물리 마법이면 3 대신 2)</i></div>
-  <div class="note warn"><b>★ 배울 수 있는 마법 28개 중 27개가 <code>minDamage</code>/<code>maxDamage</code> 0 입니다.</b>
-     (성스러운 폭발만 +3) 그래서 <b>«레벨 높은 마법 = 센 마법» 이 예외 없이 성립합니다.</b>
+  <div class="note warn"><b>★ «물리 마법» 은 피해식이 통째로 다릅니다.</b>
+     <code>isPhysics</code> 가 켜진 둘(<b>그래블 버스트 · 어스퀘이크</b>)은 사거리 보정 전에
+     이렇게 부풀려집니다:</div>
+  <div class="eq">스킬최소 = <b>레벨 &times; 2 + 6</b>        <i>// 레벨+min+1 이 아닙니다</i>
+스킬최대 = <b>(레벨 + maxDamage + 4) &times; 3</b>
+
+그래블 버스트 Lv20 전체 &rarr; 최소 20&times;2+6&minus;2 = <b>44</b> · 최대 24&times;3&minus;3 = <b>69</b>
+어스퀘이크   Lv10 전체 &rarr; 최소 10&times;2+6&minus;2 = <b>24</b> · 최대 14&times;3&minus;3 = <b>39</b></div>
+  <div class="note"><b>그래서 «레벨 높은 마법 = 센 마법» 에 예외가 둘 생깁니다.</b>
+     그래블(44~69)이 뇌우(34~36)보다, 어스퀘이크(24~39)가 블리자드(19~21)보다 셉니다.
+     <b>다만 이 둘은 마법 방어가 아니라 «방어력» 을 뺍니다</b> &mdash;
+     방어가 두꺼운 상대 앞에서는 도로 작아집니다.</div>
+  <div class="note"><b>배울 수 있는 마법 28개 중 27개가 <code>minDamage</code>/<code>maxDamage</code> 0 입니다</b>
+     (성스러운 폭발만 +3). 그래서 <b>같은 갈래 안에서는 «레벨 높은 마법 = 센 마법» 입니다</b> &mdash;
+     물리 마법 둘만 예외입니다(아래).
      속성은 약점 &plusmn;2 와 무효 0 에만 쓰이고, 피해 자체를 바꾸지 않습니다.</div>
 
   <h3>어떤 마법이 나갈지 정하는 순서</h3>
   <div class="eq">1. 켜 둔 것 중 <b>지금 쓸 수 있는 것</b>만 남긴다   <i>(MP 가 모자라면 여기서 빠진다)</i>
 2. <b>종류 → 사거리 → 레벨</b> 오름차순으로 정렬한다
 3. <b>회복</b>이 하나라도 있으면 <b>그 자리에서 반환</b>한다
-4. 없으면 전체 → 관통 → 단일 순, 같은 급이면 <b>레벨 낮은 것</b>이 이긴다</div>
+4. 없으면 <b>전체 → 관통</b> 순으로, 각 급 안에서는 <b>속성 궁합 점수</b>로 고른다
+   점수 = (약점인 적 &times; 2) &minus; (무효인 적)
+   <b>점수가 같을 때만</b> 정렬 순서(= 레벨 낮은 쪽)가 갈림돌이 된다
+5. 전체·관통이 하나도 없으면 <b>단일</b>은 따로 훑는다</div>
   <div class="note warn"><b>★ 여기서 두 가지가 따라 나옵니다.</b>
      <ul>
-       <li><b>동점이면 «약한 쪽» 이 이깁니다.</b> 레벨 오름차순이라 낮은 것이 먼저 잡힙니다 &mdash;
-         <b>가장 높은 급만 켜고 아래는 전부 꺼야</b> 합니다. 다 켜면 가장 약한 것이 나갑니다.</li>
-       <li><b>단일 회복을 하나라도 켜 두면 전체 회복은 영영 안 나갑니다.</b>
-         사거리 오름차순이라 단일이 먼저 잡히고, 회복은 그 자리에서 반환하기 때문입니다.</li>
+       <li><b>약점이 없으면 «약한 쪽» 이 이깁니다.</b> 점수가 전부 0 이면 정렬 순서가 갈라서
+         레벨 낮은 것이 먼저 잡힙니다 &mdash; <b>가장 높은 급만 켜고 아래는 전부 꺼야</b> 합니다.
+         <span class="sm">거꾸로 <b>약점을 찌르는 마법은 레벨이 낮아도 우선합니다</b> &mdash;
+         속성이 맞는 상대에게는 높은 레벨 쪽이 나갑니다.</span></li>
+       <li><b>단일 회복을 켜 두면 전체 회복이 거의 안 나갑니다.</b>
+         사거리 오름차순이라 단일이 먼저 잡히고, 회복은 그 자리에서 반환하기 때문입니다.
+         <span class="sm">다만 «쓸 수 있는가» 문턱이 마법마다 달라서, 큰 단일이 문턱에 걸려 빠지는
+         구간에서는 작은 전체가 살아남습니다 &mdash; «영영» 은 아닙니다.</span></li>
      </ul></div>
   <div class="note"><b>MP 폴백은 안 켜도 됩니다.</b>
      MP 가 모자란 마법은 1단계에서 저절로 빠져 한 급 아래로 내려갑니다 &mdash;
@@ -812,8 +838,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <tr><td>습득물</td><td>도적</td><td>통찰</td><td class="num">○</td><td>여기에 <b>+6</b> 이 더 붙습니다</td></tr>
   <tr><td>함정 탐지</td><td><code>TrapMaster.jobKind</code><br><span class="sm">레인저 113 · 도적 98 · 현자 29</span></td><td>통찰</td><td class="num">○</td><td>퀘스트 레벨 + 함정 레벨</td></tr>
   <tr><td>함정 해제</td><td>같음</td><td>물리 → 재주<br>효과 부여 → 통찰</td><td class="num">&times;</td><td>같음</td></tr>
-  <tr><td>선제공격</td><td>max(도둑+2, 레인저)</td><td>통찰</td><td class="num">○</td><td>파티 난이도 + 몬스터 값</td></tr>
+  <tr style="color:var(--muted)"><td>선제공격 <span class="sm">틀이 다릅니다</span></td><td>max(도둑+2, 레인저)</td><td>통찰</td><td class="num">○</td><td>addLevel + 몬스터 값 <b>+ 8</b></td></tr>
   </tbody></table>
+  <div class="note warn"><b>★ 선제공격만 이 틀을 안 따릅니다.</b>
+     <b>파티원을 차례로 굴리지 않고</b> «파티 최고값 한 명분» 으로 딱 한 번 굴립니다.
+     상대 자리에 <b>퀘스트 레벨이 안 들어가고</b>(addLevel 만 들어갑니다),
+     상대 쪽에 <b>+8</b> 이 더 붙으며, <b>몬스터 통찰 몫만 &divide;3</b> 입니다(&sect;1).
+     게다가 몬스터 값 자체가 난수를 품고 있어 <b>«확정선» 이라는 것이 아예 없습니다.</b></div>
   <div class="note warn"><b>★ 함정은 도적 전용이 아닙니다.</b>
      <code>TrapMaster.jobKind</code> 가 함정마다 «누가 탐지하는지» 를 따로 정하는데,
      <b>레인저가 가장 많습니다.</b> 도적만 키우면 절반을 못 봅니다.</div>
@@ -1128,7 +1159,7 @@ p = 50
   <table><thead><tr><th>시설</th><th>바꾸는 것</th><th>식</th></tr></thead><tbody>
   <tr><td><b>금고</b></td><td>골드 상한</td><td><code>레벨 × 2000 + 4000</code></td></tr>
   <tr><td><b>창고</b></td><td>장비 보관 칸</td><td><code>레벨 × 8 + 10</code></td></tr>
-  <tr><td><b>숙소</b></td><td>보유 가능 인원</td><td><code>레벨 × 5</code></td></tr>
+  <tr><td><b>숙소</b></td><td>보유 가능 인원</td><td><code>레벨 + 1</code> <span class="sm">(×5 는 은퇴 정원입니다)</span></td></tr>
   <tr><td><b>치료소</b></td><td>치료 비용·시간</td><td><code>max(레벨, 5)</code> 가 계산에 들어갑니다</td></tr>
   <tr><td><b>대장간</b></td><td>강화 단계</td><td><a href="#craft">위의 다이아 강화</a> — <code>대장간 레벨 − 장비 레벨</code> 에서 시작</td></tr>
   <tr><td><b>모험가 아카이브</b></td><td>몬스터 정보 공개</td><td>수치가 아니라 표시 여부</td></tr>
