@@ -912,7 +912,55 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      <i>// 최대 99</i></div>
   <p>낮은 레벨 퀘스트를 아무리 반복해도 평판이 어느 선에서 멈추는 이유입니다. 천장이 <b>5 단위</b>로 올라갑니다.</p>
-  <p class="src">Town.MaxReputation · Town.ApplyReputationChange</p>
+  <p class="src">Town.MaxReputation 0x275D3A0 · Town.ApplyReputationChange 0x275D1B4</p>
+
+  <h3 id="showlevel">★ 화면의 퀘스트 레벨은 판정에 쓰는 레벨이 아닙니다</h3>
+  <p><b>이것 하나로 «35레벨을 했는데 평판이 안 오른다» 가 전부 설명됩니다.</b>
+     <code>Quest</code> 에는 레벨을 내는 함수가 <b>둘</b> 있습니다.</p>
+  <div class="eq"><b>Level()</b>      = master.level + Min(addLevel, maxAddLevel)      <i>// 0x2727A44</i>
+<b>ShowLevel()</b>  = Level() <b>+ 1</b>   <i>// 0x27291E0 — 탐색지 지형이 «이동 곤란»(1)이나 «매우 이동 곤란»(2)일 때만</i>
+              = Level()       <i>// 평지(0)·숲(3)이면 그대로</i>
+
+  0x2729268 lsr x8,x8,#0x20 / sub w8,w8,#1 / cmp w8,#1 / b.hi   <span class="cmt">// kind−1 ≤ 1 ⇒ kind ∈ {1,2}</span></div>
+  <table class="t"><thead><tr><th>어느 쪽을 쓰는가</th><th>쓰는 곳</th></tr></thead><tbody>
+    <tr><td><b>ShowLevel()</b> <span class="sm">+1 붙은 값</span></td>
+      <td>파티 편성(<code>Party.Create</code>) · 길드 파견 · 모험 기록(<code>FinishAdventure</code>) · 퀘스트 정렬(<code>Quest.Sort</code>)
+        &mdash; <b>플레이어가 보는 화면 전부</b></td></tr>
+    <tr class="hi"><td><b>Level()</b> <span class="sm">진짜 값</span></td>
+      <td><b><code>Town.MaxReputation</code></b> · <code>Party.Difficulty</code> · <code>Character.SetRescuePrice</code></td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 그래서 늪 퀘스트는 «35»로 보여도 실제로는 34입니다.</b>
+     평판 상한이 5×(34&minus;m+1) 이라 한 칸 낮고, 평판이 그 선을 넘은 순간부터
+     <b>아무리 돌려도 1 도 안 오릅니다.</b> 화면 숫자는 그대로 «35» 입니다.
+     <b>탐색지 지형이 늪(이동 곤란)이면 화면 숫자 &minus;1 이 진짜입니다.</b>
+     전체 354곳 중 <b>47곳</b>(이동 곤란 41 · 매우 이동 곤란 6)이 여기 걸립니다.</div>
+  <div class="note"><b>레벨 보너스가 천장에 닿아 있으면 영영 그대로입니다.</b>
+     <code>addLevel</code> 은 퀘스트마다 따로 쌓이고 <code>maxAddLevel</code>(보통 3)에서 멈춥니다.
+     마스터 레벨 31 짜리 늪 퀘스트에 보너스가 3 이면 <code>Level()</code> 은 34 에 고정,
+     화면은 35 에 고정, 상한은 20 에 고정입니다 &mdash;
+     <b>가장 많이 돌린 퀘스트가 가장 먼저 이 상태가 됩니다.</b></div>
+
+  <h3>«레벨만 맞으면» 이 아닙니다 &mdash; 목록에 뜨는 조건이 따로 있습니다</h3>
+  <div class="eq"><b>Town.CanAcceptQuest</b> 0x275E574
+  need = master.conditionNeedReputation
+  need &gt; 0  &rarr; 평판 &ge; need 라야 뜬다
+  need &lt; 0  &rarr; 평판 &le; need 라야 뜬다   <span class="cmt">// 저평판 전용 퀘스트</span>
+  need = 0  &rarr; 무조건 뜬다</div>
+  <p>그래서 «평판을 올려 주는 퀘스트» 는 <b>두 조건을 동시에</b> 만족해야 합니다 &mdash;
+     <b>목록에 뜨고</b>(요구 평판) <b>상한이 충분해야</b>(실제 레벨) 합니다.
+     둘이 엇갈리면서 <b>특정 평판에서 선택지가 급격히 줄어듭니다.</b></p>
+  <table class="t"><thead><tr><th>노르그레이 마을 <span class="sm">maxReputationLevel 31 · 퀘스트 99</span></th>
+    <th class="num">필요 실제레벨</th><th class="num">목록에 뜨는 것</th><th class="num">실제로 올려 주는 것</th></tr></thead><tbody>
+    <tr><td>평판 19~20</td><td class="num">34</td><td class="num">55</td><td class="num"><b>16</b></td></tr>
+    <tr class="hi"><td><b>평판 21~25</b></td><td class="num"><b>35</b></td><td class="num">60</td><td class="num" style="color:var(--f-vault)"><b>4</b></td></tr>
+    <tr><td>평판 26~30</td><td class="num">36</td><td class="num">75</td><td class="num">0 <span class="sm">(레벨 보너스가 있어야)</span></td></tr>
+    <tr><td>평판 46~</td><td class="num">40</td><td class="num">99</td><td class="num">0 <span class="sm">&mdash; 여기가 천장</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>평판 21 에서 16개 &rarr; 4개로 네 배 줄어듭니다.</b>
+     게시판은 한 번에 <b>4칸</b>뿐이라, 그 4개가 뜰 때까지 34레벨짜리만 계속 돌게 됩니다.
+     <b>게다가 그 구간에 «화면 35 · 실제 34» 인 늪 퀘스트가 넷 더 섞여 있습니다</b> &mdash;
+     그중 하나는 요구 평판이 정확히 21 이라 <b>평판이 21 이 되는 순간 새로 뜹니다.</b></div>
+  <p class="src">Town.CanAcceptQuest 0x275E574 · Quest.ShowLevel 0x27291E0 · Quest.Level 0x2727A44</p>
 
   <h3>게시판에는 칸이 없습니다</h3>
   <div class="note"><b>게시판에는 «칸» 이 없습니다.</b> 퀘스트마다 자기 카운터를 하나씩 들고 있고, 그 카운터가 0 이 되면 뜹니다. 서로 자리를 뺏지 않습니다 &mdash; <b>게시판에 이미 잔뜩 걸려 있어도 새 퀘스트가 뜨는 데 아무 지장이 없습니다.</b></div>
@@ -1504,74 +1552,77 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      평타가 빗나가면 같이 빗나갑니다. 걸리면 <b>넘어짐</b>이라 5턴 행동불가에 방어·치명저항까지
      &minus;2 씩이니 <b>맞으면 아프지만, 회피탱은 애초에 안 맞습니다</b>.</div>
 
-  <h3>⑤ 회피탱 쩔 자리 15곳</h3>
+  <h3 id="spots">⑤ 쩔 자리 &mdash; «딜 조절이 필요 없는» 순서로</h3>
   <p><b>못 피하는 피해 0 · 회피 무력화 0 · 아픈 함정 0</b> 인 곳만 남긴 것입니다 &mdash;
-     <b>330곳 중 48곳</b>이 여기 듭니다.
-     부름으로 불려 나오는 놈과 함정이 끌어들이는 놈까지 따라가서 걸렀습니다.
-     한 판 = 전투 10턴 · 자유 탐색 기준이고, <b>잠긴 발케인 지방은 뺐습니다</b>.</p>
-  <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th>
-    <th class="num">평균 간격</th><th class="num">조우 경험치<br><span style="font-weight:400">한 판</span></th>
-    <th class="num">부르는 놈</th><th class="num">시간당 경험치</th></tr></thead><tbody>
-    <tr class="hi"><td class="num">1</td><td><b>라그네스 강창의 흔적</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">4,531</td><td class="num"><b>카샨</b> <span class="sm">턴당 61%</span></td><td class="num"><b>49,446</b></td></tr>
-    <tr class="hi"><td class="num">2</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>42,479</b></td></tr>
-    <tr class="hi"><td class="num">3</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>34,288</b></td></tr>
-    <tr><td class="num">4</td><td><b>호수가 거칠게 일렁이는 카레키하라</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">8,062</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>28,455</b></td></tr>
-    <tr><td class="num">5</td><td><b>사르케인의 유적</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">8,041</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>28,379</b></td></tr>
-    <tr><td class="num">6</td><td><b>바람에 깎인 폐촌</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">8,024</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>28,319</b></td></tr>
-    <tr><td class="num">7</td><td><b>노르반 카모리</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">7,866</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>27,764</b></td></tr>
-    <tr><td class="num">8</td><td><b>무장대 연병장 흔적</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>27,370</b></td></tr>
-    <tr><td class="num">9</td><td><b>오이가와 오두막</b></td><td>칼레바스 고원</td><td class="num">27</td><td class="num">17.0분</td><td class="num">6,845</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>24,158</b></td></tr>
-    <tr><td class="num">10</td><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">6,792</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>23,971</b></td></tr>
-    <tr><td class="num">11</td><td><b>힐라이즈 마운틴</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">11.4분</td><td class="num">4,360</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>22,972</b></td></tr>
-    <tr><td class="num">12</td><td><b>불태워진 모리무라 유적</b></td><td>칼레바스 고원</td><td class="num">28</td><td class="num">17.0분</td><td class="num">6,222</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>21,959</b></td></tr>
-    <tr><td class="num">13</td><td><b>쿠로에다의 흔적이 남은 숲</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">5,860</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>20,684</b></td></tr>
-    <tr><td class="num">14</td><td><b>호반의 마검당터</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">3,877</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>13,685</b></td></tr>
-    <tr><td class="num">15</td><td><b>시그나토의 탑</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">3,877</td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num"><b>13,685</b></td></tr>
+     <b>330곳 중 98곳</b>이 여기 듭니다. 잠긴 발케인 지방은 뺐습니다.</p>
+  <div class="note warn"><b>★ 순위는 «부름 몫을 뺀» 값입니다.</b>
+     부름으로 불어나는 경험치는 <b>실전에서 잘 안 나옵니다</b> &mdash;
+     상대를 살려 둬야 부르는데, 15턴을 넘기면 무승부라 경험치가 <b>0</b> 이기 때문입니다.
+     그 줄타기를 뺀 «그냥 패서 이기면 되는» 값으로 줄을 세웠습니다.
+     부름까지 얹고 싶으면 아래 ⑥ 을 보세요.</div>
+  <p><b>«필요 회피»</b> 는 그 탐색지에서 <b>한 대도 안 맞는</b> 회피값입니다
+     (가장 잘 맞히는 놈의 명중 + 2 &mdash; <a href="#hit">&sect;5</a>).
+     <b>«후열까지»</b> 가 붙은 곳은 쩔 받는 저레벨도 맞으니 피하세요.</p>
+  <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th><th class="num">평균<br>간격</th><th class="num">판당<br>경험치</th><th class="num">시간당<br>경험치</th><th class="num">시간당<br>골드</th><th class="num">필요<br>회피</th><th>비고</th></tr></thead><tbody>
+    <tr class="hi"><td class="num">1</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><b>42,479</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">40</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr class="hi"><td class="num">2</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><b>34,288</b></td><td class="num">7,764</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr class="hi"><td class="num">3</td><td><b>호수가 거칠게 일렁이는 카레키하라</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">8,062</td><td class="num"><b>28,455</b></td><td class="num">3,599</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">4</td><td><b>사르케인의 유적</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">8,041</td><td class="num"><b>28,379</b></td><td class="num">970</td><td class="num">49</td><td>후열까지</td></tr>
+    <tr><td class="num">5</td><td><b>바람에 깎인 폐촌</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">8,024</td><td class="num"><b>28,319</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">40</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">6</td><td><b>노르반 카모리</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">7,866</td><td class="num"><b>27,764</b></td><td class="num">88</td><td class="num">40</td><td>후열까지</td></tr>
+    <tr><td class="num">7</td><td><b>산자락의 무인창고</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">17.0분</td><td class="num">7,824</td><td class="num"><b>27,614</b></td><td class="num">3,635</td><td class="num">46</td><td>부름 있음 · 함정 1<span class='sm'>(안 아픔)</span></td></tr>
+    <tr><td class="num">8</td><td><b>노출된 모래 유물</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num">4,447</td><td class="num">36</td><td>함정 1<span class='sm'>(안 아픔)</span></td></tr>
+    <tr><td class="num">9</td><td><b>무장대 연병장 흔적</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">45</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">10</td><td><b>오이가와 오두막</b></td><td>칼레바스 고원</td><td class="num">27</td><td class="num">17.0분</td><td class="num">6,845</td><td class="num"><b>24,158</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">37</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">11</td><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">6,792</td><td class="num"><b>23,971</b></td><td class="num">5,647</td><td class="num">38</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">12</td><td><b>힐라이즈 마운틴</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">11.4분</td><td class="num">4,360</td><td class="num"><b>22,972</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">41</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">13</td><td><b>불태워진 모리무라 유적</b></td><td>칼레바스 고원</td><td class="num">28</td><td class="num">17.0분</td><td class="num">6,222</td><td class="num"><b>21,959</b></td><td class="num">4,799</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">14</td><td><b>쿠로에다의 흔적이 남은 숲</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">5,860</td><td class="num"><b>20,684</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">44</td><td>후열까지</td></tr>
+    <tr><td class="num">15</td><td><b>고갯마루 성수탑</b></td><td>발두나의 황야</td><td class="num">22</td><td class="num">17.0분</td><td class="num">4,894</td><td class="num"><b>17,272</b></td><td class="num">2,117</td><td class="num">35</td><td>부름 있음</td></tr>
   </tbody></table>
-  <div class="note"><b>1위 «라그네스 강창의 흔적» 이 유일하게 «자가증식 + 안전» 을 겸합니다.</b>
-     카샨이 나오는 세 곳 중 <b>함정이 없는 유일한 곳</b>이고, 같이 나오는
-     타로스·스컬크로우 골렘은 <b>평타만</b> 칩니다.
-     카샨이 두 그룹 중 하나에만 있어서 효율은 모래시계의 절반이지만, 셋업이 필요 없습니다.
-     <span class="sm">«턴당 61%» 는 카샨이 나온 판에서 <b>한 턴에 부름이 한 번이라도 걸릴</b> 확률입니다
-     (부름 패턴 둘 &times; Usually 37.5% ⇒ 1 &minus; 0.625&sup2;). 판 자체가 뜰 확률은 두 그룹 중 하나입니다.</span></div>
-  <div class="note"><b>여기서 쓸 회피탱 세팅은 따로 있습니다.</b>
-     «안 맞는 것» 보다 <b>15턴 안에 다 잡는 것</b>이 어려운 자리라,
-     화력을 <b>승률이 95% 를 막 넘는 지점</b>에 맞춰야 합니다 &mdash;
-     그보다 세면 부름이 돌기 전에 판이 끝납니다.
-     수치와 부직업 교환은 <a href="builds.html#dodge">빌드 &sect;3</a> 의 «쩔 전용 변형» 에 있습니다.</div>
-  <div class="note"><b>2위 «도르감 단도 유적» 은 몬스터가 한 종(트레일 이터)뿐입니다.</b>
-     스킬도 부름도 함정도 없이 <b>조우 경험치만 12,036</b> 으로 가장 높습니다 &mdash;
-     전투가 짧게 끝나도 되는 자리라, 15턴 무승부 걱정이 없습니다.</div>
+  <div class="note"><b>1위 «도르감 단도 유적» 은 조절할 것이 아예 없습니다.</b>
+     몬스터 그룹이 <b>하나뿐</b>이고 트레일 이터 세 마리가 <b>평타만</b> 칩니다 &mdash;
+     스킬도 부름도 함정도 없습니다. 필요 회피 <b>40</b> 이면 한 대도 안 맞습니다.
+     <span class="sm">다만 트레일 이터는 골드를 0 으로 들고 있어 순수 경험치 자리입니다.</span></div>
+  <div class="note"><b>2위 «단죄대의 터» 는 경험치 2위이면서 골드 1위입니다.</b>
+     어쌔신이 «바디 슬램»(지속피해 15 + <b>마비</b>)을 갖고 있지만
+     그건 <code>command 0</code> &mdash; <b>평타에 붙은 효과</b>라 평타가 빗나가면 같이 빗나갑니다.
+     회피 <b>44</b> 면 안전하고, 둘 다 캘 수 있습니다.</div>
+  <div class="note warn"><b>★ «사르케인의 유적»(4위)은 수치만 보고 고르면 안 됩니다.</b>
+     필요 회피가 <b>49</b> 로 이 목록에서 가장 높고, <b>후열까지 닿습니다</b>.
+     노르반 카모리도 마찬가지입니다.</div>
 
-  <h3>⑥ 경험치만 보면 1위인 곳들이 왜 빠졌나</h3>
-  <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th>
-    <th class="num">시간당</th><th>회피탱 기준</th></tr></thead><tbody>
-    <tr><td class="num">1</td><td>명실상부한 모래시계</td><td>발두나의 황야</td><td class="num">28</td><td class="num">112,532</td><td><span style="color:var(--f-vault)">아픈 함정</span></td></tr>
-    <tr><td class="num">2</td><td>오목한 동굴</td><td>발두나의 황야</td><td class="num">28</td><td class="num">84,155</td><td><span style="color:var(--f-vault)">아픈 함정</span></td></tr>
-    <tr><td class="num">3</td><td>루스벨 유적</td><td>칼레바스 고원</td><td class="num">31</td><td class="num">52,380</td><td><span style="color:var(--f-vault)">못 피하는 피해 · 아픈 함정</span></td></tr>
-    <tr class="hi"><td class="num">4</td><td><b>라그네스 강창의 흔적</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">49,446</td><td><b style="color:var(--f-lodge)">✔ 회피탱 안전</b></td></tr>
-    <tr><td class="num">5</td><td>그레스티아 묘지</td><td>칼레바스 고원</td><td class="num">33</td><td class="num">48,410</td><td><span style="color:var(--f-vault)">못 피하는 피해</span></td></tr>
-    <tr><td class="num">6</td><td>불타는 동굴</td><td>칼레바스 고원</td><td class="num">33</td><td class="num">44,511</td><td><span style="color:var(--f-vault)">못 피하는 피해 · 아픈 함정</span></td></tr>
-    <tr><td class="num">7</td><td>겨울을 나기 위한 오두막들</td><td>칼레바스 고원</td><td class="num">32</td><td class="num">43,352</td><td><span style="color:var(--f-vault)">못 피하는 피해 · <b>회피 무력화</b> · 아픈 함정</span></td></tr>
-    <tr><td class="num">8</td><td>사카이카제의 돌 고리</td><td>칼레바스 고원</td><td class="num">32</td><td class="num">42,766</td><td><span style="color:var(--f-vault)"><b>회피 무력화</b></span></td></tr>
-    <tr class="hi"><td class="num">9</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">42,479</td><td><b style="color:var(--f-lodge)">✔ 회피탱 안전</b></td></tr>
-    <tr><td class="num">10</td><td>말레포트 강둑 유적</td><td>발두나의 황야</td><td class="num">29</td><td class="num">39,938</td><td><span style="color:var(--f-vault)">못 피하는 피해 · 아픈 함정</span></td></tr>
+  <h3>⑥ 골드 &mdash; 함정은 감수해도 됩니다</h3>
+  <p>골드는 경험치와 셈이 다릅니다 &mdash;
+     <b>레벨 보정도 배율도 없이</b> 몬스터에 박힌 값을 그대로 흔들어 줍니다.</p>
+  <div class="eq"><b>BattleTurnProcessor.OnBattleEnd</b>
+  0x26C0FAC  경험치 = MonsterMaster.GetExp(스폰레벨) <b>&times; 배율</b>
+  0x26C1020  골드   = <b>CreateRandomValue(MonsterMaster.gold)</b> 합   <span class="cmt">// 배율도 레벨 보정도 없다</span></div>
+  <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th><th class="num">평균<br>간격</th><th class="num">판당<br>경험치</th><th class="num">시간당<br>경험치</th><th class="num">시간당<br>골드</th><th class="num">필요<br>회피</th><th>비고</th></tr></thead><tbody>
+    <tr class="hi"><td class="num">1</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><b>34,288</b></td><td class="num">7,764</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr class="hi"><td class="num">2</td><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">6,792</td><td class="num"><b>23,971</b></td><td class="num">5,647</td><td class="num">38</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr class="hi"><td class="num">3</td><td><b>불태워진 모리무라 유적</b></td><td>칼레바스 고원</td><td class="num">28</td><td class="num">17.0분</td><td class="num">6,222</td><td class="num"><b>21,959</b></td><td class="num">4,799</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">4</td><td><b>노출된 모래 유물</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num">4,447</td><td class="num">36</td><td>함정 1<span class='sm'>(안 아픔)</span></td></tr>
+    <tr><td class="num">5</td><td><b>부서진 돌이 있는 강변 묘지</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">8,953</td><td class="num"><b>31,598</b></td><td class="num">3,811</td><td class="num">41</td><td>함정 1<span class='sm'>(안 아픔)</span></td></tr>
+    <tr><td class="num">6</td><td><b>산자락의 무인창고</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">17.0분</td><td class="num">7,824</td><td class="num"><b>27,614</b></td><td class="num">3,635</td><td class="num">46</td><td>부름 있음 · 함정 1<span class='sm'>(안 아픔)</span></td></tr>
+    <tr><td class="num">7</td><td><b>호수가 거칠게 일렁이는 카레키하라</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">8,062</td><td class="num"><b>28,455</b></td><td class="num">3,599</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">8</td><td><b>리스티아 짐 보관소</b></td><td>바람의 거친 경계</td><td class="num">19</td><td class="num">17.0분</td><td class="num">2,360</td><td class="num"><b>8,329</b></td><td class="num">3,176</td><td class="num">28</td><td>부름 있음</td></tr>
+    <tr><td class="num">9</td><td><b>이름 없는 묘원</b></td><td>발두나의 황야</td><td class="num">28</td><td class="num">17.0분</td><td class="num">6,086</td><td class="num"><b>21,481</b></td><td class="num">2,682</td><td class="num">46</td><td>함정 1<span class='sm'>(안 아픔)</span></td></tr>
+    <tr><td class="num">10</td><td><b>칼레도 가도산</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">5,545</td><td class="num"><b>19,571</b></td><td class="num">2,411</td><td class="num">44</td><td>후열까지 · 함정 1<span class='sm'>(안 아픔)</span></td></tr>
   </tbody></table>
-  <div class="note warn"><b>«명실상부한 모래시계»(112,532)는 함정 하나 때문에 빠집니다.</b>
-     <code>24_MonsterDesertApophis</code> &mdash; kind 1(Damage) · <b>전원 대상</b> · addDamage 12 ·
-     탐지로 회피 가능(triggerType 1) · 몬스터도 한 마리 딸려 옵니다. 빈도는 Infrequently 입니다.
-     <b>HP 회복을 맞출 각오가 되면 2.3배</b>를 가져갑니다 &mdash; 안 맞출 거면 라그네스 쪽입니다.</div>
-  <div class="note"><b>«사디르의 묘표군» 과 «밀제아의 썩은 무덤» 은 리치 때문에 상위였는데, 둘 다 빠집니다.</b>
-     리치가 <b>톡식노바(전체)·독성바이트·썬더 랜스</b> 를 <b>스킬로</b> 씁니다 &mdash;
-     회피탱도 뒷줄의 쩔 대상도 그대로 맞습니다.</div>
-  <p class="src">BattlePhysicalAttackExecutor.Run &middot;
-     PhysicsAttack <span class="sm"></span> &middot;
-     ReflectEffectAfterPhysicsAttack &middot;
-     Trap.ActionPoint <span class="sm">(최소 1)</span> &middot;
-     EffectOnCreature.CanAction <span class="sm">(넘어짐·혼란·수면·마비 등은 행동불가)</span> &middot;
-     탐색지 354곳 · 몬스터 383종 · 스킬 마스터 159건 전수</p>
+  <div class="note"><b>골드 때문에 함정을 감수할 필요가 없습니다.</b>
+     1위 «단죄대의 터» 와 2위 «마른 나뭇가지가 우거진 황량한 숲» 은 <b>함정이 아예 없고</b>
+     회피탱이 깎이지도 않습니다. 특히 마른 나뭇가지는 필요 회피가 <b>38</b> 로 낮아
+     회피를 덜 올린 단계에서도 씁니다(경험치도 시간당 23,971 로 11위).</div>
+  <div class="note warn"><b>★ 골드만 보면 «말레포트 강둑 유적»(시간당 7,129)이 2위지만 빼세요.</b>
+     회피를 무력화하는 상태이상과 아픈 함정이 둘 다 있습니다.</div>
 
-
+  <h3>⑦ 그래도 부름을 쓰고 싶다면 &mdash; 라그네스</h3>
+  <p>«라그네스 강창의 흔적» 은 부름을 빼면 <b>판당 4,531 · 시간당 15,991</b> 입니다(필요 회피 37).
+     카샨이 턴당 <b>61.0%</b> 로 부르므로 잘 굴리면 여기서 크게 불어나지만,
+     <b>두 방향으로 다 실패할 수 있습니다</b> &mdash;
+     너무 세면 부르기 전에 끝나고, 너무 약하면 15턴 무승부로 <b>경험치가 0</b> 이 됩니다.
+     <b>도르감(42,479)은 그 줄타기 없이 나오는 값</b>이라, 조절이 귀찮으면 갈아타는 쪽이 낫습니다.</p>
 
   <h2 id="va"><span class="n">부록</span>함수 주소표 <span class="sm" style="font-weight:400">7.1 기준</span></h2>
   <p>본문에서 주소를 뺐습니다. 판올림 때 고칠 곳이 <b>여기 한 표</b>뿐이도록 모아 둡니다.</p>
