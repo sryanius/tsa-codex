@@ -1563,6 +1563,20 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p><b>«필요 회피»</b> 는 그 탐색지에서 <b>한 대도 안 맞는</b> 회피값입니다
      (가장 잘 맞히는 놈의 명중 + 2 &mdash; <a href="#hit">&sect;5</a>).
      <b>«후열까지»</b> 가 붙은 곳은 쩔 받는 저레벨도 맞으니 피하세요.</p>
+  <div class="note warn"><b>★ 표의 경험치는 «파티 전체» 몫입니다 &mdash; 인원수로 나눠서 받습니다.</b>
+     <b>골드는 안 나눕니다.</b> 이 둘이 다릅니다.</div>
+  <div class="eq"><b>BattleTurnProcessor.OnBattleEnd</b>
+  0x26C0D5C  bl Party.<b>AliveCharacters</b>()           <span class="cmt">// 살아 있는 사람만</span>
+  0x26C1208  ldr w8, [x21, #0x10]                 <span class="cmt">// 이 판의 경험치 합</span>
+  0x26C120C  ldr w9, [x19, #0x18]                 <span class="cmt">// 그 목록의 인원수</span>
+  0x26C1210  <b>sdiv w8, w8, w9</b>                      <span class="cmt">// ★ 나눈다 (최소 1)</span>
+
+  0x26C1288  add w8, w8, w26 / str [x20, #0x94]   <span class="cmt">// 골드는 그대로 더한다</span></div>
+  <div class="note"><b>그래서 쩔은 «적게 데려갈수록» 한 명이 더 많이 받습니다.</b>
+     회피탱 1 + 저레벨 1 이면 각자 <b>절반</b>, 저레벨 3 을 데려가면 <b>4분의 1</b> 씩입니다.
+     한 명만 키울 거면 <b>둘이서 가는 것이 네 배 빠릅니다.</b>
+     <b>반대로 골드는 인원과 무관하니</b>, 골드를 캘 때는 사람을 채워도 손해가 없습니다.
+     <span class="sm">쓰러진 파티원은 분모에서도 빠지지만 그 사람은 경험치를 못 받습니다.</span></div>
   <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th><th class="num">평균<br>간격</th><th class="num">판당<br>경험치</th><th class="num">시간당<br>경험치</th><th class="num">시간당<br>골드</th><th class="num">필요<br>회피</th><th>비고</th></tr></thead><tbody>
     <tr class="hi"><td class="num">1</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><b>42,479</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">40</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
     <tr class="hi"><td class="num">2</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><b>34,288</b></td><td class="num">7,764</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
@@ -1585,9 +1599,16 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      스킬도 부름도 함정도 없습니다. 필요 회피 <b>40</b> 이면 한 대도 안 맞습니다.
      <span class="sm">다만 트레일 이터는 골드를 0 으로 들고 있어 순수 경험치 자리입니다.</span></div>
   <div class="note"><b>2위 «단죄대의 터» 는 경험치 2위이면서 골드 1위입니다.</b>
-     어쌔신이 «바디 슬램»(지속피해 15 + <b>마비</b>)을 갖고 있지만
-     그건 <code>command 0</code> &mdash; <b>평타에 붙은 효과</b>라 평타가 빗나가면 같이 빗나갑니다.
-     회피 <b>44</b> 면 안전하고, 둘 다 캘 수 있습니다.</div>
+     어쌔신이 붙이는 것은 <code>command 0</code> &mdash; <b>평타에 얹힌 효과</b>라
+     평타가 빗나가면 같이 빗나갑니다. 회피 <b>44</b> 면 둘 다 캘 수 있습니다.</div>
+  <div class="note warn"><b>★ 다만 여기는 «아슬아슬하게» 가면 안 됩니다 &mdash; 한 대가 영구 피해입니다.</b>
+     어쌔신이 붙이는 <code>30_GrazeParalysis</code> 는 그 판만 가는 효과가 아니라
+     <b>후유증</b>입니다. 그 후유증에 <code>battleAddEffectKind = 17(마비)</code> 이 박혀 있어,
+     달고 다니는 동안 <b>모든 전투에서 회피가 계산 없이 0</b> 이 됩니다
+     (<code>AvoidRate</code> 0x26B72FC 의 16·17 검사).
+     게다가 <code>deadLevel 6</code> 이라 방치하면 <b>죽습니다</b>.
+     어쌔신은 <code>addAttackCount 1</code> 로 <b>두 번</b> 때립니다 &mdash;
+     <b>필요 회피 44 는 반드시 넘기고 가세요.</b> 넘기면 난수가 없어 두 번이든 백 번이든 0% 입니다.</div>
   <div class="note warn"><b>★ «사르케인의 유적»(4위)은 수치만 보고 고르면 안 됩니다.</b>
      필요 회피가 <b>49</b> 로 이 목록에서 가장 높고, <b>후열까지 닿습니다</b>.
      노르반 카모리도 마찬가지입니다.</div>
@@ -1616,6 +1637,18 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      회피를 덜 올린 단계에서도 씁니다(경험치도 시간당 23,971 로 11위).</div>
   <div class="note warn"><b>★ 골드만 보면 «말레포트 강둑 유적»(시간당 7,129)이 2위지만 빼세요.</b>
      회피를 무력화하는 상태이상과 아픈 함정이 둘 다 있습니다.</div>
+  <div class="note"><b>함정에서 튀어나오는 매복도 «전투 한 판» 으로 쳐줍니다.</b>
+     <code>AdventureMain.ExecuteTrap</code>(0x27237F0)이 <code>MonsterGroup</code> 을 새로 만들어
+     (0x2724580) <code>ExecuteBattle</code>(0x27245F8)을 그대로 부릅니다 &mdash;
+     보상 경로가 일반 전투와 같습니다.
+     <b>그래서 함정을 감수하기로 했다면 함정이 «수입원» 이 됩니다.</b>
+     위 표의 시간당 값에는 이 몫이 <b>안 들어 있습니다</b> &mdash; 함정 있는 곳은 적힌 것보다 더 법니다.</div>
+  <div class="note"><b>발케인 지방이 열리면 골드 1위가 바뀝니다.</b>
+     «<b>모래에 잠긴 사원</b>»(Lv30)은 <b>어쌔신 여섯 마리</b>가 한 그룹이라
+     판당 <b>골드 6,000 · 경험치 27,726</b> 입니다 &mdash; 단죄대의 터의 세 배 가까이입니다.
+     <b>다만 그만큼 위험합니다</b> &mdash; 위의 후유증을 여섯에게서 받고,
+     함정마저 <code>addEffect 17(마비)</code> 짜리에 거기서도 어쌔신이 나옵니다.
+     <span class="sm">지금은 못 가는 지역이라 위 표에서는 뺐습니다.</span></div>
 
   <h3>⑦ 그래도 부름을 쓰고 싶다면 &mdash; 라그네스</h3>
   <p>«라그네스 강창의 흔적» 은 부름을 빼면 <b>판당 4,531 · 시간당 15,991</b> 입니다(필요 회피 37).
