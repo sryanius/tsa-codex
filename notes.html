@@ -1563,6 +1563,12 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p><b>«필요 회피»</b> 는 그 탐색지에서 <b>한 대도 안 맞는</b> 회피값입니다
      (가장 잘 맞히는 놈의 명중 + 2 &mdash; <a href="#hit">&sect;5</a>).
      <b>«후열까지»</b> 가 붙은 곳은 쩔 받는 저레벨도 맞으니 피하세요.</p>
+  <div class="note"><b>공격 패턴이 하나도 없는 몬스터도 때립니다.</b>
+     고른 행동이 하나도 없으면 <code>SelectActions</code>(0x26C20CC)가 <b>기본 평타</b>를 만들어 냅니다 &mdash;
+     <b>전열 대상 · 1회 · 명중 보정 0</b> 입니다.
+     그래서 할로우아머·바게스트처럼 패턴이 빈 몬스터도 공격하고,
+     <b>명중 보정이 음수인 패턴을 가진 놈(트레일 이터 &minus;2)도 보정 없는 명중으로 때릴 수 있습니다</b> &mdash;
+     위 «필요 회피» 는 그 <b>보정 없는 값</b>으로 잡았습니다.</div>
   <div class="note warn"><b>★ 표의 경험치는 «파티 전체» 몫입니다 &mdash; 인원수로 나눠서 받습니다.</b>
      <b>골드는 안 나눕니다.</b> 이 둘이 다릅니다.</div>
   <div class="eq"><b>BattleTurnProcessor.OnBattleEnd</b>
@@ -1577,6 +1583,26 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      한 명만 키울 거면 <b>둘이서 가는 것이 네 배 빠릅니다.</b>
      <b>반대로 골드는 인원과 무관하니</b>, 골드를 캘 때는 사람을 채워도 손해가 없습니다.
      <span class="sm">쓰러진 파티원은 분모에서도 빠지지만 그 사람은 경험치를 못 받습니다.</span></div>
+  <table class="t"><thead><tr><th>탐색지</th><th class="num">파티 전체</th><th class="num">N=2<br><span style="font-weight:400">탱+1</span></th><th class="num">N=3</th><th class="num">N=4<br><span style="font-weight:400">탱+3</span></th></tr></thead><tbody>
+    <tr class="hi"><td><b>도르감 단도 유적</b></td><td class="num">42,479</td><td class="num"><b>21,239</b></td><td class="num">14,159</td><td class="num">10,619</td></tr>
+    <tr><td><b>단죄대의 터</b></td><td class="num">34,288</td><td class="num"><b>17,144</b></td><td class="num">11,429</td><td class="num">8,572</td></tr>
+    <tr><td><b>호수가 거칠게 일렁이는 카레키하라</b></td><td class="num">28,455</td><td class="num"><b>14,227</b></td><td class="num">9,485</td><td class="num">7,113</td></tr>
+    <tr><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td class="num">23,971</td><td class="num"><b>11,985</b></td><td class="num">7,990</td><td class="num">5,992</td></tr>
+    <tr><td><b>라그네스 강창의 흔적<span class="sm"> · 부름 제외</span></b></td><td class="num">15,991</td><td class="num"><b>7,995</b></td><td class="num">5,330</td><td class="num">3,997</td></tr>
+  </tbody></table>
+  <div class="note warn"><b>★ 만렙 용병은 «경험치를 0 받으면서 분모는 차지합니다».</b>
+     <code>Character.AddAdventureExp</code>(0x26D6124)가 <code>IsMaxLevel()</code> 이면
+     <b>바로 리턴</b>합니다(0x26D6170). 그런데 분모를 세는
+     <code>AliveCharacters</code> 의 술어는 <b><code>IsAlive()</code> 하나뿐</b>입니다(0x26FB6B8) &mdash;
+     살아 있기만 하면 머릿수에 들어갑니다.
+     <b>만렙 회피탱을 데리고 둘이 가면 경험치의 절반이 그냥 사라집니다.</b>
+     쩔을 돌릴 거면 <b>탱을 만렙 직전에 세워 두는 편</b>이 이득입니다.</div>
+  <div class="note"><b>상한과 배율은 이렇습니다.</b>
+     한 파티는 <b>최대 4명</b>(<code>MaxPartyCharacterCount</code>),
+     전투는 <b>15턴</b>에 무승부(<code>BattleDrawTurn</code>),
+     경험치 배율은 <b>일반 1 · 보스/퀘스트 이벤트 10</b>
+     (<code>MonsterExp</code> / <code>BossMonsterExp</code>, 0x26C1008 의 <code>mul</code>).
+     <b>승리했을 때만</b> 경험치도 골드도 들어옵니다 &mdash; 무승부는 둘 다 0 입니다.</div>
   <table class="t"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th><th class="num">평균<br>간격</th><th class="num">판당<br>경험치</th><th class="num">시간당<br>경험치</th><th class="num">시간당<br>골드</th><th class="num">필요<br>회피</th><th>비고</th></tr></thead><tbody>
     <tr class="hi"><td class="num">1</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><b>42,479</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">40</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
     <tr class="hi"><td class="num">2</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><b>34,288</b></td><td class="num">7,764</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
@@ -1597,7 +1623,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b>1위 «도르감 단도 유적» 은 조절할 것이 아예 없습니다.</b>
      몬스터 그룹이 <b>하나뿐</b>이고 트레일 이터 세 마리가 <b>평타만</b> 칩니다 &mdash;
      스킬도 부름도 함정도 없습니다. 필요 회피 <b>40</b> 이면 한 대도 안 맞습니다.
-     <span class="sm">다만 트레일 이터는 골드를 0 으로 들고 있어 순수 경험치 자리입니다.</span></div>
+     <b>다만 골드는 한 푼도 안 나옵니다</b> &mdash; 트레일 이터는 <code>gold 0</code> 이고
+     <code>rewardWeapons</code>·<code>rewardArmors</code> 도 <b>둘 다 비어</b> 있어
+     <b>팔 물건조차 안 떨굽니다</b>. 순수 경험치 자리입니다.
+     <span class="sm">(지금 쓰시는 라그네스도 골드는 0 입니다.)</span></div>
   <div class="note"><b>2위 «단죄대의 터» 는 경험치 2위이면서 골드 1위입니다.</b>
      어쌔신이 붙이는 것은 <code>command 0</code> &mdash; <b>평타에 얹힌 효과</b>라
      평타가 빗나가면 같이 빗나갑니다. 회피 <b>44</b> 면 둘 다 캘 수 있습니다.</div>
@@ -1635,8 +1664,11 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      1위 «단죄대의 터» 와 2위 «마른 나뭇가지가 우거진 황량한 숲» 은 <b>함정이 아예 없고</b>
      회피탱이 깎이지도 않습니다. 특히 마른 나뭇가지는 필요 회피가 <b>38</b> 로 낮아
      회피를 덜 올린 단계에서도 씁니다(경험치도 시간당 23,971 로 11위).</div>
-  <div class="note warn"><b>★ 골드만 보면 «말레포트 강둑 유적»(시간당 7,129)이 2위지만 빼세요.</b>
-     회피를 무력화하는 상태이상과 아픈 함정이 둘 다 있습니다.</div>
+  <div class="note warn"><b>★ «말레포트 강둑 유적» 은 수치만 보면 최고 조합입니다 &mdash; 그래서 더 조심하세요.</b>
+     경험치 <b>39,938</b>/시간에 골드 <b>7,129</b>/시간으로 둘 다 2위권인데,
+     <b>다크엘프 리더</b>가 <code>25_PoisonAll</code> 을 <b>스킬(command 10) · 전체 대상</b>으로 씁니다 &mdash;
+     회피를 <b>안 탑니다</b>. 거기에 <code>28_Fire</code> 스킬과 <b>15 피해 함정</b>까지 있습니다.
+     <b>회피탱은 버텨도 뒤의 저레벨이 그대로 맞습니다.</b> 쩔에는 쓰지 마세요.</div>
   <div class="note"><b>함정에서 튀어나오는 매복도 «전투 한 판» 으로 쳐줍니다.</b>
      <code>AdventureMain.ExecuteTrap</code>(0x27237F0)이 <code>MonsterGroup</code> 을 새로 만들어
      (0x2724580) <code>ExecuteBattle</code>(0x27245F8)을 그대로 부릅니다 &mdash;
