@@ -256,6 +256,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .card{border:1px solid var(--line);border-radius:10px;background:var(--surface);
   padding:14px 16px;margin:0 0 12px;box-shadow:var(--shadow)}
 .card h3{margin:0 0 10px;font-family:"Gowun Batang",Georgia,serif;font-size:15px;color:var(--ink)}
+ol.how{margin:0;padding-left:20px}
+ol.how>li{margin:0 0 14px;color:var(--body);font-size:13.5px;line-height:1.75}
+ol.how>li:last-child{margin-bottom:0}
+ol.how pre{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.7;
+  background:var(--raised);border:1px solid var(--line);border-radius:6px;
+  padding:8px 11px;margin:6px 0;overflow-x:auto;white-space:pre;color:var(--ink)}
+ol.how .c{color:var(--faint)}
+ol.how .meta{display:block;margin-top:3px}
 .warn{border-left:3px solid var(--f-heal)}
 .ok{border-left:3px solid var(--f-lodge)}
 
@@ -293,7 +301,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <div class="drop" id="drop">
     <h3>세이브 폴더를 고르세요</h3>
-    <p><code>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</code> 로 받은 <b><code>files</code> 폴더를 통째로</b> 고르시면 됩니다. <a href="guide.html">받는 방법</a></p>
+    <p><code>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</code> 로 받은 <b><code>files</code> 폴더를 통째로</b> 고르시면 됩니다. <a href="#howcard">받는 방법</a></p>
     <div class="btns">
       <label class="filebtn">폴더 열기<input type="file" id="savein" webkitdirectory directory multiple hidden></label>
       <label class="filebtn alt">파일로 고르기<input type="file" id="savein2" multiple accept=".data" hidden></label>
@@ -311,6 +319,38 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <button type="button" id="cloudlogin" class="mini" hidden>로그인</button>
       <button type="button" id="cloudout" class="mini" hidden>로그아웃</button>
     </div>
+  </div>
+
+  <div class="card" id="howcard"><h3>세이브 꺼내는 법</h3>
+    <p class="meta" style="margin:0 0 10px">폰의 세이브를 PC 로 받아 위에 넣으면 됩니다.
+      <b>한 번만 준비하면</b> 그 뒤로는 3·4 만 반복합니다.
+      <b>파일은 어디로도 안 올라갑니다</b> &mdash; 이 브라우저가 풀어서 여기에만 둡니다.</p>
+    <ol class="how">
+      <li><b>PC 에 adb 를 깐다</b> <span class="meta">(한 번만)</span>
+        <pre>winget install --id Google.PlatformTools -e</pre>
+        <span class="meta">깔고 나서 <b>터미널을 새로 열어야</b> <code>adb</code> 가 잡힙니다.</span></li>
+      <li><b>폰을 무선으로 잇는다</b> <span class="meta">(PC 와 같은 Wi-Fi)</span><br>
+        폰에서 <b>설정 → 개발자 옵션 → 무선 디버깅</b> 을 켜고
+        <b>«페어링 코드로 기기 페어링»</b> 을 누르면 6자리 코드와 IP:포트가 뜹니다.
+        <pre>adb pair 192.168.0.214:41234 683465</pre>
+        그다음 <b>무선 디버깅 메인 화면</b>의 IP:포트로 잇습니다
+        <span class="meta">(페어링 팝업의 것과 <b>다릅니다</b>)</span>.
+        <pre>adb connect 192.168.0.214:38099
+adb devices        <span class="c"># device 라고 뜨면 연결됨</span></pre>
+        <span class="meta">폰 IP 가 <code>192.168.x.x</code> 가 아니면 VPN·광고차단 앱이 켜져 있는 것입니다. 끄고 다시 여세요.</span></li>
+      <li><b>세이브를 받는다</b>
+        <pre>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</pre>
+        <span class="meta">현재 폴더에 <code>files</code> 가 생깁니다.
+          안에 <code>Town</code>(퀘스트)과 <code>GameData</code>(시설)가 있어서
+          <b><code>files</code> 를 통째로</b> 받아야 합니다 &mdash;
+          <code>Town</code> 만 받으면 시설 레벨이 안 채워집니다.</span></li>
+      <li><b>위 «폴더 열기» 로 그 <code>files</code> 폴더를 고른다</b>
+        <span class="meta">폴더 선택이 안 되는 브라우저면 «파일로 고르기» 로
+          <code>.data</code> 파일을 전부 골라도 됩니다.</span></li>
+    </ol>
+    <p class="meta" style="margin:10px 0 0"><b>폰만으로는 안 됩니다</b> &mdash;
+      안드로이드가 다른 앱의 <code>Android/data</code> 접근을 막습니다. PC 가 한 번 필요합니다.
+      로그인해서 «올리기» 를 해 두면 다른 기기에서는 «받기» 만으로 같은 진행도가 보입니다.</p>
   </div>
 
   <div class="bar" id="crewbar" hidden>
