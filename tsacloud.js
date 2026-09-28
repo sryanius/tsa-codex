@@ -22,6 +22,22 @@
   var SESSION_KEY = "tsa_session_v1";
   var VERIFIER_KEY = "tsa_pkce_v1";
   var DB_NAME = "tsa-cache";
+  var UID_KEY = "tsa_last_uid";
+
+  /* ★ «이 사람의 것» 인 로컬 키. 계정이 바뀌면 비워야 한다.
+   *   서버는 RLS 로 갈라져 있지만 브라우저는 안 갈라진다 — 여기서 갈라 준다.
+   *   안 비우면 다음 사람이 앞사람 세이브를 보고, «올리기» 한 번에
+   *   그 데이터가 그 사람 행으로 넘어간다 (퀘스트 화면은 버튼도 없이 자동으로 올린다).
+   *   tsa.rep.v1 · tsa.showlocked.v1 은 개인 기록이 아니라 화면 설정이라 남긴다. */
+  var LOCAL_KEYS = ["tsa.save.v1", "tsa.crew.v1", "tsa.qstate.v1", "tsa.levels.v1",
+                    "tsa.fac.v1", "tsa.done.v1", "tsa.maps.v1", "tsa.fav.v1"];
+
+  function wipeLocal() {
+    for (var i = 0; i < LOCAL_KEYS.length; i++) {
+      try { localStorage.removeItem(LOCAL_KEYS[i]); } catch (e) { }
+    }
+    try { indexedDB.deleteDatabase(DB_NAME); } catch (e) { }
+  }
 
   /* ★ 데이터 판번호. build_cloud.py 가 full/*.json 과 mapimg 의 해시로 채워 넣는다.
    *   캐시 키 앞에 붙여서, 데이터를 새로 올리면 «기기에 남은 옛 캐시가 저절로 버려진다».
@@ -165,7 +181,40 @@
       location.assign(u.toString());
     },
 
-    signOut: function () { ls(SESSION_KEY, null); ls(VERIFIER_KEY, null); },
+    /** 이 기기에 남은 개인 기록의 수. 로그아웃 확인 문구에 쓴다. */
+    localTraces: function () {
+      var k = 0;
+      for (var i = 0; i < LOCAL_KEYS.length; i++) {
+        try { if (localStorage.getItem(LOCAL_KEYS[i])) k++; } catch (e) { }
+      }
+      return k;
+    },
+
+    /**
+     * 로그아웃. 기본은 «이 기기의 개인 기록까지» 지운다 —
+     * 남기면 다음에 로그인한 사람이 앞사람 것을 보고 자기 행에 올려 버린다.
+     * keepLocal 을 참으로 주면 세션만 끊는다.
+     */
+    signOut: function (keepLocal) {
+      ls(SESSION_KEY, null);
+      ls(VERIFIER_KEY, null);
+      if (!keepLocal) { ls(UID_KEY, null); wipeLocal(); }
+    },
+
+    /**
+     * 나는 자료 열람 명단(tsa_member)에 있나.
+     * 버킷 읽기 정책이 명단을 보므로, 자료를 못 받았을 때 «왜» 를 여기서 가른다.
+     * 정책이 «본인 행만» 이라 남이 명단에 누가 있는지는 못 본다.
+     */
+    isMember: async function () {
+      var s = await ensureFresh();
+      if (!s) return false;
+      try {
+        var r = await api("/rest/v1/tsa_member?select=user_id&user_id=eq." + s.userId);
+        if (!r.ok) return false;
+        return (await r.json()).length > 0;
+      } catch (e) { return false; }
+    },
 
     /** 로그인에서 돌아왔으면 코드를 토큰으로 바꾼다. 부팅 때 한 번 부른다. */
     completeOAuth: async function () {
@@ -270,15 +319,33 @@
       var cleared = 0, recorded = 0;
       for (var k in q) { recorded++; if (q[k].clear > 0) cleared++; }
       var now = new Date().toISOString();
+      /* ★ 부르는 쪽마다 담아 오는 칸이 다르다 —
+         퀘스트 화면은 {q,at,levels,fac,fav} 만 주고 crew·done 을 안 준다.
+         예전에는 그걸 그대로 «비었다» 로 써서, 퀘스트 화면에서 별 하나만 눌러도
+         클라우드의 용병 목록이 통째로 날아갔다. 혼자 써도 당하는 사고였다.
+         그래서 **안 준 칸은 기존 값을 그대로 둔다.** */
+      var prev = {};
+      try {
+        var pr = await api("/rest/v1/tsa_progress?select=payload&user_id=eq." + s.userId);
+        if (pr.ok) {
+          var rows0 = await pr.json();
+          if (rows0.length) prev = JSON.parse(rows0[0].payload) || {};
+        }
+      } catch (e) { }
+      function pick(k, dflt) {
+        return Object.prototype.hasOwnProperty.call(state, k)
+          ? state[k] : (Object.prototype.hasOwnProperty.call(prev, k) ? prev[k] : dflt);
+      }
       var body = {
         user_id: s.userId,
         payload: JSON.stringify({
           q: q,
-          at: state.at || "",
-          levels: state.levels || {},
-          fac: state.fac || null,
-          done: state.done || {},
-          crew: state.crew || null
+          at: state.at || prev.at || "",
+          levels: pick("levels", {}),
+          fac: pick("fac", null),
+          done: pick("done", {}),
+          crew: pick("crew", null),
+          fav: pick("fav", null)      /* 담기만 하고 저장된 적이 없던 칸 */
         }),
         saved_at: now, cleared: cleared, recorded: recorded, updated_at: now
       };
@@ -295,6 +362,21 @@
       return { ok: true, cleared: cleared, recorded: recorded };
     }
   };
+
+  /* ★ 계정이 바뀌면 이 기기의 개인 기록을 비운다.
+     로그아웃 버튼만으로는 모자라다 — refresh 가 한 번 실패하면(위 refresh() 의 !r.ok)
+     세션이 «조용히» 날아가고 로컬 키는 남는다. 그 상태에서 다음 사람이 로그인하면
+     앞사람 데이터를 보고, 퀘스트 화면의 자동 저장이 그것을 그 사람 행에 올려 버린다.
+     처음 쓰는 기기(직전 uid 가 없음)에서는 비우지 않는다 — 기존 사용자가 잃으면 안 된다. */
+  (function () {
+    try {
+      var s = session(), cur = s && s.userId, was = ls(UID_KEY);
+      if (cur) {
+        if (was && was !== cur) wipeLocal();
+        if (was !== cur) ls(UID_KEY, cur);
+      }
+    } catch (e) { }
+  })();
 
   cacheSweep();          /* 판이 바뀌었으면 옛 캐시를 여기서 버린다 */
 })();

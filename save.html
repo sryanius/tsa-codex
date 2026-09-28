@@ -309,6 +309,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <button type="button" id="cloudup" class="mini">올리기</button>
       <button type="button" id="clouddown" class="mini">받기</button>
       <button type="button" id="cloudlogin" class="mini" hidden>로그인</button>
+      <button type="button" id="cloudout" class="mini" hidden>로그아웃</button>
     </div>
   </div>
 
@@ -1364,6 +1365,7 @@ function cloudStatus(extra){
            : (nc? "로컬 퀘스트 없음 · 용병 "+nc+"명" : "로컬 없음");
   el("cloudmsg").textContent=who+" · "+loc+(extra?" · "+extra:"");
   el("cloudlogin").hidden=C.signedIn();
+  if(el("cloudout")) el("cloudout").hidden=!C.signedIn();
   el("cloudup").disabled=!C.signedIn();
   el("clouddown").disabled=!C.signedIn();
 }
@@ -1382,6 +1384,16 @@ async function pushCloud(ok){
   var C=window.TSA_CLOUD; if(!C){ el("cloudcard").hidden=true; return; }
   cloudStatus();
   el("cloudlogin").onclick=function(){ C.signIn(true); };
+  if(el("cloudout")) el("cloudout").onclick=function(){
+    /* ★ 로그아웃은 «이 기기의 개인 기록» 까지 지운다.
+       안 지우면 다음에 로그인한 사람이 앞사람 세이브·용병을 보고,
+       퀘스트 화면의 자동 저장이 그것을 그 사람 행에 올려 버린다. */
+    var k=(C.localTraces&&C.localTraces())||0;
+    if(!confirm("로그아웃하면 이 브라우저에 남은 내 기록"+(k?" "+k+"가지":"")+"를 지웁니다.\n"
+      +"클라우드에 올려 둔 것은 그대로 남고, 다시 로그인해 «받기» 하면 돌아옵니다.\n\n계속할까요?")) return;
+    C.signOut();
+    location.reload();
+  };
   el("cloudup").onclick=function(){ pushCloud("올렸습니다"); };
   el("clouddown").onclick=async function(){
     cloudStatus("받는 중…");
@@ -1477,7 +1489,17 @@ window.__TSA_MAPIMG = function(id){
   }
   if(d) start(d);
   else if(!C.signedIn()) fail("이 자료실을 보려면 로그인이 필요합니다.");
-  else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 meta.json 이 있는지 확인해 주세요.");
+  else {
+    /* 로그인은 됐는데 자료를 못 받았다. 두 가지가 전혀 다른 사건이라 갈라서 말한다 —
+       ① 열람 명단(tsa_member)에 없다  ② 버킷에 파일이 없다.
+       안 가르면 명단에 없는 사람이 «버킷을 확인하라» 는 말을 듣고 아무것도 못 한다.
+       그리고 남에게 버킷 이름·파일 이름을 알려 줄 이유가 없다 — ②일 때만 적는다. */
+    var member=true;
+    try{ member = C.isMember? await C.isMember() : true; }catch(e){}
+    if(!member) fail("이 계정("+((C.email&&C.email())||"로그인한 계정")+")은 아직 열람 명단에 없습니다. "
+      +"자료실 주인에게 이 계정을 알려 주세요. 명단에 들어가면 새로고침만 하면 됩니다.");
+    else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 meta.json 이 있는지 확인해 주세요.");
+  }
 })();
 </script>
 

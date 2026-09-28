@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>집에서 쓰는 법</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,6 +90,8 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
 .topnav a:hover{color:var(--ink);border-color:var(--accent)}
 .topnav a.here{background:var(--accent);color:#fff;border-color:var(--accent)}
 </style>
+</head>
+<body>
 
 <div class="wrap">
   <nav class="topnav"><a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="builds.html">빌드</a></nav>
@@ -97,7 +104,8 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
 
 <h2><span class="n">0</span> 클라우드 자료실 (설정하면 이게 제일 편합니다)</h2>
 <p><b><a href="https://sryanius.github.io/tsa-codex/">https://sryanius.github.io/tsa-codex/</a></b> &mdash; 어디서든 열리고, 세이브를 넣으면 다른 기기에도 자동으로 반영됩니다.</p>
-<p>껍데기는 GitHub Pages 에 공개돼 있지만 <b>게임 데이터는 들어 있지 않습니다.</b> 퀘스트·도감 데이터는 비공개 Supabase Storage 에 있고, 본인 구글 계정으로 로그인해야 받습니다. 남이 주소를 알아도 로그인 화면에서 멈춥니다.</p>
+<p>껍데기는 GitHub Pages 에 공개돼 있지만 <b>게임에서 뽑은 데이터 파일은 들어 있지 않습니다.</b> 퀘스트·도감 데이터는 비공개 Supabase Storage 에 있고, <b>열람 명단에 든 계정</b>으로 로그인해야 받습니다 (명단은 <code>tsa_member</code> — <code>cloud/002_member.sql</code>).</p>
+<div class="box warn"><b>다만 «로그인 화면에서 멈춘다» 는 4쪽에는 해당하지 않습니다.</b> 로그인 관문은 <b>퀘스트·도감·계산기·내 세이브</b>에만 붙습니다. <b>표지·집에서 쓰는 법·원리·빌드</b>는 그대로 복사돼 나가서 <b>로그인 없이 열립니다</b> &mdash; 원리에는 역공학으로 얻은 식·상수·주소가 들어 있습니다. 이걸 가리려면 게이트를 더 붙이는 걸로는 안 되고(정적 페이지라 소스 보기로 뚫립니다) 본문을 비공개 버킷으로 빼야 합니다.</div>
 
 <div class="box ok">
   <b>설정은 끝났습니다.</b> 아래 셋 다 적용돼 있어서 지금 바로 주소를 열고 로그인만 하면 됩니다.
@@ -239,3 +247,6 @@ adb devices        <span class="c"># device 라고 뜨면 연결됨</span></pre>
   <p>2026‑08‑26 기준. 데이터는 설치본 APK 에서 추출했고, 평판 공식과 세이브 형식은 게임 바이너리를 역어셈블해 확인한 것입니다.</p>
 </footer>
 </div>
+
+</body>
+</html>
