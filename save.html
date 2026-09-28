@@ -264,6 +264,8 @@ ol.how pre{font-family:"IBM Plex Mono",monospace;font-size:12px;line-height:1.7;
   padding:8px 11px;margin:6px 0;overflow-x:auto;white-space:pre;color:var(--ink)}
 ol.how .c{color:var(--faint)}
 ol.how .meta{display:block;margin-top:3px}
+.fold{margin:8px 0 6px;padding:9px 12px;border-left:2px solid var(--line);
+  background:var(--raised);border-radius:0 6px 6px 0;font-size:13px}
 .warn{border-left:3px solid var(--f-heal)}
 .ok{border-left:3px solid var(--f-lodge)}
 
@@ -332,12 +334,20 @@ ol.how .meta{display:block;margin-top:3px}
       <li><b>폰을 무선으로 잇는다</b> <span class="meta">(PC 와 같은 Wi-Fi)</span><br>
         폰에서 <b>설정 → 개발자 옵션 → 무선 디버깅</b> 을 켜고
         <b>«페어링 코드로 기기 페어링»</b> 을 누르면 6자리 코드와 IP:포트가 뜹니다.
-        <pre>adb pair 192.168.0.214:41234 683465</pre>
-        그다음 <b>무선 디버깅 메인 화면</b>의 IP:포트로 잇습니다
-        <span class="meta">(페어링 팝업의 것과 <b>다릅니다</b>)</span>.
-        <pre>adb connect 192.168.0.214:38099
-adb devices        <span class="c"># device 라고 뜨면 연결됨</span></pre>
-        <span class="meta">폰 IP 가 <code>192.168.x.x</code> 가 아니면 VPN·광고차단 앱이 켜져 있는 것입니다. 끄고 다시 여세요.</span></li>
+        <pre>adb pair 192.168.0.214:41234 683465
+adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</span></pre>
+        <span class="meta"><b>보통 여기서 끝납니다.</b> adb 가 자동 탐색(mDNS)으로
+          페어링된 기기를 알아서 붙이기 때문에 <code>connect</code> 를 따로 안 쳐도 됩니다.</span>
+        <div class="fold"><b>목록에 안 뜨면</b> &mdash; 자동 탐색이 막힌 것입니다
+          (윈도 방화벽·VPN·다른 공유기·«기기 간 격리» 가 켜진 Wi-Fi).
+          <b>무선 디버깅 메인 화면</b>의 IP:포트로 손수 붙입니다
+          <span class="meta">(페어링 팝업의 포트와 <b>다릅니다</b>)</span>.
+          <pre>adb connect 192.168.0.214:38099</pre>
+          <span class="meta">폰 IP 가 <code>192.168.x.x</code> 가 아니면(예: <code>10.x.x.x</code>)
+            VPN·광고차단 앱이 켜져 있는 것입니다. 끄고 다시 여세요.</span></div>
+        <span class="meta"><b>페어링은 한 번만</b> 하면 됩니다. 다만 폰을 재부팅하거나
+          무선 디버깅을 껐다 켜면 <b>포트가 바뀝니다</b> &mdash;
+          그때도 보통 자동으로 다시 붙고, 안 붙으면 위 <code>connect</code> 를 새 포트로 한 번 치면 됩니다.</span></li>
       <li><b>세이브를 받는다</b>
         <pre>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</pre>
         <span class="meta">현재 폴더에 <code>files</code> 가 생깁니다.
