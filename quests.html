@@ -1755,9 +1755,10 @@ render();
 <div id="gate" class="gate">
   <div class="gatebox">
     <h2>침묵의 기록자 자료실</h2>
-    <p id="gatemsg">데이터를 받는 중…</p>
-    <button type="button" id="gatebtn" hidden>구글로 로그인</button>
-    <p class="gatenote">데이터는 로그인한 사람만 받을 수 있습니다. 한 번 받으면 이 기기에 저장돼 다음부터는 오프라인에서도 열립니다.</p>
+    <p id="gatemsg">자료를 받는 중…</p>
+    <button type="button" id="gatebtn" hidden>다시 시도</button>
+    <p class="gatenote">퀘스트·도감은 <b>로그인 없이</b> 볼 수 있습니다. 한 번 받으면 이 기기에 저장돼 다음부터는 오프라인에서도 열립니다.<br>
+      내 진행도를 얹으려면 <a href="save.html">내 세이브</a> 에서 로그인하세요.</p>
   </div>
 </div>
 <script src="tsacloud.js"></script>
@@ -1790,7 +1791,7 @@ window.__TSA_MAPIMG = function(id){
   }
   var r=await C.completeOAuth();
   if(r.error) fail(r.error);
-  btn.onclick=function(){ C.signIn(true); };
+  btn.onclick=function(){ location.reload(); };
 
   var booted=false, cachedRaw=null;
   var d=await C.fetchData("data.json", function(cached){
@@ -1815,17 +1816,14 @@ window.__TSA_MAPIMG = function(id){
     return;
   }
   if(d) start(d);
-  else if(!C.signedIn()) fail("이 자료실을 보려면 로그인이 필요합니다.");
   else {
     /* 로그인은 됐는데 자료를 못 받았다. 두 가지가 전혀 다른 사건이라 갈라서 말한다 —
        ① 열람 명단(tsa_member)에 없다  ② 버킷에 파일이 없다.
        안 가르면 명단에 없는 사람이 «버킷을 확인하라» 는 말을 듣고 아무것도 못 한다.
        그리고 남에게 버킷 이름·파일 이름을 알려 줄 이유가 없다 — ②일 때만 적는다. */
-    var member=true;
-    try{ member = C.isMember? await C.isMember() : true; }catch(e){}
-    if(!member) fail("이 계정("+((C.email&&C.email())||"로그인한 계정")+")은 아직 열람 명단에 없습니다. "
-      +"자료실 주인에게 이 계정을 알려 주세요. 명단에 들어가면 새로고침만 하면 됩니다.");
-    else fail("데이터를 받지 못했습니다. Storage 의 tsa-data 버킷에 data.json 이 있는지 확인해 주세요.");
+    /* 자료는 로그인 없이도 받아진다. 그런데 못 받았다 —
+       인터넷이 끊겼거나 저쪽이 잠깐 죽은 것이다. 로그인 이야기를 꺼내면 헷갈린다. */
+    fail("자료를 받지 못했습니다. 인터넷 연결을 확인하고 다시 시도해 주세요.");
   }
 })();
 </script>

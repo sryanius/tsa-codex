@@ -252,11 +252,13 @@
     fetchData: async function (name, onCached) {
       var cached = await cacheGet(name);
       if (cached && onCached) { try { onCached(cached); } catch (e) { } }
+      /* ★ 자료(퀘스트·도감)는 로그인 없이도 받는다 — 버킷 읽기를 anon 에게 열어 뒀다
+         (cloud/003_public_read.sql). 로그인이 필요한 것은 «내 기록»(tsa_progress)뿐이다.
+         로그인했으면 그 토큰을, 아니면 공개 키를 그대로 쓴다. */
       var s = await ensureFresh();
-      if (!s) return cached;                       // 로그인 없으면 캐시가 전부다
       try {
         var r = await fetch(URL_ + "/storage/v1/object/tsa-data/" + name, {
-          headers: { apikey: ANON, Authorization: "Bearer " + s.access }
+          headers: { apikey: ANON, Authorization: "Bearer " + (s ? s.access : ANON) }
         });
         if (!r.ok) return cached;
         var j = await r.json();
@@ -274,11 +276,10 @@
       var key = "blob:" + name;
       var cached = await cacheGet(key);
       if (cached) return URL.createObjectURL(cached);
-      var s = await ensureFresh();
-      if (!s) return null;
+      var s = await ensureFresh();          /* 지도 배경도 로그인 없이 받는다 */
       try {
         var r = await fetch(URL_ + "/storage/v1/object/tsa-data/" + name, {
-          headers: { apikey: ANON, Authorization: "Bearer " + s.access }
+          headers: { apikey: ANON, Authorization: "Bearer " + (s ? s.access : ANON) }
         });
         if (!r.ok) return null;
         var b = await r.blob();
