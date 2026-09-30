@@ -632,7 +632,7 @@ function placeRow(p){
     +'<span class="dim sm"> G/h</span></span></div>';
 }
 /* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
-   그래서 «회피값 + ⌊CreateRandomValue(민첩)/3⌋ ≥ 몬스터 명중» 이면
+   그래서 «회피값 + ⌊CreateRandomValue(민첩)/6⌋ ≥ 몬스터 명중» 이면
    2d6 이 최소(2)로 나와도 빗나간다 — 확실히 다 피한다. */
 /* CreateRandomValue(민첩) 의 «최솟값». 흔들림 폭 n 은 구간마다 다르고,
    31 에서 확 줄어든다 — 그래서 민첩 30 보다 31 이 눈에 띄게 낫다. */
@@ -666,10 +666,10 @@ function avoidNote(p){
     + AGIS.map(function(a){ return '<td>'+needAvoid(p.mh,a)+'</td>'; }).join("")
     + '</tr></tbody></table>';
   return '<div class="note"><b>여기서 물리 공격을 전부 피하려면</b> — 가장 잘 맞히는 놈의 명중이 '
-    +'<b>'+p.mh+'</b> 입니다. <code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ '+p.mh+'</code> 이면 '
+    +'<b>'+p.mh+'</b> 입니다. <code>회피값 + ⌊민첩 흔들림 최솟값/6⌋ ≥ '+p.mh+'</code> 이면 '
     +'2d6 이 최소로 나와도 빗나갑니다 &mdash; <b>민첩이 낮을수록 회피가 더 필요합니다.</b>'
     + tbl
-    + '<span class="meta">민첩 30→31 에서 두 칸 내려가는 건 <code>CreateRandomValue</code> 의 흔들림 폭이 거기서 확 줄기 때문입니다. 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</span>'
+    + '<span class="meta">필요 회피값이 내려가는 민첩은 <b>8·16·25·31·32·38·45·52·58·65·72·78·85·92·98</b> 입니다 &mdash; <code>CreateRandomValue</code> 의 흔들림 폭이 거기서 한 칸씩 줄기 때문입니다. <b>31 과 32 는 붙어 있어서, 민첩을 30 에서 32 로 둘만 올려도 필요 회피가 2 내려갑니다.</b> 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</span>'
     + (warn.length? '<br><span class="meta">다만 '+warn.join(", ")+'이 있습니다.</span>' : '')
     + '<br><span class="meta">마법·상태이상은 회피 판정을 하지 않습니다. '
     + '<b>상태이상이 걸리면 회피가 깎입니다</b> — 넘어짐 −2 · 실명 −4 · 잡힘 −4, '
