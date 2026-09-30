@@ -242,6 +242,11 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
     <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
+      <select id="psort" aria-label="탐색지 정렬">
+        <option value="">레벨 순</option>
+        <option value="eh">시간당 경험치 순</option>
+        <option value="gh">시간당 골드 순</option>
+      </select>
     <span class="count" id="count"></span>
   </div>
   <div class="abils" id="montags" hidden>
@@ -307,7 +312,9 @@ var LOCKED_SET = (function(){
 })();
 function isLockedRegion(r){ return !!LOCKED_SET[r]; }
 
-var state={view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false};
+/* 큰 수는 3자리마다 끊어 적는다. toLocaleString 을 그때그때 부르면 자리가 흔들린다. */
+function fmt(v){ return (v||0).toLocaleString(); }
+var state={psort:"",view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || !isLockedRegion(p.r); }
 function visPlaces(){ return D.places.filter(okPlace); }
@@ -610,12 +617,19 @@ function placeRow(p){
   var tag=(p.call&&p.call.length)
     ? '<em class="tag t-call" title="'+esc(p.call.map(function(c){return c.by+" → "+c.n;}).join(", "))
       +' — 잡을수록 적이 불어나 경험치가 더 나옵니다">부름</em>' : "";
-  return '<div class="row" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button">'
+  return '<div class="row" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 54px 120px 92px 84px">'
     +'<span class="nm"><b>'+tag+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
     +(mons.length>5?" 외 "+(mons.length-5):"")+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
     +'<span class="num dim r3">'+(p.mh? "회피 "+needAvoid(p.mh,30)+"+" : p.g.length+"그룹")
-    +' <span class="dim">· 함정 '+p.t.length+'</span></span></div>';
+    +' <span class="dim">· 함정 '+p.t.length+'</span></span>'
+    /* 시간당 경험치·골드. 지역끼리 견주려면 이게 줄에 보여야 한다.
+       ★ 경험치는 «파티 전체» 몫이다 — 한 명이 받는 건 생존 인원수로 나눈 값이다. */
+    +'<span class="num'+(p.eh?'':' dim')+'">'+(p.eh? fmt(p.eh) : "–")
+    +'<span class="dim sm"> exp/h</span></span>'
+    +'<span class="num'+(p.gh?'':' dim')+'">'+(p.gh? fmt(p.gh) : "–")
+    +'<span class="dim sm"> G/h</span></span></div>';
 }
 /* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
    그래서 «회피값 + ⌊CreateRandomValue(민첩)/3⌋ ≥ 몬스터 명중» 이면
@@ -662,6 +676,11 @@ function avoidNote(p){
     + '혼란·수면·마비는 회피를 <b>0</b> 으로 만듭니다. 딱 맞추지 말고 <b>5 는 여유</b>를 두세요.</span></div>';
 }
 function placeDetail(p){
+  var _rate = p.eh ? '<div class="dcell"><dt>벌이 <span class="sm">자유 탐색</span></dt><dd class="mono">'
+      + fmt(p.ep)+' exp · '+fmt(p.gp)+'G <span class="sm">판당</span><br>'
+      + '<b>'+fmt(p.eh)+' exp/h</b> · <b>'+fmt(p.gh)+' G/h</b> <span class="sm">(평균 '+p.gap+'분마다)</span><br>'
+      + '<span class="sm">경험치는 파티 전체 몫입니다 — 한 명이 받는 건 생존 인원수로 나눈 값입니다. '
+      + '<a href="notes.html#spots">원리 &sect;13</a></span></dd></div>' : "";
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;
   var gh=p.g.map(function(g){
     var share=Math.round((g.f||0)/tot*100);   // ★ pct() 함수와 이름이 겹치면 상세가 통째로 터진다
@@ -703,7 +722,7 @@ function placeDetail(p){
       return '<li><b>'+esc(t.n)+'</b>'
         +'<span class="meta"> — 가중치 '+(t.f||0)+' · Lv'+(t.lv||0)+' · 추가피해 '+(t.dmg||0)+'</span>'
         +(m?'<br><span class="meta">'+esc(m.slice(0,60))+'</span>':'')+'</li>'; }).join("")+'</ul></div>' : "";
-  return '<div class="detail"><dl class="dgrid">'
+  return '<div class="detail"><dl class="dgrid">'+_rate
     +'<div class="dcell"><dt>지역</dt><dd>'+(esc(p.r)||"—")+'</dd></div>'
     +'<div class="dcell"><dt>레벨</dt><dd class="mono">'+(p.lv||0)+'</dd></div>'
     +'<div class="dcell"><dt>몬스터 그룹</dt><dd class="mono">'+p.g.length+'</dd></div>'
@@ -880,8 +899,18 @@ function render(){
       (byR[p.r||"기타"]=byR[p.r||"기타"]||[]).push(p);
     });
     Object.keys(byR).forEach(function(r){
-      var rows=byR[r].map(placeRow); n+=rows.length;
-      html+=block(r, rows.length+"곳", rows, "var(--c-place)");
+      var ps=byR[r];
+      if(state.psort){
+        /* 고른 값이 없는 곳(몬스터가 안 나오는 탐색지)은 뒤로 민다 */
+        ps=ps.slice().sort(function(a,b){ return (b[state.psort]||0)-(a[state.psort]||0); });
+      }
+      var rows=ps.map(placeRow); n+=rows.length;
+      /* 지역 머리에 그 지역의 최고값을 적는다 — 「어느 지역이 나은가」 가 이 화면의 요점이다 */
+      var be=0, bg=0;
+      ps.forEach(function(p){ if((p.eh||0)>be) be=p.eh; if((p.gh||0)>bg) bg=p.gh; });
+      var sub=rows.length+"곳";
+      if(be||bg) sub+=" · 최고 "+fmt(be)+" exp/h · "+fmt(bg)+" G/h";
+      html+=block(r, sub, rows, "var(--c-place)");
     });
   } else if(state.view==="mon"){
     var rows=visMons().filter(function(m){
@@ -922,6 +951,7 @@ function render(){
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   // 아이템 전용 필터는 아이템 탭에서만 보인다
   el("callwrap").style.display = state.view==="place" ? "" : "none";
+  el("psort").style.display = state.view==="place" ? "" : "none";
   var isItem = state.view==="item";
   el("abils").hidden = !isItem;
   el("itemtags").hidden = !isItem;
@@ -1026,6 +1056,7 @@ var t;
 el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("reg").addEventListener("change",function(e){ state.reg=e.target.value; render(); });
+el("psort").addEventListener("change",function(e){ state.psort=e.target.value; render(); });
 el("callonly").addEventListener("change",function(e){ state.callOnly=e.target.checked; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
 var lk=el("showlocked");

@@ -258,6 +258,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chesttag{font-style:normal;font-size:10px;font-weight:600;color:var(--f-vault);
   background:var(--raised);border:1px solid currentColor;border-radius:4px;
   padding:0 4px;margin-right:5px;vertical-align:1px}
+.ilink{color:var(--accent);text-decoration:none;border-bottom:1px solid transparent}
+.ilink:hover{border-bottom-color:var(--accent)}
+.ispec{color:var(--body)!important}
+.opts{display:block;margin:3px 0 0}
+.opt{display:inline-block;font-style:normal;font-size:11px;font-weight:600;
+  color:var(--f-vault);background:var(--raised);border:1px solid var(--line);
+  border-radius:99px;padding:1px 8px;margin:2px 4px 0 0}
 .chain.chest ul{padding-left:6px}
 .chain.chest li::before{content:""}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
@@ -841,12 +848,49 @@ function monHTML(x){
     + '</p></div>';
 }
 // questEvents 의 chest / foundItem. eventTime 은 10초 단위라 6으로 나눠 분으로 환산했다.
+/* ── 금고·습득물의 아이템 요약 ──────────────────────────────────────────
+   D.items 는 build_data.py 가 codex.json 에서 뽑아 실은 사전이다(585종).
+   무기와 방어구가 들고 있는 칸이 다르다 —
+     무기  dmg(피해) · crit(치명타) · hit(명중) · rng · tgt
+     방어구 def(방어) · mdef(마법방어) · cdef(치명 저항)
+   둘 다  lv(요구 레벨) · pw(요구 근력) · sp(특수능력) · mag(마법) */
+function itemOf(name){ return (D.items && D.items[name]) || null; }
+function itemLine(it){
+  if(!it) return "";
+  var b=[];
+  if(it.kind) b.push(esc(it.kind));
+  if(it.lv)   b.push("Lv"+it.lv);
+  if(it.pw)   b.push("근력 "+esc(String(it.pw)));
+  if(it.dmg)  b.push("피해 "+esc(String(it.dmg)));
+  if(it.def)  b.push("방어 "+esc(String(it.def)));
+  if(it.mdef) b.push("마법방어 "+it.mdef);
+  if(it.cdef) b.push("치명저항 "+it.cdef);
+  if(it.crit) b.push("치명타 "+it.crit+"%");
+  if(it.hit)  b.push("명중 "+it.hit);
+  if(it.rng && it.rng!=="근접") b.push(esc(it.rng));
+  if(it.tgt && it.tgt!=="단일") b.push(esc(it.tgt));
+  if(it.mag)  b.push("마법 무기");
+  return b.join(" · ");
+}
+function itemSp(it){
+  if(!it || !it.sp || !it.sp.length) return "";
+  /* 특수능력이 «옵션» 이다 — 이걸 보려고 도감을 열던 것이라 여기서 다 편다. */
+  return '<span class="opts">'+it.sp.map(function(o){
+      var v=(o.v===undefined||o.v==="")?"":(" "+esc(String(o.v)));
+      var p=(o.p&&o.p!==1)?('<span class="cmeta"> '+o.p+'%</span>'):"";
+      return '<em class="opt">'+esc(o.k)+v+p+'</em>';
+    }).join("")+'</span>';
+}
 function chestHTML(x){
   if(!x.ch || !x.ch.length) return "";
   return '<div class="chain chest"><h4>보물금고 · 습득물 '+x.ch.length+'건</h4><ul>'
     + x.ch.map(function(c){
-        var what = c.item ? esc(c.item)+' <span class="cmeta">('+esc(c.cat)+')</span>'
-                 : (c.gold? c.gold.toLocaleString()+'G' : '내용 미지정');
+        var it = c.item ? itemOf(c.item) : null;
+        /* 이름을 도감으로 건다. ?q= 로 한 줄만 걸리면 도감이 그 줄을 펼쳐 준다. */
+        var what = c.item
+          ? '<a class="ilink" href="codex.html?v=item&q='+encodeURIComponent(c.item)+'">'
+              +esc(c.item)+'</a> <span class="cmeta">('+esc(c.cat)+')</span>'
+          : (c.gold? c.gold.toLocaleString()+'G' : '내용 미지정');
         var bits=[];
         bits.push('시작 '+hhmm(c.at)+' 후');
         if(c.ins) bits.push('통찰력 판정');
@@ -854,8 +898,12 @@ function chestHTML(x){
         if(c.ud)  bits.push('해제 난이도 '+c.ud);
         if(c.cv)  bits.push('제작등급 '+c.cv);
         if(c.trap) bits.push('함정 있음');
+        var line = itemLine(it);
         return '<li><b>'+(c.src==="금고"?'<em class="tag t-chest">금고</em>':'<em class="tag t-find">습득</em>')
-          + what+'</b><span class="cmeta">'+esc(bits.join(" · "))+'</span></li>'; }).join("")
+          + what+'</b>'
+          + (line? '<span class="cmeta ispec">'+line+'</span>' : "")
+          + itemSp(it)
+          + '<span class="cmeta">'+esc(bits.join(" · "))+'</span></li>'; }).join("")
     + '</ul></div>';
 }
 
@@ -1297,7 +1345,7 @@ render();
      퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
   /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
      게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
-  var DATA_VERSION = 6061;
+  var DATA_VERSION = 7010;   /* 7.1.0 — build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
 
   var TKIND = { 1: "주점", 2: "무기상점", 3: "방어구상점" };
   var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };

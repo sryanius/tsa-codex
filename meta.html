@@ -365,6 +365,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       </div>
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
+      <select id="jst" aria-label="능력치"><option value="">모든 능력치</option></select>
         <span class="count" id="count"></span>
     </div>
   </div>
@@ -405,7 +406,7 @@ function visJobs(){ return D.jobs.filter(function(j){ return state.showLocked ||
 // 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
 // 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
 var LKEY2="tsa.showlocked.v1";
-var state={view:"job",q:"",wk:"",showLocked:false};
+var state={jst:"",view:"job",q:"",wk:"",showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okTown(t){ return state.showLocked || !(t.lock || isLockedRegion(t.r)); }
 function visTowns(){ return D.towns.filter(okTown); }
@@ -433,6 +434,19 @@ function mins(n){ var h=Math.floor(n/60); return (h?h+"시간 ":"")+(n%60)+"분"
 // 무기 필터는 실제로 있는 것만
 var wks=[]; D.jobs.forEach(function(j){ j.w.forEach(function(w){ if(wks.indexOf(w)<0) wks.push(w); }); });
 wks.forEach(function(w){ var o=document.createElement("option"); o.value=w; o.textContent=w; el("wk").appendChild(o); });
+/* 능력치 목록은 데이터에서 뽑는다 — 손으로 적으면 판이 바뀔 때 어긋난다.
+   화면에 나오는 순서(생명점·힘·…)를 지키려고 처음 만난 차례를 그대로 쓴다. */
+var _sts=[];
+D.jobs.forEach(function(j){
+  [j.main, j.sub].forEach(function(o){
+    for(var k in (o||{})) if(o[k] && _sts.indexOf(k)<0) _sts.push(k);
+  });
+});
+_sts.forEach(function(k){ var o=document.createElement("option"); o.value=k; o.textContent=k; el("jst").appendChild(o); });
+/* 그 능력치에 걸린 보너스 — 주/부 중 큰 쪽을 쓴다 */
+function statOfJob(j, k){
+  return Math.max((j.main&&j.main[k])||0, (j.sub&&j.sub[k])||0);
+}
 
 function bonusHTML(o,cls){
   var ks=Object.keys(o); if(!ks.length) return '<span class="meta">없음</span>';
@@ -463,14 +477,22 @@ function lvTable(lv, base, shop){
 function soldTxt(r){ return r.min===r.max ? ("Lv"+r.max) : ("Lv"+r.min+"–"+r.max); }
 
 /* ---------- 클래스 ---------- */
-function jobRow(j){
+function jobRow(j, hl){
   var mh=myHallLv(j.i);
   var lockTag = j.lock ? '<em class="tag t-lock" title="이 직업의 훈련소를 여는 퀘스트가 아직 못 가는 지역에 있습니다">미출시</em>' : "";
   return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
     +'<span class="nm"><b>'+lockTag+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
     +'<span>'+esc(j.o||j.d.split("\n")[0])+'</span></span>'
-    +'<span class="num dim">'+esc(j.w.join("·"))+'</span>'
+    /* 능력치로 걸렀으면 그 수치를 무기 칸 자리에 대신 보여 준다 —
+       «얼마나 올려 주나» 가 안 보이면 거른 의미가 없다. 주/부 값이 다르면 둘 다 적는다. */
+    +(hl
+      ? '<span class="num"><b style="color:var(--accent)">'+esc(hl)+' +'
+          +Math.max((j.main&&j.main[hl])||0,(j.sub&&j.sub[hl])||0)+'</b>'
+          +(((j.main&&j.main[hl])||0)!==((j.sub&&j.sub[hl])||0)
+            ? '<span class="meta"> 주'+((j.main&&j.main[hl])||0)+' · 부'+((j.sub&&j.sub[hl])||0)+'</span>' : '')
+        +'</span>'
+      : '<span class="num dim">'+esc(j.w.join("·"))+'</span>')
     +'<span class="num">'+(mh!=null? '<b style="color:var(--accent)">Lv'+mh+'</b> / '+j.max : 'Lv'+j.max)+'</span>'
     +'<span class="num'+(j.exp>=5?"":" dim")+'">×'+(1+(j.exp-1)/4).toFixed(2)+'</span></div>';
 }
@@ -1490,11 +1512,21 @@ function render(){
   if(state.view==="job"){
     var rows=visJobs().filter(function(j){
       if(state.wk && j.w.indexOf(state.wk)<0) return false;
+      if(state.jst && statOfJob(j, state.jst)<=0) return false;
       return hit(j.n+" "+j.i+" "+j.o+" "+j.d+" "+j.w.join(" ")+" "+j.a.join(" ")+" "+j.hall
         +" "+j.sk.map(function(s){return s.n}).join(" "));
     });
+    var sub="최대 레벨 높은 순";
+    if(state.jst){
+      /* 능력치로 걸렀으면 그 능력치 큰 순이 맞다 — 최대 레벨 순으로 두면
+         정작 «얼마나 올려 주나» 가 안 보인다. */
+      rows=rows.slice().sort(function(a,b){ return statOfJob(b,state.jst)-statOfJob(a,state.jst); });
+      sub=esc(state.jst)+" 큰 순";
+    }
     n=rows.length;
-    html+=block("클래스", n+"종 · 최대 레벨 높은 순", rows.map(jobRow));
+    html+=block("클래스", n+"종 · "+sub, rows.map(function(j){
+      return jobRow(j, state.jst);
+    }));
   } else if(state.view==="race"){
     var rs=D.races.filter(function(r){
       return hit(r.race+" "+r.i+" "+r.towns.join(" ")+" "+r.pers.join(" ")); });
@@ -1514,18 +1546,18 @@ function render(){
     el("out").innerHTML = ms.length ? ms.map(mapBlock).join("")
       : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
     el("count").textContent=ms.length+" 지역";
-    el("wk").style.display="none";
+    el("wk").style.display="none"; if(el("jst")) el("jst").style.display="none";
     fillMapImages();
     return;
   } else if(state.view==="stat"){
     el("out").innerHTML=statHTML();
     el("count").textContent="";
-    el("wk").style.display="none";
+    el("wk").style.display="none"; if(el("jst")) el("jst").style.display="none";
     return;
   } else if(state.view==="calc"){
     el("out").innerHTML=calcHTML();
     el("count").textContent="";
-    el("wk").style.display="none";
+    el("wk").style.display="none"; if(el("jst")) el("jst").style.display="none";
     return;
   } else {
     var ts=visTowns().filter(function(t){
@@ -1539,6 +1571,7 @@ function render(){
   el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   el("wk").style.display = state.view==="job" ? "" : "none";
+  if(el("jst")) el("jst").style.display = state.view==="job" ? "" : "none";
 }
 
 function detailFor(kind,id){
@@ -1585,6 +1618,7 @@ var t;
 el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("wk").addEventListener("change",function(e){ state.wk=e.target.value; render(); });
+if(el("jst")) el("jst").addEventListener("change",function(e){ state.jst=e.target.value; render(); });
 var lk=el("showlocked");
 if(lk){ lk.checked=state.showLocked;
 lk.addEventListener("change",function(e){
