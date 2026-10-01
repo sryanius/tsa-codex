@@ -409,7 +409,11 @@ function visJobs(){ return D.jobs.filter(function(j){ return state.showLocked ||
 // 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
 // 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
 var LKEY2="tsa.showlocked.v1";
-var state={view:"job",q:"",wk:"",showLocked:false};
+// ★ 기본 뷰는 VIEWS 안에 있어야 한다. 예전 기본값이 "job" 이었는데
+//   VIEWS 는 ["calc","stat","rep"] 라, ?v= 없이 /calc.html 로 들어오면
+//   탭이 하나도 안 눌린 채 **세계(meta)에서 따라온 클래스 목록**이 그려졌다 —
+//   계산기를 열었는데 계산기가 안 나왔다. uicheck.py 가 이제 이걸 본다.
+var state={view:"calc",q:"",wk:"",showLocked:false};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okTown(t){ return state.showLocked || !(t.lock || isLockedRegion(t.r)); }
 function visTowns(){ return D.towns.filter(okTown); }
@@ -433,10 +437,6 @@ function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
 function hit(hay){ return !state.q || hay.toLowerCase().indexOf(state.q.toLowerCase())>=0; }
 function gold(n){ return n>=10000 ? (n/1000).toFixed(0)+"K" : n.toLocaleString(); }
 function mins(n){ var h=Math.floor(n/60); return (h?h+"시간 ":"")+(n%60)+"분"; }
-
-// 무기 필터는 실제로 있는 것만
-var wks=[]; D.jobs.forEach(function(j){ j.w.forEach(function(w){ if(wks.indexOf(w)<0) wks.push(w); }); });
-if(el("wk")) wks.forEach(function(w){ var o=document.createElement("option"); o.value=w; o.textContent=w; el("wk").appendChild(o); });
 
 function bonusHTML(o,cls){
   var ks=Object.keys(o); if(!ks.length) return '<span class="meta">없음</span>';
@@ -1487,9 +1487,6 @@ function headStats(){
   el("stats").innerHTML = out.map(function(x){
     return '<div class="stat"><b>'+x[0]+'</b><span>'+esc(x[1])+'</span></div>'; }).join("");
   el("tabnote").textContent = TABNOTE[state.view] || "";
-  // 계산기에서는 검색칸이 아무 일도 안 한다
-  if(el("q")) el("q").style.display =
-    (state.view==="calc"||state.view==="rep"||state.view==="stat") ? "none" : "";
 }
 
 function render(){
@@ -1521,25 +1518,17 @@ function render(){
       && (!state.q || m.n.toLowerCase().indexOf(state.q.toLowerCase())>=0); });
     el("out").innerHTML = ms.length ? ms.map(mapBlock).join("")
       : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
-    if(el("count")) el("count").textContent=ms.length+" 지역";
-    if(el("wk")) el("wk").style.display="none";
     fillMapImages();
     return;
   } else if(state.view==="stat"){
     el("out").innerHTML=statHTML();
-    if(el("count")) el("count").textContent="";
-    if(el("wk")) el("wk").style.display="none";
     return;
   } else if(state.view==="calc"){
     el("out").innerHTML=calcHTML();
-    if(el("count")) el("count").textContent="";
-    if(el("wk")) el("wk").style.display="none";
     return;
   } else if(state.view==="rep"){
     el("out").innerHTML=repHTML();
     repWire();
-    if(el("count")) el("count").textContent="";
-    if(el("wk")) el("wk").style.display="none";
     return;
   } else {
     var ts=visTowns().filter(function(t){
@@ -1550,9 +1539,7 @@ function render(){
     Object.keys(byR).forEach(function(r){
       html+='<h2 class="regname">'+esc(r)+'</h2>'+byR[r].map(townBlock).join(""); });
   }
-  if(el("count")) el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
-  if(el("wk")) el("wk").style.display = state.view==="job" ? "" : "none";
 }
 
 function detailFor(kind,id){
@@ -1595,10 +1582,6 @@ el("out").addEventListener("keydown",function(e){
   var row=e.target.closest(".row"); if(!row) return;
   e.preventDefault(); openRow(row);
 });
-var t;
-if(el("q")) el("q").addEventListener("input",function(e){
-  clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
-if(el("wk")) el("wk").addEventListener("change",function(e){ state.wk=e.target.value; render(); });
 var lk=el("showlocked");
 if(lk){ lk.checked=state.showLocked;
 lk.addEventListener("change",function(e){

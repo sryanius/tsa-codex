@@ -1378,7 +1378,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="eq"><b>지능 = 기본 + 직업 몫</b><i>(&sect;2)</i> <b>+ 능력치 몫 + 무기 + 방어구 합</b>
 
 <b>무기 몫</b> = ability.addMagicPower + <b>강화로 붙은 몫</b>
-         <b>+ &lfloor;요구레벨 &divide; 6&rfloor;</b>   <span class="cmt">// ★ 무기 종류가 «지팡이» 일 때만</span></div>
+         <b>+ &lfloor;요구레벨 &divide; 6&rfloor;</b>   <span class="cmt">// ★ 무기 종류가 «지팡이» 일 때만</span>
+
+<b>최대 MP</b> 도 같은 자리에서 붙는다 &mdash; 다만 <b>나눗수가 없다</b>
+         ability.addMaxMp + 강화 <b>+ 요구레벨</b>        <span class="cmt">// Weapon.AddMp &mdash; 지팡이일 때만</span></div>
   <div class="note"><b>나눗수는 6 입니다 &mdash; 회피와 같은 자리입니다.</b>
      <code>0x2AAAAAAB</code> 를 곱해 <b>상위 32비트</b>만 쓰는 꼴이고
      (2<sup>32</sup> &divide; 0x2AAAAAAB = 6), &divide;3 이라면 매직이
@@ -1393,11 +1396,11 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <b>마법 방어에서 부적이 레벨을 통째로 받는 것과 같은 꼴입니다</b>(바로 아래).</div>
   <table class="t"><thead><tr><th>지팡이</th><th class="num">요구 Lv</th><th class="num">마스터 칸</th>
     <th class="num">⌊Lv&divide;3⌋</th><th class="num">실제 지능</th><th class="num">최대 MP</th></tr></thead><tbody>
-  <tr class="hi"><td><b>정정의 지팡이</b></td><td class="num">23</td><td class="num">5</td><td class="num">3</td><td class="num"><b>8</b></td><td class="num"><b>+10</b></td></tr>
-  <tr><td>마천의 지팡이 <span class="sm">마법 무기</span></td><td class="num">24</td><td class="num">3</td><td class="num">4</td><td class="num">7</td><td class="num"><b>+20</b></td></tr>
-  <tr><td>황왕의 지팡이</td><td class="num">37</td><td class="num">0</td><td class="num">6</td><td class="num">6</td><td class="num">&mdash;</td></tr>
-  <tr><td>이빨 부수는 지팡이</td><td class="num">36</td><td class="num">0</td><td class="num">6</td><td class="num">6</td><td class="num">&mdash;</td></tr>
-  <tr><td>송곳니왕의 전역 지팡이 <span class="sm">전체 공격</span></td><td class="num">29</td><td class="num">0</td><td class="num">4</td><td class="num">4</td><td class="num">&mdash;</td></tr>
+  <tr class="hi"><td><b>정정의 지팡이</b></td><td class="num">23</td><td class="num">5</td><td class="num">3</td><td class="num"><b>8</b></td><td class="num"><b>+33</b></td></tr>
+  <tr><td>마천의 지팡이 <span class="sm">마법 무기</span></td><td class="num">24</td><td class="num">3</td><td class="num">4</td><td class="num">7</td><td class="num"><b>+44</b></td></tr>
+  <tr><td>황왕의 지팡이</td><td class="num">37</td><td class="num">0</td><td class="num">6</td><td class="num">6</td><td class="num">+37</td></tr>
+  <tr><td>이빨 부수는 지팡이</td><td class="num">36</td><td class="num">0</td><td class="num">6</td><td class="num">6</td><td class="num">+36</td></tr>
+  <tr><td>송곳니왕의 전역 지팡이 <span class="sm">전체 공격</span></td><td class="num">29</td><td class="num">0</td><td class="num">4</td><td class="num">4</td><td class="num">+29</td></tr>
   </tbody></table>
   <div class="note"><b>그래서 정정의 지팡이가 지능 8 로 단독 1위입니다</b> &mdash;
      2위가 마천의 지팡이 7 이고, 요구 레벨이 13~14 높은 황왕·이빨 부수는 지팡이도 6 입니다.
