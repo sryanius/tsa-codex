@@ -289,6 +289,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   .toc{gap:4px}
   .toc a{font-size:11.5px;padding:4px 9px}
 }
+
+/* ── 절 탭 (docpages.py 가 넣는다) ─────────────────────────────── */
+.secdate{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:2px 0 14px}
+.docdate{font-size:12px;color:var(--faint);margin:10px 0 0}
+.toc.tabs a{position:relative}
+.toc.tabs a .dot{display:none}
+.toc.tabs a.fresh .dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--accent);margin-left:6px;vertical-align:2px}
+.toc.tabs a[aria-selected="true"]{color:var(--ground);background:var(--ink);border-color:var(--ink)}
+.toc.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabbed .toc.tabs{position:sticky;top:0;z-index:20;background:var(--ground);
+  margin:18px 0 0;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.tabbed .sec[hidden]{display:none}
+.tabbed .sec > h2:first-child{margin-top:26px}
+.tabbed .doc [id]{scroll-margin-top:var(--tabh,64px)}
+@media (max-width:560px){
+  .tabbed .toc.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;margin-left:-16px;margin-right:-16px;padding:8px 16px}
+  .tabbed .toc.tabs::-webkit-scrollbar{display:none}
+  .tabbed .toc.tabs a{flex:0 0 auto}
+}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
 </style>
 </head>
 <body>
@@ -315,14 +337,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="lede" style="margin-top:0;font-size:13px;color:var(--muted)">
       앞의 수가 <b>지금 갈 수 있는 곳</b> 기준입니다 &mdash; 발케인 지방은 데이터만 실려 있고 아직 못 갑니다
       (<code>LastMapLevel</code> 이 7 입니다). <b>본문에서는 분모를 다시 적지 않습니다.</b></p>
-    <div class="toc">
-      <a href="#dice">굴림</a><a href="#stat">수치</a><a href="#job">직업</a><a href="#pers">성격</a><a href="#hit">전투 ① 맞나</a><a href="#dmg">전투 ② 아픈가</a><a href="#magic">전투 ③ 마법</a><a href="#check">판정 한 틀</a><a href="#board">평판과 게시판</a><a href="#event">이벤트 추첨</a><a href="#craft">강화</a><a href="#fac">시설</a><a href="#farm">탐색지 쩔</a><a href="#va">부록 · 주소표</a>
-    </div>
+    <nav class="toc tabs" aria-label="절"><a href="#dice" data-sec="dice" data-upd="2026-09-19">굴림<i class="dot" aria-hidden="true"></i></a><a href="#stat" data-sec="stat" data-upd="2026-10-01">수치<i class="dot" aria-hidden="true"></i></a><a href="#job" data-sec="job" data-upd="2026-09-19">직업<i class="dot" aria-hidden="true"></i></a><a href="#pers" data-sec="pers" data-upd="2026-10-01">성격<i class="dot" aria-hidden="true"></i></a><a href="#hit" data-sec="hit" data-upd="2026-10-01">전투 ① 맞나<i class="dot" aria-hidden="true"></i></a><a href="#dmg" data-sec="dmg" data-upd="2026-10-01">전투 ② 아픈가<i class="dot" aria-hidden="true"></i></a><a href="#magic" data-sec="magic" data-upd="2026-10-02">전투 ③ 마법<i class="dot" aria-hidden="true"></i></a><a href="#check" data-sec="check" data-upd="2026-09-19">판정 한 틀<i class="dot" aria-hidden="true"></i></a><a href="#board" data-sec="board" data-upd="2026-10-01">평판과 게시판<i class="dot" aria-hidden="true"></i></a><a href="#event" data-sec="event" data-upd="2026-09-19">이벤트 추첨<i class="dot" aria-hidden="true"></i></a><a href="#craft" data-sec="craft" data-upd="2026-10-01">강화<i class="dot" aria-hidden="true"></i></a><a href="#fac" data-sec="fac" data-upd="2026-10-01">시설<i class="dot" aria-hidden="true"></i></a><a href="#farm" data-sec="farm" data-upd="2026-10-01">탐색지 쩔<i class="dot" aria-hidden="true"></i></a><a href="#va" data-sec="va" data-upd="2026-10-01">부록 · 주소표<i class="dot" aria-hidden="true"></i></a><a href="#todo" data-sec="todo" data-upd="2026-09-19">부록아직 확인 못 한 것<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <p class="docdate">마지막 갱신 <b>2026-10-02</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
 
-  <div class="doc">
+  <main class="doc">
 
+  <section class="sec" id="sec-dice" data-sec="dice" data-upd="2026-09-19">
   <h2 id="dice"><span class="n">1</span>굴림 &mdash; 주사위 여섯과 «흔들림»</h2>
+  <p class="secdate">2026-09-19 갱신</p>
   <p>이 문서의 모든 «%» 가 아래 여섯에서 나오고, «흔들림» 은 그 다음 소제목의 한 함수에서 나옵니다.
      <b>한 번만 적어 둡니다</b> &mdash; 뒤 절에서는 이름만 부릅니다.</p>
   <div class="eq"><b>Rand(a, b)</b>          a 이상 b <b>미만</b>. <i>상한은 안 나옵니다.</i>
@@ -367,8 +390,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p>능력치 한 칸은 몫을 거의 안 움직입니다 &mdash; 계단 사이가 <b>평균 여섯</b>이고,
      간격이 1(31&rarr;32)부터 <b>9(16&rarr;25)</b>까지 고르지 않습니다.
      회피값·명중값은 한 칸당 그대로 1 입니다.</p>
-
+  </section>
+<section class="sec" id="sec-stat" data-sec="stat" data-upd="2026-10-01">
   <h2 id="stat"><span class="n">2</span>수치 &mdash; 화면의 숫자가 어디서 나오나</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <p>«상태» 화면의 값은 전부 <b>기본 + 직업 몫 + 장비</b> 입니다. 직업 몫은 하나의 식을 씁니다.</p>
   <div class="eq"><b>직업 몫 = &lceil;주직업레벨 &times; 주보너스 &divide; 10&rceil; + &lceil;&Sigma;(부직업레벨 &times; 부보너스) &divide; 10&rceil;</b>
 
@@ -408,8 +433,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>이 항은 몬스터에게는 없습니다.</b></div>
   <p class="src">이 여섯 식은 <code>statcheck.mjs</code> 가 매 빌드마다 게임 화면에서 읽은 값과 맞춰 봅니다 &mdash;
      한 항이라도 빠지면 배포가 섭니다.</p>
-
+  </section>
+<section class="sec" id="sec-job" data-sec="job" data-upd="2026-09-19">
   <h2 id="job"><span class="n">3</span>직업 &mdash; 천장 · 경험치 · 낄 수 있는 것</h2>
+  <p class="secdate">2026-09-19 갱신</p>
   <h3>천장은 «훈련소 강화 표의 길이» 입니다</h3>
   <p>천장은 <b>그 직업 훈련소 건물의 «지금 레벨»</b> 입니다 &mdash;
      훈련소를 안 올렸으면 그만큼 낮습니다. <b>표의 길이</b>가 그 천장이 닿을 수 있는 끝이고,
@@ -470,8 +497,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <span class="sm">Race: 휴먼 0 · 드워프 1 · 엘프 2 · <b>풋워커 3</b></span><br>
      활을 드는 값어치는 회피가 아니라 <b>반사를 안 받는 것</b>입니다(<a href="#dmg">&sect;6</a>).
      그리고 <b>주직업이 도둑일 때의 «활 공격력 절반» 도 풋워커는 면제</b>받습니다(&sect;2).</div>
-
+  </section>
+<section class="sec" id="sec-pers" data-sec="pers" data-upd="2026-10-01">
   <h2 id="pers"><span class="n">4</span>성격 &mdash; 능력치에는 안 붙지만 <b>일곱 곳</b>에서 굴립니다</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>다섯 군데</b>에서 실제로 판정에 들어갑니다. 그중 둘은 «언제 물러날지»와 «언제 회복할지» &mdash; 파티가 살아 돌아오느냐를 가르는 자리입니다.</p>
   <table><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 전원 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">전투 대사</th><th class="num">리더 보너스</th><th class="num">초빙 포인트</th></tr></thead><tbody>
   <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num">30%</td><td class="num">+3</td><td class="num">+Rand(3)</td></tr>
@@ -680,9 +709,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>일곱 중 다섯은 «잘 맞음»과 «안 맞음»의 목록이 완전히 같습니다.</b> <code>IsGood</code> 을 먼저 보기 때문에, 그 다섯 성격에게 <code>IsBad</code> 는 한 번도 실행되지 않습니다. 합리적의 «안 맞음»(신중한·신경질적)도 «잘 맞음»에 통째로 들어 있어서 마찬가지입니다. <b>실제로 «안 맞음»이 도는 건 무모한과 이기적, 둘뿐입니다.</b> 두 함수의 <code>switch</code> 가지가 한 칸씩 어긋나 있는 모양이라, 게임 쪽 실수로 보입니다.</div>
   <p>짝도 안 맞습니다 &mdash; <b>이기적은 무모한을 좋아하는데, 무모한이 좋아하는 건 감정적 하나뿐</b>입니다. 나머지 조합은 서로 대칭입니다.</p>
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
-
-
+  </section>
+<section class="sec" id="sec-hit" data-sec="hit" data-upd="2026-10-01">
   <h2 id="hit"><span class="n">5</span>전투 ① &mdash; 맞나 안 맞나</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <div class="note"><b>맞느냐 빗나가느냐는 값 비교입니다. 확률이 아닙니다.</b>
      <code>회피 &ge; 명중 + 2</code> 면 <b>무조건</b> 빗나갑니다.</div>
   <p>그리고 <b>몬스터 쪽에는 주사위가 없습니다.</b> 캐릭터만 2d6 을 굴립니다 &mdash;
@@ -780,9 +810,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      회피를 굴리는 자리가 <b>평타 처리 단 한 곳</b>입니다 &mdash;
      마법 피해도, 상태이상도 회피 판정을 거치지 않습니다.
      그리고 <b>민첩이 정하는 것은 회피와 «행동 순서» 둘뿐</b>입니다.</div>
-
-
+  </section>
+<section class="sec" id="sec-dmg" data-sec="dmg" data-upd="2026-10-01">
   <h2 id="dmg"><span class="n">6</span>전투 ② &mdash; 얼마나 아픈가</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <div class="eq">평타 피해 = 공격력 &minus; <b>방어력 전액</b>      <i>0 이하면 <b>35% 로 1</b></i>
 치명타     = 공격력 &minus; &lfloor;방어력 &divide; 2&rfloor;   <i>바닥이 <b>1</b> · 확률에 2% 하한(&sect;1)</i></div>
   <div class="note"><b>«0 이하면 어떻게 되는가» 는 세 자리가 다 다릅니다.</b>
@@ -840,8 +871,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>활이 절대 안 통하는 몬스터가 다섯 있습니다.</b>
      <code>invalidBow</code> 가 켜지면 활 공격에 <b>회피 999</b> 가 더해집니다 &mdash;
      본 하운드(5) · 데스 할로우(9) · 프로스트 레이스(12) · 아이스 앤트(22) · 본 베일(24).</div>
-
+  </section>
+<section class="sec" id="sec-magic" data-sec="magic" data-upd="2026-10-02">
   <h2 id="magic"><span class="n">7</span>전투 ③ &mdash; 마법과 상태이상</h2>
+  <p class="secdate">2026-10-02 갱신</p>
   <div class="note"><b>마법에는 명중/회피 비교가 없습니다. 쏘면 들어갑니다.</b>
      회피탱이 마법에 약한 이유가 이것이고, 마법사가 명중을 안 챙겨도 되는 이유도 이것입니다.</div>
   <div class="eq">피해 = Rand(스킬최소, 스킬최대) + 시전자 마력
@@ -922,8 +955,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      기록소에 등록해 두면 드랍에서도 손해가 없습니다.</div>
   <p class="src">BattleTurnProcessor.CheckKnown &middot; Character.IsKnown &middot; Character.ClearUnknownMonsters &middot;
      Building.IsExistMonsterLibraryEntry &middot; MonsterLibraryScrollView.RegisterMonster &middot; BattleTurnProcessor.OnBattleEnd</p>
-
+  </section>
+<section class="sec" id="sec-check" data-sec="check" data-upd="2026-09-19">
   <h2 id="check"><span class="n">8</span>판정 한 틀 &mdash; 금고 · 함정 · 선제공격</h2>
+  <p class="secdate">2026-09-19 갱신</p>
   <p>여섯 판정이 <b>전부 같은 틀</b>입니다. 한 번만 적고, 차이는 표로 냅니다.</p>
   <div class="eq"><b>내 값</b>  = Dice2DWithCritical(10) + 담당 직업 레벨 + (리더 보너스) + &lfloor;흔들림(스탯) &divide; 6&rfloor;
 <b>상대</b>   = <b>퀘스트 레벨</b> + 난이도 + 2d6
@@ -989,8 +1024,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>발견값(<code>foundValue</code>)이 0 인 금고가 87%</b> 입니다 &mdash;
      1,206개 중 1,051개. 즉 발견 확정선은 사실상 <b>«퀘스트 레벨 + 9»</b> 이고,
      지역이 올라갈수록 어려워지는 것은 <b>발견값이 아니라 퀘스트 레벨 때문</b>입니다.</div>
-
+  </section>
+<section class="sec" id="sec-board" data-sec="board" data-upd="2026-10-01">
   <h2 id="board"><span class="n">9</span>평판과 게시판 &mdash; 원하는 퀘스트가 왜 안 뜨나</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <p><b>요구 평판은 부호에 따라 방향이 반대입니다.</b> 양수는 «그 값 이상»이라야 뜨는 하한이고, 음수는 «그 값 이하»여야 뜨는 상한입니다. 그래서 선행 체인을 하나로 합칠 수 없어, 퀘스트 색인에서는 <b>▲ 한 번은 올려야 하는 평판</b>과 <b>▼ 한 번은 내려가야 하는 평판</b>을 따로 계산합니다.</p>
   <h3>평판이 오르다 멈추는 이유</h3>
   <div class="eq">퀘스트 레벨 = master.level + Min(addLevel, master.maxAddLevel)
@@ -1093,8 +1130,10 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      의뢰 갱신 버튼 · 일일 로그인 보너스 · <b>상점 열기</b> · <b>단원 내보내기</b> ·
      <b>잃은 단원 정리</b> · <b>새 지도 추가</b>.<br>
      반대로 <b>모험 결과 화면</b>과 <b>지도에서 탐색 의뢰</b>는 «추가만» 하고 카운터를 안 줄입니다.</div>
-
+  </section>
+<section class="sec" id="sec-event" data-sec="event" data-upd="2026-09-19">
   <h2 id="event"><span class="n">10</span>이벤트 추첨 &mdash; 금고가 «로그 한 줄 없이» 안 뜨는 이유</h2>
+  <p class="secdate">2026-09-19 갱신</p>
   <p>「여기에 무엇인가 있는 것 같다」 도, 「해제하지 못했다」 도 없이 그냥 넘어가는 경우가 있습니다.
      <b>판정에 실패한 것이 아니라 이벤트가 시작되지도 않은 것</b>입니다.
      <code>AdventureMain.RunQuest</code> 가 이벤트를 고르는 순서가 이렇습니다.</p>
@@ -1158,8 +1197,10 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      FrequencyExtensions.GetRandom &middot;
      QuestEventEntry.IsEventScheduled &middot;
      OpenTreasureBox &middot; 퀘스트 1425개 전수</p>
-
+  </section>
+<section class="sec" id="sec-craft" data-sec="craft" data-upd="2026-10-01">
   <h2 id="craft"><span class="n">11</span>강화 &mdash; 무엇이 붙고 몇 단계가 붙나</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <div class="note"><b>강화는 장비 하나에 딱 한 번입니다.</b>
      대장간에서 다이아를 내고 하며, <b>대장간 레벨보다 높은 장비는 못 합니다.</b>
      한 번 하면 <code>isCrafted</code> 가 켜져 다시 못 합니다 &mdash; 되돌리는 길도 없습니다.</div>
@@ -1324,9 +1365,10 @@ p = 50
   <p>그보다 <b>두 옵션이 처음부터 박혀 있는 무기가 39종</b> 있고, 거의 전부 <b>퀘스트 금고</b>에서 나옵니다. <a href="codex.html">도감</a> 아이템 탭의 «전체 공격»(24) / «추가 공격»(17) 체크박스로 찾으세요.</p>
   <div class="note"><b>마법 속성은 강화로 못 붙입니다.</b> <code>Enhancement.Kind.IsMagic(254)</code> 가 enum에 있지만 <code>Weapon.Craft</code> 가 그걸 만드는 자리는 없습니다(생성 지점 28곳 전수 확인). 마스터 데이터의 <code>isMagic</code> 플래그가 유일한 경로라, <b>마법 속성 무기는 처음부터 그런 것을 구해야 합니다.</b></div>
   <p class="src">Weapon.Craft · Equipment.RunCraft · ShopDialog TapBuyButton</p>
-
-
+  </section>
+<section class="sec" id="sec-fac" data-sec="fac" data-upd="2026-10-01">
   <h2 id="fac"><span class="n">12</span>시설 &mdash; 레벨이 실제로 바꾸는 것</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <p>직업 레벨과 마찬가지로, 코드가 <code>GetBuildingLevel</code> 을 부르는 자리를 전수로 찾았습니다. 시설마다 <b>딱 한 가지 수치</b>를 바꿉니다.</p>
   <table><thead><tr><th>시설</th><th>바꾸는 것</th><th>식</th></tr></thead><tbody>
   <tr><td><b>금고</b></td><td>골드 상한</td><td><code>레벨 × 2000 + 4000</code></td></tr>
@@ -1515,9 +1557,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p class="src">BattleSkill.GetDamage / DamageSkill / SkillAttack / AddCondition &middot;
      BattleCreature.MagicDamageReduction / MagicResistValue &middot; Armor.MagicDefense &middot;
      Util.Dice2DWithCritical &middot; JobMaster.mainJobBonusesMagicDefense</p>
-
-
+  </section>
+<section class="sec" id="sec-farm" data-sec="farm" data-upd="2026-10-01">
   <h2 id="farm"><span class="n">13</span>탐색지 쩔 &mdash; 전투는 «불려 나와서» 늘어납니다</h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <p>제작자가 짚은 것에서 시작합니다 &mdash;
      <b>카샨</b>(Lv28 · 발두나)은 1~2턴 만에 몬스터가 바로바로 나오는데
      <b>롱넥 글레이저</b>(Lv33 · 칼레바스 라펠 계곡)는 안 나옵니다.
@@ -1822,8 +1865,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <b>두 방향으로 다 실패할 수 있습니다</b> &mdash;
      너무 세면 부르기 전에 끝나고, 너무 약하면 15턴 무승부로 <b>경험치가 0</b> 이 됩니다.
      <b>도르감(42,479)은 그 줄타기 없이 나오는 값</b>이라, 조절이 귀찮으면 갈아타는 쪽이 낫습니다.</p>
-
+  </section>
+<section class="sec" id="sec-va" data-sec="va" data-upd="2026-10-01">
   <h2 id="va"><span class="n">부록</span>함수 주소표 <span class="sm" style="font-weight:400">7.1 기준</span></h2>
+  <p class="secdate">2026-10-01 갱신</p>
   <p>본문에서 주소를 뺐습니다. 판올림 때 고칠 곳이 <b>여기 한 표</b>뿐이도록 모아 둡니다.</p>
   <table class="t"><thead><tr><th>무엇</th><th>함수</th><th class="num">VA</th></tr></thead><tbody>
   <tr><td rowspan="4">굴림 <span class="sm">&sect;1</span></td><td><code>Util.CreateRandomValue</code></td><td class="num">0x276C71C</td></tr>
@@ -1858,8 +1903,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b><code>AdventureMain.UnlockChest</code> 는 쓰지 않습니다.</b>
      .so 전체에서 부르는 곳이 한 군데도 없는 <b>죽은 코드</b>입니다 &mdash;
      이 자료실이 한동안 그 함수를 읽고 금고 해제식을 적어서, 퀘스트 레벨이 빠진 채로 나가 있었습니다.</div>
-
+  </section>
+<section class="sec" id="sec-todo" data-sec="todo" data-upd="2026-09-19">
   <h2 id="todo"><span class="n">부록</span>아직 확인 못 한 것</h2>
+  <p class="secdate">2026-09-19 갱신</p>
   <p>본문에는 유보 표현을 한 곳도 안 남겼습니다. 대신 여기 모읍니다.</p>
   <ul>
     <li><b>맨손 공격력의 바닥</b> &mdash; 화면이 맨손인 용병에게 <b>0~1</b> 을 찍는데,
@@ -1872,8 +1919,72 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <code>FromTop</code> 의 의미는 <a href="#farm">&sect;13 ①</a> 로,
      «민첩 +5»·«요구 레벨 감소 +2» 의 정체는 <a href="#craft">&sect;11</a> 로,
      스킬의 «일정 확률로 1» 은 <a href="#dmg">&sect;6</a> 로 옮겼습니다.</div>
-
-  </div>
+  </section>
+</main>
+<script>
+/* 절 탭 — docpages.py. 스크립트가 없으면 예전처럼 한 장으로 보인다. */
+(function(){
+  var main=document.querySelector("main.doc"); if(!main) return;
+  var secs=[].slice.call(main.querySelectorAll("section.sec")); if(!secs.length) return;
+  var bar=document.querySelector(".toc.tabs"); if(!bar) return;
+  var tabs=[].slice.call(bar.querySelectorAll("a"));
+  document.documentElement.classList.add("tabbed");
+  main.parentNode.insertBefore(bar, main);            // 머리말 밖으로 — 본문 내내 위에 붙는다
+  bar.setAttribute("role","tablist");
+  tabs.forEach(function(a){ a.setAttribute("role","tab"); });
+  var KEY="tsa.tab."+location.pathname.split("/").pop();
+  var today=new Date(); today.setHours(0,0,0,0);
+  tabs.forEach(function(a){
+    var d=a.getAttribute("data-upd"); if(!d) return;
+    var p=d.split("-"), t=new Date(+p[0],+p[1]-1,+p[2]);
+    var age=(today-t)/864e5;
+    if(age<=7){ a.classList.add("fresh"); a.title=d+" 갱신"; }
+  });
+  function setH(){ document.documentElement.style.setProperty("--tabh",(bar.offsetHeight+12)+"px"); }
+  function secOf(el){ while(el && el!==main){ if(el.classList && el.classList.contains("sec")) return el; el=el.parentNode; } return null; }
+  function show(sec){
+    secs.forEach(function(s){ s.hidden = !!sec && s!==sec; });
+    tabs.forEach(function(a){
+      var on = sec ? a.getAttribute("data-sec")===sec.getAttribute("data-sec") : !!a.getAttribute("data-all");
+      a.setAttribute("aria-selected", on?"true":"false");
+      if(on && a.scrollIntoView && bar.scrollWidth>bar.clientWidth){
+        bar.scrollLeft = a.offsetLeft - (bar.clientWidth-a.offsetWidth)/2;
+      }
+    });
+    try{ localStorage.setItem(KEY, sec ? sec.getAttribute("data-sec") : "all"); }catch(e){}
+    setH();
+  }
+  function top(){ var y=bar.getBoundingClientRect().top+window.pageYOffset; if(window.pageYOffset>y) window.scrollTo(0,y); }
+  function route(hash, scroll){
+    var id=""; try{ id=decodeURIComponent((hash||"").replace(/^#/,"")); }catch(e){ id=(hash||"").slice(1); }
+    if(id==="all"){ show(null); if(scroll) top(); return; }
+    var t=id && document.getElementById(id), sec=t ? secOf(t) : null;
+    if(!sec){
+      var last=null; try{ last=localStorage.getItem(KEY); }catch(e){}
+      if(last==="all"){ show(null); return; }
+      sec=(last && document.getElementById("sec-"+last)) || secs[0];
+      show(sec); return;
+    }
+    show(sec);
+    if(scroll){
+      var h=sec.querySelector("h2");
+      if(t===h || t===sec) top(); else t.scrollIntoView();
+    }
+  }
+  bar.addEventListener("click", function(e){
+    var a=e.target.closest ? e.target.closest("a") : null; if(!a) return;
+    e.preventDefault();
+    var h=a.getAttribute("href");
+    if(location.hash!==h) history.pushState(null,"",h);
+    route(h,true);
+  });
+  window.addEventListener("hashchange", function(){ route(location.hash,true); });
+  window.addEventListener("popstate", function(){ route(location.hash,true); });
+  window.addEventListener("resize", setH);
+  route(location.hash, !!location.hash);
+  if(location.hash) setTimeout(function(){ route(location.hash,true); }, 0);
+})();
+</script>
 
   <footer class="foot">
     <p>이 문서는 <b>7.1</b>(versionCode 144) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
