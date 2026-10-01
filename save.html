@@ -1293,7 +1293,9 @@ function jobBonusW(c, label){                 // 무기 조건이 붙는 직업 
 function attackRange(c){
   var w=weaponOf(c), ws=weaponSelf(c), mj=JOB[c.main];
   // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다
-  if(mj && mj.k===200 && w && w.k==="활") ws=[Math.floor(ws[0]/2), Math.floor(ws[1]/2)];
+  // 도둑 + 활 = 무기 몫 반감 — 단 풋워커는 면제 (0x26DBBD8 race≠3). 계산기 셋이 전부 이 면제를 몰랐다.
+  if(mj && mj.k===200 && w && w.k==="활" && !(RACE[c.race] && RACE[c.race].race==="풋워커"))
+    ws=[Math.floor(ws[0]/2), Math.floor(ws[1]/2)];
   var jb=jobBonusW(c,"공격력"), ad=enhPart(c,false,"공격력");
   return [ws[0]+jb+ad, ws[1]+jb+ad];
 }

@@ -733,7 +733,7 @@ function block(title,sub,rows){
    주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
 var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
-var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0, goal:0};
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, fw:false, was:{}, xph:0, goal:0};
 
 function scJobs(){ return visJobs().slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
@@ -789,8 +789,8 @@ function scRows(){
     if(label==="공격력"){
       var r=scGearRange("dm"), jb=scJobPartW(label);
       var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
-      // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다
-      if(mj && mj.k===200 && scWeaponKind()==="활") r=[r[0]>>1, r[1]>>1];
+      // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다 — 풋워커는 면제 (0x26DBBD8 race≠3)
+      if(mj && mj.k===200 && scWeaponKind()==="활" && !sc.fw) r=[r[0]>>1, r[1]>>1];
       return {k:label, base:0, job:jb, gear:r[0], gear2:r[1], sum:r[0]+jb, sum2:r[1]+jb};
     }
     if(label==="방어력"){
@@ -824,6 +824,7 @@ function scSetRace(id){
   if(!r) return;
   sc.base={}; SC_BASE.forEach(function(k){ sc.base[k]=(r.ab&&r.ab[k])||0; });
   sc.elf = (r.race==="엘프");
+  sc.fw  = (r.race==="풋워커");      // 활 한 칸 · 도둑 활 반감 면제
   sc.from = r.race+" "+(r.man?"남":"여")+" 기준값";
 }
 function scAgiFloor(a){
@@ -853,6 +854,7 @@ function scLoad(id){
   sc.was={}; (c.jobs||[]).forEach(function(j){ sc.was[j.i]=j.lv||0; });
   var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
   sc.elf = !!(rc && rc.race==="엘프");
+  sc.fw  = !!(rc && rc.race==="풋워커");
   sc.race = rc ? rc.i : "";
   sc.slot={};
   // ★ c.eq 는 장비 «파일 GUID» 다 — D.gear 는 «에셋 이름» 으로 키를 쓴다.
@@ -879,6 +881,7 @@ function scCanKinds(){
   var mj=scMainJob();
   var arm = mj ? mj.a.slice() : [], wep = mj ? mj.w.slice() : [];
   if(sc.elf && arm.indexOf("부적")<0) arm.push("부적");
+  if(sc.fw  && wep.indexOf("활")<0)  wep.push("활");      // CanEquipWeapons 0x26D9F24 cmp #3 → Add(Bow)
   return {arm:arm, wep:wep};
 }
 /* Character.CanEquip 은 세 가지를 본다.
@@ -1166,7 +1169,7 @@ function statHTML(){
     +'<div class="crow"><span class="lvlabel"></span><span class="meta">'
       +(kinds.wep.length||kinds.arm.length
           ? '주직업이 <b>'+esc(kinds.wep.concat(kinds.arm).join(" · "))+'</b> 만 허락합니다'
-            +(sc.elf? ' (엘프라 부적이 하나 더)' : '')
+            +(sc.elf? ' (엘프라 부적이 하나 더)' : '')+(sc.fw? ' (풋워커라 활이 하나 더)' : '')
           : '주직업을 먼저 고르세요')+'</span></div>'
     +'</div>'
     + table + solBlock + expBlock

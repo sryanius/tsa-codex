@@ -482,16 +482,20 @@ var MTAG=[];
   add("fly","비행",function(m){ return !!m.fly; });
   add("undead","언데드",function(m){ return !!m.undead; });
   add("drop","드랍 있음",function(m){ return m.drops.length>0; });
-  var w={}, st={}, sk={};
+  var w={}, st={}, iv={}, sk={};
   D.monsters.forEach(function(m){
     (m.weak||[]).forEach(function(e){ w[e]=1; });
     (m.strong||[]).forEach(function(e){ st[e]=1; });
+    (m.inv||[]).forEach(function(e){ iv[e]=1; });
     (m.skills||[]).forEach(function(e){ if(e) sk[e]=1; });
   });
   Object.keys(w).forEach(function(e){
     add("w:"+e,"약점 "+e,function(m){ return (m.weak||[]).indexOf(e)>=0; }); });
   Object.keys(st).forEach(function(e){
     add("s:"+e,"내성 "+e,function(m){ return (m.strong||[]).indexOf(e)>=0; }); });
+  /* «무효» 는 내성(−2)과 다르다 — 그 속성 마법이 0 이다. 해시·미러는 10종 전부 무효다. */
+  Object.keys(iv).forEach(function(e){
+    add("i:"+e,"무효 "+e,function(m){ return (m.inv||[]).indexOf(e)>=0; }); });
   Object.keys(sk).forEach(function(e){
     add("k:"+e,"스킬 "+e,function(m){ return (m.skills||[]).indexOf(e)>=0; }); });
 })();
@@ -747,6 +751,8 @@ function monRow(m){
   if((m.acts||[]).some(function(a){return a.k==="부름";})) tags+='<em class="tag t-fly" title="동료를 불러들입니다">부름</em>';
   if(m.nobow) tags+='<em class="tag t-cl" title="활 공격이 절대 안 맞습니다 — 회피에 999가 더해집니다">활 무효</em>';
   if(m.nophys) tags+='<em class="tag t-sp" title="보통 물리 공격이 통하지 않습니다 — 마법 무기(도감 «마법» 표) 나 마검사의 단검이면 통합니다">물리 무효</em>';
+  if((m.inv||[]).length) tags+='<em class="tag t-sp" title="이 속성의 마법은 피해 0 입니다 (내성 −2 와 다릅니다): '+esc(m.inv.join(" · "))+'">'
+      +(m.inv.length>=10 ? '전 속성 무효' : '무효 '+esc(m.inv.join("·")))+'</em>';
   return '<div class="row" data-k="m" data-i="'+esc(m.i)+'" tabindex="0" role="button">'
     +'<span class="nm"><b>'+tags+esc(m.n||m.i)+'</b><span>'
     +(mp.length? esc(mp.slice(0,3).map(function(p){return p.n}).join(", "))
@@ -922,6 +928,7 @@ function render(){
       return hit(m.n+" "+m.i+" "+m.d+" "+m.skills.join(" ")
         +" "+(m.weak||[]).map(function(e){return "약점 "+e}).join(" ")
         +" "+(m.strong||[]).map(function(e){return "내성 "+e}).join(" ")
+        +" "+(m.inv||[]).map(function(e){return "무효 "+e}).join(" ")
         +(m.fly?" 비행":"")+(m.undead?" 언데드":"")
         +" "+m.drops.map(function(d){return d.n}).join(" ")
         +" "+monPlaces(m).map(function(z){return z.n}).join(" "));

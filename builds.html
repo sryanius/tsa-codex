@@ -309,7 +309,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <b>이 문서의 «완봉선» 은 전부 «회피값 + 민첩 몫» 한 가지 뜻</b>으로 씁니다.</div>
     <table class="t" style="margin-top:12px"><thead><tr><th>기준</th><th class="num">발두나의 황야</th><th class="num">칼레바스 고원</th></tr></thead><tbody>
       <tr><td>자유 탐색에서 안 맞으려면</td><td class="num">완봉선 <b>44</b></td><td class="num">완봉선 <b>48</b></td></tr>
-      <tr><td>퀘스트까지 안 맞으려면</td><td class="num">48</td><td class="num"><b>55</b></td></tr>
+      <tr><td>퀘스트까지 안 맞으려면</td><td class="num">48</td><td class="num"><b>54</b> <span class="sm">관측 최대 · 발케인 열리면 55</span></td></tr>
       <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대</span></td><td class="num">117 / 143</td><td class="num">140 / <b>181</b></td></tr>
     </tbody></table>
     <div class="toc">
@@ -478,8 +478,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>아르디오스 왕국 <span class="sm">자유 탐색</span></td><td class="num">23</td><td class="num">+22</td></tr>
     <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">+7</td></tr>
     <tr class="hi"><td><b>발두나의 황야</b></td><td class="num"><b>44</b></td><td class="num"><b>+1</b></td></tr>
-    <tr style="color:var(--f-vault)"><td><b>칼레바스 고원</b></td><td class="num"><b>48</b></td><td class="num"><b>&minus;3</b></td></tr>
-    <tr style="color:var(--muted)"><td>칼레바스 <span class="sm">퀘스트 · 보정 최대</span></td><td class="num">55</td><td class="num">&minus;10</td></tr>
+    <tr style="color:var(--f-vault)"><td><b>칼레바스 고원</b> <span class="sm">48 은 발드란 보관소 터 · 모래를 삼키는 유적 둘, 47 은 사르케인의 유적 · 불타는 동굴 둘, 나머지는 44</span></td><td class="num"><b>48</b></td><td class="num"><b>&minus;3</b></td></tr>
+    <tr style="color:var(--muted)"><td>칼레바스 <span class="sm">퀘스트 · 관측 최대 (발케인 열리면 55)</span></td><td class="num">54</td><td class="num">&minus;9</td></tr>
   </tbody></table>
   <div class="note warn"><b>★ 칼레바스는 자유 탐색도 3 이 모자랍니다.</b>
      회피값을 42 로 올리면 닿습니다 &mdash; 다만 그러자고 부직업을 더 쌓으면 경험치가 훨씬 비싸집니다
@@ -543,7 +543,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <dl class="kv">
       <dt>주직업</dt><dd><b>무장병 30</b> <span class="meta">&mdash; 생명점 13 · 방어력 8 · 공격력 6. 튼튼한 딜러가 됩니다</span></dd>
       <dt>부직업</dt><dd><b>수습 랜서 8 · 랜서 15 · 전술병 20</b> <span class="meta">&mdash; 여기까지 5.3M</span></dd>
-      <dt>무기</dt><dd><b class="mag">하늘을 뚫는 창</b> <span class="meta">요구 Lv30 · 힘 34 · 59~94 · 마법 · <b>근접/관통</b></span></dd>
+      <dt>무기</dt><dd><b class="mag">하늘을 뚫는 창</b> <span class="meta">요구 Lv30 · 힘 34 · 59~94 · 마법 · <b>모든 적/관통</b></span></dd>
       <dt>몸</dt><dd>왕단의 갑옷 <span class="meta">요구 Lv30 · 힘 <b>35</b> · 방어 60~63</span></dd>
       <dt>방패</dt><dd>송곳니왕의 방패 <span class="meta">요구 Lv28 · 힘 32 · 방어 8~31</span></dd>
     </dl>
@@ -552,7 +552,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <span class="mag">마법 무기</span><span>경험치 <b>5.3M</b></span></div>
   </div>
   <div class="note"><b>창의 값어치는 «관통» 입니다 &mdash; 앞줄을 치면서 뒤에 선 하나를 같이 때립니다.</b>
-     <span class="sm">«모든 적» 은 아닙니다. 가장 많이 때리는 것은 전역 지팡이(모든 적 + 전체)이고,
+     <span class="sm">«전체 공격» 은 아닙니다. 가장 많이 때리는 것은 전역 지팡이(모든 적 + 전체)이고,
      근접에서는 회염의 대검(근접 + 전체)입니다.</span></div>
   <div class="note"><b>주직업은 무장병이 낫습니다.</b> 성창사는 <b>갑옷과 방패를 못 낍니다</b> &mdash;
      창잡이를 튼튼하게 쓰려는 목적과 정면으로 어긋납니다.</div>
@@ -563,21 +563,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="lede2">종족은 <b>휴먼</b> &mdash; 마법 직업을 하나도 안 막습니다(엘프는 성직 계열 셋을 못 합니다).</p>
     <dl class="kv">
       <dt>주직업</dt><dd><b>암흑마법사 30</b> <span class="meta">— 지능 8 · 마나 15 · 마법 방어 6</span></dd>
-      <dt>부직업</dt><dd><b>견습 마법사 6 · 견습 성직자 6 · 숙련된 마법사 10 · 정령사 20 · 숙련된 성직자 15</b>
-        <span class="meta">— 지능용, 싼 것부터 (아래)</span><br>
-        <b>+ 마도병 10 · 순례 사제 1</b> <span class="meta">— 지능이 아니라 <b>마법을 사려고</b> 넣습니다:
-        마도병 10 이 <b>뇌우</b>, 순례 사제 1 이 <b>살바</b>(<a href="#spells">&sect;7</a>)</span><br>
+      <dt>부직업</dt><dd><b>견습 마법사 6 · 견습 성직자 6 · 숙련된 마법사 10 · 정령사 20 · 숙련된 성직자 7 · 순례 사제 7 · 마궁사 4 · 성창사 4</b>
+        <span class="meta">— 지능용, 얇게 깔기 (아래)</span><br>
+        <b>+ 마도병 10</b> <span class="meta">— 지능이 아니라 <b>마법을 사려고</b>: 프로스트 템페스트 · 뇌우(<a href="#spells">&sect;7</a>).
+        <b>10 에서 멈춥니다</b> &mdash; 20 의 라이프 하베스트는 치우는 종이 하나도 안 늘고 MP 만 9 더 들며(쏘는 턴 36%→29%) 맨 뒤에 얹어도 ≈24M 입니다.
+        살바는 순례 사제 1 에서 그대로 옵니다.
+        ★ <b>마궁사 4 를 찍으면 어스퀘이크 · 베놈 클라우드가 켜진 채 들어옵니다 &mdash; 끄세요</b>(안 끄면 베놈 클라우드 Lv10 이 프로스트 템페스트·뇌우를 영영 막습니다)</span><br>
         <b>+ 현자 30</b> <span class="meta">— 통찰 20 &rarr; 35, 마방 +3, 지수 0</span></dd>
-      <dt>무기</dt><dd><b>정정의 지팡이</b> <span class="meta">요구 Lv23 · <b>힘 2</b> · 43~72 · <b>지능 +8</b> · <b>최대 MP +10</b></span><br>
+      <dt>무기</dt><dd><b>정정의 지팡이</b> <span class="meta">요구 Lv23 · <b>힘 2</b> · 43~72 · <b>지능 +8</b> · <b>최대 MP +33</b> <span class="sm">(10 + 요구 레벨 23)</span></span><br>
         <span class="meta">예전에 여기 적어 둔 <b>송곳니왕의 전역 지팡이</b>(Lv29 · 힘 2 · 55~90 · 모든 적/전체 공격)는
         <b>지능이 +4</b> 뿐입니다 &mdash; 아래 «지팡이는 평타로 고르는 게 아닙니다» 를 보세요</span></dd>
       <dt>몸</dt><dd><b>암숨의 법복</b> <span class="meta">요구 Lv25 · 힘 2 · 방어 45~51 · 마방 9 · <b>MP +6/턴</b></span></dd>
       <dt>부적</dt><dd><b>현맥의 부적</b> <span class="meta">요구 Lv25 · 힘 1 · 마방 34 · <b>MP +7/턴</b></span></dd>
     </dl>
-    <div class="chips"><span>지능(마력) <b>59</b></span><span>마법 방어 <b>77</b></span><span>마나 <b>113</b></span>
+    <div class="chips"><span>지능(마력) <b>61</b> <span class="sm">기본 6 가정</span></span><span>마법 방어 <b>78</b></span><span>마나 <b>115</b></span>
       <span><b>MP 회복 13/턴</b></span><span>평타 46~75 <span class="sm">단일</span></span>
-      <span>요구 힘 <b>2</b></span><span>경험치 <b>9.8M</b></span>
-      <span class="meta">현자 30 을 얹으면 10.8M · 통찰 35 · 마방 80</span></div>
+      <span>요구 힘 <b>2</b></span><span>경험치 <b>7.3M</b> <span class="sm">최적 순서면 4.5M</span></span>
+      <span class="meta">현자 30 을 얹으면 8.2M · 통찰 35 · 마방 81 &mdash; 현자는 어느 순서에 넣어도 똑같이 0.94M</span></div>
   </div>
 
   <h3>★ 지팡이는 «평타» 로 고르는 게 아닙니다 &mdash; ⌊요구레벨 &divide; 6⌋ 이 공짜로 붙습니다</h3>
@@ -592,7 +594,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>그리고 지팡이에는 화면에 안 나오는 지능이 붙습니다.</b>
      <code>Weapon.AddMagicPower</code> 가 <b>무기 종류가 지팡이일 때만</b>
      <b>⌊요구레벨 &divide; 6⌋</b> 을 더합니다 &mdash; 검·창·활·단검·대검·도끼는 못 받습니다.
-     지팡이 <b>49자루 중 44자루</b>는 마스터의 지능 칸이 0 이라
+     지팡이 <b>49자루 중 46자루</b>는 마스터의 지능 칸이 0 이라
      <b>화면에 «지능» 이 한 글자도 안 나오는데</b> 실제로는 이 몫을 받고 있습니다.
      <span class="sm">(도감은 이제 이 몫을 합쳐서 띄웁니다.)</span></div>
   <table class="t"><thead><tr><th>지팡이</th><th class="num">요구 Lv</th><th class="num">힘</th>
@@ -622,9 +624,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <span class="sm">마천의 지팡이는 지능이 한 칸 낮은 대신 MP 가 11 더 큽니다.</span></div>
   <div class="note"><b>강화도 여기로 들어갑니다.</b> 강화 종류에 <b>지능</b>이 있고
      피해식에 <b>1:1 로</b> 더해집니다. 강화는 <b>같은 종류를 합치지 않고 덧붙이므로</b>
-     (<code>Equipment.AddEnhancement</code>) 지능 강화는 <b>여러 번 쌓입니다</b> &mdash;
-     Lv18 이상 장비면 한 번에 최대 <b>+9</b> 입니다(&sect;8).
-     <b>지팡이가 지능을 가장 많이 늘릴 수 있는 칸입니다.</b></div>
+     (<code>Equipment.AddEnhancement</code>) 지능 강화는 <b>여러 번 쌓입니다</b>.
+     한 번에 붙는 양은 지팡이 <b>+1~+3</b>(정정 Lv23 · 5% 로 +5), 암숨의 법복·현맥의 부적은 <b>+1~+5</b>(Lv25) 입니다.
+     한 방 크기는 방어구가 크지만 강화 1회 기대값은 지팡이 ≈ 부적 &gt; 법복입니다(대장간 31 기준 4.8 · 4.5 · 3.1).
+     <b>+9 는 어느 경로로도 안 나옵니다.</b></div>
 
   <h3>지능이 곧 딜입니다</h3>
   <p>마법 피해는 <code>Rand(스킬 최소, 최대) + <b>시전자 마력(지능)</b></code> 인데
@@ -632,12 +635,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      즉 <b>지능이 딜의 3분의 2</b> 입니다.</p>
   <table class="t"><thead><tr><th class="num">지능</th><th class="num">블리자드 실제 피해</th><th class="num">뇌우</th></tr></thead><tbody>
     <tr><td class="num">33 <span class="sm">주직업만</span></td><td class="num">52~54</td><td class="num">67~69</td></tr>
-    <tr><td class="num">51 <span class="sm">아래 정지선 · 지팡이 몫 빼고</span></td><td class="num">70~72</td><td class="num">85~87</td></tr>
-    <tr class="hi"><td class="num"><b>59</b> <span class="sm">+ 정정의 지팡이 8</span></td><td class="num"><b>78~80</b></td><td class="num"><b>93~95</b></td></tr>
+    <tr><td class="num">53 <span class="sm">아래 정지선 · 지팡이 몫 빼고</span></td><td class="num">72~74</td><td class="num">87~89</td></tr>
+    <tr class="hi"><td class="num"><b>61</b> <span class="sm">+ 정정의 지팡이 8</span></td><td class="num"><b>80~82</b></td><td class="num"><b>95~97</b></td></tr>
   </tbody></table>
   <div class="note"><b>그리고 그게 거의 그대로 들어갑니다.</b>
      열린 지역 몬스터 <b>371종 중 266종(72%)이 마법 방어 0</b> 입니다(최대 40).
-     칼레바스만 봐도 <b>120종 중 63종(52%)</b> 이 0 입니다.
+     칼레바스만 봐도 <b>120종 중 63종(52%)</b> 이 0 입니다
+     <span class="sm">(이 둘은 탐색지+퀘스트 기준 371/120종 &mdash; 아래 &sect;7 의 정리율 표는 탐색지 기준 287/58종입니다)</span>.
      물리와 달리 <b>깎일 것이 거의 없습니다.</b>
      거기에 <b>상태이상 성공 굴림에도 마력이 그대로 더해집니다</b> &mdash; 지능은 딜과 상태이상을 동시에 올립니다.</div>
   <div class="note"><b>부직업도 마법을 가르칩니다.</b>
@@ -645,40 +649,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <code>JobMaster.CanLearnSkills(그 직업 레벨)</code> 을 부릅니다 &mdash;
      마법 부직업 하나에 <b>지능 · 새 마법 · 마나 · 마법 방어</b>가 한꺼번에 옵니다.</div>
 
-  <h4>«싼 것부터» &mdash; 효율은 부 지능 &divide; 최대 레벨</h4>
-  <p>경험치가 <code>1.05^(다른 직업 레벨 합)</code> 로 붙기 때문에,
-     <b>같은 지능이면 최대 레벨이 낮은 직업이 압도적으로 쌉니다.</b></p>
+  <h4>«얇게 깔기» &mdash; 한 레벨의 값은 (레벨+1)<sup>2.5</sup></h4>
+  <p>경험치 식에 <b>최대 레벨은 없습니다.</b> 레벨 하나의 값이 <code>(레벨+1)^2.5</code> 라
+     한 직업을 천장까지 미는 것보다 <b>여러 직업의 1~7 레벨을 깔아 같은 합을 만드는 쪽이 쌉니다</b> &mdash;
+     <code>1.05^(다른 직업 레벨 합)</code> 이 6 늘어나는 손해(×1.34)보다 큽니다.
+     예전에 여기 적었던 «부 지능 &divide; 최대 레벨» 효율은 식에 없는 값으로 줄 세운 것이었습니다.</p>
   <table class="t"><thead><tr><th>부직업</th><th class="num">부 지능</th><th class="num">최대</th>
-    <th class="num">효율</th><th class="num">마나</th><th class="num">마법 방어</th></tr></thead><tbody>
-    <tr class="hi"><td>견습 마법사</td><td class="num">3</td><td class="num">6</td><td class="num"><b>0.50</b></td><td class="num">7</td><td class="num">3</td></tr>
-    <tr class="hi"><td>견습 성직자</td><td class="num">2</td><td class="num">6</td><td class="num"><b>0.33</b></td><td class="num">5</td><td class="num">2</td></tr>
-    <tr class="hi"><td>숙련된 마법사</td><td class="num">3</td><td class="num">10</td><td class="num"><b>0.30</b></td><td class="num">7</td><td class="num">3</td></tr>
-    <tr><td>정령사</td><td class="num">4</td><td class="num">20</td><td class="num">0.20</td><td class="num">4</td><td class="num">2</td></tr>
-    <tr><td>숙련된 성직자</td><td class="num">3</td><td class="num">15</td><td class="num">0.20</td><td class="num">5</td><td class="num">2</td></tr>
-    <tr style="color:var(--faint)"><td>마궁사</td><td class="num">3</td><td class="num">25</td><td class="num">0.12</td><td class="num">5</td><td class="num">1</td></tr>
-    <tr style="color:var(--faint)"><td>암흑마법사 <span class="sm">주직업이라 참고용</span></td><td class="num">4</td><td class="num">30</td><td class="num">0.13</td><td class="num">5</td><td class="num">3</td></tr>
-    <tr style="color:var(--faint)"><td>순례 사제</td><td class="num">3</td><td class="num"><b>35</b></td><td class="num">0.09</td><td class="num">6</td><td class="num"><b>4</b></td></tr>
-    <tr style="color:var(--faint)"><td>성창사</td><td class="num">2</td><td class="num">25</td><td class="num">0.08</td><td class="num">2</td><td class="num">1</td></tr>
-    <tr style="color:var(--faint)"><td>마도병</td><td class="num">2</td><td class="num"><b>35</b></td><td class="num">0.06</td><td class="num">4</td><td class="num">2</td></tr>
-    <tr style="color:var(--faint)"><td>마검사</td><td class="num">1</td><td class="num">30</td><td class="num"><b>0.03</b></td><td class="num">0</td><td class="num">1</td></tr>
+    <th class="num">마나</th><th class="num">마법 방어</th></tr></thead><tbody>
+    <tr class="hi"><td>견습 마법사</td><td class="num">3</td><td class="num">6</td><td class="num">7</td><td class="num">3</td></tr>
+    <tr class="hi"><td>견습 성직자</td><td class="num">2</td><td class="num">6</td><td class="num">5</td><td class="num">2</td></tr>
+    <tr class="hi"><td>숙련된 마법사</td><td class="num">3</td><td class="num">10</td><td class="num">7</td><td class="num">3</td></tr>
+    <tr class="hi"><td>정령사</td><td class="num">4</td><td class="num">20</td><td class="num">4</td><td class="num">2</td></tr>
+    <tr class="hi"><td>숙련된 성직자 <span class="sm">7 까지</span></td><td class="num">3</td><td class="num">15</td><td class="num">5</td><td class="num">2</td></tr>
+    <tr class="hi"><td>마궁사 <span class="sm">4 까지</span></td><td class="num">3</td><td class="num">25</td><td class="num">5</td><td class="num">1</td></tr>
+    <tr style="color:var(--faint)"><td>암흑마법사 <span class="sm">주직업이라 참고용</span></td><td class="num">4</td><td class="num">30</td><td class="num">5</td><td class="num">3</td></tr>
+    <tr class="hi"><td>순례 사제 <span class="sm">7 까지</span></td><td class="num">3</td><td class="num"><b>35</b></td><td class="num">6</td><td class="num"><b>4</b></td></tr>
+    <tr class="hi"><td>성창사 <span class="sm">4 까지</span></td><td class="num">2</td><td class="num">25</td><td class="num">2</td><td class="num">1</td></tr>
+    <tr style="color:var(--faint)"><td>마도병 <span class="sm">마법 사러 10</span></td><td class="num">2</td><td class="num"><b>35</b></td><td class="num">4</td><td class="num">2</td></tr>
+    <tr style="color:var(--faint)"><td>마검사</td><td class="num">1</td><td class="num">30</td><td class="num">0</td><td class="num">1</td></tr>
   </tbody></table>
-  <p>싼 것부터 하나씩 얹으면 이렇게 됩니다 (휴먼 · 기본 지능 6 · 전역 지팡이 · 암숨의 법복 · 현맥의 부적).</p>
-  <table class="t"><thead><tr><th>여기까지 얹으면</th><th class="num">지능</th><th class="num">마법 방어</th>
-    <th class="num">마나</th><th class="num">누적 경험치</th><th class="num">지능 1 당</th></tr></thead><tbody>
+  <p>하나씩 얹으면 이렇게 됩니다 (휴먼 · 기본 지능 6 <span class="sm">가정값</span> · <b>지팡이 몫 제외</b> · 암숨의 법복 · 현맥의 부적).</p>
+  <table class="t"><thead><tr><th>여기까지 얹으면</th><th class="num">지능 <span class="sm">무기 몫 제외</span></th><th class="num">마법 방어</th>
+    <th class="num">마나 <span class="sm">무기 몫 제외</span></th><th class="num">누적 경험치</th><th class="num">지능 1 당</th></tr></thead><tbody>
     <tr><td>암흑마법사 30 만</td><td class="num">30</td><td class="num">61</td><td class="num">45</td><td class="num">1.1M</td><td class="num">&mdash;</td></tr>
     <tr><td>+ 견습 마법사 6 · 견습 성직자 6</td><td class="num">33</td><td class="num">64</td><td class="num">53</td><td class="num">1.1M</td><td class="num">0.01M</td></tr>
     <tr><td>+ 숙련된 마법사 10</td><td class="num">36</td><td class="num">67</td><td class="num">60</td><td class="num">1.3M</td><td class="num">0.07M</td></tr>
     <tr><td>+ 정령사 20</td><td class="num">44</td><td class="num">71</td><td class="num">68</td><td class="num">4.8M</td><td class="num">0.43M</td></tr>
-    <tr class="hi"><td><b>+ 숙련된 성직자 15</b> <span class="sm">← 지능은 여기까지</span></td><td class="num"><b>49</b></td>
-      <td class="num"><b>74</b></td><td class="num"><b>75</b></td><td class="num"><b>7.7M</b></td><td class="num">0.59M</td></tr>
-    <tr class="hi"><td><b>+ 마도병 10 · 순례 사제 1</b> <span class="sm">(뇌우 · 살바를 사러)</span></td><td class="num"><b>51</b></td>
-      <td class="num">77</td><td class="num">80</td><td class="num"><b>9.8M</b></td><td class="num">&mdash;</td></tr>
-    <tr style="color:var(--faint)"><td>+ 마궁사 25</td><td class="num">59</td><td class="num">79</td><td class="num">92</td>
-      <td class="num">89.7M</td><td class="num"><b>9.98M</b></td></tr>
+    <tr><td>+ 숙련된 성직자 7</td><td class="num">47</td><td class="num">73</td><td class="num">71</td><td class="num">5.0M</td><td class="num">0.08M</td></tr>
+    <tr><td>+ 마도병 10 <span class="sm">(프로스트 템페스트 · 뇌우)</span></td><td class="num">49</td><td class="num">75</td><td class="num">75</td><td class="num">6.4M</td><td class="num">0.71M</td></tr>
+    <tr><td>+ 순례 사제 7 <span class="sm">(살바는 1 에서)</span></td><td class="num">51</td><td class="num">78</td><td class="num">79</td><td class="num">7.0M</td><td class="num">0.27M</td></tr>
+    <tr class="hi"><td><b>+ 마궁사 4 · 성창사 4</b> <span class="sm">← 지능은 여기까지</span></td><td class="num"><b>53</b></td>
+      <td class="num"><b>78</b></td><td class="num"><b>82</b></td><td class="num"><b>7.3M</b></td><td class="num">0.17M</td></tr>
+    <tr class="hi"><td><b>+ 정정의 지팡이</b> <span class="sm">지능 8 · 최대 MP 33</span></td><td class="num"><b>61</b></td>
+      <td class="num"><b>78</b></td><td class="num"><b>115</b></td><td class="num">&mdash;</td><td class="num">&mdash;</td></tr>
   </tbody></table>
-  <div class="note"><b>정지선은 «숙련된 성직자 15» 입니다.</b> 거기까지가 7.7M
-     &mdash; 방어탱(21.9M)의 3분의 1인데 <b>지능 30 &rarr; 49, 마법 방어 61 &rarr; 74, 마나 45 &rarr; 75</b> 를 얻습니다.
-     그다음 마궁사에서 <b>지능 1 당 경험치가 17배</b>로 뜁니다.</div>
+  <div class="note"><b>정지선은 «숙련된 성직자 7 · 순례 사제 7 · 마궁사 4 · 성창사 4» 입니다.</b>
+     거기까지가 7.3M(최적 순서면 4.5M) &mdash; <b>지능 30 &rarr; 53(지팡이 포함 61), 마법 방어 61 &rarr; 78, 마나 45 &rarr; 82</b> 를 얻습니다.
+     예전에 적었던 «17배» 벽은 없습니다 &mdash; 마궁사 한 칸(0.003M)이 지능 1 을 삽니다.
+     그 위로는 <b>64</b> 가 다음 분수령(칼레바스 56/58 · 열린 지역 282/287)이지만 거기까지의 사다리 값은 따로 재지 않았습니다.
+     <span class="sm">최적 순서: 암흑마법사 → 정령사 → 마도병 → 숙련된 마법사 → 숙련된 성직자 → 순례 사제 → 견습 마법사 → 견습 성직자 → 마궁사 → 성창사.</span></div>
   <div class="note warn"><b>종족은 휴먼이어야 합니다.</b> <b>엘프는 성직 계열 셋</b>
      (견습 성직자 · 숙련된 성직자 · 성창사)<b>을 못 합니다</b> &mdash; 기본 지능이 2 높은 대신 위 표에서 <b>중간에 멈춥니다</b>.
      드워프는 마법 직업을 다섯이나 못 해서 아예 안 됩니다.</div>
@@ -711,7 +720,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      법사 지팡이를 가르는 것은 <b>지능과 최대 MP</b> 입니다 &mdash;
      그 기준으로는 <b>정정의 지팡이(지능 8 · 최대 MP +33)</b> 가 전역 지팡이(지능 4)를
      앞서고, 마천의 지팡이(지능 7 · 최대 MP +44)와는 지능 한 칸을 MP 11 과 맞바꾸는 사이입니다.
-     <span class="sm">MP 통이 더 급하면 마천의 지팡이가 한 칸 차이로 뒤따릅니다.</span></div>
+     <span class="sm">강화 전에는 사실상 동률입니다(정리 종 수 차 0). <b>강화를 할 거면(대장간 29 이상) 마천의 지팡이</b> &mdash;
+     강화 MP 가 «공짜 1라운드 한 발» 문턱 128 을 마천은 대개 넘기고(133±) 정정은 드물게 넘깁니다(122±).
+     둘을 데려가면 <b>둘 다 같은 지팡이</b>로.</span></div>
 
   <h3>법사 둘을 데려간다면</h3>
   <div class="note"><b>좋은 조합입니다.</b> MP 통이 두 개라 전체 마법 지속률이 그대로 두 배가 되고,
@@ -728,7 +739,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         앞의 법사가 전체 회복을 하면 뒤의 법사는 <b>이미 채워진 HP 를 보고</b> 공격으로 갑니다.
         이중 회복은 <b>한 번으로 안 되는 판</b>에서만 납니다</td></tr>
     <tr><td colspan="2" style="color:var(--muted)"><b>앞줄은 따로 필요합니다.</b>
-      마법 직업은 방어구가 <b>부적 · 의복 두 칸</b>뿐이라 물리 방어가 낮습니다</td></tr>
+      마법 직업은 방어구가 <b>부적 · 의복 두 칸</b>뿐이라 물리 방어가 낮습니다 &mdash;
+      방어 52~58 · HP 27 · 회피값 2(완봉선 3) · 민첩 11. <b>뒷줄에 닿는 평타는 한 방입니다</b>(최소 63).
+      칼레바스에서 뒷줄까지 닿는 조우는 약 11% 라 <b>전열이 서 있는 동안만</b> 버팁니다</td></tr>
   </tbody></table>
 
   <h4>민첩은 «따로 챙길 것» 이 아닙니다</h4>
@@ -751,8 +764,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
        <li><b>민첩을 «올리는» 스킬이 데이터에 하나도 없습니다</b> &mdash;
            <code>AgilityUp(45)</code>·<code>Haste(49)</code> 를 거는 스킬이 <b>159개 중 0개</b>입니다.</li>
      </ul></div>
-  <div class="note"><b>그래서 지능용 부직업만 담아도 이미 25~30 이 나옵니다</b>
-     (정령사 부 1 · 마궁사 부 2 · 숨은 칼날의 궁사 부 4).
+  <div class="note"><b>지능용 부직업만 담으면 민첩 몫은 6 뿐입니다</b>
+     (정령사 20×1 + 마도병 10×1 + 순례 사제 7×2 + 마궁사 4×2 + 성창사 4×1 = 56 → ⌈5.6⌉, 기본 5 면 11).
+     예전의 «25~30» 은 마궁사 25 를 전제한 옛 값입니다.
      모자라면 <b>숨은 칼날의 궁사</b>가 가장 큰 한 방이고, 급하면 <b>견습 사냥꾼 6</b> 이 제일 쌉니다.
      민첩에 쓸 경험치가 있으면 <b>현자</b> 쪽이 낫습니다 &mdash; 지수가 0 이고 통찰이 전부를 정합니다.</div>
   <div class="note warn"><b>예외 하나 &mdash; 슬로우.</b>
@@ -764,7 +778,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h2 id="spells"><span class="n">7</span>마법 켜기 &mdash; 다 켜면 «가장 약한 것» 이 나갑니다</h2>
   <div class="note"><b>이 절의 «실제 피해» 는 지능 51 기준입니다</b> &mdash;
-     &sect;6 의 직업 사다리 끝값이고, <b>지팡이 몫은 빼고</b> 센 값입니다.
+     예전 &sect;6 사다리의 끝값이고, <b>지팡이 몫은 빼고</b> 센 값입니다
+     <span class="sm">(지금 &sect;6 사다리는 53 이라 아래 수치가 2 씩 낮습니다 &mdash; 우열은 안 바뀝니다)</span>.
      지팡이를 끼면 거기에 <b>그 지팡이의 지능이 그대로 더해집니다</b>
      (정정의 지팡이 +8 · 전역 지팡이 +4 &mdash; <a href="#mage">&sect;6</a>).
      지능은 모든 마법에 똑같이 더해지는 <b>정액</b>이라,
@@ -802,9 +817,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h3>★ 블리자드냐 프로스트 템페스트냐 &mdash; 경험치가 정합니다</h3>
   <div class="note warn"><b>먼저 바로잡을 것: &sect;6 의 추천 빌드로는 블리자드를 «못 배웁니다».</b>
-     블리자드는 <b>마궁사 10</b> 인데 &sect;6 의 부직업 목록에 마궁사가 없습니다 &mdash;
-     &sect;6 이 스스로 「그다음 <b>마궁사에서 지능 1 당 경험치가 17배</b>로 뜁니다」 라며
-     그 앞에서 멈춰 세운 선입니다. 예전에 이 두 절이 어긋나 있었습니다.</div>
+     블리자드는 <b>마궁사 10</b> 인데 &sect;6 의 사다리에 마궁사는 <b>4 까지만</b> 있습니다.
+     경험치 벽이 아니라 <b>정리율</b>로 밀려납니다 &mdash; 같은 지능에서 블리자드가 그 라운드에 치우는 칼레바스 종은 31/58,
+     프로스트 템페스트·뇌우는 51~54/58 입니다. 예전에 이 두 절이 어긋나 있었습니다.</div>
   <div class="note warn"><b>★ 기준은 «턴당 얼마나 깎나» 가 아니라 «그 라운드에 치우나» 입니다.</b>
      법사를 둘 데려가면 전체 마법이 <b>한 라운드에 두 번</b> 들어갑니다.
      그걸로 <b>안 죽으면 적은 그대로 한 대 더 때리고</b>, 쓴 MP 는 돌아오지 않습니다.
@@ -857,8 +872,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
            (블리자드는 마궁사 10 이 따로 듭니다).</li>
        <li><b>법사가 하나뿐이거나 칼레바스 아래만 돈다면 &rarr; 블리자드도 괜찮습니다.</b>
            발두나 아래로는 둘이 쏘면 88~100% 가 정리되고,
-           MP 당 효율은 블리자드가 가장 좋습니다. 다만 <b>마궁사 10 을 따로 사야</b> 하고,
-           &sect;6 이 「마궁사에서 지능 1 당 경험치가 17배로 뛴다」며 멈춰 세운 선 밖입니다.</li>
+           MP 당 효율은 블리자드가 가장 좋습니다. 다만 &sect;6 의 사다리(마궁사 4) 밖이라
+           <b>마궁사 6 레벨을 더 사야</b> 합니다.</li>
      </ul></div>
   <div class="note warn"><b>★ 블리자드와 프로스트 템페스트를 «같이» 켜면 안 됩니다.</b>
      둘은 <b>같은 냉기</b>라 속성 궁합 점수가 늘 같고 <b>동점이면 레벨 낮은 쪽이 이깁니다</b> &mdash;
@@ -1062,7 +1077,7 @@ MP &lt; 10   &rarr; <b>평타</b></div>
   <p>상시로 낄 후보만 추렸습니다. 낱개 제원은 <a href="codex.html">도감</a> 에 있습니다.</p>
   <table class="t"><thead><tr><th>무기</th><th class="num">요구 Lv</th><th class="num">평타</th><th>사거리</th><th>비고</th></tr></thead><tbody>
     <tr class="hi"><td><b class="mag">명천궁</b> <span class="sm">활</span></td><td class="num">31</td><td class="num">58~94</td><td>원거리 / 관통</td><td><b>마법이면서 관통인 유일한 활</b></td></tr>
-    <tr class="hi"><td><b class="mag">하늘을 뚫는 창</b></td><td class="num">30</td><td class="num">59~94</td><td>근접 / 관통</td><td>마법</td></tr>
+    <tr class="hi"><td><b class="mag">하늘을 뚫는 창</b></td><td class="num">30</td><td class="num">59~94</td><td>모든 적 / 관통</td><td>마법</td></tr>
     <tr class="hi"><td><b class="mag">유령의 검</b></td><td class="num">31</td><td class="num">62~98</td><td>근접 / 단일</td><td>마법 &mdash; 방어탱의 물리 무효 대책</td></tr>
     <tr class="hi"><td><b class="mag">용맥의 단검</b></td><td class="num">26</td><td class="num">45~72</td><td>근접 / <b>전체</b></td><td>마검사가 들면 마법. 전체 공격 단검은 이것과 룬 스프레드 대거 둘뿐</td></tr>
     <tr><td>송곳니왕의 전역 지팡이</td><td class="num">29</td><td class="num">55~90</td><td><b>모든 적 / 전체</b></td><td>비마법 · <b>요구 힘 2</b></td></tr>

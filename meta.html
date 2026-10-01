@@ -300,6 +300,9 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .statbox .lvin{font-size:11.5px}
 .statbox .lvin input{width:44px}
 .t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
+.t-tr{color:var(--f-vault)}
+.trlist li{margin:4px 0} .trlist b{color:var(--f-vault)} .trlist .est{color:var(--muted);font-size:11px}
+.jobnote{margin-top:14px} .jobnote code{font-size:12px}
 .crow .lvin input{width:54px}
 .crow .lvin input.wide{width:96px;text-align:right}
 .sumline{font-family:"IBM Plex Mono",monospace;font-size:14px;color:var(--ink);margin:12px 0 8px}
@@ -483,7 +486,9 @@ function jobRow(j, hl){
   var lockTag = j.lock ? '<em class="tag t-lock" title="이 직업의 훈련소를 여는 퀘스트가 아직 못 가는 지역에 있습니다">미출시</em>' : "";
   return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
-    +'<span class="nm"><b>'+lockTag+(j.sk.length?'<em class="tag t-m">마법</em>':"")+esc(j.n)+'</b>'
+    +'<span class="nm"><b>'+lockTag+(j.sk.length?'<em class="tag t-m">마법</em>':"")
+      +(j.tr||[]).map(function(t){ return '<em class="tag t-tr" title="'+esc(t.d)+'">'+esc(t.t)+'</em>'; }).join("")
+      +esc(j.n)+'</b>'
     +'<span>'+esc(j.o||j.d.split("\n")[0])+'</span></span>'
     /* 능력치로 걸렀으면 그 수치를 무기 칸 자리에 대신 보여 준다 —
        «얼마나 올려 주나» 가 안 보이면 거른 의미가 없다. 주/부 값이 다르면 둘 다 적는다. */
@@ -498,11 +503,19 @@ function jobRow(j, hl){
     +'<span class="num'+(j.exp>=5?"":" dim")+'">×'+(1+(j.exp-1)/4).toFixed(2)+'</span></div>';
 }
 function jobDetail(j){
+  /* 코드에 박힌 직업 특례. build_meta.py 의 TRAITS — RVA 로 확인한 것만 들어 있다.
+     «추정» 표시는 조건 한 토막을 끝까지 못 읽은 것이다. */
+  var tr=(j.tr&&j.tr.length)? '<div class="blk"><h4>특수능력</h4><ul class="trlist">'+j.tr.map(function(t){
+      return '<li><b>'+esc(t.t)+'</b> — '+esc(t.d)+(t.c==="추정"?' <span class="est">(추정)</span>':'')+'</li>'; }).join("")+'</ul></div>' : "";
   var sk=j.sk.length? '<div class="blk"><h4>배우는 마법</h4><ul>'+j.sk.map(function(s){
       return '<li><b>'+esc(s.n)+'</b><span class="meta"> — '+s.lv+'레벨</span></li>'; }).join("")+'</ul></div>' : "";
-  return '<div class="detail"><dl class="dgrid">'
+  return '<div class="detail">'+tr+'<dl class="dgrid">'
     +'<div class="dcell"><dt>장착 무기</dt><dd>'+(esc(j.w.join(" · "))||"—")+'</dd></div>'
     +'<div class="dcell"><dt>장착 방어구</dt><dd>'+(esc(j.a.join(" · "))||"—")+'</dd></div>'
+    /* races/norace 는 build_meta 가 races[*].no 를 뒤집어 유도한다 — 종족이 늘면 저절로 따라온다 */
+    +'<div class="dcell"><dt>가능 종족</dt><dd>'+((j.norace&&j.norace.length)
+        ? esc(j.races.join(" · "))+' <span class="meta">('+esc(j.norace.join("·"))+' 불가)</span>'
+        : '전 종족')+'</dd></div>'
     +'<div class="dcell"><dt>최대 레벨</dt><dd class="mono">'+j.max+'</dd></div>'
     +(myHallLv(j.i)!=null?'<div class="dcell"><dt>내 훈련소 레벨</dt><dd class="mono" style="color:var(--accent)">'
         +myHallLv(j.i)+'</dd></div>':"")
@@ -752,7 +765,7 @@ function block(title,sub,rows){
    주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
 var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
-var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, was:{}, xph:0, goal:0};
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, fw:false, was:{}, xph:0, goal:0};
 
 function scJobs(){ return visJobs().slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
@@ -808,8 +821,8 @@ function scRows(){
     if(label==="공격력"){
       var r=scGearRange("dm"), jb=scJobPartW(label);
       var mj=D.jobs.filter(function(j){ return j.i===sc.main; })[0];
-      // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다
-      if(mj && mj.k===200 && scWeaponKind()==="활") r=[r[0]>>1, r[1]>>1];
+      // 주직업이 도둑(Kind 200)인데 활을 들면 무기 몫이 반이 된다 — 풋워커는 면제 (0x26DBBD8 race≠3)
+      if(mj && mj.k===200 && scWeaponKind()==="활" && !sc.fw) r=[r[0]>>1, r[1]>>1];
       return {k:label, base:0, job:jb, gear:r[0], gear2:r[1], sum:r[0]+jb, sum2:r[1]+jb};
     }
     if(label==="방어력"){
@@ -843,6 +856,7 @@ function scSetRace(id){
   if(!r) return;
   sc.base={}; SC_BASE.forEach(function(k){ sc.base[k]=(r.ab&&r.ab[k])||0; });
   sc.elf = (r.race==="엘프");
+  sc.fw  = (r.race==="풋워커");      // 활 한 칸 · 도둑 활 반감 면제
   sc.from = r.race+" "+(r.man?"남":"여")+" 기준값";
 }
 function scAgiFloor(a){
@@ -872,6 +886,7 @@ function scLoad(id){
   sc.was={}; (c.jobs||[]).forEach(function(j){ sc.was[j.i]=j.lv||0; });
   var rc=D.races.filter(function(r){ return r.i===c.race; })[0];
   sc.elf = !!(rc && rc.race==="엘프");
+  sc.fw  = !!(rc && rc.race==="풋워커");
   sc.race = rc ? rc.i : "";
   sc.slot={};
   // ★ c.eq 는 장비 «파일 GUID» 다 — D.gear 는 «에셋 이름» 으로 키를 쓴다.
@@ -898,6 +913,7 @@ function scCanKinds(){
   var mj=scMainJob();
   var arm = mj ? mj.a.slice() : [], wep = mj ? mj.w.slice() : [];
   if(sc.elf && arm.indexOf("부적")<0) arm.push("부적");
+  if(sc.fw  && wep.indexOf("활")<0)  wep.push("활");      // CanEquipWeapons 0x26D9F24 cmp #3 → Add(Bow)
   return {arm:arm, wep:wep};
 }
 /* Character.CanEquip 은 세 가지를 본다.
@@ -1185,7 +1201,7 @@ function statHTML(){
     +'<div class="crow"><span class="lvlabel"></span><span class="meta">'
       +(kinds.wep.length||kinds.arm.length
           ? '주직업이 <b>'+esc(kinds.wep.concat(kinds.arm).join(" · "))+'</b> 만 허락합니다'
-            +(sc.elf? ' (엘프라 부적이 하나 더)' : '')
+            +(sc.elf? ' (엘프라 부적이 하나 더)' : '')+(sc.fw? ' (풋워커라 활이 하나 더)' : '')
           : '주직업을 먼저 고르세요')+'</span></div>'
     +'</div>'
     + table + solBlock + expBlock
@@ -1464,6 +1480,23 @@ function calcHTML(){
 
 /* 탭이 여섯이라 머리글도 탭을 따라가야 한다.
    한 줄 설명과 숫자를 여기서 갈아 끼운다. */
+/* 직업이 아니라 «장비/전투 규칙» 인 것들 — 클래스 칸에 쓰면 풍현사 칸과 겹친다.
+   수치는 전부 RVA 로 읽은 것이다 (builds·notes 와 같은 출처). */
+var JOBNOTE = '<section class="group jobnote"><div class="ghead"><h2>공통 규칙</h2>'
+  +'<span class="sub">직업이 아니라 장비·전투 쪽에 있는 것</span><span class="rule"></span></div>'
+  +'<div class="note"><b>공격 횟수 = 1 + 무기 추가 공격 + (풍현사·활이면 레벨 % 로 +1)</b><br>'
+  +'무기의 «추가 공격»은 <b>확률이 아닙니다 — 항상</b> 붙습니다. 그런 무기가 17종(전부 +1): 단검 5 · 검 6 · 대검 2 · 활 3 · 창 1. '
+  +'플레이어 상한은 <b>3회</b>(기본 1 + 무기 1 + 풍현사 1). 몬스터도 확률이 아니라 패턴에 박혀 있고 32종, 최대 크리핑 트리 +5.</div>'
+  +'<div class="note"><b>치명타는 배율이 아닙니다.</b> 피해에서 <b>대상 방어력의 절반만</b> 뺍니다(평시는 전액). '
+  +'확률은 (치명타율 − 대상 치명 저항)을 <b>2~98%</b> 로 자릅니다. 대상 방어력이 2 미만이거나 방패로 막힌 공격에는 아예 안 뜹니다.</div>'
+  +'<div class="note"><b>물리 무효 37종</b>에는 마법 무기 · 마검사의 단검 · 모래 환상 사수의 활만 통합니다. '
+  +'<b>활 무효 5종</b>은 활이면 회피에 +999 — 마법 처리와 무관해서 모래 환상 사수도 못 뚫습니다.</div>'
+  +'<div class="note"><b>함정</b> — 발견 = 2d6(10 이상이면 또 굴림) + 리더 보너스 + <b>담당 직업 레벨</b> + ⌊통찰 흔들림 ÷ 6⌋ ≥ 난이도 + 함정 레벨 + 2d6. '
+  +'담당 직업(도둑 52 · 레인저 63 · 현자 18)이 없거나 레벨 0 이면 그 사람은 판정에서 빠집니다. 주·부 구분 없음. '
+  +'해제는 담당 직업 레벨 + 함정 종류별 스탯 흔들림 — <span class="meta">상태이상 함정 15개는 해제 분기가 없습니다</span>.</div>'
+  +'<div class="note"><b>종족 특전 둘</b> — 엘프는 부적 한 칸, 풋워커는 활 한 칸이 <b>주직업과 무관하게</b> 더 열립니다. '
+  +'자세한 식은 <a href="notes.html#hit">원리 §5·§6</a>.</div></section>';
+
 var TABNOTE = {
   job:  "무엇을 들고 무엇에 능한지, 주직업일 때와 부직업일 때 뭐가 다른지.",
   race: "어느 주점에서 뽑히는지, 기준값이 실제로 얼마가 되는지, 어떤 성격이 나오는지.",
@@ -1528,6 +1561,7 @@ function render(){
     html+=block("클래스", n+"종 · "+sub, rows.map(function(j){
       return jobRow(j, state.jst);
     }));
+    if(!state.q && !state.wk && !state.jst) html+=JOBNOTE;   // 거르는 중엔 숨긴다
   } else if(state.view==="race"){
     var rs=D.races.filter(function(r){
       return hit(r.race+" "+r.i+" "+r.towns.join(" ")+" "+r.pers.join(" ")); });
