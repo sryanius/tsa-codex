@@ -881,7 +881,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 2. <b>종류 → 사거리 → 레벨</b> 오름차순으로 정렬한다
 3. <b>회복</b>이 하나라도 있으면 <b>그 자리에서 반환</b>한다
 4. 없으면 <b>전체 → 관통</b> 순으로, 각 급 안에서는 <b>속성 궁합 점수</b>로 고른다
-   점수 = (약점인 적 &times; 2) &minus; (무효인 적)   <i>// 알아본 적만 센다 &mdash; 모르는 적뿐이면 전부 0</i>
+   점수 = (약점인 적 &times; 2) &minus; (무효인 적)   <i>// 알아본 적만 센다 &mdash; 모르는 적뿐이면 전부 0 · <a href="#known">알아봄은 아래</a></i>
    <b>점수가 같을 때만</b> 정렬 순서(= 공격 &rarr; MP 피해 &rarr; 상태이상, 같은 종류면 레벨 낮은 쪽)가 갈림돌이 된다
 5. 전체·관통이 하나도 없으면 <b>단일</b>은 따로 훑는다</div>
   <div class="note warn"><b>★ 여기서 두 가지가 따라 나옵니다.</b>
@@ -891,7 +891,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
          <span class="sm">거꾸로 <b>약점을 찌르는 마법은 레벨이 낮아도 우선합니다</b> &mdash;
          속성이 맞는 상대에게는 높은 레벨 쪽이 나갑니다.</span></li>
        <li><b>단일 회복을 켜 두면 전체 회복이 거의 안 나갑니다.</b>
-         사거리 오름차순이라 단일이 먼저 잡히고, 회복은 그 자리에서 반환하기 때문입니다.
+         정렬이 사거리를 레벨보다 먼저 보므로 <b>전체 회복이 레벨이 더 낮아도</b> 단일이 먼저 잡히고, 회복은 그 자리에서 반환하기 때문입니다.
          <span class="sm">다만 «쓸 수 있는가» 문턱이 마법마다 달라서, 큰 단일이 문턱에 걸려 빠지는
          구간에서는 작은 전체가 살아남습니다 &mdash; «영영» 은 아닙니다.</span></li>
      </ul></div>
@@ -901,6 +901,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>대부분의 상태이상은 «힘» 이 막습니다.</b>
      마법 방어로 저항하는 상태이상은 <b>83개 중 27개</b>(약 3분의 1) 뿐입니다 &mdash;
      나머지는 힘으로 겨룹니다. 회피도 마법 방어도 안 통하는 자리가 있다는 뜻입니다.</div>
+
+  <h3 id="known">«알아본 적» &mdash; 몬스터 기록소와 현자</h3>
+  <p>위 1단계의 «무효가 아닌 적» 과 4단계의 점수는 <b>알아본 적</b>만 따집니다. 모르는 적은 약점도 무효도 없는 것으로 셉니다 &mdash;
+     그래서 모르는 냉기 무효 앞에서도 냉기 마법이 그대로 나가 0 을 넣습니다.</p>
+  <div class="eq">전투가 시작될 때(증원은 나타날 때) <b>적마다 한 번</b>:
+  ① 지금 마을의 <b>몬스터 기록소</b>에 등록된 몬스터 &rarr; 처음부터 알아봄
+  ② 아니면 살아 있는 파티원을 무작위 순서로 시험 &rarr; 한 명이라도 성공하면 알아봄
+
+시험 성공  &hArr;  &lfloor;흔든 기본 통찰 &divide; 6&rfloor; + 현자 레벨  &ge;  몬스터 레벨 + 인지도(&minus;7~+3)
+   <i>// 통찰은 직업·장비 보너스를 뺀 «뽑을 때의 값». 현자는 주직업이 아니어도 더해집니다</i></div>
+  <div class="note"><b>모험가는 시험 결과를 몬스터 종류마다 기억합니다.</b> 성공은 영구이고, 실패도 «모름» 으로 굳어 다시 시험하지 않습니다 &mdash;
+     예외는 <b>현자가 주직업인 모험가가 레벨이 오를 때</b>뿐이고, 그때 그 모험가의 «모름» 기록이 전부 지워집니다.</div>
+  <div class="note"><b>기록소 등록은 보기 전용이 아닙니다.</b>
+     모험가가 알아본 몬스터는 그 모험가가 마을에 있을 때 자료실에 <b>회색</b>으로 뜨고,
+     <b>기록소 레벨 이하</b>인 몬스터만 골드를 내고 등록할 수 있습니다(Lv5 부터 레벨 &times; 100 &mdash; Lv35 면 3,500).
+     등록한 몬스터는 그 뒤 <b>그 마을에서 나가는 모든 전투</b>에서 처음부터 알아본 적입니다.</div>
+  <div class="note warn"><b>★ 모르는 적을 잡으면 장비 드랍 판정이 절반으로 줄어듭니다.</b>
+     처치한 적마다 보상을 굴리는데, 모르는 적이면 <b>50% 로 그 판정을 통째로 건너뜁니다</b>(알아본 적은 늘 굴림 · 장비는 전투당 하나까지).
+     기록소에 등록해 두면 드랍에서도 손해가 없습니다.</div>
+  <p class="src">BattleTurnProcessor.CheckKnown &middot; Character.IsKnown &middot; Character.ClearUnknownMonsters &middot;
+     Building.IsExistMonsterLibraryEntry &middot; MonsterLibraryScrollView.RegisterMonster &middot; BattleTurnProcessor.OnBattleEnd</p>
 
   <h2 id="check"><span class="n">8</span>판정 한 틀 &mdash; 금고 · 함정 · 선제공격</h2>
   <p>여섯 판정이 <b>전부 같은 틀</b>입니다. 한 번만 적고, 차이는 표로 냅니다.</p>
