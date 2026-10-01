@@ -890,12 +890,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <b>HP 흡수</b>  <i>(예: 유령의 검 50)</i>
   회복 = &lfloor;준 물리 피해 &times; 율 &divide; 100&rfloor;  (최소 1)   <i>// 넘친 피해도 센다 · 언데드에게는 없음 · 추가 속성 피해는 안 센다</i></div>
   <div class="note warn"><b>★ 퀘스트 안의 전투와 전투 사이에는 HP 가 안 찹니다.</b>
-     HP 를 채우는 것은 <b>전투 안</b>의 회복 마법 · 장비 자동회복(턴 끝) · 흡수뿐이고,
-     가득 채우는 것은 <b>병원 · 전직 · 고용</b> 때뿐입니다(<code>Character.FullRecover</code> 를 부르는 곳이 이 셋).
-     MP 는 퀘스트가 끝날 때 다 찹니다. 그래서 퀘스트 한 건(칼레바스 평균 전투 4.3번) 동안 깎인 HP 가 그대로 이어집니다 &mdash;
-     흡수와 자동회복의 값어치가 여기서 나옵니다.</div>
+     앞 전투가 끝난 HP 그대로 다음 전투를 시작하고, 그 사이 함정을 맞으면 더 깎인 채로 들어갑니다.
+     HP 가 오르는 것은 <b>전투 안</b>의 회복 마법 · 흡수 · 장비 자동회복뿐이고, 장비 자동회복은 <b>매 턴이 끝날 때 한 번</b>
+     낀 장비의 «HP 회복» 합만큼 찹니다(예: 늪왕의 부적 8 + 폐천의 왕의복 10 &rarr; 턴당 18 · 저주에 걸리면 안 참).
+     퀘스트가 끝나 마을에 돌아와도, 몇 시간이 지나도 HP 는 그대로이고, 가득 채우는 것은 <b>병원(치료 · 부활) · 전직 · 고용</b> 때뿐입니다.
+     레벨이 오르거나 장비를 바꿔 최대 HP 가 바뀌면 현재 HP 도 같은 만큼만 움직여 모자란 양은 그대로 남습니다.
+     MP 도 전투 사이에는 안 차지만 퀘스트가 끝나면 다 찹니다.
+     <span class="sm">세이브의 모험 311개 · 이어진 전투 9,397쌍 전부에서 «다음 전투 시작 HP = 앞 전투 끝 HP − 그 사이 함정 피해» 였습니다.</span></div>
   <p class="src">BattleTurnProcessor.PhysicsAttack &middot; WeaponMaster.AdditionalElementPower &middot; BattleTargetSelector.Get &middot;
-     Weapon.CriticalRate &middot; Character.HealHp / FullRecover &middot; BattleTurnProcessor.OnTurnEnd</p>
+     Weapon.CriticalRate &middot; Character.HealHp / FullRecover / Revive &middot; BattleTurnProcessor.OnTurnEnd &middot; AdventureMain.ExecuteTrap &middot; HospitalScene.Heal</p>
   </section>
 <section class="sec" id="sec-magic" data-sec="magic" data-upd="2026-10-02">
   <h2 id="magic"><span class="n">7</span>전투 ③ &mdash; 마법과 상태이상</h2>

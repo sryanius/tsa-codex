@@ -820,11 +820,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>같은 전투 안의 행동 순서</b>뿐입니다 &mdash; 매 라운드 민첩 내림차순으로 다시 줄을 세웁니다.</div>
   <p>목표는 하나뿐입니다 &mdash; <b>몬스터 민첩의 천장이 28</b> 이고,
      <b>칼레바스가 열린 지금도 그대로입니다</b>(칼레바스 최고는 25).</p>
-  <table class="t"><thead><tr><th class="num">내 민첩</th><th class="num">내가 먼저 움직이는 몬스터</th></tr></thead><tbody>
-    <tr><td class="num">12</td><td class="num">44%</td></tr>
-    <tr><td class="num">20</td><td class="num">93%</td></tr>
-    <tr class="hi"><td class="num"><b>29</b></td><td class="num"><b>100%</b></td></tr>
+  <table class="t"><thead><tr><th class="num">내 민첩</th><th class="num">확실히 먼저</th><th class="num">민첩이 같은 몬스터까지</th></tr></thead><tbody>
+    <tr><td class="num">12</td><td class="num">44%</td><td class="num">61%</td></tr>
+    <tr><td class="num">20</td><td class="num">93%</td><td class="num">96%</td></tr>
+    <tr class="hi"><td class="num"><b>28 · 29</b></td><td class="num"><b>100%</b> <span class="sm">(29)</span></td><td class="num">100% <span class="sm">(28)</span></td></tr>
   </tbody></table>
+  <p class="src">도감 383종 기준. <b>순서에는 굴림이 없습니다</b> &mdash; 매 라운드 민첩 숫자를 그대로 비교하고, 같으면 대개 우리 쪽이 먼저 섭니다
+     (줄을 «우리 → 몬스터» 순으로 만든 뒤 정렬이 그 순서를 대개 지킵니다 · 혼자 보낸 용병이 2마리 무리를 만날 때만 예외가 있습니다).</p>
   <div class="note"><b>칼레바스가 열려도 28 이 천장인 이유가 셋입니다.</b>
      <ul>
        <li><b>몬스터 민첩은 마스터 고정값입니다</b>(<code>BattleCreature.Agility</code> 가 <code>master + 0xb0</code> 를 그냥 읽습니다).
