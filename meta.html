@@ -374,7 +374,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 
   <footer class="foot">
     <p>클래스 설명은 게임의 원문(<code>LCDetail</code>)입니다. 주/부 보너스는 <code>mainJobBonuses*</code> / <code>subJobBonuses*</code>, 훈련소와 시설 비용은 <code>BuildingMaster.levelManagers</code>, 종족 능력치는 <code>CharacterMaster.ability</code>, 뽑기 계산은 <code>Character.CreateParam</code> 과 <code>InviteAdventureDialog</code>, 지도는 번들 안의 <code>Tilemap</code> 을 직접 합성한 것입니다.</p>
-    <p>모든 수치는 <b>클라이언트 판번호 6061</b> 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
+    <p>모든 수치는 <b>7.1</b>(versionCode 144) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
     <p>창고·숙소·치료소·금고·대장간·아카이브 여섯은 골드로 못 올립니다 — 퀘스트로만 오릅니다. 어떤 퀘스트가 무엇을 올려주는지는 <a href="quests.html">퀘스트 색인</a>에 있습니다.</p>
   </footer>
 </div>
@@ -1063,7 +1063,7 @@ function statHTML(){
   var kinds=scCanKinds();
   var agi=rows.filter(function(r){ return r.k==="민첩"; })[0].sum;
   var avo=rows.filter(function(r){ return r.k==="회피"; })[0].sum;
-  var dodge=avo + Math.floor(scAgiFloor(agi)/3);
+  var dodge=avo + Math.floor(scAgiFloor(agi)/6);
 
   var crewSel = crew.length
     ? '<select id="sc-crew"><option value="">— 직접 입력 —</option>'
@@ -1129,7 +1129,7 @@ function statHTML(){
     +'<label class="lvin"><input type="number" min="0" max="99" id="sc-goal" class="wide" value="'+(sc.goal||"")+'" placeholder="40"></label>'
     +'</div>'
     +'<p class="meta" style="margin:0 0 6px">지금 갈 수 있는 곳의 최고 명중은 <b>44</b> 입니다 &mdash; '
-    +'<code>회피값 + ⌊민첩 흔들림 최솟값/3⌋ ≥ 44</code> 면 물리 공격은 다 피합니다.</p>';
+    +'<code>회피값 + ⌊민첩 흔들림 최솟값/6⌋ ≥ 44</code> 면 물리 공격은 다 피합니다.</p>';
   if(sol && !sol.ok){
     solBlock += '<p class="meta" style="color:var(--f-heal)">이 주직업·장비로는 못 채웁니다 &mdash; '
       +'부직업을 전부 최대로 올려도 '+sol.short+' 모자랍니다.</p>';
@@ -1188,7 +1188,7 @@ function statHTML(){
           : '주직업을 먼저 고르세요')+'</span></div>'
     +'</div>'
     + table + solBlock + expBlock
-    +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/3⌋. '
+    +'<div class="note"><b>완봉 가능한 최대 명중 '+dodge+'</b> &mdash; 회피값 '+avo+' + ⌊민첩('+agi+')의 흔들림 최솟값/6⌋. '
       +'<a href="codex.html?v=place">도감 탐색지</a>의 «회피 NN+» 이 이 숫자 이하면 그 구역에서 한 대도 안 맞습니다.</div>'
     +'<details class="fine"><summary>계산에 안 들어간 것</summary><p><b>낄 수 있는지는 세 가지로 정해집니다</b> &mdash; 요구 레벨 ≤ 최고 직업 레벨, 요구 힘 ≤ 내 힘, 그리고 부위. '
       +'<b>착용 가능 부위는 주직업 하나로만 정해집니다</b> &mdash; 부직업은 관계없습니다. '

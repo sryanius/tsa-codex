@@ -511,7 +511,7 @@ function eligibleAt(y, myrep){
    빈도 판정은 GetRandom() 을 두 번 굴려 하나라도 맞으면 통과 —
    그래서 갱신 1회 통과율이 1-(1-p)^2 이다. 「항상」은 판정 자체를 건너뛴다. */
 var FREQ_P={5:1, 10:0.609375, 11:0.33984375, 12:0.1787109375,
-            13:0.06908, 14:0.03485, 15:0.011106, 16:0.00058556};
+            13:0.13568115234375, 14:0.03485, 15:0.011106, 16:0.00058556};
 function refreshes(x){
   var p=FREQ_P[x.fr];
   if(p==null || p<=0) return null;
@@ -1601,7 +1601,10 @@ render();
                "agility","dexterity","insight"];
   var CSTAT_KO = ["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
   var PERSONALITY = ["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
-  var CSTATUS = { 0:"미고용", 1:"대기", 2:"모험 중", 3:"부상", 6:"은퇴" };
+  // Character.Status (dump71/dump.cs:435239) — 예전 표는 한 칸씩 밀려 있었다.
+  // «미고용» 이라는 상태는 없다: 0 이 «대기» 다.
+  var CSTATUS = { 0:"대기", 1:"모험 중", 2:"요양 중", 3:"부활 중",
+                  4:"행방불명", 5:"구출 중", 6:"은퇴", 7:"길드 행사" };
 
   function enumVal(p, x){ var v = deref(p, x); return (v && v.value__ !== undefined) ? v.value__ : null; }
 

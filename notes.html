@@ -404,7 +404,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>★ 그래서 실제 평타는 화면의 «최대» 를 넘습니다.</b>
      전투 공격력 = <code>Rand(화면 최소, 화면 최대)</code> <b>+ 흔들림(&lfloor;힘 &divide; 6&rfloor;)</b> 입니다.
      굴림 자체는 상한을 안 내지만(&sect;1), 그 위에 힘에서 나온 몫이 더 붙습니다 &mdash;
-     힘 57 이면 <b>+7~9</b> 쯤입니다. <b>이 항은 몬스터에게는 없습니다.</b></div>
+     힘 57 이면 <b>+7~11</b> 입니다 &mdash; 가운데 9 가 제일 흔합니다(⅓).
+     <b>이 항은 몬스터에게는 없습니다.</b></div>
   <p class="src">이 여섯 식은 <code>statcheck.mjs</code> 가 매 빌드마다 게임 화면에서 읽은 값과 맞춰 봅니다 &mdash;
      한 항이라도 빠지면 배포가 섭니다.</p>
 
@@ -603,15 +604,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>이벤트 종류가 전투·금고·함정일 때만</b> 굴립니다(<code>kind == 11 · 70 · 80</code>).
      퀘스트 이벤트의 절반이 넘는 <b>메시지</b>는 조건이 붙어 있어도 <b>0점</b>입니다.</p>
   <table class="t"><thead><tr><th>이벤트 종류</th><th class="num">전체 개수</th><th>점수를 굴리나</th></tr></thead><tbody>
-    <tr style="color:var(--muted)"><td>메시지</td><td class="num">15,184</td><td><b>안 굴립니다</b> &mdash; 조건은 붙어 있지만 종류가 안 맞습니다</td></tr>
-    <tr class="hi"><td><b>전투</b></td><td class="num">5,885</td><td>굴립니다</td></tr>
-    <tr class="hi"><td><b>함정</b></td><td class="num">1,470</td><td>굴립니다</td></tr>
-    <tr class="hi"><td><b>금고</b></td><td class="num">1,194</td><td>굴립니다</td></tr>
-    <tr><td>동굴 진입·탈출 · 금화 · 아이템</td><td class="num">3,018</td><td>굴립니다</td></tr>
+    <tr style="color:var(--muted)"><td>메시지</td><td class="num">15,500</td><td><b>묶음은 안 굴립니다</b> &mdash; 종류가 11·70·80 이 아닙니다. 종류를 안 가리는 <b>Happen</b> 만 굴러갑니다</td></tr>
+    <tr class="hi"><td><b>전투</b></td><td class="num">5,990</td><td>굴립니다</td></tr>
+    <tr class="hi"><td><b>함정</b></td><td class="num">1,492</td><td>굴립니다</td></tr>
+    <tr class="hi"><td><b>금고</b></td><td class="num">1,206</td><td>굴립니다</td></tr>
+    <tr style="color:var(--muted)"><td>동굴 진입·탈출 · 금화 · 아이템</td><td class="num">3,018</td><td><b>묶음은 안 굴립니다</b> &mdash; 메시지와 <b>코드상 똑같이</b> 처리됩니다(종류가 관문 밖입니다). <b>Happen</b> 만 굴러갑니다</td></tr>
     <tr><td colspan="3" style="color:var(--muted)"><b>Happen</b>(<code>retreatCondition == 2</code> &mdash; 종류를 안 가리는 확률 조항)은
       <b>994개(3.65%)</b> 뿐이고,
-      <b>퀘스트 1425개 중 814개(58%)는 Happen 이 하나도 없습니다</b> &mdash; 퀘스트당 중앙값 <b>0개</b>.
-      <span class="sm">퀘스트 1425개 · 이벤트 26,707개 전수 (7.0)</span></td></tr>
+      <b>퀘스트 1425개 중 834개(58.5%)는 Happen 이 하나도 없습니다</b> &mdash; 퀘스트당 중앙값 <b>0개</b>.
+      <span class="sm">퀘스트 1425개 · 이벤트 27,206개 전수 (7.1)</span></td></tr>
   </tbody></table>
   <div class="eq">Happen 확률 = clamp( (<b>퀘스트 난이도 &minus; 파티 평균 레벨</b>) &times; 10 + 50 , <b>5</b> , 95 )%
 
@@ -836,7 +837,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>마법에는 명중/회피 비교가 없습니다. 쏘면 들어갑니다.</b>
      회피탱이 마법에 약한 이유가 이것이고, 마법사가 명중을 안 챙겨도 되는 이유도 이것입니다.</div>
   <div class="eq">피해 = Rand(스킬최소, 스킬최대) + 시전자 마력
-       → 2d6 이 10 이상인 <b>동안</b> 계속 굴려, 그때마다 <b>굴림값의 절반</b>을 더함
+       → 2d6 이 10 이상인 <b>동안</b> 계속 굴려, 그때마다
+         <b>Rand(스킬최소, 스킬최대) 를 새로 굴려 그 절반(&lfloor;&divide;2&rfloor;)</b>을 더함
+         <i>// 2d6 값을 더하는 게 아닙니다 — 매번 피해 범위를 새로 굴립니다.
+            뇌우면 한 번 터질 때 +5~6 이 아니라 <b>+17~18</b> 입니다</i>
        → 대상의 <b>마법 방어를 전액</b> 뺀다  <i>(물리 마법이면 «방어력» 을 뺀다)</i>
        → 0 이하면 <b>거기에 Rand(3)</b> 을 더한다   <i>// 크게 음수면 그냥 0 입니다</i>
 
@@ -1028,10 +1032,10 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
   <h3>카운터가 줄려면 빈도 판정을 통과해야 합니다</h3>
   <p>갱신 한 번에 카운터가 무조건 1 주는 게 아닙니다. <code>Town.CanAcceptQuest()</code> 를 통과해야 하고, 그 마지막 관문이 <b>빈도</b>입니다. <code>Always</code> 는 무조건 통과, 나머지는 <code>GetRandom()</code> 을 <b>두 번</b> 굴려 한 번이라도 자기 빈도와 같으면 통과합니다.</p>
   <table><thead><tr><th>빈도</th><th class="num">한 번 굴려 나올 확률</th><th class="num">갱신 1회 통과율</th><th class="num">퀘스트 수</th></tr></thead><tbody>
-  <tr><td><b>항상</b> Always</td><td class="num">25%</td><td class="num"><b>100%</b><span class="meta"> (판정 안 함)</span></td><td class="num">554</td></tr>
-  <tr><td><b>자주</b> Usually</td><td class="num">37.5%</td><td class="num">60.9%</td><td class="num">529</td></tr>
-  <tr><td><b>흔히</b> Often</td><td class="num">18.75%</td><td class="num">34.0%</td><td class="num">200</td></tr>
-  <tr><td><b>가끔</b> Sometimes</td><td class="num">9.38%</td><td class="num">17.9%</td><td class="num">62</td></tr>
+  <tr><td><b>항상</b> Always</td><td class="num">25%</td><td class="num"><b>100%</b><span class="meta"> (판정 안 함)</span></td><td class="num">568</td></tr>
+  <tr><td><b>자주</b> Usually</td><td class="num">37.5%</td><td class="num">60.9%</td><td class="num">559</td></tr>
+  <tr><td><b>흔히</b> Often</td><td class="num">18.75%</td><td class="num">34.0%</td><td class="num">215</td></tr>
+  <tr><td><b>가끔</b> Sometimes</td><td class="num">9.38%</td><td class="num">17.9%</td><td class="num">64</td></tr>
   <tr><td><b>이따금</b> Occasionally</td><td class="num">7.03%</td><td class="num">13.6%</td><td class="num">16</td></tr>
   <tr><td><b>드물게</b> Infrequently</td><td class="num">1.76%</td><td class="num">3.5%</td><td class="num">3</td></tr>
   <tr><td style="color:var(--faint)">희귀 · 매우 희귀</td><td class="num" style="color:var(--faint)">0.56% · 0.03%</td><td class="num" style="color:var(--faint)">&mdash;</td><td class="num" style="color:var(--faint)">0</td></tr>
@@ -1242,22 +1246,22 @@ RunCraft(craftIndex)</div>
      세이브로 확인했습니다.</p>
 
   <h3>세이브로 대조</h3>
-  <p>세이브의 장비 424개 가운데 <b>강화가 붙은 것이 276개</b>, 강화 항목이 <b>717개</b> 입니다.
+  <p>세이브의 장비 424개 가운데 <b>강화가 붙은 것이 276개</b>, 강화 항목이 <b>800개</b> 입니다.
      위 규칙이 내놓을 수 있는 값과 실제 값을 맞춰 봤습니다.</p>
   <table class="t"><thead><tr><th>항목</th><th class="num">개수</th><th class="num">관측값</th><th>규칙이 내놓는 값</th></tr></thead><tbody>
-    <tr><td>공격력</td><td class="num">59</td><td class="num">전부 +1</td><td>상수 +1 &mdash; 맞음</td></tr>
-    <tr><td>방어력</td><td class="num">13</td><td class="num">전부 +1</td><td>상수 +1 &mdash; 맞음</td></tr>
-    <tr><td>최대 공격</td><td class="num">102</td><td class="num">&minus;1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
-    <tr><td>최대 방어</td><td class="num">49</td><td class="num">&minus;1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
-    <tr><td>회피</td><td class="num">10</td><td class="num">+1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
-    <tr><td>민첩</td><td class="num">96</td><td class="num">&minus;2 ~ +4</td><td><code>Rand(2,5)</code> = 2~4 가 상한 &mdash; 맞음</td></tr>
-    <tr><td>생명점 · 마나 · 지능 · 마법 방어</td><td class="num">71</td><td class="num">&minus;1 ~ +9</td><td><code>Rand(⌊레벨/2⌋)+1</code> &mdash; Lv18+ 장비면 9 가 나옴</td></tr>
-    <tr class="hi"><td>요구 근력</td><td class="num">141</td><td class="num">&minus;1 이 133 · +1 이 8</td><td>깎는 강화가 훨씬 흔합니다 &mdash; 대부분 드랍</td></tr>
-    <tr><td>요구 레벨 감소</td><td class="num">24</td><td class="num">+1 이 21 · <b>+2 가 3</b></td><td>상수는 +1 뿐 &mdash; <b>+2 는 아직 출처를 못 찾았습니다</b></td></tr>
+    <tr><td>공격력</td><td class="num">70</td><td class="num">전부 +1</td><td>상수 +1 &mdash; 맞음</td></tr>
+    <tr><td>방어력</td><td class="num">15</td><td class="num">전부 +1</td><td>상수 +1 &mdash; 맞음</td></tr>
+    <tr><td>최대 공격</td><td class="num">119</td><td class="num">&minus;1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
+    <tr><td>최대 방어</td><td class="num">51</td><td class="num">&minus;1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
+    <tr><td>회피</td><td class="num">11</td><td class="num">+1 ~ +2</td><td><code>Rand(1,3)</code> = 1~2 &mdash; 맞음</td></tr>
+    <tr><td>민첩</td><td class="num">104</td><td class="num">&minus;2 ~ +5</td><td><code>Rand(2,5)</code> = 2~4 가 상한인데 <b>+5 가 하나</b> 있습니다 &mdash; 출처를 못 찾았습니다</td></tr>
+    <tr><td>생명점 · 마나 · 지능 · 마법 방어</td><td class="num">75</td><td class="num">&minus;1 ~ +9</td><td><code>Rand(⌊레벨/2⌋)+1</code> &mdash; Lv18+ 장비면 9 가 나옴</td></tr>
+    <tr class="hi"><td>요구 근력</td><td class="num">158</td><td class="num">&minus;1 이 150 · +1 이 8</td><td>깎는 강화가 훨씬 흔합니다 &mdash; 대부분 드랍</td></tr>
+    <tr><td>요구 레벨 감소</td><td class="num">28</td><td class="num">+1 이 25 · <b>+2 가 3</b></td><td>상수는 +1 뿐 &mdash; <b>+2 는 아직 출처를 못 찾았습니다</b></td></tr>
   </tbody></table>
   <p class="src">Armor.Craft · Weapon.Craft · Equipment.RunCraft ·
      Equipment.GetNeedLevel · MonsterMaster.GetReward · Util.Rand / RandSuccess ·
-     세이브 장비 370개 · 강화 항목 717개</p>
+     세이브 장비 424개 · 강화 항목 800개</p>
 
   <h3>몇 단계가 걸리나 &mdash; 대장간 레벨이 정합니다</h3>
   <p>강화가 «몇 단계» 로 들어가는지는 위의 두 옵션을 가르는 가장 중요한 값입니다
@@ -1368,6 +1372,42 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      GetAllTargetDamageSkillPriority &middot; &lt;SelectActions&gt;b__2_1 <span class="sm">(정렬 비교자)</span> &middot;
      Skill.enable / Skill.enableBossOnly</p>
 
+  <h3>지능은 지팡이가 정합니다 &mdash; ⌊요구레벨 &divide; 6⌋ 이 화면에 안 나옵니다</h3>
+  <p>마법 피해·회복·상태이상 성공 굴림이 모두 <b>시전자 마력(화면에서는 «지능»)</b> 을
+     그대로 더합니다. 그 값이 어디서 오는지가 여기입니다.</p>
+  <div class="eq"><b>지능 = 기본 + 직업 몫</b><i>(&sect;2)</i> <b>+ 능력치 몫 + 무기 + 방어구 합</b>
+
+<b>무기 몫</b> = ability.addMagicPower + <b>강화로 붙은 몫</b>
+         <b>+ &lfloor;요구레벨 &divide; 6&rfloor;</b>   <span class="cmt">// ★ 무기 종류가 «지팡이» 일 때만</span></div>
+  <div class="note"><b>나눗수는 6 입니다 &mdash; 회피와 같은 자리입니다.</b>
+     <code>0x2AAAAAAB</code> 를 곱해 <b>상위 32비트</b>만 쓰는 꼴이고
+     (2<sup>32</sup> &divide; 0x2AAAAAAB = 6), &divide;3 이라면 매직이
+     <code>0x55555556</code> 입니다. <b>이 저장소는 전에 여기서 한 번 당했습니다</b> &mdash;
+     회피 나눗수를 &divide;3 으로 적어 완봉선을 7 높게 내보낸 적이 있습니다(부록 A).</div>
+  <div class="note warn"><b>★ ⌊요구레벨 &divide; 6⌋ 은 지팡이만 받습니다.</b>
+     검·대검·도끼·활·창·단검은 못 받습니다 &mdash;
+     <code>Weapon.AddMagicPower</code> 가 <code>kind == Wand</code> 일 때만 더합니다.
+     그리고 마스터의 지능 칸은 <b>지팡이 49자루 중 44자루가 0</b> 이라,
+     그것만 보면 <b>«지팡이는 지능을 안 준다» 는 거짓말</b>이 됩니다 &mdash;
+     송곳니왕의 전역 지팡이는 화면에 아무것도 안 나오지만 실제로 <b>+4</b> 를 줍니다.
+     <b>마법 방어에서 부적이 레벨을 통째로 받는 것과 같은 꼴입니다</b>(바로 아래).</div>
+  <table class="t"><thead><tr><th>지팡이</th><th class="num">요구 Lv</th><th class="num">마스터 칸</th>
+    <th class="num">⌊Lv&divide;3⌋</th><th class="num">실제 지능</th><th class="num">최대 MP</th></tr></thead><tbody>
+  <tr class="hi"><td><b>정정의 지팡이</b></td><td class="num">23</td><td class="num">5</td><td class="num">3</td><td class="num"><b>8</b></td><td class="num"><b>+10</b></td></tr>
+  <tr><td>마천의 지팡이 <span class="sm">마법 무기</span></td><td class="num">24</td><td class="num">3</td><td class="num">4</td><td class="num">7</td><td class="num"><b>+20</b></td></tr>
+  <tr><td>황왕의 지팡이</td><td class="num">37</td><td class="num">0</td><td class="num">6</td><td class="num">6</td><td class="num">&mdash;</td></tr>
+  <tr><td>이빨 부수는 지팡이</td><td class="num">36</td><td class="num">0</td><td class="num">6</td><td class="num">6</td><td class="num">&mdash;</td></tr>
+  <tr><td>송곳니왕의 전역 지팡이 <span class="sm">전체 공격</span></td><td class="num">29</td><td class="num">0</td><td class="num">4</td><td class="num">4</td><td class="num">&mdash;</td></tr>
+  </tbody></table>
+  <div class="note"><b>그래서 정정의 지팡이가 지능 8 로 단독 1위입니다</b> &mdash;
+     2위가 마천의 지팡이 7 이고, 요구 레벨이 13~14 높은 황왕·이빨 부수는 지팡이도 6 입니다.
+     <b>요구 레벨이 가장 낮은데 지능이 가장 높습니다.</b>
+     강화 종류에도 <b>지능</b>이 있고 <b>1:1</b> 로 더해지는데, 강화는
+     <b>같은 종류를 합치지 않고 덧붙이므로</b>(&sect;11) 지능 강화는 <b>여러 번 쌓입니다</b>.
+     <b>마법 피해식에는 무기 피해가 한 칸도 안 들어가므로</b>(&sect;7),
+     법사 지팡이는 평타가 아니라 <b>지능과 최대 MP</b> 로 고릅니다
+     (<a href="builds.html#mage">빌드 &sect;6</a>).</div>
+
   <h3>마법 방어는 부적이 정합니다</h3>
   <p>마스터의 <code>_magicDefense</code> 는 거의 다 0 이라 그것만 보면 «마법 방어가 없는 게임»
      처럼 보입니다. 실제 값은 <code>Armor.MagicDefense()</code> 가 만듭니다.</p>
@@ -1447,14 +1487,14 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      <b>롱넥 글레이저</b>(Lv33 · 칼레바스 라펠 계곡)는 안 나옵니다.
      <b>탐색지 탓이 아닙니다.</b> 두 곳은 전투가 걸리는 속도가 <b>소수점까지 같습니다</b>.</p>
 
-  <h3>① 탐색지가 전투를 거는 속도 &mdash; 344곳 중 303곳이 똑같습니다</h3>
+  <h3>① 탐색지가 전투를 거는 속도 &mdash; 354곳 중 313곳이 똑같습니다</h3>
   <div class="eq"><b>AdventureMain.GetWanderingMonsterGroup</b>
   monsterGroups 를 <b>frequency 로 GroupBy</b> &rarr; 등급마다 <code>RandSuccess(1, iv)</code> 를 <b>한 번씩</b>
   iv = 표[freq &minus; 5] &divide; AdventureInterval(<b>10</b>)
        <b>퀘스트가 없으면(자유 탐색) 다시 &divide; 7</b>       <span class="cmt">// csel w21,w8,w21,eq — quest == null 일 때만</span>
   첫 성공에서 그 등급 그룹 중 <b>하나를 무작위</b>로 뽑는다   <span class="cmt">// GetAtRandom</span>
 
-표 @0xf89e9c (초) = [600, 600, 600, 600, 600, 1200, 1800, 3600, 7200, 14400, 43200, 172800]</div>
+표 @0xf8a2fc (초) = [600, 600, 600, 600, 600, 1200, 1800, 3600, 7200, 14400, 43200, 172800]</div>
   <table class="t"><thead><tr><th>빈도 등급</th><th class="num">표(초)</th>
     <th class="num">퀘스트 중<br><span style="font-weight:400">틱당</span></th>
     <th class="num">자유 탐색<br><span style="font-weight:400">틱당</span></th>
@@ -1463,7 +1503,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>Usually(10)</td><td class="num">1,200</td><td class="num">0.833%</td><td class="num">5.882%</td><td class="num">2.8분</td></tr>
     <tr><td>Often(11)</td><td class="num">1,800</td><td class="num">0.556%</td><td class="num">4.000%</td><td class="num">4.2분</td></tr>
     <tr><td>Sometimes(12)</td><td class="num">3,600</td><td class="num">0.278%</td><td class="num">1.961%</td><td class="num">8.5분</td></tr>
-    <tr class="hi"><td><b>Occasionally(13)</b> <span class="sm">&larr; 그룹 696개 중 653개</span></td><td class="num">7,200</td><td class="num">0.139%</td><td class="num"><b>0.980%</b></td><td class="num"><b>17.0분</b></td></tr>
+    <tr class="hi"><td><b>Occasionally(13)</b> <span class="sm">&larr; 그룹 717개 중 674개</span></td><td class="num">7,200</td><td class="num">0.139%</td><td class="num"><b>0.980%</b></td><td class="num"><b>17.0분</b></td></tr>
     <tr><td>Infrequently(14)</td><td class="num">14,400</td><td class="num">0.069%</td><td class="num">0.488%</td><td class="num">34.2분</td></tr>
     <tr style="color:var(--faint)"><td>Rare(15) · SuperRare(16)</td><td class="num">43,200 · 172,800</td><td class="num">&mdash;</td><td class="num">0.162% · 0.041%</td><td class="num">1.7시간 · 6.9시간</td></tr>
   </tbody></table>
@@ -1472,8 +1512,8 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      같은 탐색지가 퀘스트를 물고 가면 2시간, 그냥 탐색만 보내면 <b>17분</b>입니다.
      쩔을 시킬 거면 <b>퀘스트를 안 물리는 것</b>이 가장 큰 레버입니다.</div>
   <div class="note"><b>그리고 탐색지로는 거의 못 고릅니다.</b>
-     탐색지 344곳 · 그룹 696개 중 <b>Always 그룹은 하나도 없고</b> 93.8%가 Occasionally 입니다.
-     <b>303곳이 0.980%/틱(17.0분)으로 동률</b>이고, 카샨의 세 곳도 라펠 계곡도 전부 여기 있습니다.
+     탐색지 354곳 · 그룹 717개 중 <b>Always 그룹은 하나도 없고</b> 94.0%가 Occasionally 입니다.
+     <b>313곳이 0.980%/틱(17.0분)으로 동률</b>이고, 카샨의 세 곳도 라펠 계곡도 전부 여기 있습니다.
      <span class="sm">같은 등급 그룹이 둘이어도 <code>GroupBy</code> 로 묶여 «한 번만» 굴립니다 &mdash;
      확률을 올리는 것은 «서로 다른 등급» 을 하나 더 갖는 것뿐입니다.</span></div>
   <div class="note"><b>가장 빠른 곳은 5.7분짜리 두 곳</b>입니다 &mdash;
@@ -1672,23 +1712,6 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      경험치 배율은 <b>일반 1 · 보스/퀘스트 이벤트 10</b>
      (<code>MonsterExp</code> / <code>BossMonsterExp</code>, 0x26C1008 의 <code>mul</code>).
      <b>승리했을 때만</b> 경험치도 골드도 들어옵니다 &mdash; 무승부는 둘 다 0 입니다.</div>
-  <table class="t rank"><thead><tr><th class="num">#</th><th>탐색지</th><th>지역</th><th class="num">Lv</th><th class="num">평균<br>간격</th><th class="num">판당<br>경험치</th><th class="num">시간당<br>경험치</th><th class="num">시간당<br>골드</th><th class="num">필요<br>회피</th><th>비고</th></tr></thead><tbody>
-    <tr class="hi"><td class="num">1</td><td><b>도르감 단도 유적</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">12,036</td><td class="num"><b>42,479</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">40</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr class="hi"><td class="num">2</td><td><b>단죄대의 터</b></td><td>칼레바스 고원</td><td class="num">30</td><td class="num">17.0분</td><td class="num">9,715</td><td class="num"><b>34,288</b></td><td class="num">7,764</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr class="hi"><td class="num">3</td><td><b>호수가 거칠게 일렁이는 카레키하라</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">8,062</td><td class="num"><b>28,455</b></td><td class="num">3,599</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">4</td><td><b>사르케인의 유적</b></td><td>칼레바스 고원</td><td class="num">32</td><td class="num">17.0분</td><td class="num">8,041</td><td class="num"><b>28,379</b></td><td class="num">970</td><td class="num">49</td><td>후열까지</td></tr>
-    <tr><td class="num">5</td><td><b>바람에 깎인 폐촌</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">8,024</td><td class="num"><b>28,319</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">40</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">6</td><td><b>노르반 카모리</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">7,866</td><td class="num"><b>27,764</b></td><td class="num">88</td><td class="num">40</td><td>후열까지</td></tr>
-    <tr><td class="num">7</td><td><b>산자락의 무인창고</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">17.0분</td><td class="num">7,824</td><td class="num"><b>27,614</b></td><td class="num">3,635</td><td class="num">46</td><td>부름 있음 · 함정 1<span class='sm'>(안 아픔)</span></td></tr>
-    <tr><td class="num">8</td><td><b>노출된 모래 유물</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num">4,447</td><td class="num">36</td><td>함정 1<span class='sm'>(안 아픔)</span></td></tr>
-    <tr><td class="num">9</td><td><b>무장대 연병장 흔적</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">45</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">10</td><td><b>오이가와 오두막</b></td><td>칼레바스 고원</td><td class="num">27</td><td class="num">17.0분</td><td class="num">6,845</td><td class="num"><b>24,158</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">37</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">11</td><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">6,792</td><td class="num"><b>23,971</b></td><td class="num">5,647</td><td class="num">38</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">12</td><td><b>힐라이즈 마운틴</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">11.4분</td><td class="num">4,360</td><td class="num"><b>22,972</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">41</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">13</td><td><b>불태워진 모리무라 유적</b></td><td>칼레바스 고원</td><td class="num">28</td><td class="num">17.0분</td><td class="num">6,222</td><td class="num"><b>21,959</b></td><td class="num">4,799</td><td class="num">44</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">14</td><td><b>쿠로에다의 흔적이 남은 숲</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">5,860</td><td class="num"><b>20,684</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">44</td><td>후열까지</td></tr>
-    <tr><td class="num">15</td><td><b>고갯마루 성수탑</b></td><td>발두나의 황야</td><td class="num">22</td><td class="num">17.0분</td><td class="num">4,894</td><td class="num"><b>17,272</b></td><td class="num">2,117</td><td class="num">35</td><td>부름 있음</td></tr>
-  </tbody></table>
   <div class="note"><b>1위 «도르감 단도 유적» 은 조절할 것이 아예 없습니다.</b>
      몬스터 그룹이 <b>하나뿐</b>이고 트레일 이터 세 마리가 <b>평타만</b> 칩니다 &mdash;
      스킬도 부름도 함정도 없습니다. 필요 회피 <b>40</b> 이면 한 대도 안 맞습니다.
@@ -1782,6 +1805,11 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <tr><td><code>BattleCreature.AvoidRate</code> <span class="sm">부르는 곳 0x26C8350 하나뿐</span></td><td class="num">0x26B72FC</td></tr>
   <tr><td><code>TargetTypeExtensions.IsFront</code> <span class="sm">활이면 false</span></td><td class="num">0x270A670</td></tr>
   <tr><td><code>BattleCreature.IsUseMagicWeapon</code></td><td class="num">0x26B95C8</td></tr>
+  <tr><td rowspan="5">마법 <span class="sm">&sect;7</span></td><td><code>BattleSkill.GetDamage</code> <span class="sm">+ 마력 · 2d6&gt;9 폭발</span></td><td class="num">0x26CA8E4</td></tr>
+  <tr><td><code>SkillMaster.MinDamage</code> / <code>MaxDamage</code> <span class="sm">레벨로 계산</span></td><td class="num">0x27074C0 · 0x27075D0</td></tr>
+  <tr><td><code>SkillMaster.UseMp</code> <span class="sm">레벨 + useMp + 3</span></td><td class="num">0x27072D4</td></tr>
+  <tr><td><code>Weapon.AddMagicPower</code> <span class="sm">★ 지팡이면 ⌊요구레벨/6⌋ &mdash; 나눗수 자리 0x2708B5C</span></td><td class="num">0x2708B0C</td></tr>
+  <tr><td><code>Character.MagicPower</code> / <code>AddMagicPower</code></td><td class="num">0x26D5774 · 0x26D5914</td></tr>
   <tr><td rowspan="2">상태이상</td><td><code>EffectOnCreature</code> 보정 사전 <span class="sm">.cctor</span></td><td class="num">0x26FBBB4</td></tr>
   <tr><td><code>MonsterMaster.AvoidPoint</code> <span class="sm">÷6</span></td><td class="num">0x26CD99C</td></tr>
   <tr><td rowspan="3">판정 <span class="sm">&sect;8</span></td><td><code>AdventureMain.OpenTreasureBox</code> <span class="sm">발견·해제 둘 다 여기 인라인</span></td><td class="num">0x27252B8</td></tr>
