@@ -681,8 +681,12 @@ function skillDetail(s){
     +'<div class="dcell"><dt>범위</dt><dd>'+esc(s.rng)+'</dd></div>'
     +'<div class="dcell"><dt>MP 소모</dt><dd class="mono">'+(s.mp>0?s.mp:"없음")+'</dd></div>'
     +'<div class="dcell"><dt>요구 레벨</dt><dd class="mono">'+s.lv+'</dd></div>'
-    +(s.dmg[1]?'<div class="dcell"><dt>피해</dt><dd class="mono">'+s.dmg[0]+' – '+s.dmg[1]+'</dd></div>':"")
-    +(s.heal[1]?'<div class="dcell"><dt>회복</dt><dd class="mono">'+s.heal[0]+' – '+s.heal[1]+'</dd></div>':"")
+    /* 실제로 나오는 범위만 적는다. 게임 화면(SkillDialog.Render 0x28AF9C0)은 피해·회복 범위를 띄우지 않고
+       (이름 · MP · LCDetail 뿐), 전투 굴림 Util.Rand 0x276C61C 는 상한을 안 낸다(세이브 전투 로그 357타). */
+    +(s.dmg[1]?'<div class="dcell"><dt>피해</dt><dd class="mono">'+s.dmg[0]+' – '+Math.max(s.dmg[0],s.dmg[1]-1)+'</dd>'
+        +'<dd class="meta" style="font-size:12px">+ 지능 · '+(s.phys?'방어력을':'마법 방어를')+' 뺌</dd></div>':"")
+    +(s.heal[1]?'<div class="dcell"><dt>회복</dt><dd class="mono">'+s.heal[0]+' – '+Math.max(s.heal[0],s.heal[1]-1)+'</dd>'
+        +'<dd class="meta" style="font-size:12px">+ 지능</dd></div>':"")
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(s.i)+'</dd></div>'
     +'</dl><div class="blk"><h4>배우는 직업</h4><ul>'
     + s.jobs.map(function(j){ return '<li><b>'+esc(j.j)+'</b><span class="meta"> — '+j.lv+'레벨</span></li>'; }).join("")

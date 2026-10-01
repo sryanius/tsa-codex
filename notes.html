@@ -643,11 +643,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="eq">T = min(스킬의 healTiming + 성격 보정, 8)
   신중한 +2 &nbsp;&middot;&nbsp; 합리적 +1 &nbsp;&middot;&nbsp; 신경질적 +1 &nbsp;&middot;&nbsp; 나머지 +0
 
-대상으로 고른다  &hArr;  HP &le; 최대 HP &times; T / 10
-              또는  HP == 1
-              또는  잃은 HP &gt; (마법력 + (최소회복+최대회복)/2) &minus; 2</div>
+다친 사람으로 센다  &hArr;  HP &lt; 최대 HP 이고
+                 HP &le; 최대 HP &times; T / 10
+                 또는  HP == 1
+                 또는  잃은 HP &gt; (마법력 + (최소회복+최대회복)/2) &minus; 2
+                 <i>(저주 · 룬 실드가 걸린 아군은 세지 않습니다)</i>
+
+쓴다  &hArr;  단일 회복: 다친 사람이 <b>한 명</b>이라도 있으면
+             전체 회복: 다친 사람이 <b>둘 이상</b>이면</div>
   <p><b>게임 안의 모든 스킬이 <code>healTiming = 5</code> 입니다</b> (159건 전수). 그래서 실질적으로 성격만 남습니다 &mdash; <b>신중한 70% · 합리적/신경질적 60% · 나머지 50%</b>. 상한 8(80%)에는 어떤 조합으로도 닿지 않습니다.</p>
-  <div class="note"><b>힐러는 신중한이 가장 빠릅니다.</b> 다른 성격의 힐러는 HP가 절반으로 떨어질 때까지 기다립니다 &mdash; 한 방에 절반 넘게 맞는 구간에서는 그 차이가 그대로 사망으로 이어집니다. 마지막 줄(«잃은 HP가 회복량보다 크면») 덕분에 최대 HP가 큰 캐릭터는 기준선 위에서도 힐을 받습니다.</div>
+  <div class="note"><b>힐러는 신중한이 가장 빠릅니다.</b> 다른 성격의 힐러는 HP가 절반으로 떨어질 때까지 기다립니다 &mdash; 한 방에 절반 넘게 맞는 구간에서는 그 차이가 그대로 사망으로 이어집니다. «잃은 HP» 줄(«잃은 HP가 회복량보다 크면») 덕분에 최대 HP가 큰 캐릭터는 기준선 위에서도 힐을 받습니다.</div>
+  <div class="note warn"><b>★ 전체 회복은 혼자 다친 사람을 안 채웁니다.</b> 다친 사람이 둘 이상이어야 «쓸 수 있음» 이 됩니다.
+     탱커 한 명이 앞에서 맞는 파티라면 <b>단일 회복</b>을 켜야 그 탱커가 회복을 받습니다
+     (<a href="builds.html#spells">빌드 &sect;7</a>).</div>
   <p class="src">BattleSkill.CanUse &middot; SkillMaster.healTiming [Range(2,8)]</p>
 
   <h3>전투 중 대사</h3>
@@ -825,8 +833,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <b>주직업이 모래 환상 사수이고 활을 들었으면</b>   → 예   <i>// 7.1 신규 · 지금은 잠김</i>
 그 외에는 <b>무기 마스터의 isMagic</b>
 무기 강화 상태이상(41)이 걸려 있으면            → 무조건 예</div>
-  <div class="note"><b>마법 무기는 464자루 중 68자루(15%)입니다.</b>
-     활이 12자루, 단검이 8자루. <b>강화로는 마법 속성을 못 붙입니다</b> &mdash;
+  <div class="note"><b>마법 무기는 464자루 중 70자루(15%)입니다.</b>
+     활이 13자루, 단검이 9자루. <b>강화로는 마법 속성을 못 붙입니다</b> &mdash;
      처음부터 마법인 무기를 구해야 합니다.
      물리 무효가 37종이나 되니 <b>파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</b></div>
   <div class="note warn"><b>활이 절대 안 통하는 몬스터가 다섯 있습니다.</b>
@@ -840,9 +848,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
        → 2d6 이 10 이상인 <b>동안</b> 계속 굴려, 그때마다
          <b>Rand(스킬최소, 스킬최대) 를 새로 굴려 그 절반(&lfloor;&divide;2&rfloor;)</b>을 더함
          <i>// 2d6 값을 더하는 게 아닙니다 — 매번 피해 범위를 새로 굴립니다.
-            뇌우면 한 번 터질 때 +5~6 이 아니라 <b>+17~18</b> 입니다</i>
+            뇌우면 한 번 터질 때 +5~6 이 아니라 <b>+17</b> 입니다</i>
        → 대상의 <b>마법 방어를 전액</b> 뺀다  <i>(물리 마법이면 «방어력» 을 뺀다)</i>
-       → 0 이하면 <b>거기에 Rand(3)</b> 을 더한다   <i>// 크게 음수면 그냥 0 입니다</i>
+       → 0 이하면 <b>거기에 Rand(3)</b> 을 더한다   <i>// 크게 음수면 그냥 0 입니다 · 물리 마법은 여기만 달라서 <b>25% 로 1</b> 입니다(&sect;6 의 물리 스킬과 같습니다)</i>
 
 스킬최소 = 레벨 + minDamage + 1   <i>(관통 &minus;1 · 전체 &minus;2)</i>
 스킬최대 = 레벨 + maxDamage + 4   <i>(전체 &minus;3)</i>
@@ -854,23 +862,27 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 스킬최대 = <b>(레벨 + maxDamage + 4) &times; 3</b>
 
 그래블 버스트 Lv20 전체 &rarr; 최소 20&times;2+6&minus;2 = <b>44</b> · 최대 24&times;3&minus;3 = <b>69</b>
-어스퀘이크   Lv10 전체 &rarr; 최소 10&times;2+6&minus;2 = <b>24</b> · 최대 14&times;3&minus;3 = <b>39</b></div>
+어스퀘이크   Lv10 전체 &rarr; 최소 10&times;2+6&minus;2 = <b>24</b> · 최대 14&times;3&minus;3 = <b>39</b>
+<i>// 최대는 Rand 의 상한이라 안 나온다 — 실제로는 44~68 · 24~38</i></div>
   <div class="note"><b>그래서 «레벨 높은 마법 = 센 마법» 에 예외가 둘 생깁니다.</b>
-     그래블(44~69)이 뇌우(34~36)보다, 어스퀘이크(24~39)가 블리자드(19~21)보다 셉니다.
+     그래블(44~68)이 뇌우(34~35)보다, 어스퀘이크(24~38)가 블리자드(19~20)보다 셉니다.
      <b>다만 이 둘은 마법 방어가 아니라 «방어력» 을 뺍니다</b> &mdash;
      방어가 두꺼운 상대 앞에서는 도로 작아집니다.</div>
   <div class="note"><b>배울 수 있는 마법 28개 중 27개가 <code>minDamage</code>/<code>maxDamage</code> 0 입니다</b>
      (성스러운 폭발만 +3). 그래서 <b>같은 갈래 안에서는 «레벨 높은 마법 = 센 마법» 입니다</b> &mdash;
      물리 마법 둘만 예외입니다(아래).
-     속성은 약점 &plusmn;2 와 무효 0 에만 쓰이고, 피해 자체를 바꾸지 않습니다.</div>
+     속성은 약점 &plusmn;2 와 무효 0 에만 쓰이고, 피해 자체를 바꾸지 않습니다.
+     <span class="sm">무효에는 마스터 목록 밖의 규칙이 셋 있습니다(<code>BattleCreature.HadInvalidAttribute</code>) &mdash;
+     <b>신성</b>은 언데드가 아니면 무효(신성 약점이면 예외), <b>독</b>은 언데드·물리 무효에게 무효, <b>대지</b>는 나는 적에게 무효입니다.
+     약점에도 하나 &mdash; <b>언데드는 목록과 상관없이 신성 약점</b>입니다(<code>HadWeakAttribute</code>).</span></div>
 
   <h3>어떤 마법이 나갈지 정하는 순서</h3>
-  <div class="eq">1. 켜 둔 것 중 <b>지금 쓸 수 있는 것</b>만 남긴다   <i>(MP 가 모자라면 여기서 빠진다)</i>
+  <div class="eq">1. 켜 둔 것 중 <b>지금 쓸 수 있는 것</b>만 남긴다   <i>(MP 가 모자라면 여기서 빠진다 · 전체 공격은 무효가 아닌 적이, 전체 회복은 다친 사람이 둘 이상이어야 남는다 &mdash; 무효는 알아본 적만 따진다)</i>
 2. <b>종류 → 사거리 → 레벨</b> 오름차순으로 정렬한다
 3. <b>회복</b>이 하나라도 있으면 <b>그 자리에서 반환</b>한다
 4. 없으면 <b>전체 → 관통</b> 순으로, 각 급 안에서는 <b>속성 궁합 점수</b>로 고른다
-   점수 = (약점인 적 &times; 2) &minus; (무효인 적)
-   <b>점수가 같을 때만</b> 정렬 순서(= 레벨 낮은 쪽)가 갈림돌이 된다
+   점수 = (약점인 적 &times; 2) &minus; (무효인 적)   <i>// 알아본 적만 센다 &mdash; 모르는 적뿐이면 전부 0</i>
+   <b>점수가 같을 때만</b> 정렬 순서(= 공격 &rarr; MP 피해 &rarr; 상태이상, 같은 종류면 레벨 낮은 쪽)가 갈림돌이 된다
 5. 전체·관통이 하나도 없으면 <b>단일</b>은 따로 훑는다</div>
   <div class="note warn"><b>★ 여기서 두 가지가 따라 나옵니다.</b>
      <ul>
@@ -1365,7 +1377,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 
   <div class="eq">회복량 = <b>Rand(최소회복, 최대회복) + 시전자 마력</b>   <span class="cmt">// BattleSkill.SkillHeal</span></div>
   <div class="note"><b>여기도 마력이 본체입니다.</b> 스킬의 회복값은 2~4 에서 28~47 까지인데
-     마력이 51 이면 결과는 <b>53 에서 98 사이</b>로 몰립니다 &mdash;
+     마력이 61 이면(빌드 &sect;6 법사) 결과는 <b>63 에서 108 사이</b>로 몰립니다 &mdash;
      전체 회복끼리는 차이가 <b>4~7</b> 밖에 안 납니다.</div>
   <p class="src">BattleActionSelector.SelectActions &middot;
      SelectBestRangeSkillAction &middot;
@@ -1390,7 +1402,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note warn"><b>★ ⌊요구레벨 &divide; 6⌋ 은 지팡이만 받습니다.</b>
      검·대검·도끼·활·창·단검은 못 받습니다 &mdash;
      <code>Weapon.AddMagicPower</code> 가 <code>kind == Wand</code> 일 때만 더합니다.
-     그리고 마스터의 지능 칸은 <b>지팡이 49자루 중 44자루가 0</b> 이라,
+     그리고 마스터의 지능 칸은 <b>지팡이 49자루 중 46자루가 0</b> 이라,
      그것만 보면 <b>«지팡이는 지능을 안 준다» 는 거짓말</b>이 됩니다 &mdash;
      송곳니왕의 전역 지팡이는 화면에 아무것도 안 나오지만 실제로 <b>+4</b> 를 줍니다.
      <b>마법 방어에서 부적이 레벨을 통째로 받는 것과 같은 꼴입니다</b>(바로 아래).</div>
@@ -1419,7 +1431,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 <b>if</b> 부위 == 부적:      v += <b>레벨</b>        <span class="cmt">// ★ 부적은 레벨을 통째로 받는다</span></div>
   <p>그래서 <b>부적이 압도적</b>입니다 &mdash; 늪왕의 부적(Lv29)이 <b>39</b>, 고목의 부적(Lv34)이 46 입니다.
      마법 방어가 붙는 방어구는 <b>311개 중 107개</b> 이고, 강화로도 붙습니다.</p>
-  <table class="t"><thead><tr><th>부위</th><th>지금 낄 수 있는 최고</th><th>마법 방어</th></tr></thead><tbody>
+  <table class="t"><thead><tr><th>부위</th><th>요구 Lv29 까지에서 최고 <span class="sm">(모험가 36 이면 고목의 부적 46 · 영묘의 방패 17 &mdash; <a href="builds.html#gear">빌드 &sect;8</a>)</span></th><th>마법 방어</th></tr></thead><tbody>
     <tr class="hi"><td><b>부적</b></td><td>늪왕의 부적 (Lv29)</td><td><b>+39</b></td></tr>
     <tr><td>방패</td><td>검은 봉인의 방패 (Lv26)</td><td>+11</td></tr>
     <tr><td>갑옷</td><td>반환로 도강 갑옷 (Lv27)</td><td>+10</td></tr>
@@ -1492,7 +1504,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 
   <h3>① 탐색지가 전투를 거는 속도 &mdash; 354곳 중 313곳이 똑같습니다</h3>
   <div class="eq"><b>AdventureMain.GetWanderingMonsterGroup</b>
-  monsterGroups 를 <b>frequency 로 GroupBy</b> &rarr; 등급마다 <code>RandSuccess(1, iv)</code> 를 <b>한 번씩</b>
+  monsterGroups 를 <b>frequency 로 GroupBy</b> &rarr; <b>간격 짧은 등급부터</b>(OrderBy) 등급마다 <code>RandSuccess(1, iv)</code> 를 <b>한 번씩</b>
   iv = 표[freq &minus; 5] &divide; AdventureInterval(<b>10</b>)
        <b>퀘스트가 없으면(자유 탐색) 다시 &divide; 7</b>       <span class="cmt">// csel w21,w8,w21,eq — quest == null 일 때만</span>
   첫 성공에서 그 등급 그룹 중 <b>하나를 무작위</b>로 뽑는다   <span class="cmt">// GetAtRandom</span>
@@ -1521,7 +1533,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      확률을 올리는 것은 «서로 다른 등급» 을 하나 더 갖는 것뿐입니다.</span></div>
   <div class="note"><b>가장 빠른 곳은 5.7분짜리 두 곳</b>입니다 &mdash;
      삼키는 군주의 숲(Lv6)·림네아 유적(Lv8, 둘 다 뤼미에르 힐스)이 Sometimes 그룹을 하나씩 갖고 있습니다.
-     다만 판당 경험치가 143·250 이라 쩔용은 아닙니다.
+     다만 판당 경험치가 122·301 이라 쩔용은 아닙니다.
      <span class="sm">그다음이 1.463%/틱(11.4분) 35곳 &mdash; 불타는 동굴·멜리오스의 숲 등.</span></div>
 
   <h3>② 진짜 차이는 «부름» 입니다</h3>
@@ -1695,9 +1707,9 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td class="num">7</td><td><b>산자락의 무인창고</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">17.0분</td><td class="num">7,824</td><td class="num"><b>27,614</b></td><td class="num">3,635</td><td class="num">46</td><td>후유증 · 함정 <span class="sm">(안 아픔)</span> · 부름</td></tr>
     <tr><td class="num">8</td><td><b>노출된 모래 유물</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num">4,447</td><td class="num">36</td><td>함정 <span class="sm">(안 아픔)</span></td></tr>
     <tr><td class="num">9</td><td><b>무장대 연병장 흔적</b></td><td>발두나의 황야</td><td class="num">26</td><td class="num">17.0분</td><td class="num">7,755</td><td class="num"><b>27,370</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">45</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">10</td><td><b>오이가와 오두막</b></td><td>칼레바스 고원</td><td class="num">27</td><td class="num">17.0분</td><td class="num">6,845</td><td class="num"><b>24,158</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">37</td><td><b>후열까지</b> · 후유증</td></tr>
-    <tr><td class="num">11</td><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">6,792</td><td class="num"><b>23,971</b></td><td class="num">5,647</td><td class="num">38</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
-    <tr><td class="num">12</td><td><b>힐라이즈 마운틴</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">11.4분</td><td class="num">4,360</td><td class="num"><b>22,972</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">41</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">10</td><td><b>힐라이즈 마운틴</b></td><td>발두나의 황야</td><td class="num">27</td><td class="num">11.4분</td><td class="num">4,635</td><td class="num"><b>24,421</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">41</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
+    <tr><td class="num">11</td><td><b>오이가와 오두막</b></td><td>칼레바스 고원</td><td class="num">27</td><td class="num">17.0분</td><td class="num">6,845</td><td class="num"><b>24,158</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">37</td><td><b>후열까지</b> · 후유증</td></tr>
+    <tr><td class="num">12</td><td><b>마른 나뭇가지가 우거진 황량한 숲</b></td><td>칼레바스 고원</td><td class="num">29</td><td class="num">17.0분</td><td class="num">6,792</td><td class="num"><b>23,971</b></td><td class="num">5,647</td><td class="num">38</td><td><span style="color:var(--faint)">&mdash;</span></td></tr>
     <tr><td class="num">13</td><td><b>불태워진 모리무라 유적</b></td><td>칼레바스 고원</td><td class="num">28</td><td class="num">17.0분</td><td class="num">6,222</td><td class="num"><b>21,959</b></td><td class="num">4,799</td><td class="num">44</td><td>후유증</td></tr>
     <tr><td class="num">14</td><td><b>쿠로에다의 흔적이 남은 숲</b></td><td>칼레바스 고원</td><td class="num">31</td><td class="num">17.0분</td><td class="num">5,860</td><td class="num"><b>20,684</b></td><td class="num"><span style="color:var(--faint)">&mdash;</span></td><td class="num">44</td><td><b>후열까지</b></td></tr>
     <tr><td class="num">15</td><td><b>고갯마루 성수탑</b></td><td>발두나의 황야</td><td class="num">22</td><td class="num">17.0분</td><td class="num">4,894</td><td class="num"><b>17,272</b></td><td class="num">2,117</td><td class="num">35</td><td>부름</td></tr>
@@ -1764,7 +1776,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <div class="note"><b>골드 때문에 함정을 감수할 필요가 없습니다.</b>
      1위 «단죄대의 터» 와 2위 «마른 나뭇가지가 우거진 황량한 숲» 은 <b>함정이 아예 없고</b>
      회피탱이 깎이지도 않습니다. 특히 마른 나뭇가지는 필요 회피가 <b>38</b> 로 낮아
-     회피를 덜 올린 단계에서도 씁니다(경험치도 시간당 23,971 로 11위).</div>
+     회피를 덜 올린 단계에서도 씁니다(경험치도 시간당 23,971 로 12위).</div>
   <div class="note warn"><b>★ «말레포트 강둑 유적» 은 수치만 보면 최고 조합입니다 &mdash; 그래서 더 조심하세요.</b>
      경험치 <b>39,938</b>/시간에 골드 <b>7,129</b>/시간으로 둘 다 2위권인데,
      <b>다크엘프 리더</b>가 <code>25_PoisonAll</code> 을 <b>스킬(command 10) · 전체 대상</b>으로 씁니다 &mdash;

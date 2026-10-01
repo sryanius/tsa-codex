@@ -310,7 +310,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <table class="t" style="margin-top:12px"><thead><tr><th>기준</th><th class="num">발두나의 황야</th><th class="num">칼레바스 고원</th></tr></thead><tbody>
       <tr><td>자유 탐색에서 안 맞으려면</td><td class="num">완봉선 <b>44</b></td><td class="num">완봉선 <b>48</b></td></tr>
       <tr><td>퀘스트까지 안 맞으려면</td><td class="num">48</td><td class="num"><b>54</b> <span class="sm">관측 최대 · 발케인 열리면 55</span></td></tr>
-      <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대</span></td><td class="num">117 / 143</td><td class="num">140 / <b>181</b></td></tr>
+      <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대 · 자유 탐색</span></td><td class="num">117 / 135</td><td class="num">137 / 157</td></tr>
+      <tr><td>몬스터 공격력 <span class="sm">퀘스트 보정 3</span></td><td class="num">127 / 152</td><td class="num">150 / <b>182</b></td></tr>
     </tbody></table>
     <div class="toc">
       <a href="#why">전제</a><a href="#which">두 길</a><a href="#deftank">방어탱</a><a href="#dodge">회피탱</a><a href="#bow">활</a><a href="#spear">창</a><a href="#mage">마법사</a><a href="#spells">마법 켜기</a><a href="#gear">무기·방어구</a><a href="#party">파티</a><a href="#halls">훈련소</a>
@@ -365,11 +366,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h2 id="which"><span class="n">1</span>두 길 &mdash; 회피냐 방어냐</h2>
   <p>이 표가 이 문서에서 <b>유일한 비교 자리</b>입니다. 아래 각 절은 «그래서 어떻게 입히나» 만 답합니다.</p>
   <table class="t"><thead><tr><th></th><th>방어탱</th><th>회피탱</th></tr></thead><tbody>
-  <tr><td>주직업</td><td>모험가 <span class="sm">31 &rarr; 36</span></td><td>마검사 <span class="sm">30 이 끝</span></td></tr>
-  <tr class="hi"><td><b>물리</b></td><td>맞되 <b>거의 0</b> 으로 줄임 &mdash; 칼레바스 중앙 0.8<br><span class="sm">다만 35% 로 1 은 늘 새어 들어옵니다</span></td><td><b>발두나 자유 탐색까지 한 대도 안 맞음</b><br><span class="sm">칼레바스는 3 모자랍니다</span></td></tr>
-  <tr><td>마법</td><td>부적 칸이 있어 <b>39~67</b></td><td>부적 칸이 있어 <b>51~62</b></td></tr>
+  <tr><td>주직업</td><td>모험가 <span class="sm">36</span></td><td>마검사 <span class="sm">30 이 끝</span></td></tr>
+  <tr class="hi"><td><b>물리</b></td><td>맞되 <b>거의 0</b> 으로 줄임 &mdash; 칼레바스 자유 탐색 최악 2.4 · 퀘스트 중앙 0.8 · 최악 15.1<br><span class="sm">다만 35% 로 1 은 늘 새어 들어옵니다</span></td><td><b>발두나 자유 탐색까지 한 대도 안 맞음</b><br><span class="sm">칼레바스는 3 모자랍니다</span></td></tr>
+  <tr><td>마법</td><td>부적 칸이 있어 <b>39~68</b></td><td>부적 칸이 있어 <b>51~62</b></td></tr>
   <tr style="color:var(--f-vault)"><td><b>구멍</b></td><td>치명타 &mdash; 2% 하한이 있어 <b>완봉이 없습니다</b><br>그리고 <b>0 을 못 만듭니다</b> &mdash; 35% 로 1 이 새고, <b>그 1 에 반사와 상태이상이 딸려 옵니다</b></td><td>혼란 · 수면 · 마비 · <b>망각</b> &mdash; 걸리면 회피가 <b>0</b></td></tr>
-  <tr><td>경험치</td><td class="num"><b>20.3M</b></td><td class="num"><b>16.1M</b></td></tr>
+  <tr><td>경험치</td><td class="num"><b>19.9M</b></td><td class="num"><b>16.1M</b></td></tr>
   <tr><td>파티에서</td><td>전열을 채워 뒷줄을 가림</td><td>혼자 전열을 서서 <b>쩔</b>에 쓰임</td></tr>
   </tbody></table>
   <div class="note warn"><b>★ 두 길은 «같은 안전» 이 아닙니다.</b>
@@ -378,7 +379,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>상태이상과 반사가 그대로 들어옵니다</b>(<a href="notes.html#dmg">원리 &sect;6</a>).</div>
   <div class="note"><b>그래서 되는 자리에서는 회피탱이 압도적이고, 더 쌉니다.</b>
      <b>다만 조건이 깨지는 순간 즉사합니다</b> &mdash; 구멍 넷이 그 순간을 만들고,
-     방어탱은 그 순간에도 «조금 더 맞을» 뿐입니다.
+     방어탱은 그 순간에도 «조금 더 맞을» 뿐입니다 &mdash; 다만 방어탱에게는 <b>치명타</b>가 같은 자리입니다(칼레바스 퀘스트에서는 치명타 셋 중 하나가 만피 즉사 · <a href="#deftank">&sect;2</a>).
      <b>갈 곳이 회피 완봉선 안이면 회피, 넘으면 방어</b>가 갈림입니다.</div>
   <h3>명중은 얼마면 안 빗나가나</h3>
   <p>회피와 짜임이 <b>거꾸로</b>입니다 &mdash; 맞는 조건이 «명중 &minus; 회피 &ge; &minus;1» 이라,
@@ -401,53 +402,60 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h2 id="deftank"><span class="n">2</span>방어탱 &mdash; 맞고 0 으로 만든다</h2>
   <div class="role">
     <h3>모험가 방어탱 <span class="tag" style="color:var(--f-lodge)">추천</span></h3>
-    <p class="lede2">종족은 <b>드워프 남</b>(생명점 12 · 힘 9). 요구 힘 36 을 넘겨야 단향 한 벌이 껴집니다.</p>
+    <p class="lede2">종족은 <b>트레반의 마을 드워프 남</b>(생명점 12 · 힘 9 &mdash; 군벨 마을 드워프 남은 10 · 6 이라 낮습니다). <b>훈련소 하나를 35 까지</b> 올리면 모험가가 <b>36</b> 이 되어
+       요구 Lv34~35 장비가 다 껴집니다 &mdash; 31&rarr;35 는 <b>골드와 시간만</b> 듭니다.
+       방어구 세 칸은 <b>상점에서 삽니다</b>(부적·무기는 금고 &mdash; 늪왕의 부적은 트레반 «토말의 개구리 재료 재입고», 유령의 검은 노르그레이 «이시카타에 숨어 있는 검은 마물») &mdash; 방어구 상점을 <b>5단계</b>(그 마을 평판 20 · 증축 합계 21만 골드)까지 올리면 Lv34 «진악» 이 나오고, 그게 지금 상점의 끝입니다.</p>
     <dl class="kv">
-      <dt>주직업</dt><dd><b>모험가 31</b> <span class="meta">&mdash; 방어구 네 칸을 다 쓰고, 요구 레벨을 한 칸 열고, 경험치 지수에서 빠집니다</span></dd>
+      <dt>주직업</dt><dd><b>모험가 36</b> <span class="meta">&mdash; 방어구 네 칸을 다 쓰고, 요구 레벨을 한 칸 열고, 경험치 지수에서 빠집니다</span></dd>
       <dt>부직업</dt><dd><b>중도사 25</b> <span class="meta">(부 방어 8 &mdash; 주와 같습니다)</span> ·
         <b>무장병 30</b> <span class="meta">(4)</span> · <b>가드 15</b> <span class="meta">(6)</span> ·
         블레이드브레이커 20 · 검술사 15
         <br><b>+ 현자 30</b> <span class="meta">&mdash; 혼자 보낼 거면 (통찰 2 &rarr; 17)</span></dd>
-      <dt>무기</dt><dd><b class="mag">유령의 검</b> <span class="meta">요구 Lv31 · 힘 34 · 62~98 · <b>마법</b></span></dd>
-      <dt>몸</dt><dd>단향의 갑옷 <span class="meta">요구 Lv31 · 힘 36 · 방어 62~65</span></dd>
-      <dt>투구</dt><dd>짐승의 눈의 투구 <span class="meta">요구 Lv29 · 힘 28 · 방어 5~35 · <b>회피 +5</b></span></dd>
-      <dt>방패</dt><dd>단향의 방패 <span class="meta">요구 Lv31 · 힘 35 · 방어 8~33</span></dd>
+      <dt>무기</dt><dd><b class="mag">유령의 검</b> <span class="meta">요구 Lv31 · 힘 34 · 62~98 · <b>마법</b> · HP 흡수 50%</span></dd>
+      <dt>몸</dt><dd>진악의 갑옷 <span class="meta">요구 Lv34 · 힘 39 · 방어 68~71 · <b>자르간트 늑대이빨의 방어구 상점</b></span></dd>
+      <dt>투구</dt><dd>진악의 투구 <span class="meta">요구 Lv34 · 힘 37 · 방어 8~35 · <b>같은 상점</b></span></dd>
+      <dt>방패</dt><dd>진악의 방패 <span class="meta">요구 Lv34 · 힘 38 · 방어 9~36 · <b>노르그레이 한강 방어구 상점</b></span></dd>
       <dt>부적</dt><dd>늪왕의 부적 <span class="meta">요구 Lv29 · 힘 1 · <b>마법 방어 39</b> · HP 회복 8/턴</span></dd>
     </dl>
-    <div class="chips"><span>HP <b>75</b></span><span>방어 <b>131~189</b></span><span>평타 <b>84~120</b></span>
+    <div class="chips"><span>생명점 <b>77</b></span><span>방어 <b>141~198</b></span><span>평타 <b>84~120</b></span>
       <span>마법 방어 39</span><span>치명 저항 26</span><span>HP 회복 8/턴</span>
-      <span>명중값 <b>40</b></span><span>힘 57 <span class="meta">/요구 36</span></span>
-      <span>경험치 <b>20.3M</b></span></div>
-    <div class="chips" style="margin-top:8px"><span class="meta">훈련소가 35 까지 오르면 &mdash;</span>
-      <span>주직업 모험가 <b>36</b></span><span>방어 <b>144~202</b></span>
-      <span>마법 방어 <b>67</b></span><span>통찰 <b>20</b></span><span>경험치 21.5M</span></div>
+      <span>명중값 <b>41</b></span><span>힘 54 <span class="meta">/요구 39</span></span>
+      <span>경험치 <b>19.9M</b></span></div>
+    <div class="chips" style="margin-top:8px"><span class="meta">금고에서 Lv35 가 나오면 &mdash; 갈증의 갑옷 · 피철 투구 · 영묘의 방패</span>
+      <span>방어 <b>143~202</b></span><span>마법 방어 <b>68</b></span></div>
+    <p class="src">생명점·힘은 뽑을 때 굴림의 <b>평균</b>(생명점 +6 · 힘 +4)을 얹은 값입니다 &mdash; 방어도 체력의 굴림을 받아서, 체력 평균(+2.8)을 얹으면 &lfloor;체력 &divide; 4&rfloor; 가 12 가 되어 <b>142~199</b> 입니다(뽑은 드워프의 63% · 27% 는 141~198). 나머지 칩은 굴림과 상관없습니다.
+       현자 30 을 얹으면 마법 방어 +3 · 경험치 20.8M 입니다.
+       Lv35 세 벌은 <b>상점에 없고 금고에서만</b> 나옵니다. 무기는 그대로 둡니다 &mdash;
+       Lv34 마법 창(눈물 흘리는 창)은 창을 드는 부직업이 무장병뿐이라 직업 몫이 빠져 평타가 오히려 낮습니다(73~112).</p>
   </div>
 
   <h3>칼레바스에서 실제로 얼마나 맞나</h3>
-  <p>몬스터 공격력에서 방어를 <b>전액</b> 뺀 값입니다. <b>0 이하여도 35% 로 1 이 들어옵니다</b> &mdash; 방어로 «0» 은 못 만듭니다(<a href="notes.html#dmg">원리 &sect;6</a>).</p>
+  <p>몬스터 공격력에서 방어를 <b>전액</b> 뺀 값입니다. <b>퀘스트는 보정 1 마다 몬스터 평타가 3 씩 셉니다</b> &mdash; «퀘스트» 줄은 보정 3(+9) 기준이고, 공격 패턴의 피해 보정(버킷 미믹 &minus;8)도 넣었습니다. <b>0 이하여도 35% 로 1 이 들어옵니다</b> &mdash; 방어로 «0» 은 못 만듭니다(<a href="notes.html#dmg">원리 &sect;6</a>).</p>
   <table class="t"><thead><tr><th>지역</th><th class="num">몬스터 공격력<br><span style="font-weight:400">중앙 / 최대</span></th>
     <th class="num">한 대<br><span style="font-weight:400">중앙 / 최악</span></th>
-    <th class="num">훈련소 35 면</th></tr></thead><tbody>
-    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num">140 / <b>181</b></td><td class="num">0.8 / 22.0</td><td class="num"><b>0 / 12.1</b></td></tr>
-    <tr><td>발두나의 황야</td><td class="num">117 / 143</td><td class="num">0 / 1.3</td><td class="num">0 / 0</td></tr>
+    <th class="num">금고 Lv35 면</th></tr></thead><tbody>
+    <tr class="hi"><td><b>칼레바스 고원</b></td><td class="num">자유 137 / 157<br>퀘스트 150 / <b>182</b></td><td class="num">0 / 2.4<br><b>0.8 / 15.1</b></td><td class="num">0 / 1.8<br>0.5 / 13.2</td></tr>
+    <tr><td>발두나의 황야</td><td class="num">자유 117 / 135<br>퀘스트 127 / 152</td><td class="num">0 / 0<br>0 / 1.2</td><td class="num">0 / 0<br>0 / 0.8</td></tr>
   </tbody></table>
   <div class="note warn"><b>구멍은 치명타 하나입니다.</b>
      치명타는 방어를 <b>반만</b> 보고, 확률에 <b>2% 하한</b>이 있어 저항을 아무리 올려도 막히지 않습니다
-     (<a href="notes.html#dmg">원리 &sect;6</a>). <b>50 대에 한 번은 크게 들어옵니다.</b></div>
+     (<a href="notes.html#dmg">원리 &sect;6</a>). <b>50 대에 한 번은 크게 들어옵니다</b> &mdash; 치명타는 «공격력 &minus; &lfloor;방어 &divide; 2&rfloor;» 라 칼레바스 퀘스트(보정 3)에서 중앙 52~80 · 최악 84~112 입니다.
+     <b>생명점 77 을 한 번에 넘깁니다</b> &mdash; 퀘스트에서는 치명타 셋 중 하나가 만피에서 즉사입니다(자유 탐색은 최악 59~87 · 5%).</div>
 
-  <h3>회복판으로 바꾸려면 &mdash; 두 칸만 갈아 끼웁니다</h3>
-  <p>직업 트리는 <b>완전히 같습니다.</b> 갑옷과 투구만 바꿉니다.</p>
+  <h3>회복판으로 바꾸려면 &mdash; 세 칸을 갈아 끼웁니다</h3>
+  <p>직업 트리는 <b>완전히 같습니다.</b> 갑옷 · 투구 · 방패를 바꿉니다. <b>셋 다 금고에서만</b> 나옵니다.</p>
   <table class="t"><thead><tr><th>칸</th><th>방어판</th><th>회복판</th><th class="num">바뀌는 것</th></tr></thead><tbody>
-    <tr><td>몸</td><td>단향의 갑옷 <span class="sm">62~65</span></td><td>리젠플레이트 <span class="sm">56~59 · <b>HP +9/턴</b></span></td><td class="num" rowspan="2">방어 131~189 &rarr; <b>126~173</b><br>회복 8 &rarr; <b>27/턴</b><br>마법 방어 39 &rarr; <b>48</b></td></tr>
-    <tr><td>투구</td><td>짐승의 눈의 투구 <span class="sm">5~35</span></td><td>반조의 투구 <span class="sm">6~25 · <b>HP +10/턴</b> · 마방 9</span></td></tr>
+    <tr><td>몸</td><td>진악의 갑옷 <span class="sm">68~71</span></td><td>눈보라 갑옷 <span class="sm">Lv32 · 64~67 · <b>HP +15/턴</b> · 냉기 저항</span></td><td class="num" rowspan="3">방어 141~198 &rarr; <b>137~191</b><br>회복 8 &rarr; <b>39/턴</b><br>마법 방어 39 &rarr; <b>50</b></td></tr>
+    <tr><td>투구</td><td>진악의 투구 <span class="sm">8~35</span></td><td>거센 바람의 투구 <span class="sm">Lv33 · 8~34 · <b>HP +10/턴</b></span></td></tr>
+    <tr><td>방패</td><td>진악의 방패 <span class="sm">9~36</span></td><td>하나모리의 방패 <span class="sm">Lv32 · 9~34 · <b>HP +6/턴</b> · 마방 11</span></td></tr>
   </tbody></table>
-  <div class="note"><b>보통 한 대는 27 에 통째로 묻힙니다.</b>
-     칼레바스 중앙이 0.8 &rarr; 2.2 로 오르는 것뿐이라 맞는 족족 그 턴에 지워집니다.
-     <b>마법 방어가 39 &rarr; 48</b> 로 오르는 쪽이 더 큽니다 &mdash; 마법이 유일한 약점이니까요.</div>
-  <div class="note warn"><b>다만 «최악의 한 대» 는 회복으로 못 덮습니다.</b>
-     칼레바스 최악이 <b>32.0</b> 이라 27/턴으로 안 지워집니다.
-     그런 몬스터는 <b>퀘스트 전투에만 나오는 한 종</b>(버킷 미믹)뿐이지만, 거기서는 방어판(22.0)이 낫습니다.
-     <b>탐색지만 돈다면 회복판이 그대로 낫습니다.</b></div>
+  <div class="note"><b>방어는 거의 그대로이고 회복이 다섯 배가 됩니다.</b>
+     칼레바스 퀘스트(보정 3) 중앙이 0.8 &rarr; 1.7 로 오르는 것뿐이라 맞는 족족 그 턴에 지워집니다.
+     <b>마법 방어가 39 &rarr; 50</b> 으로 오르는 쪽이 더 큽니다 &mdash; 마법이 유일한 약점이니까요.</div>
+  <div class="note"><b>«최악의 한 대» 도 이제 한 턴 회복 안에 듭니다.</b>
+     칼레바스 최악(퀘스트 보정 3 의 버킷 미믹 &mdash; 181 &minus; 패턴 8 + 보정 9 = 182)이 <b>19.2</b> 라 39/턴 보다 작습니다.
+     다만 회복은 <b>턴에 한 번</b>이라, 여러 마리가 한 턴에 몰아치면 그 합을 봐야 합니다.
+     <b>회복판 세 벌(눈보라 · 거센 바람 · 하나모리)이 금고에서 다 나왔다면 그쪽이 낫습니다.</b> 마법이 센 곳만 금고 Lv35 판(마방 68)으로 바꿉니다.</div>
 
   <h3>뽑을 때의 능력치 &mdash; 남는 점수를 어디에 넣나</h3>
   <p>방어탱은 회피를 못 씁니다(민첩 0 이 설계입니다). 남는 점수는 <b>통찰</b>에 넣으세요 &mdash;
@@ -560,15 +568,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h2 id="mage"><span class="n">6</span>마법사 &mdash; 지능이 딜의 3분의 2</h2>
   <div class="role">
     <h3>암흑마법사</h3>
-    <p class="lede2">종족은 <b>휴먼</b> &mdash; 마법 직업을 하나도 안 막습니다(엘프는 성직 계열 셋을 못 합니다).</p>
+    <p class="lede2">종족은 <b>휴먼</b>, 그중에서도 <b>리스티아 주점의 여성</b> &mdash; 마법 직업을 하나도 안 막습니다(엘프는 성직 계열 셋을 못 합니다).
+      기본 지능은 뽑을 때 정해지고 <b>초빙 포인트로는 못 올립니다</b>(배분 칸에 지능이 없습니다).
+      휴먼 남성은 0~5 안팎(드라이레이크 남성은 언제나 0), 윈달리온 · 브란샤르 주점은 남녀 모두 언제나 0 입니다.</p>
     <dl class="kv">
       <dt>주직업</dt><dd><b>암흑마법사 30</b> <span class="meta">— 지능 8 · 마나 15 · 마법 방어 6</span></dd>
       <dt>부직업</dt><dd><b>견습 마법사 6 · 견습 성직자 6 · 숙련된 마법사 10 · 정령사 20 · 숙련된 성직자 7 · 순례 사제 7 · 마궁사 4 · 성창사 4</b>
         <span class="meta">— 지능용, 얇게 깔기 (아래)</span><br>
-        <b>+ 마도병 10</b> <span class="meta">— 지능이 아니라 <b>마법을 사려고</b>: 프로스트 템페스트 · 뇌우(<a href="#spells">&sect;7</a>).
-        <b>10 에서 멈춥니다</b> &mdash; 20 의 라이프 하베스트는 치우는 종이 하나도 안 늘고 MP 만 9 더 들며(쏘는 턴 36%→29%) 맨 뒤에 얹어도 ≈24M 입니다.
-        살바는 순례 사제 1 에서 그대로 옵니다.
-        ★ <b>마궁사 4 를 찍으면 어스퀘이크 · 베놈 클라우드가 켜진 채 들어옵니다 &mdash; 끄세요</b>(안 끄면 베놈 클라우드 Lv10 이 프로스트 템페스트·뇌우를 영영 막습니다)</span><br>
+        <b>+ 마도병 10</b> <span class="meta">— 지능이 아니라 <b>마법을 사려고</b>: 뇌우(<a href="#spells">&sect;7</a>) &mdash; 같이 들어오는 프로스트 템페스트는 끕니다.
+        <b>10 에서 멈춥니다</b> &mdash; 20 의 라이프 하베스트는 치우는 종이 하나도 안 늘고 MP 만 7 더 들며(쏘는 턴 34%→29%) 맨 뒤에 얹어도 ≈24M 입니다.
+        회복은 <b>견습 성직자 1 의 Heal</b> 하나면 됩니다 &mdash; 지능 61 이면 그것도 63~65 를 채웁니다(&sect;7).
+        ★ <b>배운 마법은 전부 «사용» 이 켜진 채 들어옵니다 &mdash; 이 사다리는 31개를 배우는데 켜 둘 것은 뇌우 · Heal 둘뿐, 나머지 29개를 끕니다</b>(<a href="#spells">&sect;7</a>).
+        썬더 블래스트는 속성이 같아 뇌우를 <b>영영</b> 막고,
+        불의 폭발 · 서리 폭발 · 아쿠아 블라스트 · 성스러운 폭발 · 어스퀘이크 · 베놈 클라우드 · 바람의 정령 · 프로스트 템페스트는 동점마다 이기며,
+        다크니스 · 슬립 미스트 · 마나크러쉬는 MP 가 38 에 못 미치는 턴을 가져가고
+        (다크니스 · 슬립 미스트는 모르는 적이 있거나 MP 를 가진 적이 섞였을 때만 · 마나크러쉬는 어둠 약점인 적을 알아보면 MP 가 넉넉한 턴도 가져갑니다),
+        회복은 Heal 만 남깁니다 &mdash; 레벨 낮은 단일이 늘 먼저 고르므로 높은 치유 · 모두 치유 · 라이프 스피릿 · 살바는 켜 둬도 안 나갑니다.</span><br>
         <b>+ 현자 30</b> <span class="meta">— 통찰 20 &rarr; 35, 마방 +3, 지수 0</span></dd>
       <dt>무기</dt><dd><b>정정의 지팡이</b> <span class="meta">요구 Lv23 · <b>힘 2</b> · 43~72 · <b>지능 +8</b> · <b>최대 MP +33</b> <span class="sm">(10 + 요구 레벨 23)</span></span><br>
         <span class="meta">예전에 여기 적어 둔 <b>송곳니왕의 전역 지팡이</b>(Lv29 · 힘 2 · 55~90 · 모든 적/전체 공격)는
@@ -576,8 +591,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <dt>몸</dt><dd><b>암숨의 법복</b> <span class="meta">요구 Lv25 · 힘 2 · 방어 45~51 · 마방 9 · <b>MP +6/턴</b></span></dd>
       <dt>부적</dt><dd><b>현맥의 부적</b> <span class="meta">요구 Lv25 · 힘 1 · 마방 34 · <b>MP +7/턴</b></span></dd>
     </dl>
-    <div class="chips"><span>지능(마력) <b>61</b> <span class="sm">기본 6 가정</span></span><span>마법 방어 <b>78</b></span><span>마나 <b>115</b></span>
-      <span><b>MP 회복 13/턴</b></span><span>평타 46~75 <span class="sm">단일</span></span>
+    <div class="chips"><span>지능(마력) <b>61</b> <span class="sm">기본 6 으로 셈 · 리스티아 여성 보통 62</span></span><span>마법 방어 <b>78</b></span><span>마나 <b>115</b></span>
+      <span><b>MP 회복 13/턴</b></span><span>평타 48~77 <span class="sm">단일</span></span>
       <span>요구 힘 <b>2</b></span><span>경험치 <b>7.3M</b> <span class="sm">최적 순서면 4.5M</span></span>
       <span class="meta">현자 30 을 얹으면 8.2M · 통찰 35 · 마방 81 &mdash; 현자는 어느 순서에 넣어도 똑같이 0.94M</span></div>
   </div>
@@ -589,7 +604,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>«전체 공격» 옵션은 평타에만 붙습니다.</b>
      법사가 평타를 치는 것은 <b>켜 둔 마법을 하나도 쓸 수 없을 때</b>뿐이고,
      MP 가 모자라면 그 마법만 목록에서 빠지므로(<code>BattleSkill.CanUse</code>)
-     싼 마법 하나만 켜 두면 그 자리는 거의 오지 않습니다.
+     평타 차례는 MP 를 모으는 턴(과 적이 하나 남은 턴)에만 오고, 그때도 칼레바스 방어 앞에서 평균 10 안팎이라 딜에 거의 안 보탭니다(그 턴을 싼 마법으로 메우면 오히려 손해 &mdash; <a href="#spells">&sect;7</a>).
      그래서 <b>법사 지팡이는 지능으로 고릅니다.</b></div>
   <div class="note"><b>그리고 지팡이에는 화면에 안 나오는 지능이 붙습니다.</b>
      <code>Weapon.AddMagicPower</code> 가 <b>무기 종류가 지팡이일 때만</b>
@@ -631,12 +646,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h3>지능이 곧 딜입니다</h3>
   <p>마법 피해는 <code>Rand(스킬 최소, 최대) + <b>시전자 마력(지능)</b></code> 인데
-     <b>스킬 쪽 값이 작습니다</b> &mdash; 최고 전체 마법 뇌우가 34~36 입니다.
+     <b>스킬 쪽 값이 작습니다</b> &mdash; 최고 전체 마법 뇌우가 34~35 입니다.
      즉 <b>지능이 딜의 3분의 2</b> 입니다.</p>
   <table class="t"><thead><tr><th class="num">지능</th><th class="num">블리자드 실제 피해</th><th class="num">뇌우</th></tr></thead><tbody>
-    <tr><td class="num">33 <span class="sm">주직업만</span></td><td class="num">52~54</td><td class="num">67~69</td></tr>
-    <tr><td class="num">53 <span class="sm">아래 정지선 · 지팡이 몫 빼고</span></td><td class="num">72~74</td><td class="num">87~89</td></tr>
-    <tr class="hi"><td class="num"><b>61</b> <span class="sm">+ 정정의 지팡이 8</span></td><td class="num"><b>80~82</b></td><td class="num"><b>95~97</b></td></tr>
+    <tr><td class="num">33 <span class="sm">주직업만</span></td><td class="num">52~53</td><td class="num">67~68</td></tr>
+    <tr><td class="num">53 <span class="sm">아래 정지선 · 지팡이 몫 빼고</span></td><td class="num">72~73</td><td class="num">87~88</td></tr>
+    <tr class="hi"><td class="num"><b>61</b> <span class="sm">+ 정정의 지팡이 8</span></td><td class="num"><b>80~81</b></td><td class="num"><b>95~96</b></td></tr>
   </tbody></table>
   <div class="note"><b>그리고 그게 거의 그대로 들어갑니다.</b>
      열린 지역 몬스터 <b>371종 중 266종(72%)이 마법 방어 0</b> 입니다(최대 40).
@@ -668,7 +683,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr style="color:var(--faint)"><td>마도병 <span class="sm">마법 사러 10</span></td><td class="num">2</td><td class="num"><b>35</b></td><td class="num">4</td><td class="num">2</td></tr>
     <tr style="color:var(--faint)"><td>마검사</td><td class="num">1</td><td class="num">30</td><td class="num">0</td><td class="num">1</td></tr>
   </tbody></table>
-  <p>하나씩 얹으면 이렇게 됩니다 (휴먼 · 기본 지능 6 <span class="sm">가정값</span> · <b>지팡이 몫 제외</b> · 암숨의 법복 · 현맥의 부적).</p>
+  <p>하나씩 얹으면 이렇게 됩니다 (리스티아 휴먼 여성 · 기본 지능 6 으로 셈 <span class="sm">실제는 1~99% 가 3~12 · 보통 7 &mdash; 내 용병의 기본 지능 &minus; 6 을 지능 칸에 더하세요. 마나 칸에도 기본 마나(리스티아 여성 보통 12)는 안 들어 있습니다</span> · <b>지팡이 몫 제외</b> · 암숨의 법복 · 현맥의 부적).</p>
   <table class="t"><thead><tr><th>여기까지 얹으면</th><th class="num">지능 <span class="sm">무기 몫 제외</span></th><th class="num">마법 방어</th>
     <th class="num">마나 <span class="sm">무기 몫 제외</span></th><th class="num">누적 경험치</th><th class="num">지능 1 당</th></tr></thead><tbody>
     <tr><td>암흑마법사 30 만</td><td class="num">30</td><td class="num">61</td><td class="num">45</td><td class="num">1.1M</td><td class="num">&mdash;</td></tr>
@@ -677,7 +692,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>+ 정령사 20</td><td class="num">44</td><td class="num">71</td><td class="num">68</td><td class="num">4.8M</td><td class="num">0.43M</td></tr>
     <tr><td>+ 숙련된 성직자 7</td><td class="num">47</td><td class="num">73</td><td class="num">71</td><td class="num">5.0M</td><td class="num">0.08M</td></tr>
     <tr><td>+ 마도병 10 <span class="sm">(프로스트 템페스트 · 뇌우)</span></td><td class="num">49</td><td class="num">75</td><td class="num">75</td><td class="num">6.4M</td><td class="num">0.71M</td></tr>
-    <tr><td>+ 순례 사제 7 <span class="sm">(살바는 1 에서)</span></td><td class="num">51</td><td class="num">78</td><td class="num">79</td><td class="num">7.0M</td><td class="num">0.27M</td></tr>
+    <tr><td>+ 순례 사제 7 <span class="sm">(지능용)</span></td><td class="num">51</td><td class="num">78</td><td class="num">79</td><td class="num">7.0M</td><td class="num">0.27M</td></tr>
     <tr class="hi"><td><b>+ 마궁사 4 · 성창사 4</b> <span class="sm">← 지능은 여기까지</span></td><td class="num"><b>53</b></td>
       <td class="num"><b>78</b></td><td class="num"><b>82</b></td><td class="num"><b>7.3M</b></td><td class="num">0.17M</td></tr>
     <tr class="hi"><td><b>+ 정정의 지팡이</b> <span class="sm">지능 8 · 최대 MP 33</span></td><td class="num"><b>61</b></td>
@@ -686,7 +701,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>정지선은 «숙련된 성직자 7 · 순례 사제 7 · 마궁사 4 · 성창사 4» 입니다.</b>
      거기까지가 7.3M(최적 순서면 4.5M) &mdash; <b>지능 30 &rarr; 53(지팡이 포함 61), 마법 방어 61 &rarr; 78, 마나 45 &rarr; 82</b> 를 얻습니다.
      예전에 적었던 «17배» 벽은 없습니다 &mdash; 마궁사 한 칸(0.003M)이 지능 1 을 삽니다.
-     그 위로는 <b>64</b> 가 다음 분수령(칼레바스 56/58 · 열린 지역 282/287)이지만 거기까지의 사다리 값은 따로 재지 않았습니다.
+     그 위로는 <b>64</b> 가 다음 분수령(칼레바스 56/58 · 열린 지역 282/287)인데, 여기는 사다리 대신 <b>뽑기로</b> 넘습니다 &mdash;
+     기본 지능 <b>9 이상</b>(리스티아 여성 4명 중 1명, 그 주점 지원자 8명에 1명꼴)이면 경험치 없이 64 입니다.
+     63(기본 8)에서 55/58, 64 에서 56/58 로 두 번에 나눠 오릅니다.
      <span class="sm">최적 순서: 암흑마법사 → 정령사 → 마도병 → 숙련된 마법사 → 숙련된 성직자 → 순례 사제 → 견습 마법사 → 견습 성직자 → 마궁사 → 성창사.</span></div>
   <div class="note warn"><b>종족은 휴먼이어야 합니다.</b> <b>엘프는 성직 계열 셋</b>
      (견습 성직자 · 숙련된 성직자 · 성창사)<b>을 못 합니다</b> &mdash; 기본 지능이 2 높은 대신 위 표에서 <b>중간에 멈춥니다</b>.
@@ -699,18 +716,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         힘 6 으로 낄 수 있는 최고 활이 <b>엘리트 활 Lv7 (12~25)</b> &mdash; 전역 지팡이의 <b>4분의 1</b> 입니다</td></tr>
     <tr class="hi"><td class="num">2</td><td><b>직업 공격 몫이 날아갑니다</b></td>
       <td>공격 쪽 직업 몫은 <b>그 무기를 들 수 있는 직업만</b> 셉니다 &mdash;
-        활을 들면 마법·성직 계열이 거의 다 빠져 <b>공격 몫 3 &rarr; 2 · 명중 몫 8 &rarr; 6</b> 이 됩니다
-        <span class="sm">(정령사만 활을 들 수 있어 «전부 0» 은 아닙니다)</span></td></tr>
+        활을 들면 마법·성직 계열이 거의 다 빠져 <b>공격 몫 5 &rarr; 3</b> 이 됩니다
+        <span class="sm">(정령사 · 마궁사는 활을 들 수 있어 «전부 0» 은 아닙니다)</span></td></tr>
     <tr><td class="num">3</td><td><b>사거리가 줄어듭니다</b></td>
       <td>전역 지팡이의 평타는 <b>모든 적 · 전체 공격</b>인데 활은 <b>한 줄(관통)</b> 입니다</td></tr>
     <tr><td class="num">4</td><td><b>방어에 다 막힙니다</b></td>
       <td>칼레바스 몬스터는 <b>방어 중앙값이 53</b> 입니다 &mdash;
-        엘리트 활(12~25)은 <b>피해가 그냥 0</b> 이고, 전역 지팡이(58~93)만 5~40 이 들어갑니다</td></tr>
+        엘리트 활(12~25)은 <b>피해가 그냥 0</b> 이고, 전역 지팡이(60~95)만 7~44 가 들어갑니다</td></tr>
   </tbody></table>
   <div class="note"><b>MP 대비는 «무기» 가 아니라 «부적» 으로 합니다.</b>
      활은 <b>MP 가 떨어진 뒤</b>를 대비하는 것이고,
      현맥의 부적은 <b>MP 가 안 떨어지게</b> 합니다 &mdash;
-     퀘스트 한 판에 전체 마법이 <b>3발에서 11발</b>로 늡니다(<a href="#spells">&sect;7</a>).
+     암숨의 법복과 함께 끼면 퀘스트 한 판에 전체 마법이 <b>3발에서 8발</b>로 늡니다(<a href="#spells">&sect;7</a>).
      같은 한 칸을 쓰는데 얻는 것이 비교가 안 됩니다.</div>
   <div class="note"><b>마법사는 «비마법» 무기를 들어도 됩니다.</b> 물리 무효 몬스터는
      <b>마법 스킬</b>로 때리면 되기 때문입니다
@@ -730,14 +747,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <table class="t"><thead><tr><th>맞출 것</th><th>왜</th></tr></thead><tbody>
     <tr class="hi"><td><b>둘 다 «같은 급» 을 켭니다</b></td>
       <td>한 명이 낮은 레벨 마법을 켜 두면 그 캐릭만 계속 약하게 나갑니다.
-        둘 다 <b>프로스트 템페스트 + 뇌우</b>로 맞춥니다 &mdash; 둘 다 <b>마도병 10</b> 하나에서 옵니다
+        둘 다 <b>뇌우</b>로 맞춥니다 &mdash; <b>마도병 10</b> 에서 옵니다
         (<a href="#spells">&sect;7</a>)</td></tr>
     <tr class="hi"><td><b>둘 다 회복 장비를 낍니다</b></td>
-      <td>부적 한 칸이 <b>퀘스트당 3발 &rarr; 12발</b>을 가릅니다. 한 명만 끼면 그 한 명만 계속 쏩니다</td></tr>
+      <td>회복 장비(부적 · 의복)가 <b>퀘스트당 3발 &rarr; 8발</b>을 가릅니다. 한 명만 끼면 그 한 명만 계속 쏩니다</td></tr>
     <tr><td><b>회복 마법은 둘 다 켜도 됩니다</b></td>
       <td>행동은 <b>한 명씩, 자기 차례에</b> 고릅니다(<code>Battle.Action</code>) &mdash;
-        앞의 법사가 전체 회복을 하면 뒤의 법사는 <b>이미 채워진 HP 를 보고</b> 공격으로 갑니다.
-        이중 회복은 <b>한 번으로 안 되는 판</b>에서만 납니다</td></tr>
+        앞의 법사가 회복하면 뒤의 법사는 <b>채워진 HP 를 보고 다시 셉니다</b>.
+        아직 문턱 아래인 사람이 있으면 그 사람을 채우고, 없으면 공격으로 갑니다</td></tr>
     <tr><td colspan="2" style="color:var(--muted)"><b>앞줄은 따로 필요합니다.</b>
       마법 직업은 방어구가 <b>부적 · 의복 두 칸</b>뿐이라 물리 방어가 낮습니다 &mdash;
       방어 52~58 · HP 27 · 회피값 2(완봉선 3) · 민첩 11. <b>뒷줄에 닿는 평타는 한 방입니다</b>(최소 63).
@@ -777,11 +794,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 
   <h2 id="spells"><span class="n">7</span>마법 켜기 &mdash; 다 켜면 «가장 약한 것» 이 나갑니다</h2>
-  <div class="note"><b>이 절의 «실제 피해» 는 지능 51 기준입니다</b> &mdash;
-     예전 &sect;6 사다리의 끝값이고, <b>지팡이 몫은 빼고</b> 센 값입니다
-     <span class="sm">(지금 &sect;6 사다리는 53 이라 아래 수치가 2 씩 낮습니다 &mdash; 우열은 안 바뀝니다)</span>.
-     지팡이를 끼면 거기에 <b>그 지팡이의 지능이 그대로 더해집니다</b>
-     (정정의 지팡이 +8 · 전역 지팡이 +4 &mdash; <a href="#mage">&sect;6</a>).
+  <div class="note"><b>이 절의 «실제 피해» 는 지능 61 기준입니다</b> &mdash;
+     &sect;6 사다리 53(기본 지능 6 으로 셈)에 <b>정정의 지팡이 8</b> 을 더한 값이고, 피해 범위는 폭발 없는 한 방이 전투에서 <b>실제로 나오는 값</b>입니다
+     <span class="sm">(스킬 최대값은 <code>Rand</code> 의 상한이라 안 나옵니다 &mdash; <a href="notes.html#dice">원리 &sect;1</a>.
+     2d6 이 10 이상(1/6)이 나올 때마다 굴림의 반값이 더 붙습니다 &mdash; 뇌우면 +17)</span>.
+     다른 지팡이를 끼거나 기본 지능이 6 이 아니면 <b>그 지능 차만큼</b> 옮겨 읽습니다
+     (전역 지팡이면 &minus;4 &mdash; <a href="#mage">&sect;6</a>).
      지능은 모든 마법에 똑같이 더해지는 <b>정액</b>이라,
      올라갈수록 <b>MP 가 싼 쪽이 «턴당 깎는 양» 에서 유리해집니다</b> &mdash;
      다만 법사를 둘 데려가면 <b>재야 할 것이 «깎는 양» 이 아니라 «치우는가» 로 바뀝니다</b>(아래).</div>
@@ -796,30 +814,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <b>피해 30 을 버리고 2 를 얻는 교환</b>이 일어납니다.
      이 절 전체가 그 어긋남을 피하는 이야기입니다.</div>
 
-  <h3>결론 &mdash; 이 넷만 켭니다</h3>
+  <h3>결론 &mdash; 마법은 둘만 켭니다</h3>
   <table class="t"><thead><tr><th>칸</th><th>켤 것</th><th class="num">Lv</th><th class="num">피해</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
-    <tr class="hi"><td rowspan="3"><b>전체 공격</b><br><span class="meta">둘 다</span></td>
-      <td><b>프로스트 템페스트</b> <span class="sm">냉기</span></td><td class="num">33</td><td class="num">32~34</td><td class="num"><b>36</b></td><td>마도병 10</td></tr>
-    <tr class="hi"><td><b>뇌우</b> <span class="sm">번개 &mdash; 냉기가 막힌 판을 메웁니다</span></td><td class="num">35</td><td class="num">34~36</td><td class="num">38</td><td>마도병 10</td></tr>
-    <tr><td><b>블리자드</b> <span class="sm">냉기 &mdash; 턴당은 제일 높지만 <b>마궁사를 더 사야</b> 합니다</span></td>
-      <td class="num">20</td><td class="num">19~21</td><td class="num">23</td><td><b>마궁사 10</b></td></tr>
-    <tr style="color:var(--f-vault)"><td><b>끄는 것</b></td><td colspan="5"><b>그래블 버스트 · 어스퀘이크를 반드시 끕니다</b> &mdash;
-      이 둘은 «마법처럼 생긴 <b>물리</b> 공격» 이라 <b>상대의 물리 방어를 전액 맞습니다</b>(아래)</td></tr>
-    <tr class="hi"><td><b>회복</b></td><td><b>살바</b> <span class="sm">전체 회복</span></td><td class="num">25</td><td class="num">16~23</td><td class="num">24</td><td>순례 사제 <b>1</b></td></tr>
-    <tr style="color:var(--f-vault)"><td><b>단일</b></td><td colspan="5"><b>하나도 켜지 않습니다</b> &mdash;
+    <tr class="hi"><td rowspan="3"><b>전체 공격</b></td>
+      <td><b>뇌우</b> <span class="sm">번개 &mdash; 프로스트 템페스트보다 굴림이 늘 2 높고, 번개 무효는 열린 지역 4종뿐입니다</span></td><td class="num">35</td><td class="num">34~35</td><td class="num"><b>38</b></td><td>마도병 10</td></tr>
+    <tr style="color:var(--f-vault)"><td><b>프로스트 템페스트</b> <span class="sm">냉기 &mdash; 같이 들어오지만 <b>끕니다</b>: 켜 두면 동점마다 이쪽이 나갑니다</span></td><td class="num">33</td><td class="num">32~33</td><td class="num">36</td><td>마도병 10</td></tr>
+    <tr><td><b>블리자드</b> <span class="sm">냉기 &mdash; &sect;6 사다리로는 못 배웁니다. 법사가 <b>하나</b>이고 <b>마궁사 10 을 더 샀을 때만</b> 상시로 켜고, 뇌우는 보험으로 같이 둡니다(아래)</span></td>
+      <td class="num">20</td><td class="num">19~20</td><td class="num">23</td><td><b>마궁사 10</b></td></tr>
+    <tr style="color:var(--f-vault)"><td><b>끄는 것</b></td><td colspan="5"><b>프로스트 템페스트 · 낮은 전체 마법 여덟 · 상태이상 둘 · 마나크러쉬를 반드시 끕니다</b> &mdash;
+      썬더 블래스트는 속성까지 같아 켜 두면 뇌우가 <b>영영</b> 안 나가고,
+      프로스트 템페스트 · 서리 폭발 · 불의 폭발 · 아쿠아 블라스트 · 성스러운 폭발 · 어스퀘이크 · 베놈 클라우드 · 바람의 정령은 레벨이 낮아 <b>동점이면 이깁니다</b>(약점·무효를 아는 적이 없으면 늘 동점).
+      다크니스 · 슬립 미스트 · 마나크러쉬는 MP 가 38 에 못 미치는 턴에 대신 나가 MP 를 다시 깎습니다
+      (다크니스 · 슬립 미스트는 모르는 적이 있거나 MP 를 가진 적이 섞였을 때)</td></tr>
+    <tr class="hi"><td><b>회복</b></td><td><b>Heal</b> <span class="sm">단일 &mdash; 한 명만 다쳐도 나갑니다. 전체 회복은 둘 이상 다쳐야 나갑니다(아래)</span></td><td class="num">1</td><td class="num">2~4</td><td class="num">5</td><td>견습 성직자 <b>1</b></td></tr>
+    <tr style="color:var(--f-vault)"><td><b>단일 공격</b></td><td colspan="5"><b>하나도 켜지 않습니다</b> &mdash;
       남는 턴은 <b>평타로 버티며 MP 를 모으는</b> 편이 낫습니다(아래)</td></tr>
     <tr class="hi"><td><b>부적</b></td><td colspan="5"><b>현맥의 부적 + 암숨의 법복</b> &mdash;
-      <b>MP 13/턴</b>. 이 한 칸이 «전체 마법 셋업» 의 성립 여부를 정합니다(아래)</td></tr>
+      <b>MP 13/턴</b>. 이 두 칸이 «전체 마법 셋업» 의 성립 여부를 정합니다(아래)</td></tr>
     <tr><td colspan="6" style="color:var(--muted)"><b>나머지는 전부 «사용» 을 끕니다.</b>
       MP 폴백으로 남겨 둘 필요도 없습니다 &mdash; MP 가 모자라면 그 마법이 <b>목록에서 저절로 빠집니다</b>
       (<code>BattleSkill.CanUse</code>).</td></tr>
   </tbody></table>
 
-  <h3>★ 블리자드냐 프로스트 템페스트냐 &mdash; 경험치가 정합니다</h3>
+  <h3>★ 블리자드냐 뇌우냐 &mdash; 정리율이 정합니다</h3>
   <div class="note warn"><b>먼저 바로잡을 것: &sect;6 의 추천 빌드로는 블리자드를 «못 배웁니다».</b>
      블리자드는 <b>마궁사 10</b> 인데 &sect;6 의 사다리에 마궁사는 <b>4 까지만</b> 있습니다.
-     경험치 벽이 아니라 <b>정리율</b>로 밀려납니다 &mdash; 같은 지능에서 블리자드가 그 라운드에 치우는 칼레바스 종은 31/58,
-     프로스트 템페스트·뇌우는 51~54/58 입니다. 예전에 이 두 절이 어긋나 있었습니다.</div>
+     경험치 벽이 아니라 <b>정리율</b>로 밀려납니다 &mdash; 지능 61 에서 블리자드가 그 라운드에 치우는 칼레바스 종은 25/58,
+     뇌우는 54/58 입니다. 예전에 이 두 절이 어긋나 있었습니다.</div>
   <div class="note warn"><b>★ 기준은 «턴당 얼마나 깎나» 가 아니라 «그 라운드에 치우나» 입니다.</b>
      법사를 둘 데려가면 전체 마법이 <b>한 라운드에 두 번</b> 들어갑니다.
      그걸로 <b>안 죽으면 적은 그대로 한 대 더 때리고</b>, 쓴 MP 는 돌아오지 않습니다.
@@ -828,50 +849,60 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <th class="num">열린 지역 287종</th><th class="num">칼레바스 고원 58종</th>
     <th class="num">MP <span class="sm">한 명당</span></th></tr></thead><tbody>
     <tr style="color:var(--f-vault)"><td><b>블리자드</b> <span class="sm">Lv20</span></td>
-      <td class="num">88.2% <span class="sm">34종 남음</span></td>
-      <td class="num"><b>53.4%</b> <span class="sm">27종 남음</span></td><td class="num">23</td></tr>
-    <tr class="hi"><td><b>프로스트 템페스트</b> <span class="sm">Lv33</span></td>
-      <td class="num"><b>96.9%</b> <span class="sm">9종</span></td>
-      <td class="num"><b>89.7%</b> <span class="sm">6종</span></td><td class="num">36</td></tr>
+      <td class="num">83.3% <span class="sm">48종 남음</span></td>
+      <td class="num"><b>43.1%</b> <span class="sm">33종 남음</span></td><td class="num">23</td></tr>
+    <tr><td><b>프로스트 템페스트</b> <span class="sm">Lv33</span></td>
+      <td class="num">89.2% <span class="sm">31종</span></td>
+      <td class="num">67.2% <span class="sm">19종</span></td><td class="num">36</td></tr>
     <tr class="hi"><td><b>뇌우</b> <span class="sm">Lv35</span></td>
-      <td class="num"><b>96.9%</b> <span class="sm">9종</span></td>
-      <td class="num"><b>89.7%</b> <span class="sm">6종</span></td><td class="num">38</td></tr>
+      <td class="num"><b>96.5%</b> <span class="sm">10종</span></td>
+      <td class="num"><b>93.1%</b> <span class="sm">4종</span></td><td class="num">38</td></tr>
+    <tr style="color:var(--f-vault)"><td><b>프로스트 템페스트 + 뇌우</b> <span class="sm">둘 다 켬 &mdash; 동점이면 프로스트 템페스트</span></td>
+      <td class="num">95.5% <span class="sm">13종</span></td>
+      <td class="num">87.9% <span class="sm">7종</span></td><td class="num">36 · 38</td></tr>
+    <tr><td colspan="4" style="color:var(--muted)">지능 61 · 둘이 한 번씩 · 종마다 P(그 라운드에 죽음) &ge; 90% 인 종을 «치움» 으로 셈 ·
+      냉기 무효 13종(칼레바스 탐색지 58종 중 &mdash; 아래 무효 표의 21종은 퀘스트까지 친 120종 기준)에게 블리자드 · 프로스트 템페스트는 <b>0</b> 입니다 ·
+      «프로스트 템페스트 + 뇌우» 줄은 적을 <b>알아봤을 때</b> 값입니다 &mdash; 점수는 알아본 적만 세므로 모르는 적뿐이면 늘 프로스트 템페스트가 나가 프로스트 템페스트 줄(89.2% · 67.2%)과 같아집니다</td></tr>
   </tbody></table>
   <div class="note warn"><b>칼레바스에서 블리자드 두 방은 적의 절반이 살아남습니다.</b>
-     58종 중 <b>27종</b>이 남습니다 &mdash; «한 마리쯤 앞줄이 치운다» 로 넘길 수가 없습니다.
-     프로스트 템페스트·뇌우는 <b>6종</b>만 남습니다. <b>발두나 아래로는 블리자드도 88~100% 를 치웁니다</b> &mdash;
+     58종 중 <b>33종</b>이 남습니다(그중 13종은 냉기 무효라 0) &mdash; «한 마리쯤 앞줄이 치운다» 로 넘길 수가 없습니다.
+     뇌우는 <b>4종</b>만 남습니다. <b>발두나 아래로는 블리자드도 85~100% 를 치웁니다</b> &mdash;
      <b>갈리는 곳은 칼레바스입니다.</b></div>
   <div class="note"><b>MP «효율» 만 보면 블리자드가 여전히 쌉니다</b> &mdash;
      칼레바스에서 한 마리를 눕히는 데 법사 둘이 쓰는 MP 가
-     블리자드 <b>61</b> · 프로스트 템페스트 76 · 뇌우 79 입니다(평균 1.33 / 1.05 / 1.03 라운드).
+     블리자드 <b>61</b> · 프로스트 템페스트 76 · 뇌우 78 입니다(평균 1.33 / 1.05 / 1.02 라운드
+     <span class="sm">&mdash; 블리자드 · 프로스트 템페스트는 냉기 무효 13종을, 뇌우는 번개 무효 1종을 빼고 센 값입니다. 그 종들은 영영 못 눕힙니다.
+     몬스터의 턴 끝 자동 회복은 넣지 않았습니다 &mdash; 넣으면 클레이 재칼(턴당 100) 하나 때문에 블리자드가 약 1.5 라운드 · 69 로 오릅니다</span>).
      <b>그런데 그 «0.33 라운드» 는 적이 파티를 한 번 더 때리는 라운드입니다</b> &mdash;
      MP 로는 안 잡히는 비용입니다. 앞줄이 받아 내는 양과 회복 약값으로 나갑니다.
      <span class="sm">법사는 자기 차례에 따로 고르므로(<code>Battle.Action</code>),
      앞 법사가 다 쓸면 뒤 법사는 그 자리에서 다른 것을 고릅니다 &mdash; 위 MP 는 가장 나쁜 쪽으로 센 값입니다.</span></div>
-  <div class="note"><b>프로스트 템페스트와 뇌우는 정리율이 똑같습니다</b>(90% / 97%).
-     그래서 <b>둘을 같이 켭니다</b> &mdash; 블리자드가 못 잡는 34종 중 <b>25종</b>을 둘 다 더 잡고,
-     끝까지 남는 9종도 같습니다. 남는 것은 <b>속성 차이</b>뿐이라
-     냉기가 막히는 자리를 뇌우가 메웁니다(아래).</div>
+  <div class="note"><b>뇌우 하나만 켭니다.</b>
+     뇌우는 프로스트 템페스트보다 기본 굴림이 2 높고(34~35 대 32~33) 폭발 가산도 1 높으며(17 대 16), 번개 무효는 열린 지역 4종 · 칼레바스 1종뿐입니다.
+     둘을 같이 켜면 점수가 같을 때마다 레벨 낮은 프로스트 템페스트가 나가서 <b>지능 2 남짓을 버린 것</b>과 같아집니다
+     (적을 다 알아봤을 때 칼레바스 51/58 &larr; 뇌우만 54/58). 점수는 <b>알아본 적만</b> 세므로, 모르는 적뿐인 판에서는 매번 프로스트 템페스트가 나가
+     냉기 무효에게 0 을 넣습니다(칼레바스 39/58). MP 는 38 대 36 이지만 최대 MP 115 · 13/턴이면 퀘스트당 둘 다 8발입니다.
+     <span class="sm">원리 &sect;7 의 «가장 높은 급만 켜고 아래는 전부 끈다» 와 같은 이야기입니다.</span></div>
   <div class="note"><span class="sm">※ 도감 기준 레벨로 쟀습니다. 탐색지의 <code>addLevel</code> 로 레벨이 오르면
      HP 도 올라 실제 정리율은 이보다 낮습니다 &mdash; <b>큰 마법 쪽이 더 유리해지는 방향</b>입니다.</span></div>
-  <table class="t"><thead><tr><th>전체 마법</th><th class="num">MP</th><th class="num">한 방<br><span style="font-weight:400">지능 59</span></th>
+  <table class="t"><thead><tr><th>전체 마법</th><th class="num">MP</th><th class="num">한 방<br><span style="font-weight:400">지능 61</span></th>
     <th class="num">쏘는 턴<br><span style="font-weight:400">회복 13/턴</span></th><th class="num">턴당</th><th>배우는 곳</th></tr></thead><tbody>
-    <tr><td><b>블리자드</b> <span class="sm">Lv20 · 냉기</span></td><td class="num">23</td><td class="num">78~80</td>
-      <td class="num"><b>57%</b></td><td class="num"><b>49.1</b></td><td><b>마궁사 10</b> <span class="sm">← 더 사야 함</span></td></tr>
-    <tr class="hi"><td><b>프로스트 템페스트</b> <span class="sm">Lv33 · 냉기</span></td><td class="num">36</td><td class="num">91~93</td>
-      <td class="num">36%</td><td class="num">36.6</td><td>마도병 10 <span class="sm">← 이미 있음</span></td></tr>
-    <tr class="hi"><td><b>뇌우</b> <span class="sm">Lv35 · 번개</span></td><td class="num">38</td><td class="num">93~95</td>
-      <td class="num">34%</td><td class="num">35.4</td><td>마도병 10 <span class="sm">← 이미 있음</span></td></tr>
+    <tr><td><b>블리자드</b> <span class="sm">Lv20 · 냉기</span></td><td class="num">23</td><td class="num">80~81</td>
+      <td class="num"><b>57%</b></td><td class="num"><b>46.6</b></td><td><b>마궁사 10</b> <span class="sm">← 더 사야 함</span></td></tr>
+    <tr><td><b>프로스트 템페스트</b> <span class="sm">Lv33 · 냉기</span></td><td class="num">36</td><td class="num">93~94</td>
+      <td class="num">36%</td><td class="num">34.9</td><td>마도병 10 <span class="sm">← 이미 있음</span></td></tr>
+    <tr class="hi"><td><b>뇌우</b> <span class="sm">Lv35 · 번개</span></td><td class="num">38</td><td class="num">95~96</td>
+      <td class="num">34%</td><td class="num">33.8</td><td>마도병 10 <span class="sm">← 이미 있음</span></td></tr>
   </tbody></table>
   <div class="note"><b>그래서 결론이 이렇습니다.</b>
      <ul>
-       <li class="hi"><b>법사 둘이면 &rarr; 프로스트 템페스트 + 뇌우.</b>
-           칼레바스 정리율이 <b>53% &rarr; 90%</b> 로 올라갑니다.
-           그리고 둘 다 <b>마도병 10</b> 하나에서 오므로
+       <li class="hi"><b>법사 둘이면 &rarr; 뇌우.</b>
+           칼레바스 정리율이 <b>43% &rarr; 93%</b> 로 올라갑니다.
+           그리고 <b>마도병 10</b> 에서 오므로
            <b>경험치가 한 푼도 더 들지 않습니다</b> &mdash; &sect;6 의 정지선과도 맞습니다
            (블리자드는 마궁사 10 이 따로 듭니다).</li>
        <li><b>법사가 하나뿐이거나 칼레바스 아래만 돈다면 &rarr; 블리자드도 괜찮습니다.</b>
-           발두나 아래로는 둘이 쏘면 88~100% 가 정리되고,
+           발두나 아래로는 둘이 쏘면 85~100% 가 정리되고,
            MP 당 효율은 블리자드가 가장 좋습니다. 다만 &sect;6 의 사다리(마궁사 4) 밖이라
            <b>마궁사 6 레벨을 더 사야</b> 합니다.</li>
      </ul></div>
@@ -892,63 +923,50 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <th class="num">쏘는 턴<br><span style="font-weight:400">회복 13/턴</span></th>
     <th class="num">턴당 기대 피해</th></tr></thead><tbody>
     <tr class="hi"><td><b>블리자드</b> <span class="sm">Lv20 · 냉기 · 마법</span></td><td class="num">23</td>
-      <td class="num"><b>66</b> / 51.2</td><td class="num">21종 <span class="sm">(18%)</span></td><td class="num"><b>57%</b></td><td class="num"><b>28.9</b></td></tr>
+      <td class="num"><b>78</b> / 61.4</td><td class="num">21종 <span class="sm">(18%)</span></td><td class="num"><b>57%</b></td><td class="num"><b>34.7</b></td></tr>
     <tr class="hi"><td><b>뇌우</b> <span class="sm">Lv35 · 번개 · 마법</span></td><td class="num">38</td>
-      <td class="num"><b>85</b> / 76.2</td><td class="num"><b>1종</b> <span class="sm">(1%)</span></td><td class="num">34%</td><td class="num">26.1</td></tr>
+      <td class="num"><b>99</b> / 89.9</td><td class="num"><b>1종</b> <span class="sm">(1%)</span></td><td class="num">34%</td><td class="num">30.8</td></tr>
     <tr style="color:var(--f-vault)"><td><b>그래블 버스트</b> <span class="sm">Lv20 · 대지 · <b>물리</b></span></td><td class="num">22</td>
-      <td class="num"><b>51</b> / 44.8</td><td class="num">25종 <span class="sm">(21%)</span></td><td class="num">59%</td><td class="num"><b>26.5</b></td></tr>
-    <tr><td colspan="6" style="color:var(--muted)">참고 &mdash; 프로스트 템페스트(Lv33 · 냉기 · MP 36) 턴당 22.4 ·
-      라이프 하베스트(Lv32 · 대지 · <b>마법</b> · MP 45) 턴당 19.5. 둘 다 블리자드보다 아래입니다.</td></tr>
+      <td class="num"><b>64</b> / 51.4</td><td class="num">33종 <span class="sm">(28%)</span></td><td class="num">59%</td><td class="num"><b>30.3</b></td></tr>
+    <tr><td colspan="6" style="color:var(--muted)">참고 &mdash; 프로스트 템페스트(Lv33 · 냉기 · MP 36) 턴당 26.4 ·
+      라이프 하베스트(Lv32 · 대지 · <b>마법</b> · MP 45) 턴당 21.3. 둘 다 블리자드보다 아래입니다.</td></tr>
   </tbody></table>
-  <div class="note warn"><b>그래블 버스트는 턴당으로는 블리자드와 거의 비슷합니다</b>(26.5 대 28.9) &mdash;
-     칼레바스 물리 방어 중앙값 53 을 전액 맞고도 한 방 중앙이 <b>51</b> 입니다
-     (같은 자리에서 블리자드는 <b>66</b>). <b>그런데도 켜면 손해입니다</b> &mdash;
+  <div class="note warn"><b>그래블 버스트는 턴당으로는 블리자드와 거의 비슷합니다</b>(30.3 대 34.7) &mdash;
+     칼레바스 물리 방어 중앙값 53 을 전액 맞고도 한 방 중앙이 <b>64</b> 입니다
+     (같은 자리에서 블리자드는 <b>78</b>). <b>그런데도 켜면 손해입니다</b> &mdash;
      이유는 피해 크기가 아니라 아래 둘입니다. 마법 방어 쪽은 <b>120종 중 63종이 0</b> 이라 거의 안 깎이는데,
-     물리 방어는 <b>아무도 0 이 아닙니다</b>. 게다가 물리 무효 17종에게는 <b>피해가 0</b> 입니다.</div>
+     물리 방어는 <b>아무도 0 이 아닙니다</b>. 게다가 물리 무효 17종과 <b>나는 적 8종</b>(대지 무효 &mdash; 마스터 목록에는 없습니다)에게는 <b>피해가 0</b> 입니다.</div>
   <div class="note warn"><b>★ 그래서 그래블 버스트는 «켜 두면 손해» 입니다.</b>
      블리자드와 <b>같은 Lv20</b> 이라 정렬에서 동급이고, 점수(<code>약점&times;2 &minus; 무효</code>)가
      같으면 <b>어느 쪽이 나갈지 정해져 있지 않습니다</b>(<code>List.Sort</code> 가 안정 정렬이 아닙니다).
      대지 약점인 적은 칼레바스에 <b>0종</b>, 열린 지역 전체에도 <b>1종</b> 뿐이라 거의 늘 동점이고,
-     그 절반의 턴에 <b>66 대신 51 을 넣습니다</b>.
+     그 절반의 턴에 <b>78 대신 64 를 넣습니다</b>.
      점수 계산은 <b>물리 무효를 아예 안 봅니다</b> &mdash; 스스로 피할 방법도 없습니다.</div>
   <div class="note"><b>«한 방은 뇌우가 세지만 턴당은 블리자드» 는 그대로입니다.</b>
      뇌우는 MP 38 이라 세 턴에 한 번인데 블리자드는 두 턴에 한 번 이상 나갑니다.
-     그래서 <b>블리자드가 상시, 뇌우가 보험</b> 입니다 &mdash;
+     법사가 하나라면 <b>블리자드가 상시, 뇌우가 보험</b> 입니다 &mdash;
      냉기 무효가 칼레바스에만 <b>21종(18%)</b> 인데 번개 무효는 <b>1종</b> 이라, 그 18% 를 뇌우가 메웁니다.</div>
   <div class="note"><b>뇌우가 메우는 자리 &mdash; 냉기가 막히는 적.</b>
-     점수가 <code>약점&times;2 &minus; 무효</code> 라 냉기 무효인 적 앞에서는 블리자드 점수가 내려가고
+     점수가 <code>약점&times;2 &minus; 무효</code> 라 냉기 무효인 적을 <b>알아본 뒤에는</b> 블리자드 점수가 내려가고
      뇌우가 대신 나갑니다. 뇌우는 Lv35 라 정렬 맨 뒤여서 <b>동점이면 언제나 블리자드가 이깁니다</b> &mdash;
      평소에 MP 를 축내지 않으면서 그 구멍만 메웁니다.</div>
   <table class="t"><thead><tr><th>지역</th><th class="num">냉기 무효<br><span style="font-weight:400">블리자드가 0</span></th>
     <th class="num">번개 무효<br><span style="font-weight:400">뇌우가 0</span></th>
     <th class="num">둘 다 무효</th>
-    <th class="num">대지 무효 + 물리 무효<br><span style="font-weight:400">그래블이 0</span></th></tr></thead><tbody>
-    <tr><td>열린 지역 371종</td><td class="num">34 <span class="sm">(9%)</span></td><td class="num">4 <span class="sm">(1%)</span></td><td class="num">4</td><td class="num" style="color:var(--f-vault)"><b>56</b> <span class="sm">(15%)</span></td></tr>
-    <tr class="hi"><td><b>칼레바스 고원</b> 120종</td><td class="num"><b>21</b> <span class="sm">(18%)</span></td><td class="num"><b>1</b></td><td class="num">1</td><td class="num" style="color:var(--f-vault)"><b>25</b> <span class="sm">(21%)</span></td></tr>
-    <tr><td>발두나의 황야 114종</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num" style="color:var(--f-vault)">22</td></tr>
+    <th class="num">대지 무효(나는 적 포함) + 물리 무효<br><span style="font-weight:400">그래블이 0</span></th></tr></thead><tbody>
+    <tr><td>열린 지역 371종</td><td class="num">34 <span class="sm">(9%)</span></td><td class="num">4 <span class="sm">(1%)</span></td><td class="num">4</td><td class="num" style="color:var(--f-vault)"><b>86</b> <span class="sm">(23%)</span></td></tr>
+    <tr class="hi"><td><b>칼레바스 고원</b> 120종</td><td class="num"><b>21</b> <span class="sm">(18%)</span></td><td class="num"><b>1</b></td><td class="num">1</td><td class="num" style="color:var(--f-vault)"><b>33</b> <span class="sm">(28%)</span></td></tr>
+    <tr><td>발두나의 황야 114종</td><td class="num">2</td><td class="num">0</td><td class="num">0</td><td class="num" style="color:var(--f-vault)">32</td></tr>
   </tbody></table>
   <div class="note"><b>칼레바스에서 냉기 무효가 21종(18%)까지 올라갑니다</b> &mdash;
-     뇌우를 켜 두는 값이 여기서 나옵니다. 발두나까지는 2종이라 사실상 필요 없었습니다.</div>
+     블리자드를 상시로 쓰는 법사 하나(마궁사 10)라면 뇌우를 보험으로 같이 켜 두는 값이 여기서 나옵니다. 발두나까지는 2종이라 그때는 보험이 사실상 필요 없습니다. <span class="sm">법사 둘이면 지역과 상관없이 뇌우 하나입니다(위).</span></div>
 
-  <h4>실제 몬스터로 4000판 돌려 본 값</h4>
-  <p>퀘스트 한 판을 <b>전투 4회 &times; 4턴</b>으로 잡고, 그룹 크기는 <b>전수 분포</b>에서 뽑고,
-     적은 그 지역 몬스터에서 <b>실제 약점·무효를 그대로</b> 써서 돌린 평균입니다
-     (시작 MP 80 · 회복 13/턴 · 마력 51 · 평타 74.5 명중 50%).</p>
-  <table class="t"><thead><tr><th>켜는 것</th><th class="num">칼레바스<br>일반 / 보스</th>
-    <th class="num">발두나<br>일반 / 보스</th><th class="num">열린 지역<br>일반 / 보스</th></tr></thead><tbody>
-    <tr class="hi"><td><b>블리자드 + 뇌우</b> <span class="sm">&larr; 추천</span></td><td class="num">1486 / <b>1854</b></td><td class="num"><b>1766</b> / <b>2246</b></td><td class="num"><b>1797</b> / <b>2259</b></td></tr>
-    <tr><td>블리자드 + 뇌우 + 단일 둘</td><td class="num"><b>1561</b> / 1796</td><td class="num">1722 / 2023</td><td class="num">1717 / 1994</td></tr>
-    <tr><td>블리자드만</td><td class="num">1402 / 1772</td><td class="num">1743 / 2224</td><td class="num">1740 / 2212</td></tr>
-    <tr><td>뇌우만</td><td class="num">1442 / 1827</td><td class="num">1589 / 2001</td><td class="num">1710 / 2178</td></tr>
-    <tr style="color:var(--f-vault)"><td>블리자드 + <b>그래블</b></td><td class="num">1038 / 1292</td><td class="num">1461 / 1892</td><td class="num">1588 / 1998</td></tr>
-    <tr style="color:var(--f-vault)"><td>셋 다 <span class="sm">(그래블 포함)</span></td><td class="num">1057 / 1318</td><td class="num">1473 / 1891</td><td class="num">1583 / 2016</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>그래블 버스트를 켜면 12~33% 를 잃습니다.</b>
-     칼레바스에서 특히 큽니다 &mdash; 물리 방어가 높은 지역이라 그래블이 거의 안 들어가는데,
-     동급이라 절반의 턴을 가져가기 때문입니다.</div>
-  <div class="note"><b>단일은 여전히 끕니다.</b> 여섯 칸 중 다섯에서 «블리자드 + 뇌우» 가 이깁니다.
-     칼레바스 <b>일반전</b> 한 칸에서만 단일을 켜는 쪽이 5% 앞서는데(1486 대 1561),
-     같은 조합이 <b>보스전에서는 3% 뒤집니다</b>. 스위치를 오갈 값어치가 없습니다.</div>
+  <h4>예전 «4000판» 표는 내렸습니다</h4>
+  <div class="note"><b>그 표는 넘친 피해까지 더한 «총 피해» 였습니다</b> &mdash; 위에서 버린 «턴당 깎는 양» 과 같은 잣대입니다.
+     적이 죽는 것, 무효가 아닌 적이 둘 미만이면 전체 마법이 빠지는 것(<code>BattleSkill.CanUse</code>),
+     알아본 적만 점수에 드는 것도 넣지 않았습니다. 그래블 버스트는 «그 라운드에 치우나» 로 재면 여전히 손해입니다
+     (칼레바스 58종 · 지능 61 · 블리자드만 25 &rarr; 그래블을 같이 켜면 21 이하).
+     <span class="sm">단일 마법을 켤지는 위 규칙을 넣어 다시 재기 전까지 아래 «단일을 켜면 오히려 손해» 를 따릅니다.</span></div>
 
   <h3>MP 회복 장비 &mdash; 이 셋업의 전제입니다</h3>
   <div class="eq"><b>AdventureResultDialog.Finish(quest)</b> &rarr; HealMp( <b>MaxMp</b> )   <span class="cmt">// 퀘스트가 끝날 때만 «전부» 채운다</span>
@@ -959,12 +977,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      퀘스트 <b>1425개 전수</b>로 세면 전투 이벤트가 <b>중앙 4회 · 평균 4.22회 · 최대 12회</b> &mdash;
      한 전투를 4턴으로 잡으면 <b>퀘스트 한 판이 대략 16턴</b>입니다.</div>
   <table class="t"><thead><tr><th>부적 + 의복</th><th class="num">MP/턴</th>
-    <th class="num">퀘스트 한 판에 쏘는 전체 마법</th><th class="num">16턴 중</th><th class="num">장비 마방</th></tr></thead><tbody>
+    <th class="num">퀘스트 한 판에 쏘는 전체 마법<br><span style="font-weight:400">MP 36~38 · 최대 115</span></th><th class="num">16턴 중</th><th class="num">장비 마방</th></tr></thead><tbody>
     <tr><td>늪왕의 부적 + 왕단의 옷 <span class="sm">(방어 중심)</span></td><td class="num">0</td>
       <td class="num"><b>3발이 끝</b></td><td class="num">19%</td><td class="num">39</td></tr>
-    <tr><td>늪왕의 부적 + 암숨의 법복</td><td class="num">6</td><td class="num">7발</td><td class="num">44%</td><td class="num">48</td></tr>
+    <tr><td>늪왕의 부적 + 암숨의 법복</td><td class="num">6</td><td class="num">5발</td><td class="num">31%</td><td class="num">48</td></tr>
     <tr class="hi"><td><b>현맥의 부적 + 암숨의 법복</b></td><td class="num"><b>13</b></td>
-      <td class="num"><b>11발</b></td><td class="num"><b>69%</b></td><td class="num"><b>43</b></td></tr>
+      <td class="num"><b>8발</b></td><td class="num"><b>50%</b></td><td class="num"><b>43</b></td></tr>
   </tbody></table>
   <div class="note"><b>실제로 잃는 것은 «물리 방어 10» 뿐입니다.</b>
      마법 직업은 방어구가 <b>부적 · 의복 두 칸</b>뿐이라 MP 회복의 천장이 그 둘의 합인데,
@@ -977,16 +995,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      7.0 에서 마법 직업이 낄 수 있는 MP 회복 장비는 <b>하나도 안 늘었습니다</b> &mdash; 천장은 13/턴 그대로입니다.</p>
 
   <h3>단일을 켜면 오히려 손해입니다</h3>
-  <p>단일 갈래는 <b>전체가 하나도 못 나가는 턴에만</b> 돕니다. 전체가 빠지는 이유는 MP 하나뿐이라
-     구간이 <b>딱 여기</b>입니다.</p>
-  <div class="eq">MP &ge; 23   &rarr; <b>블리자드</b>      전원에게 <b>70~72</b>   <span class="cmt">// 마법 방어만 뺀다 — 371종 중 266종이 0</span>
-MP 10~22  &rarr; <b>다크페인</b>     한 명에게 <b>82~85</b>
+  <p>단일 갈래는 <b>전체가 하나도 못 나가는 턴에만</b> 돕니다. 전체가 빠지는 이유는 둘입니다 &mdash;
+     <b>MP 가 모자랄 때</b>, 그리고 <b>무효가 아닌 적이 둘이 안 될 때</b>(한 마리만 남았을 때 포함 &mdash; 무효는 알아본 적만 따지고 모르는 적은 셉니다 · <code>BattleSkill.CanUse</code>). MP 쪽 구간은 이렇습니다.</p>
+  <div class="eq">MP &ge; 38   &rarr; <b>뇌우</b>          전원에게 <b>95~96</b>   <span class="cmt">// 마법 방어만 뺀다 — 371종 중 266종이 0</span>
+MP 10~37  &rarr; <b>다크페인</b>     한 명에게 <b>92~94</b>
 MP &lt; 10   &rarr; <b>평타</b></div>
-  <div class="eq">블리자드  23 쓰고 13 회복 &rarr; <b>순 &minus;10</b>
+  <div class="eq">뇌우      38 쓰고 13 회복 &rarr; <b>순 &minus;25</b>
 다크페인  10 쓰고 13 회복 &rarr; <b>순 +3</b>    <span class="cmt">// MP 를 거의 안 채운다</span>
 평타       0 쓰고 13 회복 &rarr; <b>순 +13</b></div>
-  <div class="note warn"><b>다크페인이 MP 를 10~22 에 묶어 둡니다.</b>
-     한 방만 보면 다크페인(82)이 평타(칼레바스 방어 중앙 53 앞에서 20 남짓)보다 네 배지만,
+  <div class="note warn"><b>다크페인이 MP 를 10~37 에 묶어 둡니다.</b>
+     한 방만 보면 다크페인(92)이 평타(정정의 지팡이 48~76 + 힘 흔들림 &minus; 칼레바스 방어 중앙 53 &rarr; 평균 10 안팎)보다 아홉 배쯤이지만,
      켜 두면 <b>전체 마법이 나가는 턴 자체가 줄어듭니다</b>.
      끄면 그 턴이 평타가 되고, <b>평타는 MP 를 13 씩 통째로 채워서</b> 다음 전체 마법을 앞당깁니다.</div>
   <div class="note"><b>그리고 실제로 나가는 것도 절반뿐입니다.</b>
@@ -1002,49 +1020,61 @@ MP &lt; 10   &rarr; <b>평타</b></div>
      <code>SelectActions</code> 는 정렬된 목록을 훑다가 <b>종류가 «회복» 인 것을 만나면 그 자리에서 끝냅니다</b>
      &mdash; 공격 마법을 고르는 데까지 가지도 않습니다.
      그리고 고르는 순서가 <b>사거리 &rarr; 레벨</b> 오름차순이라 <b>단일이 전체보다 «먼저»</b> 입니다 &mdash;
-     <b>단일 회복을 하나라도 켜 두면 전체 회복은 영영 안 나갑니다.</b></div>
+     <b>Heal 을 켜 두면 전체 회복은 영영 안 나갑니다.</b>
+     <span class="sm">Heal 의 «한 방에 채울 만큼만 다쳤으면 안 쓴다» 문턱(아래 ④)은 모두 치유와 같고 회복 마법 중 가장 낮아 틈이 없습니다. 높은 치유 · 그레이트 힐 · 바이탈라이즈는 이 문턱이 더 높아서, 문턱이 그보다 낮은 전체 회복이 그 틈에 드물게 끼어듭니다(높은 치유면 모두 치유 · 그레이트 힐이면 살바까지).</span></div>
   <table class="t"><thead><tr><th>회복</th><th class="num">사거리</th><th class="num">Lv</th>
-    <th class="num">회복값</th><th class="num">마력 51 이면</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
-    <tr style="color:var(--f-vault)"><td>Heal · 높은 치유 · 그레이트 힐 · 바이탈라이즈</td><td class="num">단일</td><td class="num">1~30</td>
-      <td class="num">2~47</td><td class="num">53~98</td><td class="num">5~24</td><td><b>전부 끕니다</b></td></tr>
-    <tr style="color:var(--f-vault)"><td>모두 치유</td><td class="num">전체</td><td class="num">8</td><td class="num">2~4</td><td class="num">53~55</td><td class="num">12</td><td>숙련된 성직자 7</td></tr>
-    <tr style="color:var(--f-vault)"><td>라이프 스피릿</td><td class="num">전체</td><td class="num">12</td><td class="num">6~11</td><td class="num">57~62</td><td class="num">16</td><td>정령사 1</td></tr>
-    <tr class="hi"><td><b>살바</b> <span class="sm">&larr; 이것만</span></td><td class="num"><b>전체</b></td><td class="num">25</td>
-      <td class="num">16~23</td><td class="num"><b>67~74</b></td><td class="num">24</td><td>순례 사제 <b>1</b></td></tr>
+    <th class="num">회복값</th><th class="num">마력 61 이면</th><th class="num">MP</th><th>배우는 곳</th></tr></thead><tbody>
+    <tr class="hi"><td><b>Heal</b> <span class="sm">&larr; 이것만</span></td><td class="num"><b>단일</b></td><td class="num">1</td>
+      <td class="num">2~4</td><td class="num"><b>63~65</b></td><td class="num"><b>5</b></td><td>견습 성직자 <b>1</b></td></tr>
+    <tr style="color:var(--f-vault)"><td>높은 치유 · 그레이트 힐 · 바이탈라이즈</td><td class="num">단일</td><td class="num">7~30</td>
+      <td class="num">6~47</td><td class="num">67~108</td><td class="num">11~24</td><td>끕니다</td></tr>
+    <tr style="color:var(--f-vault)"><td>모두 치유</td><td class="num">전체</td><td class="num">8</td><td class="num">2~4</td><td class="num">63~65</td><td class="num">12</td><td>숙련된 성직자 7</td></tr>
+    <tr style="color:var(--f-vault)"><td>라이프 스피릿</td><td class="num">전체</td><td class="num">12</td><td class="num">6~11</td><td class="num">67~72</td><td class="num">16</td><td>정령사 1</td></tr>
+    <tr style="color:var(--f-vault)"><td>살바</td><td class="num">전체</td><td class="num">25</td>
+      <td class="num">16~23</td><td class="num">77~84</td><td class="num">24</td><td>순례 사제 1</td></tr>
   </tbody></table>
-  <div class="note"><b>전체끼리도 레벨 낮은 쪽이 이깁니다.</b>
-     라이프 스피릿과 모두 치유를 켜 두면 <b>살바가 영영 안 나갑니다</b> &mdash; 반드시 끕니다.
-     순례 사제 <b>1 레벨</b>이면 배웁니다.</div>
+  <div class="note warn"><b>★ 전체 회복은 다친 사람이 «둘 이상» 일 때만 나갑니다.</b>
+     <code>BattleSkill.CanUse</code> 는 아래 문턱에 걸린 아군을 세는데, <b>단일 회복은 한 명이면 바로</b> 쓰고
+     <b>전체 회복은 센 수가 2 이상</b>이어야 씁니다. 저주 · 룬 실드가 걸린 아군은 세지 않습니다.
+     방어탱이 앞에서 혼자 맞는 파티라면 <b>전체 회복만 켠 법사는 탱커가 깎여도 공격만 합니다.</b></div>
+  <div class="note"><b>회복량은 지능이 거의 다 정합니다.</b>
+     회복 = Rand(최소회복, 최대회복) + 마력이라, 마력 61 이면 Lv1 Heal 도 <b>63~65</b> 입니다.
+     회복은 HP 가 문턱(기본 절반) 아래로 내려가야 나가므로, 문턱에 막 닿았을 때 잃은 HP 는 최대의 절반입니다 &mdash;
+     <b>최대 HP 126 까지는 63 이 한 번에 다 채웁니다.</b> 더 비싼 회복은 넘치는 몫에 MP 를 씁니다.
+     같은 사거리끼리는 레벨 낮은 쪽이 먼저라, Heal 을 켜 두면 위의 나머지는 어차피 안 나갑니다.</div>
+  <div class="note"><b>전체 공격하는 적이 많아 여럿이 같이 깎이는 곳이면</b> 모두 치유(Lv8 · MP 12)로 바꿉니다 &mdash;
+     <b>단일 회복을 전부 꺼야</b> 나갑니다. 살바는 어느 쪽이든 필요 없습니다.</div>
   <h4>언제 «다친 사람» 으로 세나 &mdash; 문턱이 넷입니다</h4>
   <div class="note"><b>«다친 사람» 으로 세는 문턱은 성격이 정합니다</b> &mdash;
      기본은 최대 HP 의 절반이고 신중한 7할 · 합리적/신경질적 6할입니다
      (<a href="notes.html#pers">원리 &sect;4</a>).</div>
-  <div class="note"><b>마력이 높을수록 ④ 문턱이 올라갑니다.</b>
+  <div class="note"><b>마력이 높을수록 ④ 문턱(«잃은 HP &gt; 마력 + 평균 회복값 &minus; 2» &mdash; <a href="notes.html#pers">원리 &sect;4</a> 식의 넷째 줄)이 올라갑니다.</b>
      «한 방에 채울 수 있는 만큼만 다쳤으면 굳이 지금 안 쓴다» 는 뜻이라,
      지능을 올릴수록 <b>얕은 상처로는 회복을 안 하고 공격 턴을 지킵니다</b>.</div>
   <div class="note"><b>기준은 성격이 정합니다.</b> 신중한 <b>70%</b> · 합리적/신경질적 60% · 나머지 50%.
      신중한 시전자는 <b>남들보다 20%p 일찍</b> 회복을 시작합니다 &mdash; 그만큼 공격 턴을 버립니다.</div>
 
   <h3>참고 &mdash; 전체 마법 정렬 순서</h3>
-  <p>위에서부터 뽑힙니다. <b>두 개 이상 켜면 위쪽(약한 쪽)이 이깁니다.</b></p>
+  <p>위에서부터 뽑힙니다. <b>점수가 같으면 위쪽이 이깁니다.</b> 공격 마법끼리는 위쪽이 레벨 낮은(약한) 쪽이고, MP 피해 · 상태이상은 레벨과 상관없이 공격 마법 아래입니다.</p>
   <table class="t"><thead><tr><th class="num">순서</th><th>마법</th><th class="num">Lv</th><th>속성</th>
     <th class="num">피해</th><th class="num">MP</th><th class="num">약점 / 무효<br><span style="font-weight:400">371종</span></th><th>배우는 곳</th></tr></thead><tbody>
-    <tr><td class="num">1~4</td><td>불의 폭발 · 서리 폭발 · 썬더 블래스트 · 아쿠아 블라스트</td><td class="num">5</td><td>화염·냉기·번개·물</td><td class="num">4~6</td><td class="num">8</td><td class="num">95/18 &middot; 28/34<br>8/4 &middot; 11/26</td><td>숙련된 마법사 3</td></tr>
-    <tr><td class="num">5</td><td>성스러운 폭발</td><td class="num">5</td><td>신성</td><td class="num">7~9</td><td class="num">8</td><td class="num">34 / 1</td><td>숙련된 성직자 3</td></tr>
-    <tr style="color:var(--f-vault)"><td class="num">6~7</td><td>어스퀘이크 <span class="sm">물리</span> · 베놈 클라우드</td><td class="num">10</td><td>대지 · 독</td><td class="num"><b>24~39</b> · 9~11</td><td class="num">10 · 13</td><td class="num">1 / 28 &middot; 0 / 25</td><td>마궁사 1</td></tr>
-    <tr><td class="num">8</td><td>바람의 정령</td><td class="num">12</td><td>바람</td><td class="num">11~13</td><td class="num">15</td><td class="num">12 / 7</td><td>정령사 1</td></tr>
-    <tr class="hi"><td class="num">9~10</td><td>그래블 버스트 <span class="sm" style="color:var(--f-vault)">물리 &mdash; 끕니다</span> · <b>블리자드</b> <span class="sm">&larr; 상시</span></td><td class="num">20</td><td>대지 · 냉기</td><td class="num"><b>44~69</b> · 19~21</td><td class="num">22 · 23</td><td class="num">1 / 28 &middot; 28 / 34</td><td>마궁사 10</td></tr>
-    <tr><td class="num">11</td><td>라이프 하베스트 <span class="sm">(HP 흡수)</span></td><td class="num">32</td><td>대지</td><td class="num">31~33</td><td class="num">45</td><td class="num">1 / 28</td><td>마도병 20</td></tr>
-    <tr><td class="num">12</td><td>프로스트 템페스트</td><td class="num">33</td><td>냉기</td><td class="num">32~34</td><td class="num">36</td><td class="num">28 / 34</td><td>마도병 10</td></tr>
-    <tr class="hi"><td class="num">13</td><td><b>뇌우</b> <span class="sm">&larr; 최고 급이지만 «보험»</span></td><td class="num">35</td><td>번개</td><td class="num"><b>34~36</b></td><td class="num">38</td><td class="num"><b>8 / 4</b></td><td>마도병 10</td></tr>
-    <tr style="color:var(--faint)"><td class="num">14</td><td>마나크러쉬 <span class="sm">(HP 가 아니라 MP 를 깎습니다)</span></td><td class="num">25</td><td>어둠</td><td class="num">24~26</td><td class="num">20</td><td class="num">5 / 13</td><td>암흑마법사 5</td></tr>
+    <tr><td class="num">1~4</td><td>불의 폭발 · 서리 폭발 · 썬더 블래스트 · 아쿠아 블라스트</td><td class="num">5</td><td>화염·냉기·번개·물</td><td class="num">4~5</td><td class="num">8</td><td class="num">95/18 &middot; 28/34<br>8/4 &middot; 11/26</td><td>숙련된 마법사 3</td></tr>
+    <tr><td class="num">5</td><td>성스러운 폭발</td><td class="num">5</td><td>신성</td><td class="num">7~8</td><td class="num">8</td><td class="num">58 / <b>313</b></td><td>숙련된 성직자 3</td></tr>
+    <tr style="color:var(--f-vault)"><td class="num">6~7</td><td>어스퀘이크 <span class="sm">물리</span> · 베놈 클라우드</td><td class="num">10</td><td>대지 · 독</td><td class="num"><b>24~38</b> · 9~10</td><td class="num">10 · 13</td><td class="num">1 / 58 &middot; 0 / 84</td><td>마궁사 1</td></tr>
+    <tr><td class="num">8</td><td>바람의 정령</td><td class="num">12</td><td>바람</td><td class="num">11~12</td><td class="num">15</td><td class="num">12 / 7</td><td>정령사 1</td></tr>
+    <tr class="hi"><td class="num">9~10</td><td>그래블 버스트 <span class="sm" style="color:var(--f-vault)">물리 &mdash; 끕니다</span> · <b>블리자드</b> <span class="sm">(&sect;6 사다리로는 못 배움)</span></td><td class="num">20</td><td>대지 · 냉기</td><td class="num"><b>44~68</b> · 19~20</td><td class="num">22 · 23</td><td class="num">1 / 58 &middot; 28 / 34</td><td>마궁사 10</td></tr>
+    <tr><td class="num">11</td><td>라이프 하베스트 <span class="sm">(HP 흡수)</span></td><td class="num">32</td><td>대지</td><td class="num">31~32</td><td class="num">45</td><td class="num">1 / 58</td><td>마도병 20</td></tr>
+    <tr><td class="num">12</td><td>프로스트 템페스트</td><td class="num">33</td><td>냉기</td><td class="num">32~33</td><td class="num">36</td><td class="num">28 / 34</td><td>마도병 10</td></tr>
+    <tr class="hi"><td class="num">13</td><td><b>뇌우</b> <span class="sm">&larr; 상시 (블리자드를 따로 산 법사 하나면 «보험»)</span></td><td class="num">35</td><td>번개</td><td class="num"><b>34~35</b></td><td class="num">38</td><td class="num"><b>8 / 4</b></td><td>마도병 10</td></tr>
+    <tr style="color:var(--faint)"><td class="num">14</td><td>마나크러쉬 <span class="sm">(HP 가 아니라 MP 를 깎습니다)</span></td><td class="num">25</td><td>어둠</td><td class="num">24~25</td><td class="num">20</td><td class="num">5 / 13</td><td>암흑마법사 5</td></tr>
+    <tr style="color:var(--faint)"><td class="num">15~16</td><td>다크니스 · 슬립 미스트 <span class="sm">(상태이상 &mdash; 점수가 늘 0)</span></td><td class="num">15</td><td>&mdash;</td><td class="num">&mdash;</td><td class="num">10 · 18</td><td class="num">&mdash;</td><td>암흑마법사 1 · 정령사 10</td></tr>
   </tbody></table>
-  <div class="note"><b>굵은 값은 «물리 마법» 입니다</b> &mdash; 어스퀘이크(24~39) · 그래블 버스트(44~69) 는
+  <div class="note"><b>굵은 값은 «물리 마법» 입니다</b> &mdash; 어스퀘이크(24~38) · 그래블 버스트(44~68) 는
      식이 통째로 다르고 <b>마법 방어가 아니라 물리 방어를 전액 맞습니다</b>(위).
      한 칸에 묶여 있어 수치가 섞여 보이던 자리입니다.</div>
   <div class="note warn"><b>마나크러쉬는 반드시 끕니다.</b> 종류가 «MP 피해» 라 정렬은 맨 뒤지만
-     <b>같은 «전체» 목록에서 점수로 경쟁합니다</b> &mdash; 적 중 하나라도 어둠에 약하면
-     점수 2 로 블리자드(0)를 이기고, 그 턴은 <b>HP 대신 MP 를 깎습니다</b>.</div>
+     <b>같은 «전체» 목록에서 점수로 경쟁합니다</b> &mdash; <b>알아본</b> 적 중 하나라도 어둠에 약하면
+     점수 2 로 뇌우(0)를 이기고, 그 턴은 <b>HP 대신 MP 를 깎습니다</b>.</div>
   <div class="note"><b>같은 레벨끼리는 순서가 정해져 있지 않습니다</b> &mdash;
      <code>List.Sort</code> 가 안정 정렬이 아니라 Lv20 둘은 어느 쪽이 먼저 올지 모릅니다.
      <b>스킬 값이 같으면 상관없지만, 그래블 버스트는 «물리» 라 결과가 전혀 다릅니다</b> &mdash;
@@ -1054,7 +1084,7 @@ MP &lt; 10   &rarr; <b>평타</b></div>
   <p>일반전에서 빠지는 쪽이 「보스에서만」 이고, 보스전에서는 켠 것이 전부 후보가 됩니다
      (「보스에서만」 도 <b>「사용」 이 같이 켜져 있어야</b> 합니다).
      동점이면 <b>레벨 낮은 쪽</b>이 이기므로, 상시 마법보다 <b>레벨이 낮은</b> 것을 걸어야 실제로 바뀌는데
-     &mdash; 상시가 <b>Lv20 둘</b>이라 그보다 낮은 것은 전부 더 약합니다.</p>
+     &mdash; 상시가 <b>Lv35</b> 라 그보다 낮은 것은 전부 더 약합니다.</p>
   <table class="t"><thead><tr><th>몬스터 그룹</th><th class="num">그룹 수</th><th class="num">중앙</th><th class="num">평균</th>
     <th class="num">1마리</th><th class="num">3마리 이상</th></tr></thead><tbody>
     <tr class="hi"><td><b>보스</b> <span class="sm">(전용 음악이 붙는 그룹)</span></td><td class="num">&mdash;</td><td class="num"><b>3</b></td><td class="num"><b>2.84</b></td><td class="num">21%</td><td class="num"><b>61%</b></td></tr>
@@ -1081,26 +1111,27 @@ MP &lt; 10   &rarr; <b>평타</b></div>
     <tr class="hi"><td><b class="mag">유령의 검</b></td><td class="num">31</td><td class="num">62~98</td><td>근접 / 단일</td><td>마법 &mdash; 방어탱의 물리 무효 대책</td></tr>
     <tr class="hi"><td><b class="mag">용맥의 단검</b></td><td class="num">26</td><td class="num">45~72</td><td>근접 / <b>전체</b></td><td>마검사가 들면 마법. 전체 공격 단검은 이것과 룬 스프레드 대거 둘뿐</td></tr>
     <tr><td>송곳니왕의 전역 지팡이</td><td class="num">29</td><td class="num">55~90</td><td><b>모든 적 / 전체</b></td><td>비마법 · <b>요구 힘 2</b></td></tr>
-    <tr><td>회염의 대검</td><td class="num">32</td><td class="num">63~98</td><td>근접 / <b>전체</b></td><td>근접에서 가장 많이 때립니다</td></tr>
+    <tr class="hi"><td><b class="mag">회염의 대검</b></td><td class="num">32</td><td class="num">63~98</td><td>근접 / <b>전체</b></td><td><b>마법</b> &mdash; 근접에서 가장 많이 때립니다</td></tr>
     <tr><td>모래 쪼개는 도끼</td><td class="num">35</td><td class="num">69~112</td><td>근접 / <b>전체</b></td><td>지금 열린 것 중 전체 공격 최고 화력</td></tr>
-    <tr style="color:var(--muted)"><td>흑강검 · 흑강 활 · 흑강 창</td><td class="num">32</td><td class="num">62~101</td><td>단일</td><td>비마법 &mdash; 요구 32 구간에서는 마법 최고보다 셉니다</td></tr>
+    <tr style="color:var(--muted)"><td>흑강검 · 흑강 활 · 흑강 창</td><td class="num">32</td><td class="num">62~101<br><span class="sm">검 64~101 · 활 62~100 · 창 63~100</span></td><td>단일</td><td>비마법 &mdash; 요구 32 구간에서는 마법 최고보다 셉니다</td></tr>
   </tbody></table>
   <table class="t"><thead><tr><th>방어구</th><th class="num">요구 Lv</th><th>무엇 때문에</th></tr></thead><tbody>
-    <tr><td>단향의 갑옷 <span class="sm">몸</span></td><td class="num">31</td><td>방어 62~65 &mdash; 방어탱 기본</td></tr>
-    <tr><td>피철 갑옷 <span class="sm">몸</span></td><td class="num">35</td><td>방어 70~73 &mdash; 훈련소 35 에서 열립니다</td></tr>
-    <tr><td>리젠플레이트 <span class="sm">몸</span></td><td class="num">28</td><td>HP +9/턴</td></tr>
+    <tr><td>진악의 갑옷 · 투구 · 방패</td><td class="num">34</td><td>방어 68~71 · 8~35 · 9~36 &mdash; 방어탱 기본. <b>상점에서 삽니다</b> (갑옷·투구는 자르간트, 방패는 노르그레이)</td></tr>
+    <tr><td>갈증의 갑옷 · 피철 투구 · 영묘의 방패</td><td class="num">35</td><td>방어 70~73 · 8~36 · 9~37 &mdash; 갈증 마방 12 · 영묘 마방 17. <b>금고에서만</b></td></tr>
+    <tr><td>눈보라 갑옷 <span class="sm">몸</span></td><td class="num">32</td><td>방어 64~67 · <b>HP +15/턴</b> &mdash; 회복판</td></tr>
     <tr class="hi"><td><b>통풍이 잘되는 옷</b> <span class="sm">몸</span></td><td class="num">13</td><td><b>회피 +6</b> &mdash; 회피 장비 최고이고 요구가 아주 낮습니다</td></tr>
     <tr class="hi"><td><b>세라믹스틸 오멘워드</b> <span class="sm">부적</span></td><td class="num">27</td><td><b>회피 +5</b> · 마방 37 · 요구 힘 1</td></tr>
     <tr><td>흑강 부적</td><td class="num">32</td><td>마법 방어 32 &mdash; 비마법 · <b>요구 32 구간</b>에서 가장 높습니다 <span class="sm">(비마법 미잠금 최고는 피의 철 부적 35 · 진악 34 · 강철 33)</span></td></tr>
-    <tr><td>늪왕의 부적</td><td class="num">29</td><td>마방 39 · HP +8/턴 · 요구 힘 1 &mdash; 지금 닿는 범위의 실용 최고</td></tr>
-    <tr style="color:var(--muted)"><td>고목의 부적</td><td class="num">34</td><td>마법 방어 <b>46</b> &mdash; 부적 천장. 훈련소 35 에서 열립니다</td></tr>
+    <tr><td>늪왕의 부적</td><td class="num">29</td><td>마방 39 · HP +8/턴 · 요구 힘 1 &mdash; 탱커 부적 (마방만 보면 고목이 높습니다)</td></tr>
+    <tr style="color:var(--muted)"><td>고목의 부적</td><td class="num">34</td><td>마법 방어 <b>46</b> &mdash; 부적 천장. 회복은 HP 가 아니라 MP 입니다</td></tr>
     <tr><td>검은 봉인의 방패</td><td class="num">26</td><td>방어 7~28 · 마법 방어 11 &mdash; 회피탱이 «막기» 를 버리고 바꿔 끼우는 자리</td></tr>
     <tr><td>짐승의 눈의 투구</td><td class="num">29</td><td>방어 5~35 · <b>회피 +5</b></td></tr>
-    <tr><td>반조의 투구</td><td class="num">24</td><td>HP +10/턴 · 마방 9</td></tr>
+    <tr><td>거센 바람의 투구</td><td class="num">33</td><td>방어 8~34 · HP +10/턴 &mdash; 회복판</td></tr>
+    <tr><td>하나모리의 방패</td><td class="num">32</td><td>방어 9~34 · HP +6/턴 · 마방 11 &mdash; 회복판</td></tr>
   </tbody></table>
-  <div class="note"><b>요구 Lv 32~35 는 «훈련소를 35 까지» 올린 뒤에 열립니다</b>
-     (요구 레벨은 최고 직업 레벨과 견줍니다 &mdash; <a href="#why">&sect;0 ③</a>).
-     그 구간에서 바뀌는 것은 <b>갑옷 · 방패 · 부적</b> 셋이고, 각 빌드 카드의 «훈련소 35» 줄에 반영해 뒀습니다.</div>
+  <div class="note"><b>요구 Lv 32~35 는 훈련소 하나를 35 로 올려 모험가가 36 이 되면 열립니다</b>
+     (요구 레벨은 최고 직업 레벨과 견줍니다 &mdash; <a href="#why">&sect;0 ③</a>). 31&rarr;35 는 골드와 시간만 듭니다.
+     <b>상점은 Lv34(진악)까지</b> 팔고, Lv35 는 금고에서만 나옵니다.</div>
 
   <h2 id="party"><span class="n">9</span>파티 조합과 솔플</h2>
   <p>자리는 넷입니다 &mdash; <b>전열을 서는 탱커 하나</b>, <b>딜러 둘</b>, <b>마법사 하나</b>.

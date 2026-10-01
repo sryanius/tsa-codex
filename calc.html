@@ -557,7 +557,8 @@ function raceDetail(r){
     +'<div class="blk"><h4>이 숫자는 어떻게 나오나</h4>'
     +'<span class="meta">두 단계입니다(<code>Character.CreateParam</code>). '
     +'<b>① 흔들기</b> — 능력치마다 <code>CreateRandomValue</code> 로 기준값을 흔듭니다. '
-    +'기준 1~8은 ±0~2, 9~30은 ±(기준/3), 31~99는 ±(기준/10), 0 밑으로는 안 갑니다. '
+    +'흔들림 폭 n 은 기준 1~8 이 3, 9~30 이 ⌊기준×171/512⌋(≈기준/3), 31~99 가 ⌊기준×205/2048⌋(≈기준/10)이고 '
+    +'실제로 움직이는 양은 <b>±0~(n−1)</b> 입니다(기준 9 · 31 도 ±0~2). 0 밑으로는 안 갑니다. '
     +'<b>② 남는 포인트</b> — <code>pp = Σ⌊CreateRandomValue(기준ᵢ)/2⌋</code> (상한 = 기준합 '+r.sum+') 만큼 '
     +'공을 하나씩 던져 넣습니다. 던질 때마다 <code>Rand('+r.sum+')</code> 룰렛이라 '
     +'<b>기준값이 큰 능력치에 잘 붙고, 기준값 0 인 곳에는 절대 안 붙습니다.</b> '
@@ -649,8 +650,8 @@ function skillDetail(s){
     +'<div class="dcell"><dt>범위</dt><dd>'+esc(s.rng)+'</dd></div>'
     +'<div class="dcell"><dt>MP 소모</dt><dd class="mono">'+(s.mp>0?s.mp:"없음")+'</dd></div>'
     +'<div class="dcell"><dt>요구 레벨</dt><dd class="mono">'+s.lv+'</dd></div>'
-    +(s.dmg[1]?'<div class="dcell"><dt>피해</dt><dd class="mono">'+s.dmg[0]+' – '+s.dmg[1]+'</dd></div>':"")
-    +(s.heal[1]?'<div class="dcell"><dt>회복</dt><dd class="mono">'+s.heal[0]+' – '+s.heal[1]+'</dd></div>':"")
+    +(s.dmg[1]?'<div class="dcell"><dt>피해</dt><dd class="mono">'+s.dmg[0]+' – '+Math.max(s.dmg[0],s.dmg[1]-1)+'</dd></div>':"")
+    +(s.heal[1]?'<div class="dcell"><dt>회복</dt><dd class="mono">'+s.heal[0]+' – '+Math.max(s.heal[0],s.heal[1]-1)+'</dd></div>':"")
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(s.i)+'</dd></div>'
     +'</dl><div class="blk"><h4>배우는 직업</h4><ul>'
     + s.jobs.map(function(j){ return '<li><b>'+esc(j.j)+'</b><span class="meta"> — '+j.lv+'레벨</span></li>'; }).join("")
