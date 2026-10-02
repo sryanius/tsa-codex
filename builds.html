@@ -527,33 +527,52 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-02">
   <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 판정 자체를 없앤다</h2>
   <p class="secdate">2026-10-02 갱신</p>
-  <p>회피탱은 <b>어디에 쓰느냐</b>로 답이 갈립니다. 파티 앞줄에서 방어탱 옆에 서는 «파티 탱» 과, 저레벨을 데리고 혼자 싸우는 «쩔» 입니다.
-     단계 4~7 · 종족 · 주직업 · 부직업 · 강화를 사이트 능력치 식으로 전부 훑고(236가지), 상위 후보를 파티 시뮬과 쩔 시뮬에 넣어 견줬습니다.</p>
-  <div class="note"><b>먼저 알아 둘 것 &mdash; 완봉선을 넘긴 회피탱은 «평타» 로는 거의 안 죽습니다.</b>
-     시뮬에서 회피탱이 쓰러진 원인을 세어 보면 회피 실패 평타는 0~3건뿐이고, 나머지는
-     <b>몬스터 스킬 · 마법</b>(회피 판정 자체가 없습니다)과 <b>내가 때려서 받는 반격 · 피해 반사 · 반사 스킬</b>입니다.
-     그래서 파티 탱은 완봉선보다 <b>마법 방어 · HP · 방어(체력)</b> 가 생존을 정하고, <b>활을 들면</b> 반격 · 반사를 통째로 건너뜁니다.</div>
-  <table class="t"><thead><tr><th>용도 · 단계</th><th>추천</th><th class="num">완봉선</th><th class="num">경험치</th><th>왜</th></tr></thead><tbody>
-    <tr><td><b>파티 탱</b> · 4</td><td>풋워커 여 · 숨은 칼날의 궁사 20 주 + 도둑 · 검술사 · 베테랑 &mdash; 활</td><td class="num">31</td><td class="num">1.89M</td><td>23 짜리 싼 빌드는 퀘스트에서 탱 사망 12~22% (이 빌드 1.9%)</td></tr>
-    <tr><td><b>파티 탱</b> · 5</td><td><b>엘프</b> · 도둑 25 주 + 숨은 칼날의 궁사 · 검술사</td><td class="num">38</td><td class="num">1.35M</td><td>풋워커 도둑과 같은 값에 마방 37 대 5 &mdash; 탱 사망 38% &rarr; 10%</td></tr>
-    <tr class="hi"><td><b>파티 탱</b> · 6~7</td><td><b>마검사 주</b>(아래 카드) &mdash; 아끼려면 <b>엘프 도둑 주 + 활 + 오멘워드 탈리스만</b></td><td class="num">45 · 47</td><td class="num">16~22M<span class="sub">엘프 도둑 1.8M · 5.8M</span></td><td>같은 완봉선에서 마검사가 가장 덜 죽음(7단계 54: 탱 사망 2~4% · 도둑 17~24% · 엘프 도둑 + 활 7~10%)</td></tr>
-    <tr class="hi"><td><b>혼자 쩔</b> · 6~7</td><td><b>엘프 도둑 주 + 돌아온 칼날의 단검</b>(반격)</td><td class="num">44~48</td><td class="num">1.8~3.2M</td><td>라그네스에서 시간당 약 31,000~32,500 &mdash; 마검사(28,600)보다 더 범</td></tr>
-  </tbody></table>
+  <p>회피탱은 <b>쓰는 곳이 둘</b>이고, 곳마다 답이 다릅니다.</p>
   <ul>
-    <li><b>«파티면 그냥 도적» 은 경험치로는 맞고 생존으로는 6단계까지만 맞습니다.</b> 회피 몫이 도둑 주 7/레벨 · 마검사 주 4/레벨이라 같은 완봉선에 닿는 값이 도둑이 3분의 1입니다(7단계 54 · 13.4M 대 46.3M).
-        다만 7단계는 스킬 피해가 커서, 체력 8/레벨 · 치명 저항 · 부적 칸(마방 50)이 붙는 <b>마검사 주가 탱 사망 2~4%</b> 로 도둑 주(17~24%)보다 훨씬 덜 죽습니다. 방어탱이 옆에 서면(회피탱 + 방어탱 구성) 전멸 차이는 0.2~0.6%p 로 줄어듭니다.</li>
-    <li><b>엘프는 도둑이어도 부적을 낍니다</b>(코드 확인 · <code>Character.CanEquipArmors</code> 0x26DA0FC &mdash; 종족이 엘프면 부적 칸을 더함).
-        6단계부터 <b>세라믹스틸 오멘워드 탈리스만(회피 +5 · 마방 37)</b> 을 걸 수 있어 같은 목표선에 드는 경험치가 절반 이하이고(7단계 54: 5.8M 대 풋워커 13.4M) 마방은 42 대 8 입니다.
-        능력치가 낮아도 민첩은 직업 몫으로 메워져 완봉선 차이는 1 이하입니다. <b>마도병 부직업</b>(엘프 가능 · 풋워커 불가)은 35레벨이면 회피 +7 이지만 31M 이 들어 목표선에는 필요 없습니다.</li>
-    <li><b>강화로 회피를 붙이면 부직업을 0~2개 덜 키워도 됩니다</b>(경험치 16~45% 절약). 회피 강화는 의복 · 방패 · 투구 · 부적에만 붙고(무기에는 없음), 회피보다 <b>민첩</b>이 더 많이 붙습니다(작은 상점 부적이면 민첩 +20 기대).
-        ★ 다만 한 번 강화로 목표선에 닿을 확률은 <b>49~58%</b> 입니다 &mdash; 기대값에 딱 맞춘 빌드라 절반은 1~2 모자라니, 다시 강화할 생각으로 계획하세요.</li>
-    <li><b>혼자 쩔의 반격 단검은 «약한 것» 이 낫습니다.</b> 천천히 잡을수록 부름이 쌓여 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.
-        반격은 <b>물리 무효에게 0</b> 이라(마검사여도 반격은 물리) 그런 몬스터가 섞인 곳은 혼자 못 잡고, 24시간 안전하게 쩔이 되는 부름 탐색지는 8곳뿐입니다 &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «부름 최소~최대» 를 보세요.</li>
+    <li><b>파티 탱</b> &mdash; 퀘스트에서 <b>방어탱 옆 앞줄</b>에 서서 맞아 주는 자리입니다(<a href="#stages">&sect;11</a> 5단계 «회피탱 + 방어탱»). 딜은 딜러 몫이라 <b>안 죽는 것</b>만 봅니다.</li>
+    <li><b>혼자 쩔</b> &mdash; 자유 탐색에서 저레벨 셋을 뒷줄에 <b>무기 없이</b> 두고 회피탱 혼자 싸우는 자리입니다. 혼자 잡아야 하니 <b>반격 단검</b>을 듭니다.</li>
   </ul>
-  <p class="src">근거: tools/sim/evasion_builds.md(빌드 236가지 · engine.mjs 능력치 · expPlan 경험치) · evasion_sim.md(파티 시뮬 · 쩔 시뮬) · callfarm_final.json. 회피값 = 직업 몫 + 장비 회피 + 강화 회피(Character.AvoidValue 0x26DC334) · 강화 후보는 Armor.Craft 0x26FDE04.</p>
-  <div class="role">
-    <h3>마검사 회피탱 <span class="tag" style="color:var(--f-lodge)">파티 탱 · 6~7단계</span></h3>
-    <p class="lede2">종족은 <b>풋워커 여</b>(민첩 8 · 재주 9 · <b>통찰 10</b>). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.</p>
+  <table class="t"><thead><tr><th>쓰는 곳</th><th>단계</th><th>카드</th><th>한 줄</th></tr></thead><tbody>
+    <tr><td>파티 탱</td><td>4</td><td><a href="#dodge-4">① 풋워커 · 숨은 칼날의 궁사</a></td><td>활을 들어 반격 · 반사를 안 받는다</td></tr>
+    <tr><td>파티 탱</td><td>5</td><td><a href="#dodge-5">② 엘프 · 도둑</a></td><td>엘프는 도둑이어도 부적을 껴 마법 방어가 붙는다</td></tr>
+    <tr class="hi"><td>파티 탱</td><td>6~7</td><td><a href="#dodge-67">③ 풋워커 · 마검사</a></td><td>가장 덜 죽는다 &mdash; 경험치를 아끼려면 엘프 도둑 + 활</td></tr>
+    <tr class="hi"><td>혼자 쩔</td><td>6~7</td><td><a href="#dodge-solo">④ 엘프 · 도둑 + 반격 단검</a></td><td>라그네스 강창의 흔적에서 시간당 약 31,000</td></tr>
+  </tbody></table>
+  <div class="note"><b>왜 용도마다 다른가 &mdash; 완봉선을 넘긴 회피탱은 «평타» 로는 거의 안 죽습니다.</b>
+     시뮬에서 회피탱이 쓰러진 원인은 회피 실패 평타가 0~3건뿐이었고, 나머지는 <b>몬스터의 스킬 · 마법</b>(회피 판정이 없음)과
+     <b>내가 때리다 받는 반격 · 피해 반사</b>였습니다. 그래서 <b>파티 탱은 마법 방어 · HP · 방어가 생존을 정하고</b>, 활을 들면 반격 · 반사를 아예 안 받습니다.
+     혼자 쩔은 반대로 내가 때려서 잡아야 하므로 반격 단검이 필요합니다.</div>
+
+  <div class="role" id="dodge-4">
+    <h3>① 파티 탱 · 4단계 <span class="tag" style="color:var(--f-lodge)">풋워커 · 숨은 칼날의 궁사</span></h3>
+    <dl class="kv">
+      <dt>종족</dt><dd><b>풋워커 여</b> <span class="meta">&mdash; 풋워커는 주직업과 상관없이 활을 낍니다</span></dd>
+      <dt>주직업</dt><dd><b>숨은 칼날의 궁사 20</b> <span class="meta">&mdash; 4단계에서 회피 몫이 큰 직업 중 의복 · 부적 · 방패 칸이 다 열리는 것</span></dd>
+      <dt>부직업</dt><dd><b>도둑 20 · 검술사 15 · 베테랑 파이터 10</b></dd>
+      <dt>무기</dt><dd><b>난사의 활</b> <span class="meta">&mdash; 활로 때리면 반격 · 반사를 안 받습니다</span></dd>
+      <dt>방어구</dt><dd>통풍이 잘되는 옷(회피 +6) · 단마의 부적(마법 방어 32) · 테라 버클러(방패 회피 +5)</dd>
+    </dl>
+    <div class="chips"><span>완봉선 <b>31</b></span><span>HP 29</span><span>마법 방어 37</span><span>경험치 <b>1.9M</b></span></div>
+    <p class="src">아르디오스 자유 탐색은 완봉선 23 이면 되지만, 퀘스트는 몬스터가 더 세서 23 짜리 싼 빌드는 탱 사망 12~22% 였습니다(이 빌드 1.9%).</p>
+  </div>
+
+  <div class="role" id="dodge-5">
+    <h3>② 파티 탱 · 5단계 <span class="tag" style="color:var(--f-lodge)">엘프 · 도둑</span></h3>
+    <dl class="kv">
+      <dt>종족</dt><dd><b>엘프 여</b> <span class="meta">(루페리아 그로브) &mdash; ★ 엘프는 도둑이어도 <b>부적 칸</b>이 열립니다(코드 확인)</span></dd>
+      <dt>주직업</dt><dd><b>도둑 25</b> <span class="meta">&mdash; 회피 몫이 레벨당 7 로 가장 큽니다</span></dd>
+      <dt>부직업</dt><dd><b>숨은 칼날의 궁사 11 · 검술사 10 · 베테랑 파이터 10</b></dd>
+      <dt>무기</dt><dd>밤을 걷는 단검 <span class="meta">(회피 +1 · 민첩 +2) &mdash; 반격 · 반사가 싫으면 활</span></dd>
+      <dt>방어구</dt><dd>통풍이 잘되는 옷 · <b>단마의 부적</b>(마법 방어 32) · 테라 버클러</dd>
+    </dl>
+    <div class="chips"><span>완봉선 <b>38</b></span><span>HP 25</span><span>마법 방어 <b>37</b></span><span>경험치 <b>1.35M</b></span></div>
+    <p class="src">같은 경험치의 풋워커 도둑은 부적을 못 껴 마법 방어가 5 이고, 파티 시뮬에서 탱 사망이 38% 대 10% 였습니다.</p>
+  </div>
+
+  <div class="role" id="dodge-67">
+    <h3>③ 파티 탱 · 6~7단계 <span class="tag" style="color:var(--f-lodge)">풋워커 · 마검사</span></h3>
+    <p class="lede2">종족은 <b>풋워커 여</b>(민첩 8 · 재주 9 · <b>통찰 10</b>). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.
+      아래는 6단계 값이고, 7단계는 도둑 35 · 현자 35 로 올려 완봉선 47 · 21.6M 입니다.</p>
     <dl class="kv">
       <dt>주직업</dt><dd><b>마검사 30</b> <span class="meta">&mdash; 든 단검을 전부 «마법 공격» 으로 칩니다. 부적 칸도 여기서 열립니다</span></dd>
       <dt>부직업</dt><dd><b>도둑 30</b> <span class="meta">(부 회피 3 · 민첩 3 · 통찰 2)</span> ·
@@ -606,6 +625,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <td class="num">76~103</td><td class="num" style="color:var(--f-vault)">39</td><td class="num">45</td><td class="num">19.0M</td></tr>
   </tbody></table>
   <div class="note"><b>마지막 줄은 발두나(44)를 5 나 못 넘습니다</b> &mdash; 싸 보이지만 빌드가 깨집니다.</div>
+
+  <div class="note"><b>③ 을 경험치를 아껴 만들려면 &mdash; 엘프 도둑 + 활.</b>
+     엘프 여 · <b>도둑 29</b> 주직업 + 숨은 칼날의 궁사 11 · 베테랑 파이터 10 · <b>송곳니왕의 활</b> · 통풍이 잘되는 옷 · <b>세라믹스틸 오멘워드 탈리스만</b>(회피 +5 · 마법 방어 37) · 테라 버클러
+     &rarr; 6단계 완봉선 43 · HP 24 · 마법 방어 42 · <b>1.8M</b>(마검사의 9분의 1) · 파티 시뮬 탱 사망 2.9%(마검사와 같음).
+     7단계는 도둑 35 · 숨은 칼날의 궁사 20 · 검술사 11 · 베테랑 10 · 스커미셔 4 · 숙련된 사냥꾼 10 + 피철의 활 &rarr; 완봉선 52 · <b>5.8M</b> · 탱 사망 7~10%(마검사 2~4%).
+     <b>7단계에서는 마검사가 확실히 덜 죽고</b>, 6단계까지는 엘프 도둑 + 활로 충분합니다.</div>
+
+  <div class="role" id="dodge-solo">
+    <h3>④ 혼자 쩔 · 6~7단계 <span class="tag" style="color:var(--f-lodge)">엘프 · 도둑 + 반격 단검</span></h3>
+    <dl class="kv">
+      <dt>종족</dt><dd><b>엘프</b> <span class="meta">&mdash; 부적 칸(오멘워드 탈리스만)으로 같은 완봉선을 절반 이하 경험치로</span></dd>
+      <dt>주직업</dt><dd><b>도둑 29</b>(6단계) · <b>도둑 35</b>(7단계)</dd>
+      <dt>부직업</dt><dd>6단계 숨은 칼날의 궁사 11 · 베테랑 파이터 10 / 7단계 숨은 칼날의 궁사 8 · 베테랑 파이터 8 · 숙련된 사냥꾼 10</dd>
+      <dt>무기</dt><dd><b>돌아온 칼날의 단검</b> <span class="meta">(Lv17 · 반격 가능 · 회피 +1) &mdash; ★ 반격 단검은 약한 것이 낫습니다(아래)</span></dd>
+      <dt>방어구</dt><dd>통풍이 잘되는 옷 · 세라믹스틸 오멘워드 탈리스만 · 테라 버클러</dd>
+      <dt>편성</dt><dd>회피탱 혼자 앞줄 · 저레벨 셋은 뒷줄에 <b>무기를 빼고</b>(맨손은 앞줄이 살아 있는 동안 칠 대상이 없어 안 칩니다)</dd>
+    </dl>
+    <div class="chips"><span>완봉선 <b>43 · 47</b></span><span>마법 방어 42</span><span>경험치 <b>1.8M · 3.3M</b></span><span>라그네스 시간당 약 <b>31,000~32,500</b></span><span>저레벨 한 명 약 8,100</span></div>
+    <p class="src">라그네스 강창의 흔적에서 엘프 도둑 31,151 · 마검사 28,603 · 지금 ③ 빌드(용맥의 단검 · 반격 없음) 18,580/시간이었습니다. 혼자 쩔에 7.2M 을 들여 마검사로 갈 이유가 없습니다.</p>
+  </div>
+  <ul>
+    <li><b>반격 단검은 «약한 것» 이 더 법니다.</b> 천천히 잡을수록 부름이 쌓여, 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.</li>
+    <li><b>반격은 물리 무효에게 0</b> 입니다(마검사여도 반격은 물리). 그런 몬스터가 섞인 곳은 혼자 못 잡고, 24시간 안전하게 쩔이 되는 부름 탐색지는 8곳뿐입니다 &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «부름 최소~최대» 와 상세를 보세요.</li>
+    <li><b>강화로 회피를 붙이면 부직업을 0~2개 덜 키워도 됩니다</b>(경험치 16~45% 절약). 회피 강화는 의복 · 방패 · 투구 · 부적에만 붙고 무기에는 없으며, 회피보다 민첩이 더 많이 붙습니다.
+        다만 한 번 강화로 목표선에 닿을 확률이 49~58% 라 다시 강화할 생각으로 계획하세요.</li>
+    <li><b>마도병 부직업</b>(엘프 가능 · 풋워커 불가)은 35레벨이면 회피 +7 이지만 31M 이 들어 목표선에는 필요 없습니다.</li>
+  </ul>
+  <p class="src">근거: 빌드 236가지를 사이트 능력치 식(engine.mjs)으로 훑고, 상위 후보를 파티 시뮬(그 단계 퀘스트 전부)과 쩔 시뮬(자유 탐색 24시간)에 넣었습니다 &mdash; tools/sim/evasion_builds.md · evasion_sim.md · callfarm_final.json.
+     엘프 부적 칸은 Character.CanEquipArmors 0x26DA0FC, 회피값은 Character.AvoidValue 0x26DC334, 강화 후보는 Armor.Craft 0x26FDE04.</p>
   </section>
 <section class="sec" id="sec-bow" data-sec="bow" data-upd="2026-09-19">
   <h2 id="bow"><span class="n">4</span>활 딜러 &mdash; 관통으로 줄을 뚫는다</h2>
