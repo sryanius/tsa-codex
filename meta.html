@@ -776,7 +776,7 @@ function block(title,sub,rows){
    주직업은 «레벨 1등» 이 아니라 지정해 둔 하나다. 부직업은 전부 합친다. */
 var SC_BASE=["생명점","마나","힘","체력","지능","민첩","재주","통찰력"];
 var SC_DERIV=["공격력","방어력","마법 방어","명중률","회피","치명타","치명 저항","방패 회피"];
-var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, fw:false, was:{}, xph:0, goal:0};
+var sc={main:"", mainLv:1, subs:[], slot:{}, base:{}, from:"", elf:false, fw:false, was:{}, xph:0, rb:0, goal:0};
 
 function scJobs(){ return visJobs().slice().sort(function(a,b){ return a.n.localeCompare(b.n); }); }
 function scGear(cat){
@@ -1139,7 +1139,9 @@ function statHTML(){
   var plan=expPlan();
   var expBlock="";
   if(plan.total>0){
-    var hrs = sc.xph>0 ? plan.total/sc.xph : 0;
+    // 은퇴 보너스(원리 §12) — 은퇴자 중 최고 직업 레벨이 «지금 주직업 레벨» 보다 높은 사람 1명당 +5%, 최대 +150%
+    //   (Character.AddAdventureExp 0x26D61D8 → GameSettings.GetRetireCharacterExpBonusPercent(MainJob.level) · 상수 5 · 150 = .cctor 0x27B6614~0x27B6624)
+    var hrs = sc.xph>0 ? plan.total/(sc.xph*(1+(sc.rb||0)/100)) : 0;
     expBlock='<div class="blk"><h4>여기까지 올리는 데 드는 경험치</h4>'
       + '<p class="meta" style="margin:0 0 6px">싼 순서가 <b>이 차례</b>입니다 — 주직업을 이 순서로 바꿔 가며 올리세요.</p><ol class="explist">'
       + plan.rows.map(function(r){
@@ -1151,6 +1153,8 @@ function statHTML(){
       + '<div class="sumline">합계 <b>'+Math.round(plan.total).toLocaleString()+'</b> 경험치</div>'
       + '<div class="crow"><span class="lvlabel">시간당 경험치</span>'
       + '<label class="lvin"><input type="number" min="0" step="1000" id="sc-xph" class="wide" value="'+(sc.xph||"")+'" placeholder="50000"></label>'
+      + '<span class="lvlabel">은퇴 보너스</span>'
+      + '<label class="lvin"><input type="number" min="0" max="150" step="5" id="sc-rb" value="'+(sc.rb||"")+'" placeholder="0">%</label>'
       + (hrs>0 ? '<span class="meta">→ 약 <b>'+(hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일')+'</b></span>'
                : '<span class="meta">넣으면 걸리는 시간을 계산합니다</span>')
       + '</div>'
@@ -1759,6 +1763,16 @@ el("out").addEventListener("input",function(e){
       sc.goal=Math.max(0,parseInt(v4,10)||0); render();
       var a3=el("out").querySelector("#sc-goal");
       if(a3){ a3.focus(); try{ a3.setSelectionRange(a3.value.length,a3.value.length); }catch(e){} }
+    }, 350);
+    return;
+  }
+  if(t.id==="sc-rb"){
+    clearTimeout(ct);
+    var v5=t.value;
+    ct=setTimeout(function(){
+      sc.rb=Math.max(0,Math.min(150,parseInt(v5,10)||0)); render();
+      var a5=el("out").querySelector("#sc-rb");
+      if(a5){ a5.focus(); try{ a5.setSelectionRange(a5.value.length,a5.value.length); }catch(e){} }
     }, 350);
     return;
   }
