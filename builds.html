@@ -291,6 +291,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   .toc{gap:4px}
   .toc a{font-size:11.5px;padding:4px 9px}
 }
+/* PC — 본문 글줄은 74ch 그대로 두고, 줄을 안 바꾸는 수식 상자와 넓은 표만 오른쪽 여백까지 펼친다.
+   (.wrap 은 1180px · 좌우 20px — 그 안쪽 폭까지. 100vw 에는 스크롤바가 들어 있어 16px 를 더 뺀다) */
+@media (min-width:900px){
+  .doc .eq, .doc table{width:max-content;min-width:100%;max-width:min(calc(100vw - 56px), 1140px)}
+}
 
 /* ── 절 탭 (docpages.py 가 넣는다) ─────────────────────────────── */
 .secdate{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:2px 0 14px}
