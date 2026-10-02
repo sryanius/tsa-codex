@@ -1059,6 +1059,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      도둑 35 주 + 현자 35 · 레인저 35 · 암흑마법사 30 부 · 기본 통찰 10 이면 통찰 55 &rarr; 몫 8 &rarr; 발견값 <b>43, 리더 +3 이면 46</b> = 칼레바스 중앙 43 · 최대 46.
      현자를 주직업으로 두고 도둑을 부로 돌리면 통찰 86 &rarr; 몫 13 &rarr; <b>51</b> 까지 갑니다(도둑 레벨은 주 · 부 상관없이 레벨 그대로 들어갑니다 &mdash; <code>GetJobLevel</code>).
      예전에 적었던 «발견 45 천장» 도 통찰 부직업을 빼고 센 값이었습니다(2026-10-02 다시 쟀습니다). 몬스터가 든 금고(<code>IsMonsterTrap</code>)는 발견 판정 없이 열립니다.</div>
+  <h3>주사위는 어디까지, 재주는 얼마에서 «확정» 인가</h3>
+  <p>내 주사위는 2d6(2~12)인데 <b>10 이상이면 한 번 더 굴려 더하고, 또 10 이상이면 또</b> 더해서 위로는 끝이 없습니다. 대신 1+1 이면 &minus;100(대실패)이라 <b>대실패 아닌 최솟값은 3</b> 입니다. 상대 주사위는 그냥 2d6, 최대 12 입니다.
+     그래서 «내 고정부 + 3 &ge; 상대 고정부 + 12», 곧 <b>내 고정부 &ge; 확정선</b>이면 대실패(1/36)만 빼고 늘 이깁니다 &mdash; 97.2% 이고 그 위로는 올려도 그대로입니다.</p>
+  <table class="t"><thead><tr><th class="num">확정선</th><th class="num">필요한 몫 <span class="sm">= 확정선 &minus; 도둑 35</span></th><th class="num">재주 총값</th><th>어디</th></tr></thead><tbody>
+    <tr><td class="num">44</td><td class="num">9</td><td class="num"><b>58</b></td><td>칼레바스 해제 중앙</td></tr>
+    <tr><td class="num">45</td><td class="num">10</td><td class="num">65</td><td></td></tr>
+    <tr><td class="num">46</td><td class="num">11</td><td class="num">72</td><td>칼레바스 발견 최대</td></tr>
+    <tr class="hi"><td class="num">47</td><td class="num">12</td><td class="num"><b>78</b></td><td>칼레바스 해제 최대 &mdash; 해제 난이도 3 상자의 첫 판</td></tr>
+    <tr><td class="num">48</td><td class="num">13</td><td class="num">85</td><td>같은 상자 두 번째 판</td></tr>
+    <tr><td class="num">49</td><td class="num">14</td><td class="num">92</td><td>세 번째 판</td></tr>
+    <tr><td class="num">50</td><td class="num">15</td><td class="num">98</td><td>네 번째 판부터</td></tr>
+  </tbody></table>
+  <p class="src">재주 총값 = 뽑을 때 값 + 직업 몫 + 장비. 흔들림 폭(&sect;1) 때문에 «6 &times; 몫» 보다 조금 더 필요합니다 &mdash; 몫 12 는 72 가 아니라 78. 도둑이 35 가 아니면 모자란 레벨 하나에 재주 6 씩 더 듭니다.
+     예: 도둑 35 · 재주 53 인 용병은 마도병 35 를 얹으면 64, 전술병 20 까지 72, 검투사 25 까지 79 로 첫 판 확정이 됩니다.</p>
   <div class="note"><b>다행히 해제 판정을 아예 건너뛰는 금고가 28%</b> 입니다
      (1,206개 중 341개 &mdash; 해제 난이도가 0 이면 판정 자체가 없습니다).
      그리고 <b>몬스터가 든 금고는 발견 판정도 건너뛰고 무조건 발견됩니다.</b></div>
