@@ -53,7 +53,7 @@ body{
 .topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
 .mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
 .eyebrow{
-  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--faint);margin:0 0 10px
 }
 .mast h1{
@@ -65,7 +65,7 @@ body{
 .stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
 .stat{display:flex;flex-direction:column;gap:1px}
 .stat b{
-  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:20px;font-weight:500;
   color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
 }
 .stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
@@ -100,7 +100,7 @@ input[type="search"]{flex:1 1 240px}
 .chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
 .toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
 .toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
-.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.count{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
 .lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
 .filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
   border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
@@ -113,7 +113,7 @@ input[type="search"]{flex:1 1 240px}
 .hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
 .lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
   border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
-.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12px;
   text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
 .lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .lvin input{-moz-appearance:textfield}
@@ -154,7 +154,7 @@ input[type="search"]{flex:1 1 240px}
 .row .qn{padding-left:18px}
 .again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
   border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
-  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace}
 .again{color:var(--f-heal);border-color:currentColor}
 .chain.again-box h4{color:var(--f-vault)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
@@ -193,7 +193,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 }
 .ghead .sub{font-size:12px;color:var(--faint)}
 .ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
-.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;
   font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
   padding:2px 10px;background:var(--surface);white-space:nowrap}
 .ptxt b{font-size:13px;font-weight:700}
@@ -203,18 +203,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 /* 읽는 페이지의 표에서 «이 줄이 요점» 표시. 여태 클래스만 있고 규칙이 없었다. */
 .doc tr.hi{background:var(--raised)}
 .doc tr.hi td{border-bottom-color:var(--line)}
-.doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+/* 첫 칸은 왼쪽 여백이 0 이라 막대가 글자를 덮었다 · 폰에서는 붙박이 첫 칸의 바탕(--ground)이 강조를 반쪽으로 잘랐다 */
+.doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent);padding-left:8px;background:var(--raised)}
+/* 공백 없는 긴 코드 이름(GameSettings.RetireCharacterExpBonusPercent …)이 폰에서 페이지를 옆으로 밀었다 — 넘칠 때만 단어 안에서 바꾼다(표 칸 폭은 그대로) */
+.doc{overflow-wrap:break-word}
 
 /* ── 읽는 페이지 ─────────────────────────────────────────────── */
 .doc{max-width:74ch;padding-bottom:80px}
 .doc h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
   color:var(--ink);margin:46px 0 4px;scroll-margin-top:16px}
-.doc h2 .n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--faint);
+.doc h2 .n{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:13px;color:var(--faint);
   margin-right:10px;font-weight:400}
 .doc h3{font-size:15px;font-weight:600;color:var(--ink);margin:26px 0 6px}
 .doc p{margin:10px 0;color:var(--body)}
 .doc b{color:var(--ink);font-weight:600}
-.doc code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--raised);
+.doc code{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12.5px;background:var(--raised);
   padding:1px 5px;border-radius:4px;color:var(--muted)}
 .doc ul{margin:10px 0;padding-left:18px}
 .doc li{margin:5px 0;color:var(--body)}
@@ -233,15 +236,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   font-weight:600;padding:0 12px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
 .doc td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line-soft);
   color:var(--body);vertical-align:top}
-.doc td.num,.doc th.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+.doc td.num,.doc th.num{text-align:right;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace}
 .doc td b{color:var(--ink)}
-.doc td .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.doc td .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif}
 .doc td.dim,.doc td .dim{color:var(--faint)}
 .toc{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0}
 .toc a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 12px;
   border:1px solid var(--line);border-radius:99px;background:var(--surface)}
 .toc a:hover{color:var(--ink);border-color:var(--accent)}
-.src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:8px 0 0}
+.src{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;color:var(--faint);margin:8px 0 0}
 
 /* 빌드 카드 */
 .role{border:1px solid var(--line);border-radius:12px;background:var(--surface);
@@ -256,7 +259,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .kv dd b{color:var(--ink)}
 .doc .mag, .doc b.mag{color:var(--f-arch);font-weight:700}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
-.chips span{font-size:11.5px;border:1px solid var(--line);border-radius:6px;
+.chips > span{font-size:11.5px;border:1px solid var(--line);border-radius:6px;
   padding:2px 7px;background:var(--raised);color:var(--body);white-space:nowrap}
 .chips span b{color:var(--ink);font-weight:600}
 @media (max-width:560px){ .kv{grid-template-columns:1fr} .kv dt{padding-top:8px} }
@@ -298,7 +301,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 }
 
 /* ── 절 탭 (docpages.py 가 넣는다) ─────────────────────────────── */
-.secdate{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:2px 0 14px}
+.secdate{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;color:var(--faint);margin:2px 0 14px}
 .docdate{font-size:12px;color:var(--faint);margin:10px 0 0}
 .toc.tabs a{position:relative}
 .toc.tabs a .dot{display:none}
@@ -536,7 +539,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>파티 탱</td><td>4</td><td><a href="#dodge-4">① 풋워커 · 숨은 칼날의 궁사</a></td><td>활을 들어 반격 · 반사를 안 받는다</td></tr>
     <tr><td>파티 탱</td><td>5</td><td><a href="#dodge-5">② 엘프 · 도둑</a></td><td>엘프는 도둑이어도 부적을 껴 마법 방어가 붙는다</td></tr>
     <tr class="hi"><td>파티 탱</td><td>6~7</td><td><a href="#dodge-67">③ 풋워커 · 마검사</a></td><td>가장 덜 죽는다 &mdash; 경험치를 아끼려면 엘프 도둑 + 활</td></tr>
-    <tr class="hi"><td>혼자 쩔</td><td>6~7</td><td><a href="#dodge-solo">④ 엘프 · 도둑 + 반격 단검</a></td><td>라그네스 강창의 흔적에서 시간당 약 31,000</td></tr>
+    <tr class="hi"><td>혼자 쩔</td><td>6~7</td><td><a href="#dodge-solo">④ 엘프 · 도둑 + 반격 단검</a></td><td>라그네스 강창의 흔적에서 시간당 약 31,900 · 저레벨 몫 약 15,900</td></tr>
   </tbody></table>
   <div class="note"><b>왜 용도마다 다른가 &mdash; 완봉선을 넘긴 회피탱은 «평타» 로는 거의 안 죽습니다.</b>
      시뮬에서 회피탱이 쓰러진 원인은 회피 실패 평타가 0~3건뿐이었고, 나머지는 <b>몬스터의 스킬 · 마법</b>(회피 판정이 없음)과
@@ -610,27 +613,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      회피값·평타·경험치가 한 칸도 안 변하면서 <b>방어 41~68 · 마법 방어 62</b> 가 됩니다.
      막기는 상위 지역에서 어차피 절반밖에 못 막습니다(<a href="notes.html#hit">원리 &sect;5</a>).</div>
 
-  <h3>화력을 올리려면 &mdash; 검술사를 검투사로</h3>
-  <p><b>검술사는 검 전용</b>이라 단검을 든 채로는 공격 몫이 0 이고 회피만 줍니다.
-     <b>검투사는 단검을 들 수 있어</b> 부 공격력이 그대로 들어옵니다.
-     회피는 검투사 부 1 이 메워서 <b>완봉선 45 가 그대로</b>입니다.</p>
-  <table class="t"><thead><tr><th>부직업</th><th class="num">평타</th><th class="num">완봉선</th><th class="num">명중값</th><th class="num">경험치</th></tr></thead><tbody>
-    <tr><td>도둑 30 · 궁사 20 · <b>검술사 15</b> · 현자 30 <span class="sm">기본</span></td>
-      <td class="num">74~101</td><td class="num">45</td><td class="num">47</td><td class="num"><b>16.1M</b></td></tr>
-    <tr class="hi"><td>도둑 30 · 궁사 20 · <b>검투사 25</b> · 현자 30</td>
-      <td class="num"><b>84~111</b></td><td class="num"><b>45</b></td><td class="num">51</td><td class="num">31.3M</td></tr>
-    <tr style="color:var(--muted)"><td>위에 검술사 15 를 도로 얹으면</td>
-      <td class="num">84~111</td><td class="num">48</td><td class="num">57</td><td class="num">46.1M</td></tr>
-    <tr style="color:var(--f-vault)"><td>숨은 칼날의 궁사까지 빼면</td>
-      <td class="num">76~103</td><td class="num" style="color:var(--f-vault)">39</td><td class="num">45</td><td class="num">19.0M</td></tr>
-  </tbody></table>
-  <div class="note"><b>마지막 줄은 발두나(44)를 5 나 못 넘습니다</b> &mdash; 싸 보이지만 빌드가 깨집니다.</div>
+  <div class="note"><b>화력은 올릴 필요가 없습니다.</b>
+     검술사 15 를 검투사 25 로 바꾸면 평타가 +10(74~101 &rarr; 84~111) 오르지만 경험치는 16.1M &rarr; <b>31.3M</b> 으로 두 배가 됩니다.
+     6 · 7단계 의뢰 전부를 같은 씨앗으로 돌려 보면(회피탱 + 방어탱 + 활 + 법사 · 회피탱 + 활 + 법사 둘)
+     전멸은 <b>0.02~0.24%p</b>, 회피탱 사망은 <b>0.04~0.69%p</b> 줄고 의뢰에 걸리는 시간은 그대로입니다.
+     파티 탱은 맞아 주는 게 일이고, 혼자 쩔은 오히려 천천히 잡아야 부름이 쌓입니다(&#9315;).</div>
 
   <div class="note"><b>③ 을 경험치를 아껴 만들려면 &mdash; 엘프 도둑 + 활.</b>
-     엘프 여 · <b>도둑 29</b> 주직업 + 숨은 칼날의 궁사 11 · 베테랑 파이터 10 · <b>송곳니왕의 활</b> · 통풍이 잘되는 옷 · <b>세라믹스틸 오멘워드 탈리스만</b>(회피 +5 · 마법 방어 37) · 테라 버클러
-     &rarr; 6단계 완봉선 43 · HP 24 · 마법 방어 42 · <b>1.8M</b>(마검사의 9분의 1) · 파티 시뮬 탱 사망 2.9%(마검사와 같음).
-     7단계는 도둑 35 · 숨은 칼날의 궁사 20 · 검술사 11 · 베테랑 10 · 스커미셔 4 · 숙련된 사냥꾼 10 + 피철의 활 &rarr; 완봉선 52 · <b>5.8M</b> · 탱 사망 7~10%(마검사 2~4%).
-     <b>7단계에서는 마검사가 확실히 덜 죽고</b>, 6단계까지는 엘프 도둑 + 활로 충분합니다.</div>
+     6단계까지는 이걸로 충분하고, <b>7단계에서는 마검사가 확실히 덜 죽습니다.</b></div>
+  <table class="t"><thead><tr><th>단계</th><th>엘프 여 · 도둑 주직업 + 활</th><th class="num">완봉선</th><th class="num">경험치</th><th class="num">탱 사망</th></tr></thead><tbody>
+    <tr><td class="num">6</td><td><b>도둑 29</b> · 숨은 칼날의 궁사 11 · 베테랑 파이터 10
+      <span class="sub"><b>송곳니왕의 활</b> · 통풍이 잘되는 옷 · <b>세라믹스틸 오멘워드 탈리스만</b>(회피 +5 · 마법 방어 37) · 테라 버클러 &rarr; HP 24 · 마법 방어 42</span></td>
+      <td class="num">43</td><td class="num"><b>1.8M</b><span class="sub">마검사의 9분의 1</span></td><td class="num">2.9%<span class="sub">마검사와 같음</span></td></tr>
+    <tr><td class="num">7</td><td><b>도둑 35</b> · 숨은 칼날의 궁사 20 · 검술사 11 · 베테랑 10 · 스커미셔 4 · 숙련된 사냥꾼 10
+      <span class="sub"><b>피철의 활</b></span></td>
+      <td class="num">52</td><td class="num"><b>5.8M</b></td><td class="num">7~10%<span class="sub">마검사 2~4%</span></td></tr>
+  </tbody></table>
 
   <div class="role" id="dodge-solo">
     <h3>④ 혼자 쩔 · 6~7단계 <span class="tag" style="color:var(--f-lodge)">엘프 · 도둑 + 반격 단검</span></h3>
@@ -640,19 +638,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <dt>부직업</dt><dd>6단계 숨은 칼날의 궁사 11 · 베테랑 파이터 10 / 7단계 숨은 칼날의 궁사 8 · 베테랑 파이터 8 · 숙련된 사냥꾼 10</dd>
       <dt>무기</dt><dd><b>돌아온 칼날의 단검</b> <span class="meta">(Lv17 · 반격 가능 · 회피 +1) &mdash; ★ 반격 단검은 약한 것이 낫습니다(아래)</span></dd>
       <dt>방어구</dt><dd>통풍이 잘되는 옷 · 세라믹스틸 오멘워드 탈리스만 · 테라 버클러</dd>
-      <dt>편성</dt><dd>회피탱 혼자 앞줄 · 저레벨 셋은 뒷줄에 <b>무기를 빼고</b>(맨손은 앞줄이 살아 있는 동안 칠 대상이 없어 안 칩니다)</dd>
+      <dt>편성</dt><dd>회피탱 혼자 앞줄 · <b>저레벨 한 명</b>을 뒷줄에 <b>무기를 빼고</b>(맨손은 앞줄이 살아 있는 동안 칠 대상이 없어 안 칩니다) &mdash; 경험치는 살아 있는 인원수로 나눠서 한 명만 데려가야 그 사람이 가장 많이 받습니다</dd>
     </dl>
-    <div class="chips"><span>완봉선 <b>43 · 47</b></span><span>마법 방어 42</span><span>경험치 <b>1.8M · 3.3M</b></span><span>라그네스 시간당 약 <b>31,000~32,500</b></span><span>저레벨 한 명 약 8,100</span></div>
+    <div class="chips"><span>완봉선 <b>43 · 47</b></span><span>마법 방어 42</span><span>경험치 <b>1.8M · 3.3M</b></span><span>라그네스 시간당 약 <b>31,900</b></span><span>저레벨이 받는 몫 약 <b>15,900</b></span></div>
     <p class="src">라그네스 강창의 흔적에서 엘프 도둑 31,151 · 마검사 28,603 · 지금 ③ 빌드(용맥의 단검 · 반격 없음) 18,580/시간이었습니다. 혼자 쩔에 7.2M 을 들여 마검사로 갈 이유가 없습니다.</p>
   </div>
   <ul>
     <li><b>반격 단검은 «약한 것» 이 더 법니다.</b> 천천히 잡을수록 부름이 쌓여, 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.</li>
-    <li><b>반격은 물리 무효에게 0</b> 입니다(마검사여도 반격은 물리). 그런 몬스터가 섞인 곳은 혼자 못 잡고, 24시간 안전하게 쩔이 되는 부름 탐색지는 8곳뿐입니다 &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «부름 최소~최대» 와 상세를 보세요.</li>
+    <li><b>반격은 물리 무효에게 0</b> 입니다(마검사여도 반격은 물리). 그런 몬스터가 섞인 곳은 혼자 못 잡고, 24시간 안전하게 쩔이 되는 부름 탐색지는 열 곳 남짓입니다 &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «부름 최소~최대» 와 상세를 보세요.</li>
     <li><b>강화로 회피를 붙이면 부직업을 0~2개 덜 키워도 됩니다</b>(경험치 16~45% 절약). 회피 강화는 의복 · 방패 · 투구 · 부적에만 붙고 무기에는 없으며, 회피보다 민첩이 더 많이 붙습니다.
         다만 한 번 강화로 목표선에 닿을 확률이 49~58% 라 다시 강화할 생각으로 계획하세요.</li>
     <li><b>마도병 부직업</b>(엘프 가능 · 풋워커 불가)은 35레벨이면 회피 +7 이지만 31M 이 들어 목표선에는 필요 없습니다.</li>
   </ul>
-  <p class="src">근거: 빌드 236가지를 사이트 능력치 식(engine.mjs)으로 훑고, 상위 후보를 파티 시뮬(그 단계 퀘스트 전부)과 쩔 시뮬(자유 탐색 24시간)에 넣었습니다 &mdash; tools/sim/evasion_builds.md · evasion_sim.md · callfarm_final.json.
+  <p class="src">근거: 빌드 236가지를 사이트 능력치 식(engine.mjs)으로 훑고, 상위 후보를 파티 시뮬(그 단계 퀘스트 전부)과 쩔 시뮬(자유 탐색 24시간)에 넣었습니다 &mdash; tools/sim/evasion_builds.md · evasion_sim.md · callfarm_final.json · evasion_glad/(검투사로 화력 올리기 · 같은 씨앗).
      엘프 부적 칸은 Character.CanEquipArmors 0x26DA0FC, 회피값은 Character.AvoidValue 0x26DC334, 강화 후보는 Armor.Craft 0x26FDE04.</p>
   </section>
 <section class="sec" id="sec-bow" data-sec="bow" data-upd="2026-09-19">
@@ -716,19 +714,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <dl class="kv">
       <dt>주직업</dt><dd><b>암흑마법사 30</b> <span class="meta">— 지능 8 · 마나 15 · 마법 방어 6</span></dd>
       <dt>부직업</dt><dd><b>견습 마법사 6 · 견습 성직자 6 · 숙련된 마법사 10 · 정령사 20 · 숙련된 성직자 7 · 순례 사제 7 · 마궁사 4 · 성창사 4</b>
-        <span class="meta">— 지능용, 얇게 깔기 (아래)</span><br>
-        <b>+ 마도병 10</b> <span class="meta">— 지능이 아니라 <b>마법을 사려고</b>: 뇌우(<a href="#spells">&sect;7</a>) &mdash; 같이 들어오는 프로스트 템페스트는 끕니다.
-        <b>10 에서 멈춥니다</b> &mdash; 20 의 라이프 하베스트는 치우는 종이 하나도 안 늘고 MP 만 7 더 들며(쏘는 턴 34%→29%) 맨 뒤에 얹어도 ≈24M 입니다.
-        회복은 <b>견습 성직자 1 의 Heal</b> 하나면 됩니다 &mdash; 지능 61 이면 그것도 63~65 를 채웁니다(&sect;7).
-        ★ <b>배운 마법은 전부 «사용» 이 켜진 채 들어옵니다 &mdash; 이 사다리는 31개를 배우는데 켜 둘 것은 뇌우 · 다크페인 · Heal 셋뿐, 나머지 28개를 끕니다</b>(<a href="#spells">&sect;7</a>).
-        썬더 블래스트는 속성이 같아 뇌우를 <b>영영</b> 막고,
-        불의 폭발 · 서리 폭발 · 아쿠아 블라스트 · 성스러운 폭발 · 어스퀘이크 · 베놈 클라우드 · 바람의 정령 · 프로스트 템페스트는 동점마다 이기며,
-        다크니스 · 슬립 미스트 · 마나크러쉬는 MP 가 38 에 못 미치는 턴에 다크페인 자리를 가져가고
-        (다크니스 · 슬립 미스트는 모르는 적이 있거나 MP 를 가진 적이 섞였을 때만 · 마나크러쉬는 어둠 약점인 적을 알아보면 MP 가 넉넉한 턴도 가져갑니다), 다크페인 말고 다른 단일 공격(화재 등)은 다크페인 자리를 가져갈 수 있고,
-        회복은 Heal 만 남깁니다 &mdash; 레벨 낮은 단일이 늘 먼저 고르므로 높은 치유 · 모두 치유 · 라이프 스피릿 · 살바는 켜 둬도 안 나갑니다.</span><br>
-        <b>+ 현자 30</b> <span class="meta">— 통찰 20 &rarr; 35, 마방 +3, 지수 0</span><br>
-        <b>+ 민첩 직업 9곳</b> <span class="meta">— 숨은 칼날의 궁사 4 · 스커미셔 4 · 숙련된 사냥꾼 3 · 전술병 3 · 도둑 2 · 수습 랜서 2 · 견습 사냥꾼 2 · 랜서 2 · 레인저 1
-          &rarr; <b>민첩 13 &rarr; 20</b>, +0.81M · 지능은 그대로. 칼레바스 몬스터 약 90% 보다 먼저 움직여 탱이 덜 죽습니다(<a href="#party">&sect;9</a>)</span></dd>
+        <span class="meta">&mdash; 지능용 · 얇게 깔기 (아래)</span><br>
+        <b>+ 마도병 10</b> <span class="meta">&mdash; 지능이 아니라 <b>뇌우</b>를 배우려고 · 10 에서 멈춥니다 (아래)</span><br>
+        <b>+ 현자 30</b> <span class="meta">&mdash; 통찰 20 &rarr; 35 · 마방 +3 · 지수 0</span><br>
+        <b>+ 민첩 직업 9곳</b> <span class="meta">&mdash; 민첩 13 &rarr; 20 · +0.81M (아래)</span></dd>
+      <dt>켜 둘 마법</dt><dd><b>뇌우 · 다크페인 · Heal</b> 셋 <span class="meta">&mdash; 나머지 28개는 끕니다 (아래)</span></dd>
       <dt>무기</dt><dd><b>정정의 지팡이</b> <span class="meta">요구 Lv23 · <b>힘 2</b> · 43~72 · <b>지능 +8</b> · <b>최대 MP +33</b> <span class="sm">(10 + 요구 레벨 23)</span></span><br>
         <span class="meta">예전에 여기 적어 둔 <b>송곳니왕의 전역 지팡이</b>(Lv29 · 힘 2 · 55~90 · 모든 적/전체 공격)는
         <b>지능이 +4</b> 뿐입니다 &mdash; 아래 «지팡이는 평타로 고르는 게 아닙니다» 를 보세요</span></dd>
@@ -738,8 +728,25 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <div class="chips"><span>지능(마력) <b>61</b> <span class="sm">기본 6 으로 셈 · 리스티아 여성 보통 62</span></span><span>마법 방어 <b>78</b></span><span>마나 <b>115</b></span>
       <span><b>MP 회복 13/턴</b></span><span>평타 48~77 <span class="sm">단일</span></span>
       <span>요구 힘 <b>2</b></span><span>경험치 <b>7.3M</b> <span class="sm">최적 순서면 4.5M</span></span>
-      <span class="meta">현자 30 을 얹으면 8.2M · 통찰 35 · 마방 81 &mdash; 현자는 어느 순서에 넣어도 똑같이 0.94M · 민첩 직업 9곳은 +0.81M</span></div>
+</div>
+    <p class="lede2" style="margin:6px 0 0">현자 30 을 얹으면 8.2M · 통찰 35 · 마방 81 &mdash; 현자는 어느 순서에 넣어도 똑같이 0.94M · 민첩 직업 9곳은 +0.81M</p>
   </div>
+
+  <div class="note warn"><b>★ 배운 마법은 전부 «사용» 이 켜진 채 들어옵니다.</b>
+     이 사다리로 31개를 배우는데, 켜 둘 것은 <b>뇌우 · 다크페인 · Heal</b> 셋뿐입니다(<a href="#spells">&sect;7</a>). 나머지를 켜 두면 이렇게 됩니다.</div>
+  <ul>
+    <li><b>썬더 블래스트</b> &mdash; 속성이 같아 뇌우를 <b>영영</b> 막습니다.</li>
+    <li><b>불의 폭발 · 서리 폭발 · 아쿠아 블라스트 · 성스러운 폭발 · 어스퀘이크 · 베놈 클라우드 · 바람의 정령 · 프로스트 템페스트</b> &mdash; 뇌우와 동점이면 매번 이깁니다.</li>
+    <li><b>다크니스 · 슬립 미스트 · 마나크러쉬</b> &mdash; MP 가 38 에 못 미치는 턴에 다크페인 자리를 가져갑니다.
+        <span class="sm">다크니스 · 슬립 미스트는 모르는 적이 있거나 MP 를 가진 적이 섞였을 때만, 마나크러쉬는 어둠 약점인 적을 알아보면 MP 가 넉넉한 턴에도 가져갑니다.</span></li>
+    <li><b>화재 등 다크페인 말고 다른 단일 공격</b> &mdash; 다크페인 자리를 가져갈 수 있습니다.</li>
+    <li><b>높은 치유 · 모두 치유 · 라이프 스피릿 · 살바</b> &mdash; 켜 둬도 안 나갑니다. 레벨 낮은 Heal 이 늘 먼저 고릅니다.</li>
+  </ul>
+  <div class="note"><b>마도병은 10 에서 멈춥니다.</b> 10 에서 뇌우가 들어옵니다(같이 들어오는 프로스트 템페스트는 끕니다).
+     20 의 라이프 하베스트는 치우는 종이 하나도 안 늘고 MP 만 7 더 들어 쏘는 턴이 34% &rarr; 29% 로 줄며, 맨 뒤에 얹어도 ≈24M 이 듭니다.
+     회복은 <b>견습 성직자 1 의 Heal</b> 하나면 됩니다 &mdash; 지능 61 이면 그것도 63~65 를 채웁니다(<a href="#spells">&sect;7</a>).</div>
+  <div class="note"><b>민첩 직업 9곳</b>은 숨은 칼날의 궁사 4 · 스커미셔 4 · 숙련된 사냥꾼 3 · 전술병 3 · 도둑 2 · 수습 랜서 2 · 견습 사냥꾼 2 · 랜서 2 · 레인저 1 입니다.
+     민첩이 13 &rarr; 20 이 되고(+0.81M · 지능은 그대로) 칼레바스 몬스터 약 90% 보다 먼저 움직여 탱이 덜 죽습니다(<a href="#party">&sect;9</a>).</div>
 
   <h3>★ 지팡이는 «평타» 로 고르는 게 아닙니다 &mdash; ⌊요구레벨 &divide; 6⌋ 이 공짜로 붙습니다</h3>
   <div class="note warn"><b>마법 피해식에 무기 피해가 한 칸도 안 들어갑니다.</b>

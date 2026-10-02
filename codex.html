@@ -43,7 +43,7 @@ body{margin:0;background:var(--ground);color:var(--body);
   font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased}
 .wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
 .mast{padding:44px 0 24px;border-bottom:1px solid var(--line)}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+.eyebrow{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11px;letter-spacing:.16em;
   text-transform:uppercase;color:var(--faint);margin:0 0 10px}
 .mast h1{font-family:"Gowun Batang",Georgia,serif;font-weight:700;
   font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
@@ -51,7 +51,7 @@ body{margin:0;background:var(--ground);color:var(--body);
 .lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
 .stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:22px}
 .stat{display:flex;flex-direction:column;gap:1px}
-.stat b{font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+.stat b{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:20px;font-weight:500;
   color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2}
 .stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
 .bar{position:sticky;top:0;z-index:40;background:var(--ground);
@@ -74,7 +74,7 @@ input[type="search"],select{font:inherit;font-size:13px;padding:7px 11px;border:
 input[type="search"]{flex:1 1 240px}
 .toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
 .toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
-.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);
+.count{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12px;color:var(--faint);
   margin-left:auto;font-variant-numeric:tabular-nums}
 button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px}
@@ -93,7 +93,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .nm{min-width:0;display:flex;flex-direction:column;gap:1px}
 .nm b{font-weight:500;color:var(--ink);font-size:14px;line-height:1.35}
 .nm span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.num{font-family:"IBM Plex Mono",monospace;font-size:12.5px;
+.num{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12.5px;
   font-variant-numeric:tabular-nums;color:var(--body);text-align:right;white-space:nowrap}
 .num.dim{color:var(--faint)}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
@@ -122,13 +122,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   background:var(--surface);cursor:pointer;user-select:none}
 .ab input{accent-color:var(--good);width:13px;height:13px;cursor:pointer}
 .ab.on{color:var(--good);border-color:currentColor;background:var(--raised)}
-.ab .n{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--faint)}
+.ab .n{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:10px;color:var(--faint)}
 .detail{padding:2px 14px 18px;border-top:1px dashed var(--line-soft);background:var(--raised)}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px 20px;margin:14px 0 0}
 .dcell{display:flex;flex-direction:column;gap:2px}
 .dcell dt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .dcell dd{margin:0;font-size:13.5px;color:var(--ink)}
-.dcell dd.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.dcell dd.mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-variant-numeric:tabular-nums}
+.dcell.wide{grid-column:1/-1}
+.cfn{display:block;font-size:11.5px;color:var(--muted);line-height:1.55;margin-top:6px}
+.dcell.wide dd{font-variant-numeric:tabular-nums;line-height:1.7}
+.cfk{display:inline-block;font-size:10.5px;font-weight:600;border:1px solid var(--line);border-radius:4px;padding:0 5px;margin-right:4px;color:var(--muted)}
 .blk{margin:14px 0 0;padding:12px 15px;background:var(--surface);
   border:1px solid var(--line);border-radius:8px;max-width:78ch}
 .blk h4{margin:0 0 8px;font-family:"Gowun Batang",Georgia,serif;font-size:14px;
@@ -136,7 +140,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .blk ul{margin:0;padding-left:16px;list-style:none}
 .blk li{position:relative;margin:0 0 5px;font-size:13px}
 .blk li::before{content:"·";position:absolute;left:-12px;color:var(--faint)}
-.blk .meta{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--muted);
+.blk .meta{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;color:var(--muted);
   font-variant-numeric:tabular-nums}
 .jump{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;
   border-bottom:1px dashed currentColor;padding:0;cursor:pointer}
@@ -144,10 +148,19 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .t-place{color:var(--c-place)}
 .t-cl{color:var(--good);border-width:2px}
 .t-call{color:var(--f-vault);border-color:var(--f-vault);border-width:2px}
-table.mini{border-collapse:collapse;margin:8px 0;font-family:"IBM Plex Mono",monospace;font-size:12px}
+table.mini{border-collapse:collapse;margin:8px 0;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12px}
 table.mini th,table.mini td{border:1px solid var(--line);padding:3px 9px;text-align:center}
 table.mini th{color:var(--faint);font-weight:600}
 table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--muted)}
+/* 상세의 회피 안내 — 여태 .note 규칙이 없어 «내부 ID» 밑에 그냥 붙어 나왔다 · 폰에서 표 첫 칸이 한 글자씩 세로로 쪼개졌다 */
+.detail .note{margin:14px 0 6px;padding:10px 12px;border-left:3px solid var(--accent);background:var(--surface);
+  border-radius:0 8px 8px 0;font-size:13px;line-height:1.65;color:var(--body)}
+.detail .note code{font-family:inherit;background:var(--raised);padding:1px 5px;border-radius:4px;white-space:nowrap}
+.detail .note .meta{display:block;margin-top:6px;font-size:12px;line-height:1.6;color:var(--muted)}
+.minwrap{overflow-x:auto;margin:8px 0}
+.minwrap table.mini{margin:0}
+table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif}
+@media (max-width:560px){ table.mini th,table.mini td{padding:3px 5px} }
 /* 지역별 훈련 추천 장소 — 탐색지 목록 맨 위. 줄은 아래 목록과 같은 모양이고, 사유만 길게 접힌다 */
 .recs .rsub{padding:9px 14px 3px;font-size:12px;font-weight:600;color:var(--c-place);
   border-top:1px solid var(--line-soft);background:var(--ground)}
@@ -165,7 +178,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
 /* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
 .drops{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.9}
 .drops .sep{font-style:normal;color:var(--faint);margin:0 5px}
-.gist{margin:2px 0 0;font-family:"IBM Plex Mono",monospace;font-size:11.5px;
+.gist{margin:2px 0 0;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;
   color:var(--muted);font-variant-numeric:tabular-nums}
 .gsp{margin-left:7px}
 .gsp i{font-style:normal;display:inline-block;margin:0 3px 0 0;padding:0 5px;
@@ -180,7 +193,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
   color:var(--ink);margin:0 0 8px}
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;margin:0}
 .cgrid dt{font-size:10.5px;color:var(--faint);letter-spacing:.04em}
-.cgrid dd{margin:0;font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--body);
+.cgrid dd{margin:0;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12.5px;color:var(--body);
   font-variant-numeric:tabular-nums}
 .csp{margin:9px 0 0}
 .csp i{font-style:normal;display:inline-block;margin:0 4px 4px 0;padding:1px 7px;
@@ -193,7 +206,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
 .empty{padding:52px 20px;text-align:center;color:var(--faint);font-size:14px}
 .foot{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
   font-size:12px;color:var(--faint);max-width:76ch}
-.foot code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--raised);
+.foot code{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;background:var(--raised);
   padding:1px 5px;border-radius:4px;color:var(--muted)}
 @media (max-width:700px){ .row{grid-template-columns:minmax(0,1fr) 56px} .row .num.r3{display:none} }
 /* 탐색지 줄(pl) — 넓은 화면은 다섯 칸, 좁은 화면은 이름을 한 줄 통째로 쓰고 숫자 넷을 그 아래 줄에.
@@ -663,21 +676,24 @@ function placeRow(p){
    쩔이 위험한 곳(24시간 안에 전멸하거나 저레벨이 죽음)은 최대를 안 적고 «쩔 불가» 로 둔다. */
 function cfLine(p){
   var c=p.cf; if(!c) return "";
-  var hi = c.safe && c.max>c.min ? c.max : null;
-  var t = hi ? (fmt(c.min)+'~'+fmt(hi)) : fmt(c.min);
-  return '<span class="cfl" title="부름 포함 시뮬 — 상세에 자세히">부름 '+t+(c.safe?'':' · 쩔 불가')+'</span>';
+  return '<span class="cfl" title="부름 포함 시뮬 — 상세에 자세히">부름 · '
+    +(c.safe ? ('쩔 '+fmt(c.max)+' · 한 명 '+fmt(c.low)) : '쩔 불가')+'</span>';
 }
 function cfBlock(p){
   var c=p.cf; if(!c) return "";
-  var risk = c.safe ? '<b style="color:var(--good)">24시간 안전</b>'
-    : '<b style="color:var(--f-vault)">쩔 위험</b> — 24시간 판 중 전멸 '+c.wipe+'% · 저레벨 사망 판당 '+c.lowd+'명';
-  return '<div class="dcell"><dt>부름 포함 <span class="sm">시뮬</span></dt><dd class="mono">'
-    + '추천 4인 파티 <b>'+fmt(c.min)+' exp/h</b> · '+fmt(c.ming)+' G/h<br>'
-    + '쩔(회피탱 혼자 · 반격 단검 · 저레벨 셋 무기 없음) <b>'+fmt(c.max)+' exp/h</b> · 저레벨 한 명 '+fmt(c.low)+'/h<br>'
-    + '<span class="sm">'+risk+' · 전투당 부름 '+c.calls+(c.draw?(' · 무승부 '+c.draw+'%'):'')+' · 탱 '+esc(c.tank)+'</span><br>'
-    + '<span class="sm">위 «벌이» 는 처음 나온 몬스터만 센 값이라 부름 몫이 빠져 있습니다. 이 값은 24시간 판 48번의 평균이고 전멸하면 그 뒤는 0 으로 셉니다. '
+  var zz = c.safe
+    ? ('<b>'+fmt(c.max)+' exp/h</b> (파티 전체) · <b>저레벨이 받는 몫 '+fmt(c.low)+'/h</b>'
+       +(c.maxg?(' · '+fmt(c.maxg)+' G/h'):'')+' · <b style="color:var(--good)">24시간 안전</b>')
+    : (c.draw>=50 ? '<b style="color:var(--f-vault)">쩔 불가</b> — 반격이 안 들어가는 몬스터(물리 무효)라 16라운드 무승부로 경험치가 0 입니다'
+       : '<b style="color:var(--f-vault)">쩔 불가</b> — 가장 나은 탱도 24시간 판 중 '+c.wipe+'% 가 전멸하거나 저레벨이 판당 '+c.lowd+'명 죽습니다');
+  return '<div class="dcell wide"><dt>부름 포함 <span class="sm">시뮬</span></dt><dd>'
+    + '<span class="cfk">쩔</span> '+(c.tk==="방어탱" ? '방어탱 혼자 앞줄' : '회피탱 혼자 앞줄(반격 단검)')+' + 저레벨 한 명 뒷줄 무기 없이 &mdash; '+zz+'<br>'
+    + '<span class="cfk">파티</span> 4인 추천 파티로 빨리 잡으면 '+fmt(c.min)+' exp/h'+(c.ming?(' · '+fmt(c.ming)+' G/h'):'')+'<br>'
+    + '<span class="cfn">전투당 부름 '+c.calls+(c.draw?(' · 무승부 '+c.draw+'%'):'')+(c.tank?(' · 쩔 탱 '+esc(c.tank)):'')+'<br>'
+    + '위 «벌이» 는 처음 나온 몬스터만 센 값이라 부름 몫이 빠져 있습니다. 24시간 판 48번 평균이고 전멸하면 그 뒤는 0 으로 셉니다. '
     + '<a href="notes.html#farm">원리 &sect;13</a></span></dd></div>';
 }
+
 /* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
    그래서 «회피값 + ⌊CreateRandomValue(민첩)/6⌋ ≥ 몬스터 명중» 이면
    2d6 이 최소(2)로 나와도 빗나간다 — 확실히 다 피한다. */
@@ -707,23 +723,23 @@ function avoidNote(p){
   var warn=[];
   if(p.nb) warn.push('<b>활이 안 통하는 몬스터 '+p.nb+'종</b>');
   if(p.np) warn.push('<b>물리가 안 통하는 몬스터 '+p.np+'종</b>');
-  var tbl='<table class="mini"><thead><tr><th>민첩</th>'
+  var tbl='<div class="minwrap"><table class="mini"><thead><tr><th>민첩</th>'
     + AGIS.map(function(a){ return '<th>'+a+'</th>'; }).join("")
     + '</tr></thead><tbody><tr><td>필요 회피값</td>'
     + AGIS.map(function(a){ return '<td>'+needAvoid(p.mh,a)+'</td>'; }).join("")
-    + '</tr></tbody></table>';
+    + '</tr></tbody></table></div>';
   return '<div class="note"><b>여기서 물리 공격을 전부 피하려면</b> — 가장 잘 맞히는 놈의 명중이 '
     +'<b>'+p.mh+'</b> 입니다. <code>회피값 + ⌊민첩 흔들림 최솟값/6⌋ ≥ '+p.mh+'</code> 이면 '
     +'2d6 이 최소로 나와도 빗나갑니다 &mdash; <b>민첩이 낮을수록 회피가 더 필요합니다.</b>'
     + tbl
     + '<span class="meta">필요 회피값이 내려가는 민첩은 <b>8·16·25·31·32·38·45·52·58·65·72·78·85·92·98</b> 입니다 &mdash; <code>CreateRandomValue</code> 의 흔들림 폭이 거기서 한 칸씩 줄기 때문입니다. <b>31 과 32 는 붙어 있어서, 민첩을 30 에서 32 로 둘만 올려도 필요 회피가 2 내려갑니다.</b> 지형이 «이동 곤란»이면 +2, «매우 곤란»이면 +4 가 더 필요합니다.</span>'
-    + (warn.length? '<br><span class="meta">다만 '+warn.join(", ")+'이 있습니다.</span>' : '')
-    + '<br><span class="meta">마법·상태이상은 회피 판정을 하지 않습니다. '
+    + (warn.length? '<span class="meta">다만 '+warn.join(", ")+'이 있습니다.</span>' : '')
+    + '<span class="meta">마법·상태이상은 회피 판정을 하지 않습니다. '
     + '<b>상태이상이 걸리면 회피가 깎입니다</b> — 넘어짐 −2 · 실명 −4 · 잡힘 −4, '
     + '혼란·수면·마비는 회피를 <b>0</b> 으로 만듭니다. 딱 맞추지 말고 <b>5 는 여유</b>를 두세요.</span></div>';
 }
 function placeDetail(p){
-  var _rate = p.eh ? '<div class="dcell"><dt>벌이 <span class="sm">자유 탐색</span></dt><dd class="mono">'
+  var _rate = p.eh ? '<div class="dcell wide"><dt>벌이 <span class="sm">자유 탐색 · 부름 없이</span></dt><dd>'
       + fmt(p.ep)+' exp · '+fmt(p.gp)+'G <span class="sm">판당</span><br>'
       + '<b>'+fmt(p.eh)+' exp/h</b> · <b>'+fmt(p.gh)+' G/h</b> <span class="sm">(평균 '+p.gap+'분마다)</span><br>'
       + '<span class="sm">경험치는 파티 전체 몫입니다 — 한 명이 받는 건 생존 인원수로 나눈 값입니다. '
