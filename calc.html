@@ -1120,7 +1120,7 @@ function statHTML(){
       + '<label class="lvin"><input type="number" min="0" step="1000" id="sc-xph" class="wide" value="'+(sc.xph||"")+'" placeholder="50000"></label>'
       + '<span class="lvlabel">은퇴 보너스</span>'
       + '<label class="lvin"><input type="number" min="0" max="150" step="5" id="sc-rb" value="'+(sc.rb||"")+'" placeholder="0">%</label>'
-      + (hrs>0 ? '<span class="meta">→ 게임 안 모험 시간 약 <b>'+(hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일')+'</b>'+(hrs>=48 ? ' (24시간 판 '+Math.ceil(hrs/24)+'번 · 다이아로 시간을 당기면 실제로 기다리는 시간은 더 짧습니다)' : '')+'</span>'
+      + (hrs>0 ? '<span class="meta">→ 게임 안 모험 시간 약 <b>'+(hrs<48 ? hrs.toFixed(1)+'시간' : (hrs/24).toFixed(1)+'일')+'</b>'+(hrs>=48 ? ' (24시간 판 '+Math.ceil(hrs/24)+'번)' : '')+'</span>'
                : '<span class="meta">넣으면 걸리는 시간을 계산합니다</span>')
       + '<div class="meta" style="flex-basis:100%">시간당 경험치는 <b>키우는 용병 한 명이 받는 몫</b>(파티 전체 ÷ 살아 있는 인원)을 넣으세요 &mdash; 세이브 실측으로 도르감 단도 유적 2인 쩔이 한 명당 약 21,000(은퇴 보너스 빼고)입니다.</div>'
       + '</div>'
