@@ -235,6 +235,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   color:var(--body);vertical-align:top}
 .doc td.num,.doc th.num{text-align:right;font-family:"IBM Plex Mono",monospace}
 .doc td b{color:var(--ink)}
+.doc td .sub{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.doc td.dim,.doc td .dim{color:var(--faint)}
 .toc{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0}
 .toc a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 12px;
   border:1px solid var(--line);border-radius:99px;background:var(--surface)}
@@ -1280,67 +1282,84 @@ MP 10~37  &rarr; <b>다크페인</b>     한 명에게 <b>92~94</b>      <span c
 <section class="sec" id="sec-stages" data-sec="stages" data-upd="2026-10-02">
   <h2 id="stages"><span class="n">11</span>몇 지역까지 열렸나 &mdash; 단계별 역할 세팅</h2>
   <p class="secdate">2026-10-02 갱신</p>
-  <p>위 <a href="#deftank">&sect;2</a>~<a href="#spells">&sect;7</a> 은 <b>7 지역이 다 열린 뒤</b>의 답입니다. 그 전에는 훈련소 · 상점 · 금고가 거기까지 안 줍니다.
-     아래는 «N 번 지역까지 열린 상태» 에서 역할마다 <b>그때 닿는 최고</b>입니다 &mdash; 직업은 그 단계의 훈련소 천장, 장비는 그때까지 열린 지역의 상점 · 금고 · 드랍에서 나오는 것만 적었습니다.
-     각 단계의 부위별 전체 목록과 출처는 <a href="regions.html#caps">지역 &sect;9</a> 에, 지역을 여는 조건은 <a href="regions.html">지역</a> 에 있습니다.</p>
-  <div class="note"><b>회피탱은 4단계부터 적습니다.</b> 1~3단계에는 풋워커도, 회피 +5 짜리 방패 · 투구 · 부적도 없어서 «회피로 안 맞는» 세팅이 성립하지 않습니다 &mdash; 그 전엔 방어탱이 유일한 탱입니다.
-     <b>법사도 4단계부터</b>입니다. 2단계에 직업(숙련된 마법사 10)은 생기지만 MP 회복 장비가 0 이라 의뢰 하나에 몇 번 못 쏩니다(MP 는 의뢰가 끝나야 찹니다 &mdash; <a href="notes.html#wtrait">원리 &sect;6</a>).
-     <b>모험가를 주직업으로 두는 틀</b>(<a href="#deftank">&sect;2</a>)은 어느 단계에서나 같습니다 &mdash; 방어구 네 칸을 다 쓰고, 요구 레벨은 «내 직업 중 최고 +1» 까지 열립니다.</div>
+  <p>위 <a href="#deftank">&sect;2</a>~<a href="#spells">&sect;7</a> 은 <b>7 지역이 다 열린 뒤</b>의 답입니다. 여기는 «N 번 지역까지 열린 상태» 에서 역할마다 <b>그때 닿는 최고</b>만 적습니다 &mdash;
+     직업은 그 단계의 훈련소 천장, 장비는 그때까지 열린 지역의 상점 · 금고 · 드랍에서 나오는 것입니다.
+     어느 의뢰에서 나오는지와 부위별 전체 목록은 <a href="regions.html#caps">지역 &sect;9</a> 에, 지역을 여는 조건은 <a href="regions.html">지역</a> 에 있습니다.</p>
+  <div class="note"><b>회피탱과 법사는 4단계부터.</b> 그 전엔 풋워커도, 회피 +5 짜리 방패 · 투구 · 부적도, MP 회복 장비도 없어서 세팅이 성립하지 않습니다(MP 는 의뢰가 끝나야 찹니다 &mdash; <a href="notes.html#wtrait">원리 &sect;6</a>).
+     모험가를 주직업으로 두는 틀(<a href="#deftank">&sect;2</a>)은 어느 단계에서나 같습니다.</div>
 
-  <h3>1단계 · 미스토리아 반도 <span class="sm">전투 직업 천장 7 · 휴먼만</span></h3>
-  <table class="t"><thead><tr><th>역할</th><th>직업</th><th>무기</th><th>방어구</th><th>비고</th></tr></thead><tbody>
-    <tr><td><b>방어탱</b></td><td>수습 전사 6 → 견습 도끼전사 7</td><td>베테랑의 검 Lv6 12~23 <span class="sm">상점</span> · 도살 도끼 Lv6 11~25 <span class="sm">금고 윈달리온</span></td><td>베테랑의 갑옷 · 헬멧 · 방패 Lv6 <span class="sm">브란샤르 상점 7단계</span> · 중갑 Lv5 11~16 <span class="sm">습득물</span></td><td>부적 칸을 채울 것이 없습니다</td></tr>
-    <tr><td><b>활</b></td><td>견습 사냥꾼 6</td><td>워샷 활 Lv5 14~23 <span class="sm">습득물 「별을 바라보는 학자」</span> · 베테랑의 활 Lv6 10~22 <span class="sm">상점</span></td><td>정령 천 의상 Lv6 7~13 마방 3 <span class="sm">금고</span></td><td></td></tr>
-    <tr><td>창</td><td><span class="sm">창 직업 없음 &mdash; 모험가만</span></td><td>베테랑의 창 Lv6 11~22 <span class="sm">금고 「가라앉은 기둥」</span></td><td></td><td>수습 랜서는 2단계</td></tr>
-    <tr style="color:var(--muted)"><td>법사</td><td>견습 마법사 6 <span class="sm">휴먼</span></td><td>베테랑 지팡이 Lv6 <span class="sm">드랍</span></td><td colspan="2">부적 · 지능 · MP 회복 장비가 0 &mdash; 권하지 않습니다. 회복은 견습 성직자 6 의 Heal 로</td></tr>
+  <h3>직업만 한눈에</h3>
+  <table class="t"><thead><tr><th>역할</th><th>1 미스토리아</th><th>2 바르디아</th><th>3 뤼미에르</th><th>4 아르디오스</th><th>5 바람의 경계</th><th>6 발두나</th><th>7 칼레바스</th></tr></thead><tbody>
+    <tr><td><b>방어탱</b></td><td>수습 전사 6</td><td>베테랑 파이터 10</td><td><b>가드 15</b> <span class="sub">성립</span></td><td>블레이드브레이커 20</td><td>중도사 25</td><td>무장병 30</td><td><a href="#deftank">&sect;2</a></td></tr>
+    <tr><td><b>활</b></td><td>견습 사냥꾼 6</td><td>숙련된 사냥꾼 10</td><td>스커미셔 15</td><td>숨은 칼날의 궁사 20</td><td>마궁사 25</td><td>도둑 · 레인저 35</td><td><a href="#bow">&sect;4</a></td></tr>
+    <tr><td><b>창</b></td><td>&mdash;</td><td>수습 랜서 8</td><td>랜서 15</td><td>전술병 20</td><td>성창사 25</td><td>〃</td><td><a href="#spear">&sect;5</a></td></tr>
+    <tr><td><b>법사</b></td><td>&mdash;</td><td><span class="dim">(숙련된 마법사 10)</span></td><td><span class="dim">(〃)</span></td><td><b>정령사 20</b> <span class="sub">첫 추천</span></td><td>정령사 20</td><td><b>암흑마법사 30</b></td><td><a href="#mage">&sect;6</a></td></tr>
+    <tr><td><b>회피탱</b></td><td>&mdash;</td><td>&mdash;</td><td>&mdash;</td><td><b>궁사 20 + 풋워커</b> <span class="sub">첫 추천</span></td><td>〃</td><td><b>마검사 30</b> <span class="sub">완성</span></td><td><a href="#dodge">&sect;3</a></td></tr>
   </tbody></table>
 
-  <h3>2단계 · 바르디아 평원 <span class="sm">천장 10 · + 엘프(루페리아)</span></h3>
-  <table class="t"><thead><tr><th>역할</th><th>직업</th><th>무기</th><th>방어구</th><th>비고</th></tr></thead><tbody>
-    <tr><td><b>방어탱</b></td><td>베테랑 파이터 10</td><td>맹렬한 사령관의 검 Lv10 20~35 <span class="sm">금고 루페리아</span> · <b class="mag">기사 검</b> Lv9 20~36 마법 <span class="sm">금고 사하리오</span></td><td>워로드 갑옷 · 투구 · 방패 Lv9 <span class="sm">사하리오 · 루페리아 상점 5단계</span> → 맹렬한 사령관 Lv10 <span class="sm">금고</span> · 스펠록 방패 Lv8 마방 3</td><td>부적: 불의 후광 부적 Lv10 마방 14 <span class="sm">금고 사하리오</span></td></tr>
-    <tr><td><b>활</b></td><td>숙련된 사냥꾼 10</td><td>게일 발리 활 Lv10 18~34 <span class="sm">금고 사하리오</span> · 엘프 활 Lv7 마법</td><td>워로드 복장 Lv9 <span class="sm">상점</span> → 맹렬한 사령관의 옷 Lv10</td><td></td></tr>
-    <tr><td><b>창</b></td><td>수습 랜서 8</td><td>워로드 스피어 Lv9 17~31 <span class="sm">상점</span> · 대지의 송곳니 창 Lv10 <span class="sm">금고</span></td><td>워로드 복장 Lv9</td><td></td></tr>
-    <tr style="color:var(--muted)"><td>법사</td><td>숙련된 마법사 10 <span class="sm">엘프 · 휴먼</span></td><td>워로드 지팡이 Lv9 15~30 <span class="sm">상점</span></td><td>베테랑의 부적 Lv6 <b>지능 +3</b> <span class="sm">금고 사하리오 「조수 왕의 잠」</span></td><td>MP 회복 0 &mdash; 아직 «가능» 일 뿐</td></tr>
-  </tbody></table>
-
-  <h3>3단계 · 뤼미에르 힐스 <span class="sm">천장 15 · + 드워프(군벨)</span></h3>
-  <table class="t"><thead><tr><th>역할</th><th>직업</th><th>무기</th><th>방어구</th><th>비고</th></tr></thead><tbody>
-    <tr><td><b>방어탱</b> <span class="sm">여기서 성립</span></td><td>드워프 + 가드 15 <span class="sm">갑옷 · 방패 · 투구 세 칸</span></td><td>슈프림 소드 Lv15 30~50 <span class="sm">금고 밀레아 「아마사키 협곡 조사」 &mdash; 3→4 선행</span> · <b class="mag">화염가이드 소드</b> Lv15 마법 <span class="sm">금고 군벨</span></td><td>마스터크래프트 갑옷 · 헬멧 · 방패 Lv14 <span class="sm">군벨 · 밀레아 상점 6단계</span> · 룬 방어구 Lv13 마방 5 <span class="sm">드랍</span></td><td>투구 · 방패 최고가 금고가 아니라 <b>상점</b></td></tr>
-    <tr><td><b>활</b></td><td>스커미셔 15</td><td>마스터크래프트 활 Lv14 26~46 <span class="sm">상점 밀레아</span> · 지구결속 활 Lv13 마법 <span class="sm">금고 군벨</span></td><td>마스터크래프트 튜닉 Lv14 · 마녀사냥꾼 부적 Lv14 마방 18 <span class="sm">드랍</span></td><td></td></tr>
-    <tr><td><b>창</b></td><td>랜서 15</td><td>마스터크래프트 창 Lv14 27~46 <span class="sm">상점</span> · 분쇄 피어스 창 Lv14 29~50 회피 −2 <span class="sm">금고 군벨</span></td><td>마스터크래프트 갑옷 · 헬멧</td><td></td></tr>
-    <tr style="color:var(--muted)"><td>법사</td><td>숙련된 마법사 10 <span class="sm">그대로</span></td><td>마스터 크래프트 지팡이 Lv14 25~45 <span class="sm">상점 밀레아</span></td><td>검은 시길 의상 Lv12 <b>MP +1</b> <span class="sm">드랍</span> · 불꽃 의상 Lv12 지능 +2</td><td>직업이 장비보다 뒤처짐</td></tr>
-    <tr style="color:var(--muted)"><td>회피탱</td><td colspan="4"><b>통풍이 잘되는 옷</b>(Lv13 · 회피 +6 · 습득물 밀레아 「숲이 길을 숨기는 이유」)만 미리 챙겨 두세요 &mdash; 7단계까지 의복 회피 최고입니다. 세팅 자체는 아직 안 됩니다</td></tr>
-  </tbody></table>
-
-  <h3>4단계 · 아르디오스 왕국 <span class="sm">천장 20 · + 풋워커</span></h3>
-  <table class="t"><thead><tr><th>역할</th><th>직업</th><th>무기</th><th>방어구</th><th>비고</th></tr></thead><tbody>
-    <tr><td><b>방어탱</b></td><td>모험가 + 블레이드브레이커 20 · 가드 15</td><td>별을 부수는 검 Lv20 40~65 <span class="sm">습득물 풋워커</span> · <b class="mag">허공의 검</b> Lv20 마법 <span class="sm">드랍 그루넬</span></td><td>별을 부수는 갑옷 · 투구 Lv20 <span class="sm">금고 풋워커</span> · 서리단 방패 Lv20 6~22 <span class="sm">금고 풋워커</span> · 단마의 부적 Lv19 <b>마방 32</b> <span class="sm">금고 풋워커</span></td><td>상점은 전식 Lv19 전 부위</td></tr>
-    <tr><td><b>활</b></td><td>숨은 칼날의 궁사 20</td><td>별을 부수는 활 Lv20 38~64 <span class="sm">금고 풋워커</span> · 프리즈 아이 Lv18 마법 <span class="sm">드랍 빙하 거인</span></td><td>실바 그린 가브 Lv15 회피 +5 마방 6 · 테라 버클러 Lv16 방패 회피 +5</td><td></td></tr>
-    <tr><td><b>창</b></td><td>전술병 20</td><td>별을 꿰뚫는 창 Lv20 39~64 <span class="sm">금고 풋워커</span> · 흡혈의 창 Lv19 38~63 <span class="sm">금고 세라피오스</span></td><td>별을 부수는 갑옷 · 투구 · 단마의 부적</td><td></td></tr>
-    <tr class="hi"><td><b>법사</b> <span class="sm">첫 추천</span></td><td>정령사 20 <span class="sm">엘프 · 휴먼</span></td><td><b class="mag">담쟁이 폭풍의 지팡이</b> Lv20 35~62 마법 <span class="sm">습득물 세라피오스</span> · 탄광의 마법 지팡이 Lv16 지능 +2</td><td>혈액 순환의 옷 Lv17 <b>MP +3</b> <span class="sm">금고 풋워커</span> · 마천의 부적 Lv18 <b>MP +3</b> 마방 18 <span class="sm">금고 세라피오스</span></td><td>턴당 MP +6 &mdash; 처음으로 의뢰 내내 쏠 수 있습니다</td></tr>
-    <tr class="hi"><td><b>회피탱</b> <span class="sm">첫 추천</span></td><td>풋워커 + 숨은 칼날의 궁사 20 <span class="sm">민첩이 주능력</span> · 도둑</td><td>별을 부수는 단검 Lv20 38~62 <span class="sm">금고 세라피오스</span></td><td>통풍이 잘되는 옷 +6 · 테라 버클러 방패 회피 +5 <span class="sm">금고 세라피오스</span> · 슈어핸드 헬름 Lv17 +2 <span class="sm">투구 칸은 모험가</span></td><td>부적에 회피가 아직 없습니다 &mdash; 아르디오스 자유 탐색(완봉선 23)용</td></tr>
-  </tbody></table>
-
-  <h3>5단계 · 바람의 거친 경계 <span class="sm">천장 25 · 리스티아 휴먼(합 41)</span></h3>
-  <table class="t"><thead><tr><th>역할</th><th>직업</th><th>무기</th><th>방어구</th><th>비고</th></tr></thead><tbody>
-    <tr><td><b>방어탱</b></td><td>모험가 + 중도사 25 <span class="sm">갑옷 · 투구 · 방패</span> · 검투사 25</td><td>현무암 도끼 Lv25 49~82 <span class="sm">금고 드라이레이크</span> · 현무암의 검 Lv25 50~80 · <b class="mag">글라즈의 검</b> Lv25 마법 <span class="sm">습득물 드라이레이크</span></td><td>현무의 갑옷 Lv25 52~57 <span class="sm">힘 39</span> / 현무암 갑옷 50~53 <span class="sm">힘 30</span> · 현무암 투구 Lv25 · 현무암 방패 Lv25 7~27 / 굴절 방패 Lv24 마방 9</td><td>상점은 3단계지만 재고 Lv22</td></tr>
-    <tr><td><b>활</b></td><td>마궁사 25 <span class="sm">엘프 · 휴먼</span> · 숨은 칼날의 궁사 20</td><td>현무암 활 Lv25 48~79 <span class="sm">금고 리스티아</span> · <b class="mag">지문의 현궁</b> Lv26 마법 <span class="sm">천장 초과 &mdash; 모험가 26</span></td><td>암숨의 법복 Lv25 45~51 · 현맥의 부적 Lv25 마방 34</td><td></td></tr>
-    <tr><td><b>창</b></td><td>성창사 25 <span class="sm">드워프 · 휴먼</span></td><td><b class="mag">흑암관통창</b> Lv25 49~79 마법 <span class="sm">금고 리스티아</span> · 방해석 창 Lv24</td><td>현무암 투구 · 현맥의 부적</td><td></td></tr>
-    <tr class="hi"><td><b>법사</b></td><td>정령사 20 <span class="sm">그대로</span></td><td><b>정정의 지팡이</b> Lv23 43~72 <b>지능 +5</b> <span class="sm">금고 드라이레이크 「석상 목격 조사 호위」</span></td><td><b>암숨의 법복</b> Lv25 MP +6 · <b>현맥의 부적</b> Lv25 MP +7 마방 34</td><td><a href="#mage">&sect;6</a> 의 장비 세 벌이 전부 여기서 &mdash; 직업만 암흑마법사(6단계)를 기다립니다</td></tr>
-    <tr><td><b>회피탱</b></td><td>풋워커 + 숨은 칼날의 궁사 20</td><td><b class="mag">용맥의 단검</b> Lv26 45~72 전체 <span class="sm">금고 드라이레이크 · 모험가 26</span></td><td>통풍이 잘되는 옷 +6 · 테라 버클러 +5 · 그림자 바느질 경장 Lv24 +2</td><td>부적 · 투구 회피는 6단계</td></tr>
-  </tbody></table>
-
-  <h3>6단계 · 발두나의 황야 <span class="sm">천장 30 · 트레반 드워프(합 43)</span></h3>
-  <table class="t"><thead><tr><th>역할</th><th>직업</th><th>무기</th><th>방어구</th><th>비고</th></tr></thead><tbody>
-    <tr><td><b>방어탱</b></td><td>모험가 + 무장병 30 · 중도사 25</td><td><b class="mag">세포 소용돌이의 검</b> Lv30 60~95 마법 <span class="sm">금고 트레반</span> · 송곳니왕의 대검 59~94 · 도끼 57~94 Lv29 <span class="sm">상점</span></td><td>왕단의 갑옷 Lv30 60~63 <span class="sm">금고 트레반</span> / 송곳니 왕의 갑옷 · 투구 Lv29 <span class="sm">상점</span> · 송곳니왕의 방패 Lv28 / 검은 봉인의 방패 Lv26 마방 11 · <b>늪왕의 부적</b> Lv29 마방 39</td><td>용광로 상점 7단계가 금고 없이 Lv29 를 줍니다</td></tr>
-    <tr><td><b>활</b></td><td>도둑 · 레인저 35</td><td>송곳니왕의 활 Lv29 56~91 <span class="sm">상점</span> · <b class="mag">명천궁</b> Lv31 마법 <span class="sm">금고 트레반 · 천장 초과</span></td><td>암숨의 법복 · 현맥의 부적</td><td><a href="#bow">&sect;4</a> 와 같음</td></tr>
-    <tr><td><b>창</b></td><td>성창사 25 · 무장병 30</td><td><b class="mag">하늘을 뚫는 창</b> Lv30 59~94 마법 <span class="sm">드랍 발키리</span> · 송곳니왕의 창 Lv29 <span class="sm">상점</span></td><td></td><td><a href="#spear">&sect;5</a> 와 같음</td></tr>
-    <tr class="hi"><td><b>법사</b></td><td><b>암흑마법사 30</b> <span class="sm">트레반 평판 −1 의뢰</span></td><td>정정의 지팡이</td><td>암숨의 법복 · 현맥의 부적</td><td><a href="#mage">&sect;6</a> 그대로</td></tr>
-    <tr class="hi"><td><b>회피탱</b> <span class="sm">완성</span></td><td><b>마검사 30</b> <span class="sm">용광로 · 선행 5개</span> + 도둑</td><td>용맥의 단검</td><td>통풍이 잘되는 옷 +6 · <b>짐승의 눈의 투구</b> Lv29 +5 <span class="sm">금고 트레반</span> · <b>오멘워드 탈리스만</b> Lv27 +5 <span class="sm">금고 용광로</span> · 검은 봉인의 방패</td><td><a href="#dodge">&sect;3</a> 그대로</td></tr>
-  </tbody></table>
-
-  <h3>7단계 · 칼레바스 고원 <span class="sm">천장 35 = 모험가 36</span></h3>
-  <p>위 <a href="#deftank">&sect;2</a>~<a href="#spells">&sect;7</a> 이 이 단계의 답입니다. 새로 열리는 것은 방어 · 피해 · 마방뿐이고(진악 Lv34 상점 · 피철 Lv35 금고 · 갈증의 갑옷 · 고목의 부적 · 영묘의 방패), 회피 · 지능 장비는 6단계까지 것이 그대로 최고입니다.</p>
+  <h3>단계마다 &mdash; 직업 · 무기 · 방어구</h3>
+  <div class="role">
+    <h3>1단계 · 미스토리아 반도 <span class="sm">천장 7 · 휴먼만</span></h3>
+    <dl class="kv">
+      <dt>방어탱</dt><dd><b>수습 전사 6 → 견습 도끼전사 7</b> · 베테랑의 검 / 도살 도끼 Lv6 · 베테랑의 갑옷 · 헬멧 · 방패 Lv6 <span class="meta">&mdash; 부적 칸은 채울 것이 없음</span></dd>
+      <dt>활</dt><dd><b>견습 사냥꾼 6</b> · 워샷 활 Lv5 · 정령 천 의상 Lv6</dd>
+      <dt>창</dt><dd>&mdash; <span class="meta">&mdash; 창 직업 없음 · 수습 랜서는 2단계</span></dd>
+      <dt>법사</dt><dd>&mdash; <span class="meta">&mdash; 견습 마법사 6 은 있지만 부적 · MP 회복 장비가 0</span></dd>
+    </dl>
+  </div>
+  <div class="role">
+    <h3>2단계 · 바르디아 평원 <span class="sm">천장 10 · + 엘프</span></h3>
+    <dl class="kv">
+      <dt>방어탱</dt><dd><b>베테랑 파이터 10</b> · 기사 검 Lv9(마법) / 맹렬한 사령관의 검 Lv10 · 워로드 갑옷 · 투구 · 방패 Lv9 → 맹렬한 사령관 Lv10 · 불의 후광 부적 <span class="meta">&mdash; 워로드는 상점, 맹렬한 사령관은 금고</span></dd>
+      <dt>활</dt><dd><b>숙련된 사냥꾼 10</b> · 게일 발리 활 Lv10 · 워로드 복장 Lv9</dd>
+      <dt>창</dt><dd><b>수습 랜서 8</b> · 워로드 스피어 Lv9 · 워로드 복장 Lv9</dd>
+      <dt>법사</dt><dd><span class="dim">숙련된 마법사 10 · 워로드 지팡이 Lv9 · 베테랑의 부적(지능 +3)</span> <span class="meta">&mdash; MP 회복 0 &mdash; 아직 권하지 않음</span></dd>
+    </dl>
+  </div>
+  <div class="role">
+    <h3>3단계 · 뤼미에르 힐스 <span class="sm">천장 15 · + 드워프</span></h3>
+    <dl class="kv">
+      <dt>방어탱</dt><dd><b>드워프 + 가드 15</b> · 슈프림 소드 Lv15 / 화염가이드 소드(마법) · 마스터크래프트 갑옷 · 헬멧 · 방패 Lv14 <span class="meta">&mdash; 여기서 성립 · 방어구 셋은 상점</span></dd>
+      <dt>활</dt><dd><b>스커미셔 15</b> · 마스터크래프트 활 Lv14 · 마스터크래프트 튜닉 · 마녀사냥꾼 부적</dd>
+      <dt>창</dt><dd><b>랜서 15</b> · 마스터크래프트 창 Lv14 · 마스터크래프트 갑옷 · 헬멧</dd>
+      <dt>법사</dt><dd><span class="dim">숙련된 마법사 10 · 마스터 크래프트 지팡이 Lv14 · 검은 시길 의상(MP +1)</span> <span class="meta">&mdash; 직업이 장비보다 뒤처짐</span></dd>
+      <dt>회피탱</dt><dd>&mdash; <span class="meta">&mdash; <b>통풍이 잘되는 옷</b>(회피 +6)만 미리 챙길 것 &mdash; 7단계까지 의복 최고</span></dd>
+    </dl>
+  </div>
+  <div class="role">
+    <h3>4단계 · 아르디오스 왕국 <span class="sm">천장 20 · + 풋워커</span></h3>
+    <dl class="kv">
+      <dt>방어탱</dt><dd><b>모험가 + 블레이드브레이커 20</b> · 별을 부수는 검 Lv20 / 허공의 검(마법) · 별을 부수는 갑옷 · 투구 Lv20 · 서리단 방패 Lv20 · 단마의 부적(마방 32) <span class="meta">&mdash; 상점은 전식 Lv19 전 부위</span></dd>
+      <dt>활</dt><dd><b>숨은 칼날의 궁사 20</b> · 별을 부수는 활 Lv20 · 실바 그린 가브 Lv15 · 테라 버클러</dd>
+      <dt>창</dt><dd><b>전술병 20</b> · 별을 꿰뚫는 창 Lv20 · 별을 부수는 갑옷 · 투구 · 단마의 부적</dd>
+      <dt>법사</dt><dd><b>정령사 20</b> · 담쟁이 폭풍의 지팡이 Lv20(마법) · 혈액 순환의 옷(MP +3) · 마천의 부적(MP +3) <span class="meta">&mdash; 첫 추천 &mdash; 턴당 MP +6</span></dd>
+      <dt>회피탱</dt><dd><b>풋워커 + 숨은 칼날의 궁사 20</b> · 별을 부수는 단검 Lv20 · 통풍이 잘되는 옷 +6 · 테라 버클러 +5 · 슈어핸드 헬름 +2 <span class="meta">&mdash; 첫 추천 &mdash; 아르디오스 자유 탐색용 · 부적에 회피는 아직 없음</span></dd>
+    </dl>
+  </div>
+  <div class="role">
+    <h3>5단계 · 바람의 거친 경계 <span class="sm">천장 25 · 리스티아 휴먼(합 41)</span></h3>
+    <dl class="kv">
+      <dt>방어탱</dt><dd><b>모험가 + 중도사 25</b> · 현무암 도끼 / 현무암의 검 Lv25 · 현무의 갑옷 · 현무암 투구 · 현무암 방패 Lv25 <span class="meta">&mdash; 현무의 갑옷은 힘 39 &mdash; 모자라면 현무암 갑옷(힘 30)</span></dd>
+      <dt>활</dt><dd><b>마궁사 25</b> · 현무암 활 Lv25 · 암숨의 법복 · 현맥의 부적</dd>
+      <dt>창</dt><dd><b>성창사 25</b> · 흑암관통창 Lv25(마법) · 현무암 투구 · 현맥의 부적</dd>
+      <dt>법사</dt><dd><b>정령사 20</b> · 정정의 지팡이(지능 +5) · 암숨의 법복(MP +6) · 현맥의 부적(MP +7) <span class="meta">&mdash; <a href="#mage">&sect;6</a> 의 장비 세 벌이 다 모임 &mdash; 직업만 6단계를 기다림</span></dd>
+      <dt>회피탱</dt><dd><b>풋워커 + 궁사 20</b> · 용맥의 단검 Lv26(전체 · 모험가 26) · 통풍이 잘되는 옷 +6 · 테라 버클러 +5 <span class="meta">&mdash; 부적 · 투구 회피는 6단계</span></dd>
+    </dl>
+  </div>
+  <div class="role">
+    <h3>6단계 · 발두나의 황야 <span class="sm">천장 30 · 트레반 드워프(합 43)</span></h3>
+    <dl class="kv">
+      <dt>방어탱</dt><dd><b>모험가 + 무장병 30</b> · 세포 소용돌이의 검 Lv30(마법) / 송곳니왕의 대검 · 왕단의 갑옷 Lv30 · 송곳니왕의 투구 · 방패 · 늪왕의 부적(마방 39) <span class="meta">&mdash; 송곳니왕은 용광로 상점 7단계</span></dd>
+      <dt>활</dt><dd><b>도둑 · 레인저 35</b> · 송곳니왕의 활 Lv29 / 명천궁 Lv31(마법) <span class="meta">&mdash; <a href="#bow">&sect;4</a> 와 같음</span></dd>
+      <dt>창</dt><dd><b>성창사 25</b> · 하늘을 뚫는 창 Lv30(마법) <span class="meta">&mdash; <a href="#spear">&sect;5</a> 와 같음</span></dd>
+      <dt>법사</dt><dd><b>암흑마법사 30</b> · 정정의 지팡이 · 암숨의 법복 · 현맥의 부적 <span class="meta">&mdash; <a href="#mage">&sect;6</a> 그대로</span></dd>
+      <dt>회피탱</dt><dd><b>마검사 30 + 도둑</b> · 용맥의 단검 · 통풍이 잘되는 옷 +6 · 짐승의 눈의 투구 +5 · 오멘워드 탈리스만 +5 · 검은 봉인의 방패 <span class="meta">&mdash; 완성 &mdash; <a href="#dodge">&sect;3</a> 그대로</span></dd>
+    </dl>
+  </div>
+  <div class="role">
+    <h3>7단계 · 칼레바스 고원 <span class="sm">천장 35 = 모험가 36</span></h3>
+    <p class="lede2" style="margin-bottom:0">위 <a href="#deftank">&sect;2</a>~<a href="#spells">&sect;7</a> 그대로입니다. 새로 열리는 것은 방어 · 피해 · 마방뿐이고(진악 Lv34 상점 · 피철 Lv35 금고 · 갈증의 갑옷 · 고목의 부적 · 영묘의 방패), 회피 · 지능 장비는 6단계까지 것이 그대로 최고입니다.</p>
+  </div>
   <p class="src">근거: full/regions/caps.json &mdash; 상점 재고 · 금고 · 습득물 · 드랍을 7.2 데이터에서 직접 집계하고, 장착 조건은 Character.CanEquip(0x26DA314 · 요구 레벨 ≤ 내 직업 최고 레벨)로 확인했습니다. 직업의 무기 · 방어구 칸은 <a href="codex.html">도감 › 용병단</a> 의 것입니다.</p>
   </section>
 </main>
