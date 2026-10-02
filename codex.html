@@ -154,6 +154,9 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
 .recs .rsub:first-child{border-top:0}
 .row.rec .nm span{white-space:normal;line-height:1.5}
 .row.rec .nm .loot{color:var(--c-item)}
+.row.rec .num.r3{white-space:normal;line-height:1.35}
+.row.rec .tadj{display:block;font-size:11px;color:var(--muted)}
+.row.rec .tadj b{color:var(--ink);font-weight:600}
 .recs-note{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.6}
 .recs-note b{color:var(--ink);font-weight:600}
 .t-magic{color:var(--f-arch);border-color:var(--f-arch);border-width:2px}
@@ -907,9 +910,9 @@ function block(title,sub,rows,color){
 function recRow(rc){
   var p=PBY[rc.i]; if(!p) return "";
   var need=needAvoid(p.mh,30);
-  var av = rc.here!==need
-    ? ('회피 '+need+'+ <span class="dim">· '+esc(rc.t)+' <b>'+rc.here+'</b></span>')
-    : ('회피 '+need+'+');
+  /* 지형 보정은 같은 칸 둘째 줄로 — 한 줄에 다 넣으면 120px 를 넘어 옆 칸(경험치)을 덮는다 */
+  var av = '회피 '+need+'+'
+    + (rc.here!==need ? '<span class="tadj">'+esc(rc.t)+' <b>'+rc.here+'</b></span>' : '');
   return '<div class="row rec" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 54px 120px 92px 84px">'
     +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(rc.why)
