@@ -342,7 +342,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대 · 자유 탐색</span></td><td class="num">117 / 135</td><td class="num">137 / 157</td></tr>
       <tr><td>몬스터 공격력 <span class="sm">퀘스트 보정 3</span></td><td class="num">127 / 152</td><td class="num">150 / <b>182</b></td></tr>
     </tbody></table>
-    <nav class="toc tabs" aria-label="절"><a href="#why" data-sec="why" data-upd="2026-09-19">전제<i class="dot" aria-hidden="true"></i></a><a href="#which" data-sec="which" data-upd="2026-10-02">두 길<i class="dot" aria-hidden="true"></i></a><a href="#deftank" data-sec="deftank" data-upd="2026-10-02">방어탱<i class="dot" aria-hidden="true"></i></a><a href="#dodge" data-sec="dodge" data-upd="2026-10-01">회피탱<i class="dot" aria-hidden="true"></i></a><a href="#bow" data-sec="bow" data-upd="2026-09-19">활<i class="dot" aria-hidden="true"></i></a><a href="#spear" data-sec="spear" data-upd="2026-10-01">창<i class="dot" aria-hidden="true"></i></a><a href="#mage" data-sec="mage" data-upd="2026-10-02">마법사<i class="dot" aria-hidden="true"></i></a><a href="#spells" data-sec="spells" data-upd="2026-10-02">마법 켜기<i class="dot" aria-hidden="true"></i></a><a href="#gear" data-sec="gear" data-upd="2026-10-02">무기·방어구<i class="dot" aria-hidden="true"></i></a><a href="#party" data-sec="party" data-upd="2026-10-02">파티<i class="dot" aria-hidden="true"></i></a><a href="#halls" data-sec="halls" data-upd="2026-09-19">훈련소<i class="dot" aria-hidden="true"></i></a><a href="#stages" data-sec="stages" data-upd="2026-10-02">단계별<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <nav class="toc tabs" aria-label="절"><a href="#why" data-sec="why" data-upd="2026-09-19">전제<i class="dot" aria-hidden="true"></i></a><a href="#which" data-sec="which" data-upd="2026-10-02">두 길<i class="dot" aria-hidden="true"></i></a><a href="#deftank" data-sec="deftank" data-upd="2026-10-02">방어탱<i class="dot" aria-hidden="true"></i></a><a href="#dodge" data-sec="dodge" data-upd="2026-10-02">회피탱<i class="dot" aria-hidden="true"></i></a><a href="#bow" data-sec="bow" data-upd="2026-09-19">활<i class="dot" aria-hidden="true"></i></a><a href="#spear" data-sec="spear" data-upd="2026-10-01">창<i class="dot" aria-hidden="true"></i></a><a href="#mage" data-sec="mage" data-upd="2026-10-02">마법사<i class="dot" aria-hidden="true"></i></a><a href="#spells" data-sec="spells" data-upd="2026-10-02">마법 켜기<i class="dot" aria-hidden="true"></i></a><a href="#gear" data-sec="gear" data-upd="2026-10-02">무기·방어구<i class="dot" aria-hidden="true"></i></a><a href="#party" data-sec="party" data-upd="2026-10-02">파티<i class="dot" aria-hidden="true"></i></a><a href="#halls" data-sec="halls" data-upd="2026-09-19">훈련소<i class="dot" aria-hidden="true"></i></a><a href="#stages" data-sec="stages" data-upd="2026-10-02">단계별<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
     <p class="docdate">마지막 갱신 <b>2026-10-02</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
   <main class="doc">
@@ -524,11 +524,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      금고 발견과 선제공격이 거기서 나옵니다(<a href="notes.html#check">원리 &sect;8</a>).
      첫 계단이 <b>통찰 8</b> 입니다.</p>
   </section>
-<section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-01">
+<section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-02">
   <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 판정 자체를 없앤다</h2>
-  <p class="secdate">2026-10-01 갱신</p>
+  <p class="secdate">2026-10-02 갱신</p>
+  <p>회피탱은 <b>어디에 쓰느냐</b>로 답이 갈립니다. 파티 앞줄에서 방어탱 옆에 서는 «파티 탱» 과, 저레벨을 데리고 혼자 싸우는 «쩔» 입니다.
+     단계 4~7 · 종족 · 주직업 · 부직업 · 강화를 사이트 능력치 식으로 전부 훑고(236가지), 상위 후보를 파티 시뮬과 쩔 시뮬에 넣어 견줬습니다.</p>
+  <div class="note"><b>먼저 알아 둘 것 &mdash; 완봉선을 넘긴 회피탱은 «평타» 로는 거의 안 죽습니다.</b>
+     시뮬에서 회피탱이 쓰러진 원인을 세어 보면 회피 실패 평타는 0~3건뿐이고, 나머지는
+     <b>몬스터 스킬 · 마법</b>(회피 판정 자체가 없습니다)과 <b>내가 때려서 받는 반격 · 피해 반사 · 반사 스킬</b>입니다.
+     그래서 파티 탱은 완봉선보다 <b>마법 방어 · HP · 방어(체력)</b> 가 생존을 정하고, <b>활을 들면</b> 반격 · 반사를 통째로 건너뜁니다.</div>
+  <table class="t"><thead><tr><th>용도 · 단계</th><th>추천</th><th class="num">완봉선</th><th class="num">경험치</th><th>왜</th></tr></thead><tbody>
+    <tr><td><b>파티 탱</b> · 4</td><td>풋워커 여 · 숨은 칼날의 궁사 20 주 + 도둑 · 검술사 · 베테랑 &mdash; 활</td><td class="num">31</td><td class="num">1.89M</td><td>23 짜리 싼 빌드는 퀘스트에서 탱 사망 12~22% (이 빌드 1.9%)</td></tr>
+    <tr><td><b>파티 탱</b> · 5</td><td><b>엘프</b> · 도둑 25 주 + 숨은 칼날의 궁사 · 검술사</td><td class="num">38</td><td class="num">1.35M</td><td>풋워커 도둑과 같은 값에 마방 37 대 5 &mdash; 탱 사망 38% &rarr; 10%</td></tr>
+    <tr class="hi"><td><b>파티 탱</b> · 6~7</td><td><b>마검사 주</b>(아래 카드) &mdash; 아끼려면 <b>엘프 도둑 주 + 활 + 오멘워드 탈리스만</b></td><td class="num">45 · 47</td><td class="num">16~22M<span class="sub">엘프 도둑 1.8M · 5.8M</span></td><td>같은 완봉선에서 마검사가 가장 덜 죽음(7단계 54: 탱 사망 2~4% · 도둑 17~24% · 엘프 도둑 + 활 7~10%)</td></tr>
+    <tr class="hi"><td><b>혼자 쩔</b> · 6~7</td><td><b>엘프 도둑 주 + 돌아온 칼날의 단검</b>(반격)</td><td class="num">44~48</td><td class="num">1.8~3.2M</td><td>라그네스에서 시간당 약 31,000~32,500 &mdash; 마검사(28,600)보다 더 범</td></tr>
+  </tbody></table>
+  <ul>
+    <li><b>«파티면 그냥 도적» 은 경험치로는 맞고 생존으로는 6단계까지만 맞습니다.</b> 회피 몫이 도둑 주 7/레벨 · 마검사 주 4/레벨이라 같은 완봉선에 닿는 값이 도둑이 3분의 1입니다(7단계 54 · 13.4M 대 46.3M).
+        다만 7단계는 스킬 피해가 커서, 체력 8/레벨 · 치명 저항 · 부적 칸(마방 50)이 붙는 <b>마검사 주가 탱 사망 2~4%</b> 로 도둑 주(17~24%)보다 훨씬 덜 죽습니다. 방어탱이 옆에 서면(회피탱 + 방어탱 구성) 전멸 차이는 0.2~0.6%p 로 줄어듭니다.</li>
+    <li><b>엘프는 도둑이어도 부적을 낍니다</b>(코드 확인 · <code>Character.CanEquipArmors</code> 0x26DA0FC &mdash; 종족이 엘프면 부적 칸을 더함).
+        6단계부터 <b>세라믹스틸 오멘워드 탈리스만(회피 +5 · 마방 37)</b> 을 걸 수 있어 같은 목표선에 드는 경험치가 절반 이하이고(7단계 54: 5.8M 대 풋워커 13.4M) 마방은 42 대 8 입니다.
+        능력치가 낮아도 민첩은 직업 몫으로 메워져 완봉선 차이는 1 이하입니다. <b>마도병 부직업</b>(엘프 가능 · 풋워커 불가)은 35레벨이면 회피 +7 이지만 31M 이 들어 목표선에는 필요 없습니다.</li>
+    <li><b>강화로 회피를 붙이면 부직업을 0~2개 덜 키워도 됩니다</b>(경험치 16~45% 절약). 회피 강화는 의복 · 방패 · 투구 · 부적에만 붙고(무기에는 없음), 회피보다 <b>민첩</b>이 더 많이 붙습니다(작은 상점 부적이면 민첩 +20 기대).
+        ★ 다만 한 번 강화로 목표선에 닿을 확률은 <b>49~58%</b> 입니다 &mdash; 기대값에 딱 맞춘 빌드라 절반은 1~2 모자라니, 다시 강화할 생각으로 계획하세요.</li>
+    <li><b>혼자 쩔의 반격 단검은 «약한 것» 이 낫습니다.</b> 천천히 잡을수록 부름이 쌓여 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.
+        반격은 <b>물리 무효에게 0</b> 이라(마검사여도 반격은 물리) 그런 몬스터가 섞인 곳은 혼자 못 잡고, 24시간 안전하게 쩔이 되는 부름 탐색지는 8곳뿐입니다 &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «부름 최소~최대» 를 보세요.</li>
+  </ul>
+  <p class="src">근거: tools/sim/evasion_builds.md(빌드 236가지 · engine.mjs 능력치 · expPlan 경험치) · evasion_sim.md(파티 시뮬 · 쩔 시뮬) · callfarm_final.json. 회피값 = 직업 몫 + 장비 회피 + 강화 회피(Character.AvoidValue 0x26DC334) · 강화 후보는 Armor.Craft 0x26FDE04.</p>
   <div class="role">
-    <h3>마검사 회피탱 <span class="tag" style="color:var(--f-lodge)">추천</span></h3>
+    <h3>마검사 회피탱 <span class="tag" style="color:var(--f-lodge)">파티 탱 · 6~7단계</span></h3>
     <p class="lede2">종족은 <b>풋워커 여</b>(민첩 8 · 재주 9 · <b>통찰 10</b>). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.</p>
     <dl class="kv">
       <dt>주직업</dt><dd><b>마검사 30</b> <span class="meta">&mdash; 든 단검을 전부 «마법 공격» 으로 칩니다. 부적 칸도 여기서 열립니다</span></dd>
