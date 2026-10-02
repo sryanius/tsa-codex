@@ -345,7 +345,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="lede">지역은 <b>해금 의뢰 하나</b>를 성공 보고하는 순간 열립니다. 그 의뢰가 게시판에 뜨려면
       <b>평판 · 탐색지 발견 · 선행 의뢰</b> 세 조건을 맞춰야 하고, 어느 조건이 어디서 막히는지는 지역마다 다릅니다.
       앞 절반은 그 일곱 번의 전환을, 뒤 절반은 «N 지역까지 열렸을 때» 훈련소 · 상점 · 금고가 어디까지 주는지를 적습니다.
-      역할별로 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;11</a> 에 있습니다.</p>
+      역할별로 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
     <div class="note" style="margin-top:14px"><b>근거.</b> 의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>7.2</b>(versionCode 145) 데이터에서 그대로 읽었고,
       «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 에서도 본문이 같습니다).
       실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</div>
@@ -552,7 +552,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>지도 전환이 코드로 막혀 있습니다.</b> <code>Settings.LastMapLevel</code> 은 배포판(ProductionMode)에서 <b>7</b> 이고,
      지도 화면의 전환 버튼은 지역 번호가 그보다 크면 경고창만 띄웁니다(<code>MapScene.&lt;TapChangeMapButton&gt;</code> 0x28EA65C). 마을 목록도 7 이하만 보입니다.
      의뢰 게시 쪽에는 이 검사가 없어서 조건만 맞으면 뜨고 깰 수 있을 것으로 읽히며, 그러면 발케인 지도와 마을 3개가 세이브에 생기지만 들어갈 수는 없습니다 &mdash; <b>코드 추론 · 실기기 미확인</b>.
-     발케인이 열리면 모래 환상 사수 · 선봉병(40)으로 모험가 천장이 41 이 되고 Lv37~38 장비가 같이 열립니다(<a href="builds.html#halls">빌드 &sect;10</a>).</div>
+     발케인이 열리면 모래 환상 사수 · 선봉병(40)으로 모험가 천장이 41 이 되고 Lv37~38 장비가 같이 열립니다(<a href="builds.html#halls">빌드 &sect;11</a>).</div>
   <p>선행 사슬은 길지만 평판이 막는 곳은 하나입니다. <b>[A]</b> 「사라진 조사대와 돌 제단」(Lv35 · 30 · 「발드란 보관소 터」 Lv33) &larr; 「라펠 계곡의 제단 조사」(Lv35 · 29 · 「라펠 계곡」 Lv33 · «대개») &larr; 노르그레이 「노란 꽃의 침식을 막아라」(Lv33 · 소탕 · <b>28</b> · 「엘디아의 숲」 Lv32 · «대개») &larr; 「조상 묘지의 꽃다발 의혹」(Lv32 · 1 · 「부서진 돌이 있는 강변 묘지」 Lv31) &larr; 「모래에 파묻힌 제단의 꽃다발」(Lv32 · 14 · 「노르사딜 유적」 Lv31) + 「조상 묘지의 밤의 마물」(Lv33 · 11 · 「세라노브의 조상 묘지」 Lv28) &larr; 자르간트 「조상 묘지에 대한 장난」(Lv33 · 배달 · 18) &larr; 「‘탁함’과 ‘따스함’의 도망자 정찰」(Lv32 · 11 · 「탁하고 따뜻한 늪지」 Lv30) ·
      <b>[B]</b> 「밤에만 불이 켜지는 집 조사」 &larr; 「묘지에서 돌아오지 않는 사냥꾼들」(노르그레이 · Lv33 · 구조 · 22 · 「그레스티아 묘지」 Lv33 · «대개»).</p>
   <ol class="steps">
@@ -597,7 +597,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h2 id="caps"><span class="n">9</span>단계별 상한 &mdash; N 지역까지 열렸을 때</h2>
   <p class="secdate">2026-10-03 갱신</p>
   <p>«N 단계» 는 <b>N 번 지역까지 열린 상태</b>이고, 적은 것은 그때까지 열린 지역을 <b>합친</b> 최고치입니다.
-     이 절은 <b>무엇이 있나</b>의 목록입니다 &mdash; 역할마다 <b>무엇을 고르나</b>는 <a href="builds.html#stages">빌드 &sect;11</a> 에 있습니다.
+     이 절은 <b>무엇이 있나</b>의 목록입니다 &mdash; 역할마다 <b>무엇을 고르나</b>는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.
      장비는 <code>요구 레벨 ≤ 내 직업 중 최고 레벨</code>이면 끼므로(<code>Character.CanEquip</code>) «전투 직업 천장» 이 곧 그 단계의 장비 천장이고,
      모험가는 훈련소가 없고 «최고 훈련소 레벨 + 1» 이라, ★(천장 초과) 가운데 <b>천장 + 1</b> 인 것은 모험가를 키우면 낍니다.</p>
 
@@ -775,7 +775,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         도끼 모래 쪼개는 도끼 Lv35 69~112 <span class="meta">금고 · 노르그레이</span> · 활 피철의 활 Lv35 68~109 <span class="meta">금고 · 노르그레이</span> · 불타는 활 Lv34 <b>마법</b> ·
         창 피철의 창 Lv35 69~109 <span class="meta">금고 · 노르그레이 「모래 속에 잠긴 유적」</span> · 눈물 흘리는 창 Lv34 <b>마법</b> <span class="meta">금고 · 자르간트 「백골 순례를 멈춰라」</span> ·
         지팡이 피의 지팡이 Lv35 67~108 <span class="meta">금고 · 자르간트</span> · 단검 진악의 단검 Lv34 66~104 <span class="meta">상점 · 노르그레이</span></dd>
-      <dt>비고</dt><dd>회피 · 지능 장비는 6단계 이전 것이 그대로 최고입니다(회피: 통풍이 잘되는 옷 +6 · 짐승의 눈의 투구 +5 · 오멘워드 탈리스만 +5 / 지능: 정정의 지팡이 +5 · 베테랑의 부적 +3 · 불꽃 의상 +2). 7단계 신규는 방어 · 피해 · 마방만 오릅니다. 지금의 <a href="builds.html#deftank">빌드 &sect;2~&sect;7</a> 이 이 단계의 답입니다.</dd>
+      <dt>비고</dt><dd>회피 · 지능 장비는 6단계 이전 것이 그대로 최고입니다(회피: 통풍이 잘되는 옷 +6 · 짐승의 눈의 투구 +5 · 오멘워드 탈리스만 +5 / 지능: 정정의 지팡이 +5 · 베테랑의 부적 +3 · 불꽃 의상 +2). 7단계 신규는 방어 · 피해 · 마방만 오릅니다. 지금의 <a href="builds.html#deftank">빌드 &sect;2~&sect;2</a> 이 이 단계의 답입니다.</dd>
     </dl>
   </div>
   </details>
