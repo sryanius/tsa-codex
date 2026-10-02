@@ -378,7 +378,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h3>먼저 알아 둘 것</h3>
   <ul>
     <li><b>활 딜러는 빼지 마세요.</b> 함정 136종 중 레인저 64 · 도둑 53 · 현자 19종을 각자 레벨로 찾고, 금고는 도둑이 엽니다. 레인저 레벨만 0 이어도 5~7단계 완료 &minus;5.1~6.4%p · 함정 판당 0.2~0.4 &rarr; 0.9~1.1번. 창 딜러로 바꾸면(레인저 · 도둑 · 리더가 빠짐) 몬스터 선제 78~99% · 전멸 +2.7~17.1%p(막 열 때 +20~46)입니다.</li>
-    <li><b>함정 같은 나쁜 사건은 파티원 사이를 틀어지게 합니다</b> &mdash; 친밀도가 &minus;60 이하가 된 둘은 편성 창에서 같은 파티로 못 고릅니다. 다음 날 첫 접속에 50, 출발할 때마다 5 씩 0 쪽으로 풀립니다(<a href="notes.html#pers">원리 &sect;4</a>).</li>
+    <li><b>함정 같은 나쁜 사건은 파티원 사이를 틀어지게 합니다</b> &mdash; 친밀도가 &minus;60 이하가 된 둘은 편성 창에서 같은 파티로 못 고릅니다. 다음 날 첫 접속에 50, 출발할 때마다 5 씩 0 쪽으로 풀립니다(<a href="notes.html#pers">원리 &sect;4</a>).
+        파티원을 <b>무모한 · 합리적 · 사교적 · 감정적</b>에서만 고르면 서로 «안 맞음» 이 없습니다 &mdash; 이기적은 빼는 게 낫습니다(<a href="#bow-pers">&sect;5</a>).</li>
     <li><b>탱 하나가 쓰러지면 대개 전멸입니다</b>(시뮬 46~89% · 기록 53%) &mdash; 앞줄이 비면 몬스터가 뒷줄을 칩니다. 5단계 «탱 사망 뒤 전멸»: 방어탱 + 법사 둘 74% &rarr; 탱 둘 30% &rarr; 회피탱 + 방어탱 13~14%.</li>
     <li><b>막 연 지역은 어떤 구성이든 위험합니다</b>(전멸 6.5~67% · 다 갖추면 0.1~8.4%). 장비가 구성보다 큽니다.</li>
   </ul>
@@ -865,6 +866,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <li>4단계부터 7단계까지 이어 키우면 <b>23.0M</b> 입니다(단계 누적 1.70 · 4.78 · 11.09 · 23.03M).</li>
       <li>주직업은 <b>레인저 &gt; 도둑 &gt; 현자</b> 입니다 &mdash; 도둑 주는 부적 칸이 없어 마법 방어가 빠지고, 현자 주는 HP 가 낮습니다.</li>
       <li>종족은 <b>풋워커</b>입니다 &mdash; 레인저 주라 «도둑 주 반감 면제» 는 쓰지 않지만, 풋워커 여가 통찰이 가장 높고(7단계 54) 막 열었을 때 결과도 가장 좋았습니다(아래).</li>
+      <li><b>리더 성격은 무모한 · 합리적</b>(리더 보너스 둘 다 +3)입니다. 풋워커 여는 무모한이 안 나와, 무모한으로 가려면 <b>휴먼 여</b>로 같은 빌드를 씁니다 &mdash; 다 갖춤 완료는 같고 금고 해제가 한두 칸 낮습니다(<a href="#bow-pers">아래</a>).</li>
       <li>활 딜러는 모든 구성에서 <b>리더</b>입니다(<a href="#stages">&sect;0</a>).</li>
     </ul></div>
 
@@ -928,12 +930,66 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li>풋워커는 합리적(리더 +3)이 여 2/7 · 남 1/7 확률로 나옵니다(<a href="notes.html#pers">원리 &sect;4</a>).</li>
     <li>드워프 남은 합리적이 없어 이기적으로 돌렸고, 7단계 전멸이 1.11% 로 풋워커(0.55)보다 높습니다. 합리적이 아닌 엘프(감정적 1.15 · 이기적 1.19%)도 비슷해 성격 탓으로 보입니다. 드워프 여는 합리적이 1/7 로 나오지만 돌려 보지 않았습니다.</li>
     <li>엘프는 이기적으로 바꿔도 97.9 · 74.0 으로 풋워커 여보다 낮습니다.</li>
+    <li><b>엘프 + 풍현사 35 도 값어치가 없습니다.</b> 풍현사 주직업 + 활이면 행동마다 «풍현사 레벨 %» 로 한 번 더 쏩니다.
+      <ul>
+        <li>훈련소가 7단계(노르그레이)뿐이라 셋(레인저 · 도둑 · 현자 35)을 다 올린 뒤 얹게 되고, 그때 <b>+64.9M</b> 입니다 &mdash; 아래 카드의 셋 전체(23.0M)의 세 배 가까이 됩니다. 20 까지면 +9.5M · 10 까지면 +0.9M.</li>
+        <li>7단계 다 갖춤 완료: 엘프 셋 98.2 &rarr; 풍현사 35 주 98.8 · 부직업 98.7. 풋워커 여 · 휴먼 여(무모한)는 셋만으로 99.1 입니다.</li>
+        <li>성격을 같게(합리적이라 치고) 견주면 98.6 &rarr; 99.0 &mdash; 풍현사가 메우는 건 0.4%p 이고, 엘프는 무모한 · 합리적이 안 나와(감정적 3/7) 리더로 처집니다.</li>
+      </ul></li>
     <li>갈아타는 경험치는 휴먼 25.56M · 드워프 27.72M 입니다(풋워커 넷 24.21M · 버린 앞 용병 몫 포함).</li>
   </ul>
 
+  <h3 id="bow-pers">성격 &mdash; 리더 활은 무모한 또는 합리적</h3>
+  <div class="note"><b>파티원을 «무모한 · 합리적 · 사교적 · 감정적» 에서만 고르면 서로 «안 맞음» 이 하나도 걸리지 않습니다.</b>
+     <ul>
+       <li>«안 맞음» 이 실제로 도는 성격은 <b>무모한</b>(이기적 · 신중한 · 신경질적을 싫어함)과 <b>이기적</b>(신중한 · 신경질적 · 감정적을 싫어함) 둘뿐입니다. 안 맞는 상대에게는 친밀도가 내릴 때 &times;2.0 · 오를 때 &times;0.3 이라, 이기적이 끼면 사이가 쉽게 틀어져 같은 파티를 거부합니다(<a href="notes.html#pers">원리 &sect;4</a>).</li>
+       <li>넷 안에서는 무모한 &harr; 감정적 · 사교적 &harr; 감정적이 «잘 맞음»(오를 때 &times;1.5 · 내릴 때 &times;0.8)이고 나머지는 &times;1.0 입니다.</li>
+     </ul></div>
+  <p>리더 보너스(선제 · 함정 · 금고 발견에 더함)는 무모한 · 합리적이 <b>+3</b> 으로 가장 높습니다. 둘의 차이는 둘입니다.</p>
+  <ul>
+    <li><b>후퇴</b> &mdash; 무모한 리더는 후퇴하지 않습니다. 다 갖춤에서는 완료가 조금 오르고, 막 열었을 때는 돌아설 판을 끝까지 가서 전멸이 늘어납니다(아래 표).</li>
+    <li><b>리더 말발</b> &mdash; 나쁜 사건 뒤 «배신 · 다툼 · 작전 충돌» 을 굴릴 때 리더 성격이 더해지고, 무모한 &minus;2 · 합리적 +2 · 사교적 +3 입니다. 무모한 리더면 나쁜 쪽이 더 자주 나옵니다 &mdash; 시뮬에는 친밀도가 없어 그 크기는 재지 않았습니다.</li>
+  </ul>
+  <table class="t"><thead><tr><th>뽑힐 확률</th><th class="num">무모한</th><th class="num">합리적</th><th class="num">사교적 · 감정적</th></tr></thead><tbody>
+    <tr><td>풋워커 여</td><td class="num">&mdash;</td><td class="num">2/7</td><td class="num">2/7</td></tr>
+    <tr><td>풋워커 남</td><td class="num">1/7</td><td class="num">1/7</td><td class="num">2/7</td></tr>
+    <tr class="hi"><td><b>휴먼 남 · 여</b><span class="sub">어느 마을이든</span></td><td class="num"><b>1/7</b></td><td class="num">1/7</td><td class="num">2/7</td></tr>
+    <tr><td>엘프 여</td><td class="num">&mdash;</td><td class="num">&mdash;</td><td class="num">4/7</td></tr>
+  </tbody></table>
+  <p class="sm">나머지 칸은 이기적 · 신중한 · 신경질적입니다(풋워커 이기적 2/7 · 엘프 여 감정적 3/7). 종족 전체는 <a href="notes.html#pers">원리 &sect;4</a>.</p>
+  <table class="t"><thead><tr><th>리더 활</th><th class="num">7단계<span class="sub">다 갖춤</span></th><th class="num">7단계<span class="sub">막 열 때</span></th><th class="num">6단계<span class="sub">막 열 때</span></th></tr></thead><tbody>
+    <tr class="hi"><td><b>풋워커 여 · 합리적</b></td><td class="num"><b>99.1</b><span class="sub">0.28</span></td><td class="num"><b>87.3</b><span class="sub">6.6</span></td><td class="num"><b>81.6</b><span class="sub">12.3</span></td></tr>
+    <tr><td><b>휴먼 여 · 무모한</b><span class="sub">4 실바드 &rarr; 5 리스티아</span></td><td class="num">99.1<span class="sub">0.39</span></td><td class="num">87.3<span class="sub">8.6</span></td><td class="num">79.8<span class="sub">16.5</span></td></tr>
+    <tr><td>휴먼 여 · 합리적</td><td class="num">99.0<span class="sub">0.32</span></td><td class="num">86.5<span class="sub">7.1</span></td><td class="num">79.2<span class="sub">13.5</span></td></tr>
+    <tr><td>엘프 여 · 감정적</td><td class="num">98.2<span class="sub">0.47</span></td><td class="num">78.6<span class="sub">9.9</span></td><td class="num">71.0<span class="sub">19.7</span></td></tr>
+  </tbody></table>
+  <p class="sm">칸 위는 완료 %, 아래는 전멸 % 입니다.</p>
+  <ul>
+    <li><b>휴먼 여 무모한은 다 갖춤에서 풋워커 여와 같습니다</b>(5 · 6 · 7단계 96.5 · 98.8 · 99.1 대 96.3 · 98.4 · 99.1). 막 열었을 때는 돌아서지 않아 전멸이 2~8%p 높습니다(5단계 60.6 대 52.8).</li>
+    <li>같은 휴먼 여를 합리적으로 두면 전멸은 줄지만 완료도 조금 낮습니다 &mdash; 무모한 · 합리적의 차이는 대부분 «후퇴하느냐» 입니다.</li>
+    <li><b>사교적 리더는 확실히 처집니다</b>(리더 보너스 &minus;1 · 풋워커 여 시트로 7단계 막 열었을 때 80.5 · 6단계 72.7). 감정적(+1)은 그 사이입니다.</li>
+    <li>정리: 합리적 풋워커 여를 뽑았으면 그대로 리더로 씁니다. 무모한 리더로 가려면 <b>휴먼 여</b>(또는 풋워커 남 1/7)이고, 금고 해제가 조금 낮아집니다(바로 아래).</li>
+  </ul>
+  <p class="src">시뮬: tools/sim/research/elfwind/elf_sim.py · elf_sim.md &mdash; 방어탱(혼합) + 활 + 법사 둘 · 5~7단계 의뢰 전부 &times; add 0/최대 &times; 100판 · 같은 씨앗. 성격을 바꾸면 리더 보너스 · 회복 문턱 · 후퇴 식이 함께 바뀝니다(무모한의 초빙 포인트 +0~2 는 안 넣음). 사교적 · 감정적은 research/pers/pers_sim.md(풋워커 여 시트에 성격만 바꿈 · 50판). 시트 elfwind/sheets_bow_elf.json(R3hf · R3e). 뽑힐 확률은 종족 · 성별 · 마을의 성격 칸 수(meta races).</p>
+
+  <h3 id="bow-vault">금고 &mdash; 직업 셋으로 충분한가</h3>
+  <p><b>그 지역 중앙 상자는 충분하고, 가장 어려운 상자는 운입니다.</b> 해제는 «도둑 레벨 + &lfloor;재주 흔들림 &divide; 6&rfloor;» 로 굴리고 리더 보너스가 안 붙어, 성격과 상관없이 <b>재주</b>만 봅니다(<a href="notes.html#check">원리 &sect;8</a>).</p>
+  <table class="t"><thead><tr><th>해제 %</th><th class="num">5단계<span class="sub">바람</span></th><th class="num">6단계<span class="sub">발두나</span></th><th class="num">7단계<span class="sub">칼레바스</span></th></tr></thead><tbody>
+    <tr class="hi"><td><b>풋워커 여</b><span class="sub">재주 36 · 40 · 45</span></td><td class="num">95<span class="sub">66</span></td><td class="num">95<span class="sub">76</span></td><td class="num"><b>97</b><span class="sub">89</span></td></tr>
+    <tr><td>휴먼 여<span class="sub">리스티아 · 재주 27 · 31 · 36</span></td><td class="num">89<span class="sub">46</span></td><td class="num">89<span class="sub">56</span></td><td class="num">93<span class="sub">76</span></td></tr>
+    <tr><td>휴먼 여 + 숙련된 사냥꾼 10<span class="sub">재주 +4</span></td><td class="num">93<span class="sub">56</span></td><td class="num">93<span class="sub">66</span></td><td class="num">95<span class="sub">83</span></td></tr>
+  </tbody></table>
+  <ul>
+    <li>칸 위는 그 지역 <b>중앙</b> 상자, 아래는 <b>가장 어려운</b> 상자의 해제 성공률입니다. 한 사람이 한 번 굴린 값이고, 흔들림이 가장 나쁘게 나왔을 때의 몫으로 셌습니다 &mdash; 실제는 조금 높습니다. 상자의 21% 는 해제 판정이 아예 없습니다.</li>
+    <li><b>발견</b>은 리더(+3)인 활 딜러가 굴리면 둘 다 5~7단계 중앙 · 최대 상자 모두 96% 이상입니다.</li>
+    <li><b>재주 부직업은 휴먼 여에게만 값이 있습니다</b> &mdash; 숙련된 사냥꾼 10 이 해제 +1(7단계에 얹으면 +0.6M). 풋워커 여는 재주가 몫 계단 사이라 같은 걸 얹어도 6 · 7단계 +0 입니다(5단계만 +1).</li>
+    <li><b>도둑이 둘이면 둘 다 굴립니다</b> &mdash; 같은 값 둘이면 한 사람 76% 짜리가 94%, 46% 짜리가 71% 가 됩니다. 회피탱 엘프 갈래는 도둑 주라 둘째 굴림이 됩니다(<a href="#dodge">&sect;3</a>). 도둑 레벨이 없는 사람은 맨주사위라 거의 못 엽니다.</li>
+  </ul>
+  <p class="src">계산: tools/sim/research/elfwind/chest.py(시트 R3f · R3hf 의 도둑 레벨 + 재주 · 통찰 최소 몫 대 원리 &sect;8 «그래서 어디까지 닿나» 의 지역 확정선 · 모자란 만큼의 한 사람 성공률 표) · research/pers/dex_sub56.mjs(숙련된 사냥꾼 10). 둘째 굴림은 1 &minus; (1 &minus; p)<sup>2</sup>.</p>
+
   <div class="role">
     <h3>단계 카드 &mdash; 풋워커 여 · 레인저 주 + 도둑 · 현자 <span class="tag" style="color:var(--f-lodge)">추천</span></h3>
-    <p class="lede2">풋워커의 마을에서 성격 <b>합리적</b>인 사람을 뽑고, 초빙 포인트는 <b>전부 생명점</b>에 둡니다(시트는 주점 최고 레벨 기대값 8) &mdash; 힘은 직업 몫으로 활 요구 힘을 넘깁니다(7단계 힘 24 · 피철의 활 요구 힘 20).</p>
+    <p class="lede2">풋워커의 마을에서 성격 <b>합리적</b>인 사람을 뽑고(무모한 리더를 원하면 휴먼 여 · 위 <a href="#bow-pers">«성격»</a>), 초빙 포인트는 <b>전부 생명점</b>에 둡니다(시트는 주점 최고 레벨 기대값 8) &mdash; 힘은 직업 몫으로 활 요구 힘을 넘깁니다(7단계 힘 24 · 피철의 활 요구 힘 20).</p>
     <dl class="kv">
       <dt>4단계</dt><dd><b>레인저 20</b> · 도둑 20 · 현자 20 · 별을 부수는 활 / <b class="mag">프리즈 아이</b> · 전투식 복장 · 단마의 부적 <span class="meta">HP 27 · 평타 46~72 · 마방 34 · 1.70M</span></dd>
       <dt>5단계</dt><dd><b>레인저 25</b> · 25 · 25 · <b class="mag">지문의 현궁</b> · 현무암 옷 · 단마의 부적 <span class="meta">HP 31 · 59~90 · 마방 35 · 누적 4.78M</span></dd>
@@ -982,7 +1038,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h3>알아 둘 것</h3>
   <ul>
     <li>7단계 시뮬은 세이브보다 사망을 낮게 봅니다 &mdash; 위 숫자는 절대값보다 <b>같은 씨앗으로 견준 순서</b>로 읽으세요.</li>
-    <li>세이브 기록의 활 딜러는 넷(레인저 · 도둑 · 현자 · 모험가)에 마검사 · 숨은 칼날의 궁사 등을 더 가져 HP 가 54~72 이고 성격도 «무모한» 입니다. 시뮬은 직업 셋 · 넷(7단계 HP 38~43)만 넣었고, HP 를 더하는 직업과 «무모한» 성격은 견주지 않았습니다.</li>
+    <li>세이브 기록의 활 딜러는 넷(레인저 · 도둑 · 현자 · 모험가)에 마검사 · 숨은 칼날의 궁사 등을 더 가져 HP 가 54~72 이고 성격도 «무모한» 입니다. 시뮬은 직업 셋 · 넷(7단계 HP 38~43)만 넣었고 HP 를 더하는 직업은 견주지 않았습니다. 성격은 위 <a href="#bow-pers">«성격»</a> 에서 견줬습니다.</li>
     <li>1~3단계 활 딜러는 <a href="#stages">&sect;0</a> 의 단계별 세팅을 따릅니다 &mdash; 이 절의 비교는 4~7단계만입니다.</li>
   </ul>
   <p class="src">근거(코드): 공격력 직업 몫 Character.MinAttackPoint 0x26DBAA4(람다 0x26E3868) · 도둑 + 활 반감 0x26DBC3C · 풋워커 면제 0x26DBBD8 · 부적 칸 CanEquipArmors 0x26DA0FC(덧붙임은 엘프만) · 선제 0x2727D0C(Max 0x2727DF0) · 함정 탐지 Trap.Detect 0x2726DBC · 해제 DisarmTrap 0x2727078(레인저 함정 64종은 모두 탐지만) · 함정 몬스터 전투는 몬스터 선제 0x27245D0 · 금고 · 습득물 0x27254E0 · 0x2724CA0(도둑) · 경험치 Character.GetExpToNextLevel 0x26D9984 · SumOtherJobLevels 0x26D9AC0(현자 · 모험가면 0) · Job.NeedNextExp 0x26D9CDC(&times;1.05<sup>다른 직업 합</sup>). 함정 종류 · 의뢰 비율 tools/sim/research/bow/trap_census.json.</p>
@@ -1080,9 +1136,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <li><b>매혹</b>(남자에게만 걸리고 걸린 쪽은 편이 바뀝니다)은 시뮬에 없어서, 그 몬스터가 나오는 의뢰에서는 남자 법사 값이 낙관적입니다.</li>
       <li>실제 남자만 의뢰는 4~7단계에 2 · 2 · 0 · 1개뿐이고, 5 · 7단계 것은 다 갖췄으면 법사 없이도 됩니다(<a href="#stages">&sect;0</a>).</li>
     </ul></div>
-  <div class="note"><b>초빙 포인트는 마나보다 생명점이 조금 낫습니다(시뮬).</b>
-     리스티아 여 둘이 7점을 생명점에 넣으면(HP +7 · MP &minus;7) 완료가 6단계 다 갖춤 +0.8%p · 7단계 막 열었을 때 +1.3%p 오르고, 5단계 법사 1인 사망이 7.0% &rarr; 4.0% 로 줄어듭니다.
-     <span class="sm">시뮬의 «맞았을 때 피해» 가 기록보다 커서(37 대 25) HP 몫이 크게 나왔을 수 있습니다.</span></div>
+  <div class="note"><b>초빙 포인트는 마나가 아니라 민첩이나 생명점에 둡니다(시뮬).</b>
+     기본 지능은 초빙 포인트로 못 올리니, 7점(실바드 · 리스티아 주점 최고 레벨 기대값)을 어디에 두느냐만 남습니다.
+     <b>민첩</b>에 넣으면 굴림 평균 6~7 이 13~14 가 되어, ③ 카드가 <b>민첩 직업 9곳 없이도</b> 6단계 19 · 7단계 21 입니다(아래 <a href="#mage-agi">«민첩은 20 까지만»</a>).</div>
+  <table class="t"><thead><tr><th>법사 둘 · 완료 %</th><th class="num">마나</th><th class="num">민첩</th><th class="num">생명점</th></tr></thead><tbody>
+    <tr><td>4단계 다 갖춤</td><td class="num">96.9</td><td class="num"><b>97.5</b></td><td class="num">96.9</td></tr>
+    <tr><td>5단계 다 갖춤</td><td class="num">96.2</td><td class="num">96.7</td><td class="num"><b>97.5</b></td></tr>
+    <tr><td>5단계 막 열었을 때</td><td class="num">36.8</td><td class="num"><b>42.9</b></td><td class="num">37.4</td></tr>
+    <tr><td>6단계 다 갖춤</td><td class="num">98.4</td><td class="num">98.6</td><td class="num"><b>99.1</b></td></tr>
+    <tr><td>7단계 다 갖춤<span class="sub">민첩 직업 9곳까지</span></td><td class="num">99.1</td><td class="num">99.0</td><td class="num">99.1</td></tr>
+    <tr><td>7단계 다 갖춤<span class="sub">9곳 없이</span></td><td class="num">98.2</td><td class="num"><b>98.7</b></td><td class="num">98.5</td></tr>
+    <tr><td>7단계 막 열었을 때<span class="sub">6단계 카드로</span></td><td class="num">87.3</td><td class="num"><b>88.9</b></td><td class="num">88.4</td></tr>
+  </tbody></table>
+  <ul>
+    <li><b>마나는 어느 단계에서도 앞서지 못합니다.</b> 9곳까지 낀 7단계에서 최대 MP 138 대 131 의 차이는 결과에 안 나타났습니다(99.1 대 99.0).</li>
+    <li>민첩과 생명점은 단계마다 앞서거니 뒤서거니 합니다 &mdash; 민첩은 4단계 · 막 열었을 때(5단계 +6.1%p), 생명점은 5 · 6단계 다 갖춤에서 앞섭니다. 생명점 쪽은 시뮬의 «맞았을 때 피해» 가 기록보다 커서(37 대 25) 크게 나왔을 수 있습니다.</li>
+    <li><b>민첩에 넣었다면 민첩 직업 9곳은 «HP 용» 입니다</b> &mdash; 9곳의 HP +5 로 7단계 다 갖춤 완료 98.7 &rarr; 99.0 · 법사 1인 사망 1.5 &rarr; 0.9% 입니다(9곳 몫 +0.81M · 사다리 기준).</li>
+  </ul>
+  <p class="src">시뮬: tools/sim/research/mageagi/mageagi_sim.py · .md &mdash; 방어탱(혼합) + 활(R3f) + 법사 둘(둘 다 같은 배분) · 4~7단계 의뢰 전부 &times; add 0/최대 &times; 200판 · 같은 씨앗. 4 · 5단계는 사이트 법사 시트(실바드 &rarr; 리스티아), 6 · 7단계는 ③ 카드(마궁사 10 판). 시트 research/mage_verify/agi_alloc.mjs · agi_alloc45.mjs.</p>
 
   <h3>단계별 카드 &mdash; ① 1~4단계 · ② 5단계 · ③ 6~7단계</h3>
   <div class="role">
@@ -1123,7 +1194,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <span class="meta">&mdash; 지능용 · 얇게 깔기 (아래)</span><br>
         <b>+ 마궁사 10</b> <span class="meta">&mdash; 지능은 4 면 되지만 6단계 전체 공격 <b>블리자드</b>를 배우려고</span><br>
         <b>+ 마도병 10</b> <span class="meta">&mdash; 지능이 아니라 <b>뇌우</b>를 배우려고 · 10 에서 멈춥니다 (아래)</span><br>
-        <b>+ 민첩 직업 9곳</b> <span class="meta">&mdash; 민첩 +7 (아래)</span><br>
+        <b>+ 민첩 직업 9곳</b> <span class="meta">&mdash; 민첩 +7 · HP +5 · 초빙 포인트를 민첩에 넣었으면 빼도 됩니다 (아래)</span><br>
         <b>+ 현자 30</b> <span class="meta">&mdash; 골라서 · 통찰 +15 · 마방 +3 · 지수 0</span></dd>
       <dt>순서</dt><dd>6단계: 암흑마법사 30 을 맨 먼저, 이어서 나머지 <span class="meta">6단계 몫 3.8M</span><br>
         7단계(노르그레이): 마도병 10 · 순례 사제 7 · 민첩 직업 9곳 <span class="meta">7단계 몫 4.9M</span></dd>
@@ -1131,7 +1202,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <dt>무기</dt><dd><b>정정의 지팡이</b> <span class="meta">요구 Lv23 · <b>힘 2</b> · 43~72 · <b>지능 +8</b> · <b>최대 MP +33</b> <span class="sm">(10 + 요구 레벨 23)</span></span></dd>
       <dt>몸</dt><dd><b>암숨의 법복</b> <span class="meta">요구 Lv25 · 힘 2 · 방어 45~51 · 마방 9 · <b>MP +6/턴</b></span></dd>
       <dt>부적</dt><dd><b>현맥의 부적</b> <span class="meta">요구 Lv25 · 힘 1 · 마방 34 · <b>MP +7/턴</b></span></dd>
-      <dt>초빙 포인트</dt><dd>마나 7 또는 생명점 7 <span class="meta">&mdash; 칩은 마나 7 값 · 생명점이면 HP +7 · MP &minus;7 · 시뮬은 생명점 쪽이 조금 낫습니다(위)</span></dd>
+      <dt>초빙 포인트</dt><dd><b>민첩 7</b> 또는 생명점 7 <span class="meta">&mdash; 마나는 셋 중 가장 못합니다(위) · 칩은 마나 7 값이고, 민첩 7 이면 민첩 28 · 최대 MP 131(9곳을 빼면 21 · 130 · HP 31)</span></dd>
       <dt>시뮬</dt><dd>방어탱 + 활 + 이 카드 둘 &mdash; 6단계 97.6 · 0.3 · 이 6단계 카드로 7단계를 막 열었을 때 76.7 · 15.1.
         마궁사를 4 에서 멈추면(블리자드 대신 바람의 정령) 97.1 · 0.5 · 73.4 · 17.3 으로 처집니다. 7단계 다 갖춤은 97.7 · 0.7(마궁사 4 판).</dd>
     </dl>
@@ -1139,7 +1210,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <span><b>MP 회복 13/턴</b></span><span>HP <b>36</b></span><span>민첩 <b>21</b></span><span>평타 48~77 <span class="sm">단일</span></span>
       <span>요구 힘 <b>2</b></span><span>경험치 <b>8.7M</b> <span class="sm">새로 뽑아 7단계까지</span></span>
 </div>
-    <p class="lede2" style="margin:6px 0 0">칩은 7단계 카드 그대로입니다(리스티아 여 평균 굴림 · 초빙 포인트 마나 7). 6단계에 다 올렸을 때는 마력 59 · HP 27 · 최대 MP 129 · 민첩 12 입니다.
+    <p class="lede2" style="margin:6px 0 0">칩은 7단계 카드 그대로입니다(리스티아 여 평균 굴림 · 초빙 포인트 마나 7). 6단계에 다 올렸을 때는 마력 59 · HP 27 · 최대 MP 129 · 민첩 12(초빙 포인트를 민첩에 넣었으면 19) 입니다.
       아래 사다리 표는 기본 지능 6 · 마궁사 4 로 셉니다. 현자 30 은 따로 +0.94M(어느 순서에 넣어도 같습니다) · 통찰 +15 · 마방 +3 입니다.</p>
     <p class="src">카드 시트 · 시뮬: tools/sim/research/mage_verify/sheets_card.json(법사·카드마궁10) · parts/ · 위 마궁사 25 시트와 같은 씨앗 짝 비교(6단계 +0.18±0.09%p · 7단계 막 열었을 때 &minus;0.39±0.32%p · 마궁사 4 판 &minus;3.76±0.92%p). 경험치는 훈련소 단계(암흑마법사 6 · 마도병 · 순례 사제 7)를 지킨 순서로 셈.</p>
   </div>
@@ -1161,7 +1232,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      20 의 라이프 하베스트는 치우는 종이 하나도 안 늘고 MP 만 7 더 들어 쏘는 턴이 34% &rarr; 29% 로 줄며, 지능 사다리를 다 올린 뒤 얹으면 ≈28M 이 듭니다(민첩 직업 9곳까지 올린 뒤면 ≈85M).
      회복은 <b>견습 성직자 1 의 Heal</b> 하나면 됩니다 &mdash; 지능 61 이면 그것도 63~65 를 채웁니다(<a href="#spells">&sect;7</a>).</div>
   <div class="note"><b>민첩 직업 9곳</b>은 숨은 칼날의 궁사 4 · 스커미셔 4 · 숙련된 사냥꾼 3 · 전술병 3 · 도둑 2 · 수습 랜서 2 · 견습 사냥꾼 2 · 랜서 2 · 레인저 1 입니다.
-     민첩이 13 &rarr; 20 이 되고(사다리 기준 +0.81M · 지능은 그대로) 칼레바스 몬스터 약 90% 보다 먼저 움직여 탱이 덜 죽습니다(<a href="#party">&sect;10</a>).</div>
+     민첩이 13 &rarr; 20 이 되고(사다리 기준 +0.81M · 지능은 그대로) 칼레바스 몬스터 약 90% 보다 먼저 움직여 탱이 덜 죽습니다(<a href="#party">&sect;10</a>).
+     <b>뽑을 때 초빙 포인트를 민첩에 넣었다면</b> 9곳 없이 7단계 21 이라, 9곳은 HP +5 · 힘 +4 몫만 남습니다(위 초빙 포인트 표).</div>
 
   <h3>★ 지팡이는 «평타» 로 고르는 게 아닙니다 &mdash; ⌊요구레벨 &divide; 6⌋ 이 공짜로 붙습니다</h3>
   <div class="note warn"><b>마법 피해식에 무기 피해가 한 칸도 안 들어갑니다.</b>
@@ -1310,7 +1382,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         둘 다 <b>뇌우</b>(마도병 10 · 6단계엔 블리자드)와 단일 다크페인 하나로 맞춥니다(<a href="#spells">&sect;7</a>).</li>
     <li><b>둘 다 회복 장비를 낍니다</b> &mdash; 부적 · 의복이 <b>퀘스트당 3발 &rarr; 8발</b>을 가릅니다. 한 명만 끼면 그 한 명만 계속 쏩니다.</li>
     <li><b>둘 다 민첩 20 으로 올립니다</b> &mdash; 13 이면 칼레바스 몬스터 열에 넷쯤이 법사보다 먼저 치고, 20 이면 약 90% 보다 먼저입니다.
-        ③ 카드의 민첩 직업 9곳으로 법사마다 <b>+0.81M</b>(사다리 기준 · 지능은 그대로) · 25 는 +4.84M 인데 거의 안 낫습니다(<a href="#party">&sect;10</a>).</li>
+        <b>뽑을 때 초빙 포인트 7 을 민첩에 넣으면 경험치 없이 닿고</b>(6단계 19 · 7단계 21), 이미 다른 데 넣었다면 ③ 카드의 민첩 직업 9곳으로 법사마다 <b>+0.81M</b>(사다리 기준 · 지능은 그대로) · 25 는 +4.84M 인데 거의 안 낫습니다(<a href="#party">&sect;10</a>).</li>
     <li><b>회복 마법은 둘 다 켜도 됩니다</b> &mdash; 행동은 한 명씩 자기 차례에 고르므로,
         앞의 법사가 회복하면 뒤의 법사는 <b>채워진 HP 를 보고 다시 셉니다</b>(문턱 아래가 없으면 공격으로 갑니다).</li>
   </ul>
@@ -1318,7 +1390,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      방어 52~58 · HP 27 · 회피값 2(완봉선 3) · 민첩 13 <span class="sm">(민첩 직업 9곳을 얹기 전 값 · 민첩은 굴림 평균)</span>.
      <b>뒷줄에 닿는 평타는 한 방입니다</b>(최소 63). 칼레바스에서 뒷줄까지 닿는 조우는 약 11% 라 <b>전열이 서 있는 동안만</b> 버팁니다.</div>
 
-  <h4>민첩은 20 까지만 챙깁니다</h4>
+  <h4 id="mage-agi">민첩은 20 까지만 챙깁니다</h4>
   <div class="note warn"><b>전투 시작의 «선제공격» 은 민첩이 아니라 통찰로 굴립니다.</b>
      <code>리더 보너스 + max(도둑Lv + 2, 레인저Lv) + &lfloor;통찰 흔들림 &divide; 6&rfloor;</code>
      (<a href="notes.html#check">원리 &sect;8</a>). 민첩이 정하는 것은
@@ -1343,7 +1415,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>지능용 부직업만 담으면 민첩 몫은 6 뿐입니다</b>
      (정령사 20×1 + 마도병 10×1 + 순례 사제 7×2 + 마궁사 4×2 + 성창사 4×1 = 56 → ⌈5.6⌉, 기본 5 면 11 · 뽑을 때 굴림 평균을 얹으면 13).
 
-     20 까지는 ③ 카드의 <b>«민첩 직업 9곳»</b>(1~4레벨씩 · 사다리 기준 +0.81M)으로 채웁니다 &mdash; 숨은 칼날의 궁사가 가장 큰 한 방이지만, 한 직업을 깊게 찍는 것보다 얇게 까는 쪽이 쌉니다.
+     20 까지는 <b>뽑을 때 초빙 포인트 7 을 민첩에</b> 넣는 것이 가장 쌉니다(굴림 평균 7 + 7 = 14 &rarr; 6단계 19 · 7단계 21).
+     이미 뽑았다면 ③ 카드의 <b>«민첩 직업 9곳»</b>(1~4레벨씩 · 사다리 기준 +0.81M)으로 채웁니다 &mdash; 숨은 칼날의 궁사가 가장 큰 한 방이지만, 한 직업을 깊게 찍는 것보다 얇게 까는 쪽이 쌉니다.
      20 을 넘겨 쓸 경험치가 있으면 <b>현자</b> 쪽이 낫습니다 &mdash; 지수가 0 이고 통찰이 전부를 정합니다.</div>
   <div class="note warn"><b>예외 하나 &mdash; 슬로우.</b>
      슬로우가 걸리면 내 민첩이 <b>절반</b>이 됩니다.
@@ -1696,7 +1769,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li>반격 피해 = 굴린 공격력 &minus; ⌊굴린 몬스터 방어 &divide; 2⌋(최소 1)입니다. 명중 · 치명 판정이 없고, 물리 무효 몬스터에게는 마법 반격 무기(왕송곳니 반날)여도 0 입니다.</li>
     <li><b>쩔</b> &mdash; 6 · 7단계 회피탱에게 돌아온 칼날의 단검(Lv17 · 회피 +1)만 쥐여 저레벨 한 명을 데려가면 라그네스 강창의 흔적 48판 사망 0 · 저레벨 몫 시간당 14,551~15,815 경험치였습니다(<a href="#dodge-solo">&sect;3 쩔 탱</a>). 파티 회피탱으로 설 때는 반사를 안 받는 활이 낫습니다(엘프 회피탱 7단계 다 갖춤 사망 활 10.9 · 밤을 걷는 단검 16.3% · 같은 씨앗).</li>
     <li><b>2타 무기</b>(행동 한 번에 두 번 침)는 18자루입니다 &mdash; 단검 5 · 검 7 · 대검 2 · 활 3 · 창 1. 활 딜러가 2타 활(추격의 활 Lv21 · 5단계 금고 · 힘 13 / 유사의 활 Lv33 · 7단계 금고 · 힘 19)을 들면 비마법 단일 활보다 전멸이 최대 3.6%p 줄었습니다(6단계 막 열었을 때 20.1 &rarr; 16.6%). 다 갖췄을 때는 0~0.3%p 이고, 명천궁(마법 · 관통)과는 견주지 않았습니다.</li>
-    <li><b>풍현사</b> 주직업이 활을 들면 행동마다 «풍현사 레벨 %» 확률로 한 번 더 쏩니다(레벨 30 이면 30%). 풍현사는 엘프만 될 수 있어 풋워커 활 딜러와는 상관없고, 시뮬은 하지 않았습니다.</li>
+    <li><b>풍현사</b> 주직업이 활을 들면 행동마다 «풍현사 레벨 %» 확률로 한 번 더 쏩니다(레벨 30 이면 30%). 풍현사는 엘프만 될 수 있습니다. 엘프 활 딜러에 7단계 풍현사 35 를 얹으면 +64.9M 에 완료 +0.6%p 였습니다(<a href="#bow">&sect;5</a> 종족).</li>
   </ul>
 
   <div class="note warn"><b>이렇게는 쓰지 마세요.</b>
@@ -1762,7 +1835,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <table class="t"><thead><tr><th>더한 것</th><th class="num">탱 사망</th><th class="num">완료</th><th class="num">턴</th><th class="num">경험치</th></tr></thead><tbody>
     <tr style="color:var(--muted)"><td>기준</td><td class="num">15%</td><td class="num">78%</td><td class="num">8.4</td><td class="num">&mdash;</td></tr>
     <tr class="hi"><td><b>+ 다크페인 켜기</b><span class="sub"><a href="#spells">&sect;7</a></span></td><td class="num">11%</td><td class="num">89%</td><td class="num">5.9</td><td class="num">0</td></tr>
-    <tr class="hi"><td><b>+ 법사 둘 다 민첩 20</b><span class="sub"><a href="#mage">&sect;6</a></span></td><td class="num">7%</td><td class="num">93%</td><td class="num">5.9</td><td class="num">+0.81M<span class="sub">법사마다</span></td></tr>
+    <tr class="hi"><td><b>+ 법사 둘 다 민첩 20</b><span class="sub"><a href="#mage">&sect;6</a></span></td><td class="num">7%</td><td class="num">93%</td><td class="num">5.9</td><td class="num">+0.81M<span class="sub">법사마다 · 민첩 배분이면 0</span></td></tr>
     <tr class="hi"><td><b>+ 방어탱 민첩 13</b><span class="sub"><a href="#deftank">&sect;2</a></span></td><td class="num"><b>4%</b></td><td class="num"><b>96%</b></td><td class="num">6.0</td><td class="num">+0.95M</td></tr>
     <tr style="color:var(--muted)"><td>법사 민첩 25 로</td><td class="num">3.5%</td><td class="num">96.5%</td><td class="num">6.0</td><td class="num">+4.84M<span class="sub">법사마다</span></td></tr>
   </tbody></table>
