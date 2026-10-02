@@ -167,6 +167,10 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
 .recs .rsub:first-child{border-top:0}
 .row.rec .nm span{white-space:normal;line-height:1.5}
 .row.rec .nm .loot{color:var(--c-item)}
+/* 추천 이유 — 제작자: 지역마다 경험치 1위 · (부름 때문에 갈리면) 부름 포함 1위 · 골드 1위 · 회복 장비로 함정을 감수할 곳 */
+.row.rec .nm .rrole{display:inline-block;width:max-content;align-self:flex-start;font-size:10.5px;font-weight:600;line-height:1.5;padding:0 6px;margin:0 6px 2px 0;border-radius:99px;
+  border:1px solid currentColor;vertical-align:1px;white-space:nowrap;color:var(--c-place)}
+.row.rec .nm .rrole.g{color:var(--c-item)} .row.rec .nm .rrole.c{color:var(--c-quest)} .row.rec .nm .rrole.t{color:var(--f-vault)}
 .row.rec .num.r3{white-space:normal;line-height:1.35}
 .row.rec .tadj{display:block;font-size:11px;color:var(--muted)}
 .row .cfl{display:block;font-size:10.5px;color:var(--c-place);white-space:normal;line-height:1.3}
@@ -677,13 +681,14 @@ function placeRow(p){
 function cfLine(p){
   var c=p.cf; if(!c) return "";
   return '<span class="cfl" title="부름 포함 시뮬 — 상세에 자세히">부름 · '
-    +(c.safe ? ('쩔 '+fmt(c.max)+' · 한 명 '+fmt(c.low)) : '쩔 불가')+'</span>';
+    +(c.safe ? ('쩔 '+fmt(c.max)+' · 한 명 '+fmt(c.low)) : (c.tag ? esc(c.tag) : '쩔 불가'))+'</span>';
 }
 function cfBlock(p){
   var c=p.cf; if(!c) return "";
-  var zz = c.safe
+  var zz = c.note ? ('<b style="color:var(--good)">조건부로 가능</b> &mdash; '+esc(c.note))
+    : c.safe
     ? ('<b>'+fmt(c.max)+' exp/h</b> (파티 전체) · <b>저레벨이 받는 몫 '+fmt(c.low)+'/h</b>'
-       +(c.maxg?(' · '+fmt(c.maxg)+' G/h'):'')+' · <b style="color:var(--good)">24시간 안전</b>')
+       +(c.maxg?(' · '+fmt(c.maxg)+' G/h'):'')+' · <b style="color:var(--good)">48판 동안 아무도 안 죽음</b>')
     : (c.draw>=50 ? '<b style="color:var(--f-vault)">쩔 불가</b> — 반격이 안 들어가는 몬스터(물리 무효)라 16라운드 무승부로 경험치가 0 입니다'
        : '<b style="color:var(--f-vault)">쩔 불가</b> — 가장 나은 탱도 24시간 판 중 '+c.wipe+'% 가 전멸하거나 저레벨이 판당 '+c.lowd+'명 죽습니다');
   return '<div class="dcell wide"><dt>부름 포함 <span class="sm">시뮬</span></dt><dd>'
@@ -954,6 +959,11 @@ function block(title,sub,rows,color){
 /* ---------- 지역별 훈련 추천 장소 ----------
    full/regions/places.json 에서 손으로 고른 28곳. 레벨·요구 회피·벌이는 D.places 의 것을 그대로 쓴다 —
    build_codex.py 가 표의 숫자와 대조해 두었고(다르면 빌드가 선다), 표에서 오는 건 사유·전리품 글뿐이다. */
+function roleTag(r){
+  if(!r) return "";
+  var c = r.indexOf("골드")>=0 ? " g" : (r.indexOf("부름")>=0 || r.indexOf("쩔")>=0) ? " c" : r.indexOf("함정")>=0 ? " t" : "";
+  return '<span class="rrole'+c+'">'+esc(r)+'</span>';
+}
 function recRow(rc){
   var p=PBY[rc.i]; if(!p) return "";
   var need=needAvoid(p.mh,30);
@@ -961,7 +971,7 @@ function recRow(rc){
   var av = '회피 '+need+'+'
     + (rc.here!==need ? '<span class="tadj">'+esc(rc.t)+' <b>'+rc.here+'</b></span>' : '');
   return '<div class="row rec pl" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button">'
-    +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(rc.why)
+    +'<span class="nm">'+roleTag(rc.role)+'<b>'+esc(p.n||p.i)+'</b><span>'+esc(rc.why)
     +(rc.loot?' <span class="loot">전리품 '+esc(rc.loot)+'</span>':'')+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
     +'<span class="num r3">'+av+'</span>'
@@ -979,8 +989,11 @@ function recsBlock(){
   });
   if(!n) return "";
   return '<section class="group recs"><div class="ghead"><h2 style="color:var(--c-place)">지역별 훈련 추천 장소</h2>'
-    +'<span class="sub">'+n+'곳 · 지역마다 경험치 1위 · 골드 1위 · 낮은 회피로 가는 곳</span><span class="rule"></span></div>'
-    +'<p class="recs-note"><b>회피 N+</b> 는 아래 목록의 것과 같은 값입니다 &mdash; 민첩 30 기준으로, 그곳에서 가장 잘 맞히는 놈의 평타를 2d6 이 최소로 나와도 피하는 회피값입니다. '
+    +'<span class="sub">'+n+'곳 · 지역마다 경험치 1위 · 골드 1위 · (있으면) 부름 · 쩔 · 함정 감수</span><span class="rule"></span></div>'
+    +'<p class="recs-note">지역마다 그 단계 <b>추천 4인 파티</b>(<a href="builds.html#stages">빌드 &sect;11</a>)로 24시간 돌려 보고, 전멸이 거의 없고(48판 중 1번 이하) 사람이 안 죽는(판마다 0.1명 미만) 곳 중에서 골랐습니다. '
+    +'<b>부름 포함 1위</b> 는 동료를 불러 판이 길어지는 곳이 도감 값보다 더 벌 때, <b>쩔 1위</b> 는 회피탱 혼자 + 저레벨 한 명으로 저레벨이 4인 파티 한 명 몫보다 더 받을 때, '
+    +'<b>함정 감수</b> 는 그대로 가면 함정으로 사람이 죽지만 <b>파티 전원의 최대 HP 를 함정 한 방보다 높이고</b> 회복 장비를 채우면 안전해지는 곳입니다. '
+    +'<b>회피 N+</b> 는 아래 목록의 것과 같은 값입니다 &mdash; 민첩 30 기준으로, 그곳에서 가장 잘 맞히는 놈의 평타를 2d6 이 최소로 나와도 피하는 회피값입니다. '
     +'지형이 평지가 아니면 그 자리에 박힌 보정(이동 곤란 +2 · 매우 곤란 +4 · 숲 &minus;1)을 더한 값을 옆에 굵게 적었습니다. '
     +'마법·상태이상 스킬은 회피로 못 막으니 사유에 적어 두었고, 경험치는 파티 전체 몫입니다. 줄을 누르면 그 탐색지가 열립니다. '
     +'지역이 열리는 조건은 <a href="regions.html">지역</a> 에 있습니다.</p>'

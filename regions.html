@@ -207,7 +207,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 /* 첫 칸은 왼쪽 여백이 0 이라 막대가 글자를 덮었다 · 폰에서는 붙박이 첫 칸의 바탕(--ground)이 강조를 반쪽으로 잘랐다 */
 .doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent);padding-left:8px;background:var(--raised)}
 /* 공백 없는 긴 코드 이름(GameSettings.RetireCharacterExpBonusPercent …)이 폰에서 페이지를 옆으로 밀었다 — 넘칠 때만 단어 안에서 바꾼다(표 칸 폭은 그대로) */
-.doc{overflow-wrap:break-word}
+.doc{overflow-wrap:break-word;word-break:keep-all}
+/* 폰에서 표가 화면에 맞추려고 한글 낱말 가운데서 줄을 바꿔 «무모한» 이 한 글자씩 세로로 섰다(원리 216칸 · 빌드 124칸).
+   낱말 단위로만 바꾸고(keep-all), 숫자 칸은 안 바꾼다 — 넓어진 표는 옆으로 밀고 첫 칸이 붙박이로 남는다. */
+.doc td.num,.doc th.num{white-space:nowrap}
+.doc td.num .sub{white-space:normal}
 
 /* ── 읽는 페이지 (builds.html 과 같은 틀) ─────────────────────────── */
 .doc{max-width:74ch;padding-bottom:80px}
@@ -413,10 +417,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </ol>
   <div class="note"><b>평판은 Lv6 의뢰만으로 닿습니다.</b> 브란샤르는 maxReputationLevel 1 이라 Lv6 의뢰 첫 클리어 상한이 30(Lv5 는 25)입니다.
      같은 탐색지에서 뜨는 「칸로 고개 안개 속 도적단」(Lv6 · 평판 18 · +2 · 빈도 «흔히») 은 선행이 아니지만 평판 올리기엔 좋습니다.</div>
-  <div class="note warn"><b>★ 제작자 위키의 1→2 설명과 다른 점.</b>
-     «평판 30» &rarr; 데이터는 <b>25</b> · «퀘스트 클리어 100» &rarr; 값은 <b>1</b>(그 마을에서 깬 의뢰 종류 ≥ 1 &mdash; 선행만 깨도 충족)이고, 게임 전체에 100 을 요구하는 의뢰는 없습니다(최대 15) ·
-     «칸로 고개의 안개 속 도적단 완료» &rarr; 선행이 <b>아닙니다</b> · «모두가 말하는 모험가 / 산 너머의 체크포인트 / 검문소를 통과하는 요령» 은 7.2 한국어 의뢰명에 없습니다(옛 판 이름이거나 위키 자체 명칭으로 보입니다) ·
-     «카리나의 안식처» 는 탐색지가 아니라 미스토리아의 <b>마을</b>(의뢰 0개)이고 어느 조건에도 안 들어갑니다. «게이트 로드 패스 발견 → 세키로 → 에스코트» 뼈대는 맞습니다.</div>
   </section>
 <section class="sec" id="sec-r23" data-sec="r23" data-upd="2026-10-02">
   <h2 id="r23"><span class="n">2</span>바르디아 평원 &rarr; 뤼미에르 힐스</h2>
@@ -468,7 +468,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h3>「성왕청의 통행 호위」 <span class="tag" style="color:var(--c-quest)">풋워커의 마을 · Lv20 · 호위 · 한 번만</span></h3>
     <dl class="kv">
       <dt>평판</dt><dd>풋워커 <b>35</b> 이상</dd>
-      <dt>탐색지</dt><dd>「작은 발 빠짐 지름」 <span class="meta">Lv15 · 좌표 −32,4 · 이동 곤란 &mdash; 도감의 아르디오스 추천 훈련지이기도 합니다</span></dd>
+      <dt>탐색지</dt><dd>「작은 발 빠짐 지름」 <span class="meta">Lv15 · 좌표 −32,4 · 이동 곤란</span></dd>
       <dt>선행</dt><dd><span class="q">「성왕청의 사자, 바람의 돌도시에 동행요청」</span> <span class="meta">(풋워커 · Lv17 · 평판 25 · 「바람을 파헤치는 돌의 도시」 Lv14)</span></dd>
       <dt>보상</dt><dd>금 4,000 · 경험치 7,111 · 평판 +1 · 4시간 10분</dd>
     </dl>
@@ -522,7 +522,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <h3>「고갯길 성문 성수탑의 몬스터 퇴치」 <span class="tag" style="color:var(--c-quest)">트레반의 마을 · Lv30 · 소탕 · 한 번만</span></h3>
     <dl class="kv">
       <dt>평판</dt><dd>트레반 <b>34</b> 이상 &mdash; <b>Lv30 의뢰를 반복해야 닿습니다</b>(아래)</dd>
-      <dt>탐색지</dt><dd>「고갯마루 성수탑」 <span class="meta">Lv22 · 좌표 −25,−45 &mdash; 도감의 발두나 추천 훈련지(회피 30 · 12,826 exp/h · 성기사 부름 포함 시 더)</span></dd>
+      <dt>탐색지</dt><dd>「고갯마루 성수탑」 <span class="meta">Lv22 · 좌표 −25,−45</span></dd>
       <dt>선행</dt><dd><span class="q">「구릉지대에 나타난 익룡」</span> <span class="meta">(Lv30 · 토벌 · 평판 27 · 「힐라이즈 마운틴」 Lv27 · «대개»)</span> &mdash; 이 의뢰가 다시 「계곡 바닥의 물터를 빼앗는 날개」(Lv30 · 21 · 「오목한 취곡」 Lv26 · «대개») 와 「성수탑에 깃든 거수」(Lv30 · 23 · 고갯마루 성수탑) &larr; 「고갯마루 성수탑의 괴날개 퇴치」(Lv28 · 19) 를 요구합니다</dd>
       <dt>보상</dt><dd>금 100 · 경험치 17,948 · 평판 +1 · 3시간</dd>
     </dl>

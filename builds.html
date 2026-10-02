@@ -206,7 +206,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 /* 첫 칸은 왼쪽 여백이 0 이라 막대가 글자를 덮었다 · 폰에서는 붙박이 첫 칸의 바탕(--ground)이 강조를 반쪽으로 잘랐다 */
 .doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent);padding-left:8px;background:var(--raised)}
 /* 공백 없는 긴 코드 이름(GameSettings.RetireCharacterExpBonusPercent …)이 폰에서 페이지를 옆으로 밀었다 — 넘칠 때만 단어 안에서 바꾼다(표 칸 폭은 그대로) */
-.doc{overflow-wrap:break-word}
+.doc{overflow-wrap:break-word;word-break:keep-all}
+/* 폰에서 표가 화면에 맞추려고 한글 낱말 가운데서 줄을 바꿔 «무모한» 이 한 글자씩 세로로 섰다(원리 216칸 · 빌드 124칸).
+   낱말 단위로만 바꾸고(keep-all), 숫자 칸은 안 바꾼다 — 넓어진 표는 옆으로 밀고 첫 칸이 붙박이로 남는다. */
+.doc td.num,.doc th.num{white-space:nowrap}
+.doc td.num .sub{white-space:normal}
 
 /* ── 읽는 페이지 ─────────────────────────────────────────────── */
 .doc{max-width:74ch;padding-bottom:80px}
@@ -530,128 +534,94 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-02">
   <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 판정 자체를 없앤다</h2>
   <p class="secdate">2026-10-02 갱신</p>
-  <p>회피탱은 <b>쓰는 곳이 둘</b>이고, 곳마다 답이 다릅니다.</p>
+  <p>회피탱은 <b>한 용병을 4단계부터 7단계까지 이어서</b> 키웁니다. 종족은 못 바꾸니 갈래는 <b>엘프</b>와 <b>풋워커</b> 둘이고,
+     주직업은 전직으로 바꿔도 직업 레벨이 그대로 남습니다. 아래 경험치는 앞 단계 레벨 위에 얹어 온 <b>누적</b> 값이고,
+     «탱 사망» 은 그 단계 의뢰 전부를 회피탱 + 방어탱 + 활 + 법사로 150번씩 돌린 파티 시뮬 값입니다.</p>
+  <table class="t"><thead><tr><th>단계</th><th>엘프 &mdash; 도둑 주</th><th>풋워커 &mdash; 궁사 &rarr; 마검사 주</th></tr></thead><tbody>
+    <tr><td class="num">4</td><td>완봉 31 · <b>0.71M</b><span class="sub">탱 사망 2.6%</span></td><td>완봉 31 · <b>1.23M</b><span class="sub">탱 사망 1.9%</span></td></tr>
+    <tr><td class="num">5</td><td>완봉 38 · <b>3.34M</b><span class="sub">탱 사망 8.7%</span></td><td>완봉 34 · <b>4.44M</b><span class="sub">탱 사망 12.7%</span></td></tr>
+    <tr><td class="num">6</td><td>완봉 45 · <b>5.38M</b><span class="sub">탱 사망 11.7%</span></td><td>완봉 45 · <b>25.3M</b><span class="sub">탱 사망 7.9%</span></td></tr>
+    <tr class="hi"><td class="num">7</td><td>완봉 48 · <b>7.51M</b><span class="sub">탱 사망 20.2% &mdash; 7단계 파티는 방어탱에게</span></td><td>완봉 48 · <b>45.0M</b><span class="sub">탱 사망 12.9%</span></td></tr>
+  </tbody></table>
+  <div class="note"><b>고르는 법.</b> 경험치를 아끼려면 <b>엘프</b>입니다 &mdash; 7단계까지 누적 7.5M 으로 풋워커의 6분의 1 입니다.
+     대신 7단계 파티에서는 탱 사망이 20% 라 7단계 의뢰는 방어탱에게 맡기세요(<a href="#stages">&sect;11</a> 도 6·7단계는 방어탱 + 활 + 법사 둘이 가장 낫습니다).
+     7단계 파티 탱까지 회피탱으로 가려면 <b>풋워커</b>입니다 &mdash; 6단계에서 마검사로 전직해 부적 칸과 체력을 얻고, 가장 덜 죽습니다.
+     <b>두 갈래 모두 6·7단계 빌드에 반격 단검만 쥐면 그대로 쩔 탱</b>입니다(<a href="#dodge-solo">아래</a>).</div>
+
+  <div class="role" id="dodge-elf">
+    <h3>엘프 갈래 <span class="tag" style="color:var(--f-lodge)">도둑 주직업 한 줄 · 활 · 부적</span></h3>
+    <p class="lede2"><b>엘프 여</b>(루페리아 그로브). ★ 엘프는 도둑이어도 부적 칸이 열려 마법 방어가 붙습니다(코드 확인 &mdash; <code>Character.CanEquipArmors</code>).
+      뽑을 때 초빙 포인트는 활 요구 힘만큼 힘 &rarr; 민첩 20 까지 &rarr; 나머지 생명점. <b>굵은 것</b>이 그 단계에서 올릴 것입니다.</p>
+    <dl class="kv">
+      <dt>4단계</dt><dd><b>도둑 19</b>(주) · <b>숨은 칼날의 궁사 16</b> · <b>베테랑 파이터 10</b><br>
+        <span class="meta">전식 활 · 통풍이 잘되는 옷 · 단마의 부적 · 테라 버클러 &mdash; 완봉 31 · HP 21 · 마방 37 · 누적 0.71M</span></dd>
+      <dt>5단계</dt><dd>도둑 <b>25</b> · 숨은 칼날의 궁사 <b>20</b> · 베테랑 파이터 10 · <b>검술사 6</b><br>
+        <span class="meta">현무암 활로 바꿈 &mdash; 완봉 38 · HP 26 · 마방 37 · 누적 3.34M</span></dd>
+      <dt>6단계</dt><dd>도둑 <b>27</b> · 숨은 칼날의 궁사 20 · 검술사 <b>11</b> · 베테랑 파이터 10<br>
+        <span class="meta">도강궁 · <b>세라믹스틸 오멘워드 탈리스만</b>(회피 +5 · 마방 37) &mdash; 완봉 45 · HP 29 · 마방 42 · 누적 5.38M</span></dd>
+      <dt>7단계</dt><dd>도둑 27 · 숨은 칼날의 궁사 20 · 검술사 <b>15</b> · <b>전술병 11</b> · 베테랑 파이터 10<br>
+        <span class="meta">장비 그대로 &mdash; 완봉 48 · HP 33 · 마방 44 · 누적 7.51M</span></dd>
+    </dl>
+  </div>
+
+  <div class="role" id="dodge-fw">
+    <h3>풋워커 갈래 <span class="tag" style="color:var(--f-lodge)">숨은 칼날의 궁사 주 &rarr; 6단계에 마검사 주</span></h3>
+    <p class="lede2"><b>풋워커 여</b>. 풋워커는 도둑 주직업이면 부적 칸이 없어 마법 방어가 5 에 머물고, 시뮬에서 5단계 탱 사망이 31% 였습니다.
+      그래서 4·5단계는 부적 칸이 열리는 <b>숨은 칼날의 궁사</b> 주직업, 6단계부터는 <b>마검사</b> 주직업으로 갑니다. 풋워커는 마검사여도 활을 낍니다.</p>
+    <dl class="kv">
+      <dt>4단계</dt><dd><b>숨은 칼날의 궁사 18</b>(주) · <b>도둑 20</b> · <b>검술사 11</b> · <b>베테랑 파이터 10</b><br>
+        <span class="meta">별을 부수는 활 · 통풍이 잘되는 옷 · 단마의 부적 · 테라 버클러 &mdash; 완봉 31 · HP 27 · 마방 37 · 누적 1.23M</span></dd>
+      <dt>5단계</dt><dd>숨은 칼날의 궁사 18 · 도둑 <b>24</b> · 검술사 <b>15</b> · 베테랑 파이터 10<br>
+        <span class="meta">모래거울 활로 바꿈 &mdash; 완봉 34 · HP 29 · 마방 37 · 누적 4.44M</span></dd>
+      <dt>6단계</dt><dd><b>마검사 23</b>(주로 전직) · 도둑 <b>27</b> · 숨은 칼날의 궁사 <b>20</b> · 검술사 15 · 베테랑 파이터 10<br>
+        <span class="meta">도강궁 · 세라믹스틸 오멘워드 탈리스만 &mdash; 완봉 45 · HP 36 · 마방 47 · 누적 25.3M (이 단계에서 +20.8M)</span></dd>
+      <dt>7단계</dt><dd>마검사 <b>28</b> · 도둑 27 · 숨은 칼날의 궁사 20 · 검술사 15 · 베테랑 파이터 10 · <b>블레이드브레이커 10</b><br>
+        <span class="meta">강심 활 &mdash; 완봉 48 · HP 43 · 마방 48 · 누적 45.0M</span></dd>
+    </dl>
+    <p class="lede2" style="margin:6px 0 0">5단계 완봉선은 34 까지만 올렸습니다. 숨은 칼날의 궁사 주직업으로 36 을 맞추면 탱 사망이 7.0% 로 줄지만 누적이 4M 더 들고, 38 은 더 비쌉니다.
+      그래서 바람의 경계 자유 탐색(38)에서는 몇 대 맞습니다.</p>
+  </div>
+
+  <h3 id="dodge-solo">쩔 탱으로 쓸 때 &mdash; 반격 단검만 바꿔 쥡니다</h3>
+  <p>두 갈래 모두 6·7단계 빌드에 <b>돌아온 칼날의 단검</b>(Lv17 · 반격)만 쥐면 그대로 쩔 탱입니다.
+     회피탱 혼자 앞줄, 저레벨 한 명을 뒷줄에 무기 없이 둡니다. 경험치는 살아 있는 인원수로 나누니 한 명만 데려가야 그 사람이 가장 많이 받습니다.</p>
+  <table class="t"><thead><tr><th>어디</th><th class="num">저레벨 몫</th><th>조건</th></tr></thead><tbody>
+    <tr><td><b>라그네스 강창의 흔적</b> <span class="sm">발두나</span></td><td class="num">약 16,000/h<span class="sub">저레벨 한 명</span></td><td>그대로 &mdash; 함정 없음 · 시뮬 48판(판마다 24시간) 사망 0</td></tr>
+    <tr class="hi"><td><b>명실상부한 모래시계</b> <span class="sm">발두나</span></td><td class="num">약 16,700/h<span class="sub">저레벨 둘 데리고 한 명당</span></td><td><b>레인저를 가진 사람 둘</b> · 전원 최대 HP 26 이상 · 회복 갑옷</td></tr>
+  </tbody></table>
   <ul>
-    <li><b>파티 탱</b> &mdash; 퀘스트에서 <b>방어탱 옆 앞줄</b>에 서서 맞아 주는 자리입니다(<a href="#stages">&sect;11</a> 5단계 «회피탱 + 방어탱»). 딜은 딜러 몫이라 <b>안 죽는 것</b>만 봅니다.</li>
-    <li><b>혼자 쩔</b> &mdash; 자유 탐색에서 저레벨 셋을 뒷줄에 <b>무기 없이</b> 두고 회피탱 혼자 싸우는 자리입니다. 혼자 잡아야 하니 <b>반격 단검</b>을 듭니다.</li>
+    <li><b>모래시계는 세이브 기록이 근거입니다.</b> 회피탱 + 저레벨 둘이 27시간 · 91전 · 사망 0 이었고, 한 명 몫이 시간당 16,742 로
+        <b>같은 셋이 라그네스에서 낸 6,936 의 2.4배</b>였습니다.</li>
+    <li><b>모래시계의 함정은 레인저 레벨로만 찾습니다</b>(직업 번호 201 &mdash; 도둑 레벨로는 못 찾음). 못 찾으면 전원이 최대 25 를 맞고 아포피스(Lv24 · 공격 114)와 싸웁니다.
+        주사위가 1·1 이면 누구든 못 찾아서(36번에 한 번), 레인저 한 명으로는 시뮬 48판 중 8~26판이 전멸했고 <b>레인저 30 이 둘이면 48판 사망 0</b> 이었습니다.</li>
+    <li><b>레인저는 일찍 올리세요.</b> 6단계 빌드에 레인저 30 을 나중에 얹으면 엘프 +43M · 풋워커(마검사 경로) +161M 입니다(레인저 계수 ×2.5 에, 이미 쌓인 레벨만큼 불어남).</li>
+    <li><b>반격 단검은 약한 것이 낫습니다.</b> 천천히 잡을수록 부름이 쌓여 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.
+        반격은 물리 무효에게 0 이라 그런 몬스터가 섞인 곳은 쩔이 안 됩니다 &mdash; <a href="codex.html">도감</a> 탐색지 상세의 «부름 포함 시뮬» 을 보세요.</li>
   </ul>
-  <table class="t"><thead><tr><th>쓰는 곳</th><th>단계</th><th>카드</th><th>한 줄</th></tr></thead><tbody>
-    <tr><td>파티 탱</td><td>4</td><td><a href="#dodge-4">① 풋워커 · 숨은 칼날의 궁사</a></td><td>활을 들어 반격 · 반사를 안 받는다</td></tr>
-    <tr><td>파티 탱</td><td>5</td><td><a href="#dodge-5">② 엘프 · 도둑</a></td><td>엘프는 도둑이어도 부적을 껴 마법 방어가 붙는다</td></tr>
-    <tr class="hi"><td>파티 탱</td><td>6~7</td><td><a href="#dodge-67">③ 풋워커 · 마검사</a></td><td>가장 덜 죽는다 &mdash; 경험치를 아끼려면 엘프 도둑 + 활</td></tr>
-    <tr class="hi"><td>혼자 쩔</td><td>6~7</td><td><a href="#dodge-solo">④ 엘프 · 도둑 + 반격 단검</a></td><td>라그네스 강창의 흔적에서 시간당 약 31,900 · 저레벨 몫 약 15,900</td></tr>
-  </tbody></table>
-  <div class="note"><b>왜 용도마다 다른가 &mdash; 완봉선을 넘긴 회피탱은 «평타» 로는 거의 안 죽습니다.</b>
-     시뮬에서 회피탱이 쓰러진 원인은 회피 실패 평타가 0~3건뿐이었고, 나머지는 <b>몬스터의 스킬 · 마법</b>(회피 판정이 없음)과
-     <b>내가 때리다 받는 반격 · 피해 반사</b>였습니다. 그래서 <b>파티 탱은 마법 방어 · HP · 방어가 생존을 정하고</b>, 활을 들면 반격 · 반사를 아예 안 받습니다.
-     혼자 쩔은 반대로 내가 때려서 잡아야 하므로 반격 단검이 필요합니다.</div>
 
-  <div class="role" id="dodge-4">
-    <h3>① 파티 탱 · 4단계 <span class="tag" style="color:var(--f-lodge)">풋워커 · 숨은 칼날의 궁사</span></h3>
-    <dl class="kv">
-      <dt>종족</dt><dd><b>풋워커 여</b> <span class="meta">&mdash; 풋워커는 주직업과 상관없이 활을 낍니다</span></dd>
-      <dt>주직업</dt><dd><b>숨은 칼날의 궁사 20</b> <span class="meta">&mdash; 4단계에서 회피 몫이 큰 직업 중 의복 · 부적 · 방패 칸이 다 열리는 것</span></dd>
-      <dt>부직업</dt><dd><b>도둑 20 · 검술사 15 · 베테랑 파이터 10</b></dd>
-      <dt>무기</dt><dd><b>난사의 활</b> <span class="meta">&mdash; 활로 때리면 반격 · 반사를 안 받습니다</span></dd>
-      <dt>방어구</dt><dd>통풍이 잘되는 옷(회피 +6) · 단마의 부적(마법 방어 32) · 테라 버클러(방패 회피 +5)</dd>
-    </dl>
-    <div class="chips"><span>완봉선 <b>31</b></span><span>HP 29</span><span>마법 방어 37</span><span>경험치 <b>1.9M</b></span></div>
-    <p class="src">아르디오스 자유 탐색은 완봉선 23 이면 되지만, 퀘스트는 몬스터가 더 세서 23 짜리 싼 빌드는 탱 사망 12~22% 였습니다(이 빌드 1.9%).</p>
-  </div>
-
-  <div class="role" id="dodge-5">
-    <h3>② 파티 탱 · 5단계 <span class="tag" style="color:var(--f-lodge)">엘프 · 도둑</span></h3>
-    <dl class="kv">
-      <dt>종족</dt><dd><b>엘프 여</b> <span class="meta">(루페리아 그로브) &mdash; ★ 엘프는 도둑이어도 <b>부적 칸</b>이 열립니다(코드 확인)</span></dd>
-      <dt>주직업</dt><dd><b>도둑 25</b> <span class="meta">&mdash; 회피 몫이 레벨당 7 로 가장 큽니다</span></dd>
-      <dt>부직업</dt><dd><b>숨은 칼날의 궁사 11 · 검술사 10 · 베테랑 파이터 10</b></dd>
-      <dt>무기</dt><dd>밤을 걷는 단검 <span class="meta">(회피 +1 · 민첩 +2) &mdash; 반격 · 반사가 싫으면 활</span></dd>
-      <dt>방어구</dt><dd>통풍이 잘되는 옷 · <b>단마의 부적</b>(마법 방어 32) · 테라 버클러</dd>
-    </dl>
-    <div class="chips"><span>완봉선 <b>38</b></span><span>HP 25</span><span>마법 방어 <b>37</b></span><span>경험치 <b>1.35M</b></span></div>
-    <p class="src">같은 경험치의 풋워커 도둑은 부적을 못 껴 마법 방어가 5 이고, 파티 시뮬에서 탱 사망이 38% 대 10% 였습니다.</p>
-  </div>
-
-  <div class="role" id="dodge-67">
-    <h3>③ 파티 탱 · 6~7단계 <span class="tag" style="color:var(--f-lodge)">풋워커 · 마검사</span></h3>
-    <p class="lede2">종족은 <b>풋워커 여</b>(민첩 8 · 재주 9 · <b>통찰 10</b>). 뽑을 때 <b>민첩 20 · 힘 5 · 나머지 재주</b>.
-      아래는 6단계 값이고, 7단계는 도둑 35 · 현자 35 로 올려 완봉선 47 · 21.6M 입니다.</p>
-    <dl class="kv">
-      <dt>주직업</dt><dd><b>마검사 30</b> <span class="meta">&mdash; 든 단검을 전부 «마법 공격» 으로 칩니다. 부적 칸도 여기서 열립니다</span></dd>
-      <dt>부직업</dt><dd><b>도둑 30</b> <span class="meta">(부 회피 3 · 민첩 3 · 통찰 2)</span> ·
-        <b>숨은 칼날의 궁사 20</b> <span class="meta">(2 · 4)</span> · <b>검술사 15</b> <span class="meta">(2)</span> ·
-        <b>현자 30</b> <span class="meta">&mdash; 지수 면제 · 통찰 +15</span></dd>
-      <dt>무기</dt><dd><b class="mag">용맥의 단검</b> <span class="meta">요구 Lv26 · 힘 22 · 45~72 · <b>전체 공격</b></span></dd>
-      <dt>몸</dt><dd>통풍이 잘되는 옷 <span class="meta">요구 Lv13 · 힘 2 · <b>회피 +6</b> · 민첩 +2</span></dd>
-      <dt>부적</dt><dd>세라믹스틸 오멘워드 탈리스만 <span class="meta">요구 Lv27 · 힘 1 · <b>회피 +5</b> · 마법 방어 37</span></dd>
-      <dt>방패</dt><dd><b>검은 봉인의 방패</b> <span class="meta">요구 Lv26 · 힘 30 · 방어 7~28 · <b>마법 방어 11</b> &mdash; 합이 62 가 됩니다</span></dd>
-    </dl>
-    <div class="chips"><span>회피값 <b>39</b></span><span>민첩 <b>39</b></span>
-      <span>완봉선 <b>45</b></span>
-      <span>물리 <b>100% 회피</b> <span class="meta">발두나 자유 탐색까지</span></span>
-      <span>마법 방어 <b>62</b></span><span>치명 저항 43</span><span>HP 40</span>
-      <span>평타 <b>74~101</b> 전체</span><span>통찰 <b>33</b></span><span>경험치 <b>16.1M</b></span></div>
-  </div>
-  <table class="t"><thead><tr><th>어디</th><th class="num">필요 완봉선</th><th class="num">이 빌드 45</th></tr></thead><tbody>
-    <tr><td>아르디오스 왕국 <span class="sm">자유 탐색</span></td><td class="num">23</td><td class="num">+22</td></tr>
-    <tr><td>바람의 거친 경계</td><td class="num">38</td><td class="num">+7</td></tr>
-    <tr class="hi"><td><b>발두나의 황야</b></td><td class="num"><b>44</b></td><td class="num"><b>+1</b></td></tr>
-    <tr style="color:var(--f-vault)"><td><b>칼레바스 고원</b> <span class="sm">48 은 발드란 보관소 터 · 모래를 삼키는 유적 둘, 47 은 사르케인의 유적 · 불타는 동굴 둘, 나머지는 44</span></td><td class="num"><b>48</b></td><td class="num"><b>&minus;3</b></td></tr>
-    <tr style="color:var(--muted)"><td>칼레바스 <span class="sm">퀘스트 · 관측 최대 (발케인 열리면 55)</span></td><td class="num">54</td><td class="num">&minus;9</td></tr>
-  </tbody></table>
-  <div class="note warn"><b>★ 칼레바스는 자유 탐색도 3 이 모자랍니다.</b>
-     회피값을 42 로 올리면 닿습니다 &mdash; 다만 그러자고 부직업을 더 쌓으면 경험치가 훨씬 비싸집니다
-     (부직업만으로 채우는 가장 싼 조합이 <b>18.4M</b> 입니다).
-     <b>칼레바스는 방어탱에게 맡기고, 회피탱은 발두나까지 도는 편이 값쌉니다.</b></div>
+  <h3>두 갈래 모두 알아 둘 것</h3>
+  <ul>
+    <li><b>주직업을 늦게 바꾸면 비쌉니다.</b> 필요 경험치는 «다른 직업 레벨 합» 1점마다 5%씩 불어나서(<a href="notes.html#job">원리 &sect;3</a>),
+        6단계에 마검사 23 을 새로 올리는 풋워커는 그 단계에만 +20.8M 이 듭니다. 같은 빌드도 6단계에 새로 뽑아 마검사부터 올리면 훨씬 쌉니다(아래).</li>
+    <li><b>새 지역을 막 열었을 때가 가장 위험합니다.</b> 앞 단계 빌드로 다음 단계 의뢰를 돌리면 탱 사망이 39~72% 였습니다 &mdash; 새 지역 의뢰는 그 단계 빌드를 맞춘 뒤에 가세요.</li>
+    <li><b>화력은 올릴 필요가 없습니다.</b> 검술사 15 를 검투사 25 로 바꿔 평타 +10 을 얻으면 경험치가 두 배인데,
+        6·7단계 의뢰 전부에서 전멸 0.02~0.24%p · 회피탱 사망 0.04~0.69%p 만 줄었습니다.</li>
+    <li><b>강화로 회피를 붙이면 부직업을 0~2개 덜 키워도 됩니다</b>(경험치 16~45% 절약). 회피 강화는 의복 · 방패 · 투구 · 부적에만 붙고,
+        한 번에 목표선에 닿을 확률은 49~58% 라 다시 강화할 생각으로 계획하세요.</li>
+    <li>지역마다 필요한 완봉선은 <a href="notes.html#hit">원리 &sect;5</a>, 탐색지마다는 <a href="codex.html">도감</a> 에 있습니다.</li>
+  </ul>
   <div class="note warn"><b>구멍은 넷입니다 &mdash; 회피값으로는 하나도 못 막습니다.</b>
      <b>혼란 · 수면 · 마비</b>가 걸리면 회피가 계산 없이 <b>0</b> 이고,
      <b>망각</b>이면 회피값 항이 통째로 빠집니다(<a href="notes.html#hit">원리 &sect;5</a>).
      특히 <b>반격으로 마비를 거는 몬스터</b>(아이스 맨드레이크)가 회피탱을 가장 많이 죽입니다 &mdash;
      <b>때리지 말거나 활로 때려야</b> 합니다.</div>
-  <div class="note"><b>방패는 «막기» 가 아니라 «방어와 마법 방어» 로 씁니다.</b>
-     테라 버클러(방패 회피 +5)를 검은 봉인의 방패로 바꾸면
-     회피값·평타·경험치가 한 칸도 안 변하면서 <b>방어 41~68 · 마법 방어 62</b> 가 됩니다.
-     막기는 상위 지역에서 어차피 절반밖에 못 막습니다(<a href="notes.html#hit">원리 &sect;5</a>).</div>
-
-  <div class="note"><b>화력은 올릴 필요가 없습니다.</b>
-     검술사 15 를 검투사 25 로 바꾸면 평타가 +10(74~101 &rarr; 84~111) 오르지만 경험치는 16.1M &rarr; <b>31.3M</b> 으로 두 배가 됩니다.
-     6 · 7단계 의뢰 전부를 같은 씨앗으로 돌려 보면(회피탱 + 방어탱 + 활 + 법사 · 회피탱 + 활 + 법사 둘)
-     전멸은 <b>0.02~0.24%p</b>, 회피탱 사망은 <b>0.04~0.69%p</b> 줄고 의뢰에 걸리는 시간은 그대로입니다.
-     파티 탱은 맞아 주는 게 일이고, 혼자 쩔은 오히려 천천히 잡아야 부름이 쌓입니다(&#9315;).</div>
-
-  <div class="note"><b>③ 을 경험치를 아껴 만들려면 &mdash; 엘프 도둑 + 활.</b>
-     6단계까지는 이걸로 충분하고, <b>7단계에서는 마검사가 확실히 덜 죽습니다.</b></div>
-  <table class="t"><thead><tr><th>단계</th><th>엘프 여 · 도둑 주직업 + 활</th><th class="num">완봉선</th><th class="num">경험치</th><th class="num">탱 사망</th></tr></thead><tbody>
-    <tr><td class="num">6</td><td><b>도둑 29</b> · 숨은 칼날의 궁사 11 · 베테랑 파이터 10
-      <span class="sub"><b>송곳니왕의 활</b> · 통풍이 잘되는 옷 · <b>세라믹스틸 오멘워드 탈리스만</b>(회피 +5 · 마법 방어 37) · 테라 버클러 &rarr; HP 24 · 마법 방어 42</span></td>
-      <td class="num">43</td><td class="num"><b>1.8M</b><span class="sub">마검사의 9분의 1</span></td><td class="num">2.9%<span class="sub">마검사와 같음</span></td></tr>
-    <tr><td class="num">7</td><td><b>도둑 35</b> · 숨은 칼날의 궁사 20 · 검술사 11 · 베테랑 10 · 스커미셔 4 · 숙련된 사냥꾼 10
-      <span class="sub"><b>피철의 활</b></span></td>
-      <td class="num">52</td><td class="num"><b>5.8M</b></td><td class="num">7~10%<span class="sub">마검사 2~4%</span></td></tr>
-  </tbody></table>
-
-  <div class="role" id="dodge-solo">
-    <h3>④ 혼자 쩔 · 6~7단계 <span class="tag" style="color:var(--f-lodge)">엘프 · 도둑 + 반격 단검</span></h3>
-    <dl class="kv">
-      <dt>종족</dt><dd><b>엘프</b> <span class="meta">&mdash; 부적 칸(오멘워드 탈리스만)으로 같은 완봉선을 절반 이하 경험치로</span></dd>
-      <dt>주직업</dt><dd><b>도둑 29</b>(6단계) · <b>도둑 35</b>(7단계)</dd>
-      <dt>부직업</dt><dd>6단계 숨은 칼날의 궁사 11 · 베테랑 파이터 10 / 7단계 숨은 칼날의 궁사 8 · 베테랑 파이터 8 · 숙련된 사냥꾼 10</dd>
-      <dt>무기</dt><dd><b>돌아온 칼날의 단검</b> <span class="meta">(Lv17 · 반격 가능 · 회피 +1) &mdash; ★ 반격 단검은 약한 것이 낫습니다(아래)</span></dd>
-      <dt>방어구</dt><dd>통풍이 잘되는 옷 · 세라믹스틸 오멘워드 탈리스만 · 테라 버클러</dd>
-      <dt>편성</dt><dd>회피탱 혼자 앞줄 · <b>저레벨 한 명</b>을 뒷줄에 <b>무기를 빼고</b>(맨손은 앞줄이 살아 있는 동안 칠 대상이 없어 안 칩니다) &mdash; 경험치는 살아 있는 인원수로 나눠서 한 명만 데려가야 그 사람이 가장 많이 받습니다</dd>
-    </dl>
-    <div class="chips"><span>완봉선 <b>43 · 47</b></span><span>마법 방어 42</span><span>경험치 <b>1.8M · 3.3M</b></span><span>라그네스 시간당 약 <b>31,900</b></span><span>저레벨이 받는 몫 약 <b>15,900</b></span></div>
-    <p class="src">라그네스 강창의 흔적에서 엘프 도둑 31,151 · 마검사 28,603 · 지금 ③ 빌드(용맥의 단검 · 반격 없음) 18,580/시간이었습니다. 혼자 쩔에 7.2M 을 들여 마검사로 갈 이유가 없습니다.</p>
-  </div>
-  <ul>
-    <li><b>반격 단검은 «약한 것» 이 더 법니다.</b> 천천히 잡을수록 부름이 쌓여, 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.</li>
-    <li><b>반격은 물리 무효에게 0</b> 입니다(마검사여도 반격은 물리). 그런 몬스터가 섞인 곳은 혼자 못 잡고, 24시간 안전하게 쩔이 되는 부름 탐색지는 열 곳 남짓입니다 &mdash; <a href="codex.html">도감</a> 탐색지 줄의 «부름 최소~최대» 와 상세를 보세요.</li>
-    <li><b>강화로 회피를 붙이면 부직업을 0~2개 덜 키워도 됩니다</b>(경험치 16~45% 절약). 회피 강화는 의복 · 방패 · 투구 · 부적에만 붙고 무기에는 없으며, 회피보다 민첩이 더 많이 붙습니다.
-        다만 한 번 강화로 목표선에 닿을 확률이 49~58% 라 다시 강화할 생각으로 계획하세요.</li>
-    <li><b>마도병 부직업</b>(엘프 가능 · 풋워커 불가)은 35레벨이면 회피 +7 이지만 31M 이 들어 목표선에는 필요 없습니다.</li>
-  </ul>
-  <p class="src">근거: 빌드 236가지를 사이트 능력치 식(engine.mjs)으로 훑고, 상위 후보를 파티 시뮬(그 단계 퀘스트 전부)과 쩔 시뮬(자유 탐색 24시간)에 넣었습니다 &mdash; tools/sim/evasion_builds.md · evasion_sim.md · callfarm_final.json · evasion_glad/(검투사로 화력 올리기 · 같은 씨앗).
-     엘프 부적 칸은 Character.CanEquipArmors 0x26DA0FC, 회피값은 Character.AvoidValue 0x26DC334, 강화 후보는 Armor.Craft 0x26FDE04.</p>
+  <div class="note"><b>6단계에 새로 뽑는다면 &mdash; 마검사 빌드.</b>
+     풋워커 여 · <b>마검사 30</b>(주) · 도둑 30 · 숨은 칼날의 궁사 20 · 검술사 15 · 현자 30 · 용맥의 단검(전체 공격 · 마검사가 들면 마법)
+     &rarr; 완봉 45 · HP 40 · 마방 51 · <b>16.1M</b>(마검사부터 올릴 때) · 탱 사망 5.8%. 7단계는 도둑 35 · 현자 35 로 완봉 47 · 21.6M 입니다.
+     4단계부터 키운 용병을 이 빌드로 바꾸면 이미 쌓인 레벨 때문에 몇 배가 들어서, 이어 키울 때는 위 두 갈래를 따르세요.</div>
+  <p class="src">근거: tools/sim/evasion_path.mjs(이어 키우기 경로 · 증분 경험치 = calc-tpl expPlan 의 «가진 레벨» 출발값 · 능력치 = engine.mjs) ·
+     evasion_path_sim.py(파티 시뮬 · 같은 씨앗 · 결과 evasion_path_sim.md · _fw.md) · callfarm_final.py(쩔) · logs.jsonl(모래시계 · 라그네스 세이브 기록) ·
+     evasion_glad/(검투사). 엘프 부적 칸 Character.CanEquipArmors 0x26DA0FC · 함정 탐지 Trap.Detect 0x2726DBC(직업 = TrapMaster.jobKind).</p>
   </section>
 <section class="sec" id="sec-bow" data-sec="bow" data-upd="2026-09-19">
   <h2 id="bow"><span class="n">4</span>활 딜러 &mdash; 관통으로 줄을 뚫는다</h2>

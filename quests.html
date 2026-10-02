@@ -205,7 +205,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 /* 첫 칸은 왼쪽 여백이 0 이라 막대가 글자를 덮었다 · 폰에서는 붙박이 첫 칸의 바탕(--ground)이 강조를 반쪽으로 잘랐다 */
 .doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent);padding-left:8px;background:var(--raised)}
 /* 공백 없는 긴 코드 이름(GameSettings.RetireCharacterExpBonusPercent …)이 폰에서 페이지를 옆으로 밀었다 — 넘칠 때만 단어 안에서 바꾼다(표 칸 폭은 그대로) */
-.doc{overflow-wrap:break-word}
+.doc{overflow-wrap:break-word;word-break:keep-all}
+/* 폰에서 표가 화면에 맞추려고 한글 낱말 가운데서 줄을 바꿔 «무모한» 이 한 글자씩 세로로 섰다(원리 216칸 · 빌드 124칸).
+   낱말 단위로만 바꾸고(keep-all), 숫자 칸은 안 바꾼다 — 넓어진 표는 옆으로 밀고 첫 칸이 붙박이로 남는다. */
+.doc td.num,.doc th.num{white-space:nowrap}
+.doc td.num .sub{white-space:normal}
 .list{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
 .row{
   display:grid;
