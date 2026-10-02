@@ -196,6 +196,17 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
 .foot code{font-family:"IBM Plex Mono",monospace;font-size:11.5px;background:var(--raised);
   padding:1px 5px;border-radius:4px;color:var(--muted)}
 @media (max-width:700px){ .row{grid-template-columns:minmax(0,1fr) 56px} .row .num.r3{display:none} }
+/* 탐색지 줄(pl) — 넓은 화면은 다섯 칸, 좁은 화면은 이름을 한 줄 통째로 쓰고 숫자 넷을 그 아래 줄에.
+   (예전엔 열 폭을 줄마다 인라인으로 박아 모바일 규칙이 안 먹었다 — 숫자 칸만 350px 라 이름이 한 글자 폭으로 찌그러졌다) */
+.row.pl{grid-template-columns:minmax(0,1fr) 54px 120px 92px 84px}
+@media (max-width:700px){
+  .row.pl{grid-template-columns:auto auto minmax(0,1fr) auto;row-gap:4px;column-gap:14px}
+  .row.pl .nm{grid-column:1/-1}
+  .row.pl .num{text-align:left}
+  .row.pl .num.r3{display:block;white-space:nowrap}
+  .row.pl .tadj{display:inline;margin-left:6px}
+  .row.pl .num:last-child{text-align:right}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
 .gate{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
@@ -635,8 +646,7 @@ function placeRow(p){
   var tag=(p.call&&p.call.length)
     ? '<em class="tag t-call" title="'+esc(p.call.map(function(c){return c.by+" → "+c.n;}).join(", "))
       +' — 잡을수록 적이 불어나 경험치가 더 나옵니다">부름</em>' : "";
-  return '<div class="row" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button" '
-    +'style="grid-template-columns:minmax(0,1fr) 54px 120px 92px 84px">'
+  return '<div class="row pl" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button">'
     +'<span class="nm"><b>'+tag+esc(p.n||p.i)+'</b><span>'+esc(p.r)+' · '+esc(mons.slice(0,5).join(", "))
     +(mons.length>5?" 외 "+(mons.length-5):"")+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
@@ -934,8 +944,7 @@ function recRow(rc){
   /* 지형 보정은 같은 칸 둘째 줄로 — 한 줄에 다 넣으면 120px 를 넘어 옆 칸(경험치)을 덮는다 */
   var av = '회피 '+need+'+'
     + (rc.here!==need ? '<span class="tadj">'+esc(rc.t)+' <b>'+rc.here+'</b></span>' : '');
-  return '<div class="row rec" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button" '
-    +'style="grid-template-columns:minmax(0,1fr) 54px 120px 92px 84px">'
+  return '<div class="row rec pl" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button">'
     +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(rc.why)
     +(rc.loot?' <span class="loot">전리품 '+esc(rc.loot)+'</span>':'')+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
