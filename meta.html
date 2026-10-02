@@ -968,11 +968,20 @@ function expPlan(){
     .filter(function(r){ return r.i; });
   rows.forEach(function(r){ r.from=Math.min(sc.was[r.i]||0, r.to); });
   rows = rows.filter(function(r){ return r.to > r.from; });
-  // 그 직업만 올릴 때 드는 기본값 합(1.05 를 뺀 값)과, 올릴 레벨 수
+  // ★ 지수의 출발값은 «지금 가진 다른 직업 레벨 합» 이다 (Character.SumOtherJobLevels).
+  //   예전엔 0 에서 시작해 이번 계획으로 올리는 레벨만 셌다 — 다 키운 용병에 직업을 붙이는 값이
+  //   1.05^(가진 레벨 합) 배 낮게 나왔다(방어탱이면 ≈168배). 직업마다 자기 레벨은 빼고 센다. expcheck.mjs 가 대조한다.
+  var base=0;
+  Object.keys(sc.was||{}).forEach(function(k){ if(expCounts(k)) base += sc.was[k]||0; });
+  // 그 직업만 올릴 때 드는 값(지금 가진 다른 직업 몫까지 곱한 것)과, 지수에 보태는 레벨 수
   rows.forEach(function(r){
     var S=0;
     for(var L=r.from; L<r.to; L++) S += needNextExp(r.i, L, 0);
-    r.S = S;
+    // ★ 현자·모험가 «자신» 을 올릴 때는 배율이 없다 — GetExpToNextLevel 0x26D9984 가 SumOtherJobLevels(주직업) 을 넘기는데
+    //   SumOtherJobLevels 0x26D9AC0 은 주직업 종류가 202(현자) · 0(모험가)이면 곧장 0 (0x26D9B94 · 0x26D9BB4 → 0x26D9CBC).
+    //   그래서 언제 올려도 같은 값이다. 예전엔 여기에도 «가진 레벨 합» 을 곱해 늦게 올릴수록 수십 배로 부풀었다(2026-10-03 제작자 지적).
+    r.o0 = expCounts(r.i) ? base - (sc.was[r.i]||0) : 0;
+    r.S = S * Math.pow(1.05, r.o0);
     r.n = expCounts(r.i) ? (r.to - r.from) : 0;   // 지수에 보태는 레벨 수
   });
   rows.sort(function(a,b){
@@ -981,11 +990,11 @@ function expPlan(){
     var kb = gb<=1 ? Infinity : b.S/(gb-1);
     return kb-ka;
   });
-  var others=0, total=0;
+  var added=0, total=0;
   rows.forEach(function(r){
     var cost=0;
-    for(var L=r.from; L<r.to; L++) cost += needNextExp(r.i, L, others);
-    r.cost=cost; total+=cost; others+=r.n;
+    for(var L=r.from; L<r.to; L++) cost += needNextExp(r.i, L, expCounts(r.i) ? r.o0 + added : 0);
+    r.cost=cost; total+=cost; added+=r.n;
   });
   return {rows:rows, total:total};
 }

@@ -1023,7 +1023,14 @@ function crewRow(c, ret){
     +'<span>'+esc((RACE[c.race]?RACE[c.race].race:c.race)+" · "+c.pers+" · "+top)+'</span></span>'
     +'<span class="num dim">'+esc(c.main?jobName(c.main):"직업 없음")+'</span>'
     +'<span class="num hi">Lv'+c.mainLv+'</span>'
-    +'<span class="num dim" title="전 직업 레벨 합 — 경험치가 이만큼 비싸진다">합 '+c.sum+'</span></div>';
+    +'<span class="num dim" title="전 직업 레벨 합">합 '+c.sum+'</span></div>';
+}
+/* 다음 레벨 배율의 지수 = 주직업을 뺀 다른 직업 레벨 합(현자 · 모험가는 안 셈). 주직업이 현자 · 모험가면 0 —
+   Character.GetExpToNextLevel 0x26D9984 → SumOtherJobLevels 0x26D9AC0. (예전엔 전 직업 레벨 합을 그대로 써서 부풀었다) */
+function expOthers(c){
+  var mj=JOB[c.main]; if(!mj || mj.k===202 || mj.k===0 || mj.k==null) return 0;
+  var s=0; c.jobs.forEach(function(j){ var k=(JOB[j.i]||{}).k; if(j.i!==c.main && k!==202 && k!==0 && k!=null) s+=j.lv; });
+  return s;
 }
 function crewDetail(c){
   var ab=Object.keys(c.ab).map(function(k){
@@ -1031,8 +1038,9 @@ function crewDetail(c){
   var jobs='<div class="blk"><h4>직업 '+c.jobs.length+'개 · 레벨 합 '+c.sum+'</h4><div class="jobs">'
     + c.jobs.map(function(j){
         return '<i class="'+(j.cur?"cur":(j.lv?"":"zero"))+'">'+esc(jobName(j.i))+' '+j.lv+'</i>'; }).join("")
-    + '</div><span class="meta">경험치 요구량은 <b>1.05<sup>'+c.sum+'</sup> = '
-    + Math.pow(1.05,c.sum).toFixed(c.sum>120?0:1)+'배</b> 입니다 — 다른 직업 레벨 1점마다 5%씩 붙습니다.</span></div>';
+    + '</div><span class="meta">'+(function(){ var o=expOthers(c), mj=JOB[c.main];
+        if(mj && (mj.k===202 || mj.k===0)) return '지금 주직업이 <b>'+esc(jobName(c.main))+'</b>라 경험치 요구량에 배율이 없습니다 — 현자 · 모험가는 언제 올려도 같은 값입니다.';
+        return '지금 주직업('+esc(jobName(c.main))+')의 경험치 요구량은 <b>1.05<sup>'+o+'</sup> = '+Math.pow(1.05,o).toFixed(o>120?0:1)+'배</b> 입니다 &mdash; 주직업을 뺀 다른 직업 레벨 1점마다 5%씩 붙습니다(현자 · 모험가는 안 셉니다).'; })()+'</span></div>';
   var gs=c.eq.map(gearOf).filter(Boolean);
   var gear = gs.length ? '<div class="blk"><h4>장비 '+gs.length+'개</h4><ul>'+gs.map(function(g){
       return '<li><b>'+esc(g.n)+(g.plus?'<span style="color:var(--accent)"> +'+g.plus+'</span>':"")+'</b>'
