@@ -316,13 +316,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <body>
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a><a href="builds.html">빌드</a>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a class="here" href="notes.html">원리</a><a href="regions.html">지역</a><a href="builds.html">빌드</a>
   </nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">설치된 APK 에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서,
-      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다.</p>
+      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다 &mdash; 7.2(versionCode 145)에서 이 문서가 근거로 쓴 함수 112개를 명령 하나하나 1:1 로 대조해 본문이 같음을 확인했습니다. 식과 수치는 그대로이고 주소만 함수마다 조금씩 밀렸습니다.</p>
     <p class="lede" style="margin-top:10px"><b>여기는 «왜 그런가» 만 답합니다.</b>
       무엇을 입고 무엇을 켤지는 <a href="builds.html">빌드</a> 에 있습니다.
       식과 상수는 이 문서에 <b>한 벌만</b> 두고, 빌드는 결과값과 링크만 들고 갑니다.</p>
@@ -2015,7 +2015,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 </script>
 
   <footer class="foot">
-    <p>이 문서는 <b>7.1</b>(versionCode 144) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
+    <p>이 문서는 <b>7.2</b>(versionCode 145) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
        <a href="save.html">내 세이브</a> 에 세이브를 넣으면 판번호가 달라졌는지 알려 줍니다.</p>
     <p style="margin-top:6px">회피식과 화면 수치는 <code>avoidcheck.py</code> · <code>statcheck.mjs</code> 가
        매 빌드마다 <b>게임 화면에서 읽은 값</b>과 맞춰 봅니다 &mdash; 어긋나면 배포가 섭니다.</p>

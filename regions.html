@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- 지역 — 다음 지역이 열리는 조건과, N 지역까지 열렸을 때의 상한. 근거는 full/regions/{unlock,caps}.json (7.2 데이터 · 역어셈블 주소는 7.1). -->
+<title>침묵의 기록자 지역</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=IBM+Plex+Sans+KR:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+
+:root{
+  --ground:#ECEEF1; --surface:#FFFFFF; --raised:#F5F7F9;
+  --ink:#14171C; --body:#39414B; --muted:#6B7580; --faint:#98A1AB;
+  --line:#D6DBE1; --line-soft:#E6EAEF;
+  --accent:#2F5D8C; --on-accent:#FFFFFF;
+  --f-lodge:#3F8F63; --f-ware:#C2762E; --f-heal:#BC4F68;
+  --f-vault:#B08A16; --f-forge:#3B7FA8; --f-arch:#7160B8; --f-train:#5A6470;
+  --shadow:0 1px 2px rgba(20,23,28,.06),0 4px 14px rgba(20,23,28,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+    --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+    --line:#2A313A; --line-soft:#222831;
+    --accent:#7FB0DF; --on-accent:#0E1115;
+    --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+    --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0E1115; --surface:#171B22; --raised:#1E242C;
+  --ink:#EDF0F4; --body:#C2CAD3; --muted:#8B95A0; --faint:#69737E;
+  --line:#2A313A; --line-soft:#222831;
+  --accent:#7FB0DF; --on-accent:#0E1115;
+  --f-lodge:#5FB98A; --f-ware:#E09A54; --f-heal:#E27C92;
+  --f-vault:#D6B03F; --f-forge:#63A9D2; --f-arch:#9A8AE0; --f-train:#8B95A0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--body);
+  font-family:"IBM Plex Sans KR",system-ui,-apple-system,"Malgun Gothic",sans-serif;
+  font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 96px}
+
+.topnav{display:flex;gap:4px;padding:16px 0 0;flex-wrap:wrap}
+.topnav a{font-size:12.5px;font-weight:500;color:var(--muted);text-decoration:none;
+  padding:5px 12px;border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.topnav a:hover{color:var(--ink);border-color:var(--accent)}
+.topnav a.here{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.mast{padding:26px 0 26px;border-bottom:1px solid var(--line)}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--faint);margin:0 0 10px
+}
+.mast h1{
+  font-family:"Gowun Batang",Georgia,serif;font-weight:700;
+  font-size:clamp(28px,4.6vw,44px);line-height:1.15;color:var(--ink);
+  margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em
+}
+.lede{margin:0;max-width:62ch;color:var(--muted);font-size:15px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 30px;margin-top:24px}
+.stat{display:flex;flex-direction:column;gap:1px}
+.stat b{
+  font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:500;
+  color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.2
+}
+.stat span{font-size:11px;letter-spacing:.06em;color:var(--faint)}
+
+.bar{
+  position:sticky;top:0;z-index:40;background:var(--ground);
+  padding:14px 0 12px;border-bottom:1px solid var(--line);
+  display:flex;flex-direction:column;gap:10px
+}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.seg button{
+  font:inherit;font-size:13px;font-weight:500;padding:7px 15px;border:0;
+  background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap
+}
+.seg button+button,.seg a+a,.seg button+a,.seg a+button{border-left:1px solid var(--line)}
+.seg a.xtab{font:inherit;font-size:13px;font-weight:500;padding:7px 15px;
+  color:var(--muted);text-decoration:none;white-space:nowrap;display:flex;align-items:center}
+.seg a.xtab:hover{color:var(--ink);background:var(--raised)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
+input[type="search"],select{
+  font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink);min-width:0
+}
+input[type="search"]{flex:1 1 240px}
+.chip{
+  font:inherit;font-size:12px;font-weight:500;padding:5px 11px;cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface);
+  color:var(--muted);display:inline-flex;align-items:center;gap:6px
+}
+.chip .dot{width:8px;height:8px;border-radius:99px;background:currentColor;flex:none}
+.chip[aria-pressed="true"]{border-color:currentColor;background:var(--raised)}
+.toggle{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--muted);cursor:pointer;user-select:none}
+.toggle input{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+.count{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--faint);margin-left:auto;font-variant-numeric:tabular-nums}
+.lvlabel{font-size:12px;letter-spacing:.06em;color:var(--faint);align-self:center}
+.filebtn{font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;
+  border:1px solid var(--line);border-radius:99px;padding:5px 13px;background:var(--surface)}
+.filebtn:hover{border-color:var(--accent)}
+.filebtn.alt{color:var(--muted)}
+.mini{font:inherit;font-size:11px;padding:3px 10px;border:1px solid var(--line);
+  border-radius:99px;background:var(--surface);color:var(--muted);cursor:pointer}
+#verrow.warn{background:var(--raised);border-radius:8px;padding:6px 10px;margin:-2px 0}
+#verrow.warn .hint{color:var(--f-heal)}
+.hint{font-size:11.5px;color:var(--faint);align-self:center;max-width:46ch;line-height:1.45}
+.lvin{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;
+  border:1px solid var(--line);border-radius:99px;padding:3px 5px 3px 11px;background:var(--surface)}
+.lvin input{width:44px;font:inherit;font-family:"IBM Plex Mono",monospace;font-size:12px;
+  text-align:center;border:0;border-radius:99px;background:var(--raised);color:var(--ink);padding:3px 2px}
+.lvin input::-webkit-outer-spin-button,.lvin input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.lvin input{-moz-appearance:textfield}
+.lock{font-style:normal;font-size:10px;font-weight:600;letter-spacing:.04em;color:var(--faint);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px;margin-right:2px;vertical-align:1px}
+.row.locked{opacity:.62}
+.nextq{font-style:normal;font-size:10px;font-weight:600;color:var(--f-arch);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+/* 퀴스트 라인 — 깊이만큼 세로 안내선을 깔아 «어느 가지에 붙은 것인가» 를 보인다.
+   ★ 아래쪽 .chain li.undone 이 padding 단축으로 들여쓰기를 통째 먹었다
+     — 같은 우선순위에 뒤에 있어 이겼다. 그래서 여기서 다시 잡는다. */
+.chain.qline{--step:18px}
+.chain.qline ul{padding-left:0}
+.chain.qline li,
+.chain.qline li.undone{position:relative;margin:0 0 7px;border-radius:0;
+  padding:0 0 0 calc(var(--d,0)*var(--step) + var(--step));
+  background:repeating-linear-gradient(to right,var(--line-soft) 0 1px,transparent 1px var(--step))
+             left top/calc(var(--d,0)*var(--step)) 100% no-repeat}
+.chain.qline li::before{left:calc(var(--d,0)*var(--step) + 2px);content:"│"}
+.chain.qline li.up::before{content:"↑";color:var(--f-lodge)}
+.chain.qline li.down::before{content:"↓";color:var(--f-arch)}
+.chain.qline li.now,
+.chain.qline li.now.undone{background:var(--raised);border:1px solid var(--accent);
+  border-radius:6px;margin-bottom:9px;
+  padding:6px 8px 6px calc(var(--d,0)*var(--step) + var(--step))}
+.chain.qline li.now::before{content:"▶";color:var(--accent);
+  left:calc(var(--d,0)*var(--step) + 8px)}
+.chain.qline li.now .nowname{display:inline;font-weight:700;color:var(--accent)}
+.chain.qline > .meta{display:block;margin:-4px 0 8px;font-size:12px;color:var(--muted)}
+/* 즐겨찾기 별과 «다시 가능» 표시 */
+.row{position:relative}
+.star{position:absolute;left:-2px;top:50%;transform:translateY(-50%);
+  border:0;background:none;cursor:pointer;font-size:14px;line-height:1;padding:6px;
+  color:var(--line);transition:color .1s}
+.star:hover{color:var(--f-vault)}
+.star.on{color:var(--f-vault)}
+.row .qn{padding-left:18px}
+.again{font-style:normal;font-size:10px;font-weight:600;color:var(--muted);
+  border:1px solid var(--line);border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono",monospace}
+.again{color:var(--f-heal);border-color:currentColor}
+.chain.again-box h4{color:var(--f-vault)}
+.qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
+.qkey b{font-weight:700}
+.qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
+@media (max-width:560px){ .chain.qline{--step:12px} }
+.gnote{padding:12px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);box-shadow:var(--shadow);margin:0 0 14px}
+.gnote p{margin:0 0 10px;font-size:13px;line-height:1.6;color:var(--muted)}
+.gnote p.meta{margin:10px 0 0;font-size:12.5px}
+.gnote table{width:100%;max-width:560px;border-collapse:collapse;font-size:12.5px}
+.gnote th,.gnote td{padding:4px 8px;border-bottom:1px solid var(--line-soft);text-align:left}
+.gnote th{color:var(--faint);font-weight:600}
+.gnote td.num,.gnote th.num{text-align:right;font-variant-numeric:tabular-nums}
+.gnote td.plus{color:var(--f-heal);font-weight:600}
+.gnote td.minus{color:var(--f-vault)}
+.gnote tr.zero td{color:var(--faint)}
+.party{font-style:normal;font-size:10px;font-weight:600;color:var(--f-heal);
+  border:1px solid currentColor;border-radius:4px;padding:0 4px;margin-right:5px;
+  vertical-align:1px;white-space:nowrap}
+.monlist{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0 0}
+.monchip{display:inline-flex;gap:5px;align-items:baseline;padding:2px 7px;border-radius:4px;
+  background:var(--raised);border:1px solid var(--line);font-size:12px;text-decoration:none;
+  color:var(--text)}
+.monchip:hover{border-color:var(--f-heal)}
+.monchip i{font-style:normal;font-size:11px;color:var(--faint)}
+button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px
+}
+
+.group{margin-top:34px}
+.ghead{display:flex;align-items:baseline;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.ghead h2{
+  font-family:"Gowun Batang",Georgia,serif;font-size:21px;font-weight:700;
+  color:var(--ink);margin:0;letter-spacing:-.01em
+}
+.ghead .sub{font-size:12px;color:var(--faint)}
+.ghead .rule{flex:1;height:1px;background:var(--line-soft);min-width:20px;order:9}
+.ptxt{font-size:11.5px;color:var(--accent);font-family:"IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;border:1px solid var(--line);border-radius:99px;
+  padding:2px 10px;background:var(--surface);white-space:nowrap}
+.ptxt b{font-size:13px;font-weight:700}
+.ptxt.on{color:var(--faint)}          /* 남은 것이 0 이면 조용하게 */
+.ptxt .sm{color:var(--faint);font-weight:400}
+
+/* 읽는 페이지의 표에서 «이 줄이 요점» 표시. 여태 클래스만 있고 규칙이 없었다. */
+.doc tr.hi{background:var(--raised)}
+.doc tr.hi td{border-bottom-color:var(--line)}
+.doc tr.hi td:first-child{box-shadow:inset 2px 0 0 var(--accent)}
+
+/* ── 읽는 페이지 (builds.html 과 같은 틀) ─────────────────────────── */
+.doc{max-width:74ch;padding-bottom:80px}
+.doc h2{font-family:"Gowun Batang",Georgia,serif;font-size:23px;font-weight:700;
+  color:var(--ink);margin:46px 0 4px;scroll-margin-top:16px}
+.doc h2 .n{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--faint);
+  margin-right:10px;font-weight:400}
+.doc h3{font-size:15px;font-weight:600;color:var(--ink);margin:26px 0 6px}
+.doc p{margin:10px 0;color:var(--body)}
+.doc b{color:var(--ink);font-weight:600}
+.doc code{font-family:"IBM Plex Mono",monospace;font-size:12.5px;background:var(--raised);
+  padding:1px 5px;border-radius:4px;color:var(--muted)}
+.doc ul,.doc ol{margin:10px 0;padding-left:20px}
+.doc li{margin:5px 0;color:var(--body)}
+.doc a{color:var(--accent)}
+.eq{font-family:"IBM Plex Mono",monospace;font-size:12.5px;line-height:1.85;
+  background:var(--surface);border:1px solid var(--line);border-radius:10px;
+  padding:14px 16px;margin:14px 0;color:var(--body);overflow-x:auto;white-space:pre}
+.eq b{color:var(--accent);font-weight:600}
+.eq i{font-style:normal;color:var(--faint)}
+.note{border-left:3px solid var(--accent);background:var(--surface);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin:16px 0;font-size:13.5px;color:var(--body)}
+.note.warn{border-left-color:var(--f-heal)}
+.doc table{border-collapse:collapse;width:100%;margin:14px 0;font-size:13px;
+  font-variant-numeric:tabular-nums;display:block;overflow-x:auto}
+.doc th{text-align:left;font-size:11px;letter-spacing:.06em;color:var(--faint);
+  font-weight:600;padding:0 12px 6px 0;border-bottom:1px solid var(--line);white-space:nowrap}
+.doc td{padding:7px 12px 7px 0;border-bottom:1px solid var(--line-soft);
+  color:var(--body);vertical-align:top}
+.doc td.num,.doc th.num{text-align:right;font-family:"IBM Plex Mono",monospace}
+.doc td b{color:var(--ink)}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:22px 0 0}
+.toc a{font-size:12.5px;color:var(--muted);text-decoration:none;padding:5px 12px;
+  border:1px solid var(--line);border-radius:99px;background:var(--surface)}
+.toc a:hover{color:var(--ink);border-color:var(--accent)}
+.src{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:8px 0 0}
+
+/* 해금 의뢰 카드 · 단계 카드 */
+.role{border:1px solid var(--line);border-radius:12px;background:var(--surface);
+  padding:16px 18px;margin:18px 0}
+.role > h3{margin:0 0 2px;font-size:16px}
+.role .tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.04em;
+  padding:2px 8px;border-radius:99px;border:1px solid currentColor;margin-left:8px;vertical-align:2px}
+.role .lede2{margin:2px 0 10px;font-size:13px;color:var(--muted)}
+.kv{display:grid;grid-template-columns:76px 1fr;gap:2px 10px;font-size:13px;margin:8px 0}
+.kv dt{color:var(--faint);font-size:11.5px;letter-spacing:.04em;padding-top:2px}
+.kv dd{margin:0;color:var(--body)}
+.kv dd b{color:var(--ink)}
+.kv dd .meta{color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:4px 0}
+.chips span{font-size:11.5px;border:1px solid var(--line);border-radius:6px;
+  padding:2px 7px;background:var(--raised);color:var(--body);white-space:nowrap}
+.chips span b{color:var(--ink);font-weight:600}
+.doc ol.steps{counter-reset:s;list-style:none;padding-left:0}
+.doc ol.steps li{position:relative;padding-left:30px;margin:7px 0}
+.doc ol.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:1px;
+  width:20px;height:20px;border-radius:50%;background:var(--accent);color:var(--on-accent);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;text-align:center;line-height:20px}
+.doc .q{color:var(--ink);font-weight:500}
+@media (max-width:560px){ .kv{grid-template-columns:1fr} .kv dt{padding-top:8px} }
+
+@media (max-width:560px){
+  .doc{padding-bottom:56px}
+  .doc h2{font-size:20px;margin-top:34px}
+  .doc h3{font-size:14.5px;margin-top:20px}
+  .doc p,.doc li{font-size:14px}
+  .eq{font-size:11px;line-height:1.7;padding:11px 12px;
+      background-image:linear-gradient(to left,var(--surface),transparent 24px);
+      background-repeat:no-repeat;background-position:right;background-size:24px 100%;
+      background-attachment:local}
+  .doc table{font-size:12px}
+  .doc th,.doc td{padding-right:8px}
+  .doc tbody td:first-child{position:sticky;left:0;background:var(--ground);
+    box-shadow:1px 0 0 var(--line-soft)}
+  .doc thead th:first-child{position:sticky;left:0;background:var(--ground);z-index:1}
+  .note{padding:10px 12px;font-size:13px}
+  .toc{gap:4px}
+  .toc a{font-size:11.5px;padding:4px 9px}
+}
+
+/* ── 절 탭 (docpages.py 가 넣는다) ─────────────────────────────── */
+.secdate{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--faint);margin:2px 0 14px}
+.docdate{font-size:12px;color:var(--faint);margin:10px 0 0}
+.toc.tabs a{position:relative}
+.toc.tabs a .dot{display:none}
+.toc.tabs a.fresh .dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:var(--accent);margin-left:6px;vertical-align:2px}
+.toc.tabs a[aria-selected="true"]{color:var(--ground);background:var(--ink);border-color:var(--ink)}
+.toc.tabs a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tabbed .toc.tabs{position:sticky;top:0;z-index:20;background:var(--ground);
+  margin:18px 0 0;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.tabbed .sec[hidden]{display:none}
+.tabbed .sec > h2:first-child{margin-top:26px}
+.tabbed .doc [id]{scroll-margin-top:var(--tabh,64px)}
+@media (max-width:560px){
+  .tabbed .toc.tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;margin-left:-16px;margin-right:-16px;padding:8px 16px}
+  .tabbed .toc.tabs::-webkit-scrollbar{display:none}
+  .tabbed .toc.tabs a{flex:0 0 auto}
+}
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="topnav">
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a class="here" href="regions.html">지역</a><a href="builds.html">빌드</a>
+  </nav>
+  <header class="mast">
+    <p class="eyebrow">The Silent Archivist &middot; 다음 지역으로</p>
+    <h1>지역 &mdash; 어떻게 열리고, 열리면 무엇이 생기나</h1>
+    <p class="lede">지역은 <b>해금 의뢰 하나</b>를 성공 보고하는 순간 열립니다. 그 의뢰가 게시판에 뜨려면
+      <b>평판 · 탐색지 발견 · 선행 의뢰</b> 세 조건을 맞춰야 하고, 어느 조건이 어디서 막히는지는 지역마다 다릅니다.
+      앞 절반은 그 일곱 번의 전환을, 뒤 절반은 «N 지역까지 열렸을 때» 훈련소 · 상점 · 금고가 어디까지 주는지를 적습니다.
+      역할별로 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;11</a> 에 있습니다.</p>
+    <div class="note" style="margin-top:14px"><b>근거.</b> 의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>7.2</b>(versionCode 145) 데이터에서 그대로 읽었고,
+      «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 에서도 본문이 같습니다).
+      실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</div>
+    <table class="t" style="margin-top:12px"><thead><tr><th>전환</th><th>해금 의뢰</th><th>어느 마을</th><th class="num">Lv</th><th class="num">평판</th><th>막히는 자리</th></tr></thead><tbody>
+      <tr><td><a href="#r12">1 &rarr; 2</a></td><td>산길을 가로지르는 에스코트</td><td>브란샤르</td><td class="num">7</td><td class="num">25</td><td>선행 둘 · 탐색지 둘</td></tr>
+      <tr><td><a href="#r23">2 &rarr; 3</a></td><td>미로 숲을 함께 건너기</td><td>루페리아 그로브</td><td class="num">9</td><td class="num">26</td><td>선행 없음 · 로스트우드 숲</td></tr>
+      <tr><td><a href="#r34">3 &rarr; 4</a></td><td>새벽의 문을 통과하는 공식 에스코트</td><td><b>실바드 타운</b> <span class="sm">2지역</span></td><td class="num">6</td><td class="num">0</td><td>밀레아 · 군벨 평판 30 사슬</td></tr>
+      <tr><td><a href="#r45">4 &rarr; 5</a></td><td>성왕청의 통행 호위</td><td>풋워커의 마을</td><td class="num">20</td><td class="num"><b>35</b></td><td>Lv18 의뢰로 딱 닿는 평판</td></tr>
+      <tr><td><a href="#r56">5 &rarr; 6</a></td><td>통행권 대가</td><td><b>세라피오스</b> <span class="sm">4지역</span></td><td class="num">25</td><td class="num">24</td><td>리스티아 평판을 <b>음수</b>로 떨어뜨리는 사슬</td></tr>
+      <tr><td><a href="#r67">6 &rarr; 7</a></td><td>고갯길 성문 성수탑의 몬스터 퇴치</td><td>트레반의 마을</td><td class="num">30</td><td class="num"><b>34</b></td><td>Lv30 의뢰를 <b>반복</b>해야 닿는 평판</td></tr>
+      <tr style="color:var(--muted)"><td><a href="#r78">7 &rarr; 8</a></td><td>칼레도 가도의 산길을 뚫다</td><td>자르간트 마을</td><td class="num">35</td><td class="num">35</td><td>배포판은 지도 전환이 막힘</td></tr>
+    </tbody></table>
+    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-10-02">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-10-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-02">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-10-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-10-02">7→8<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-10-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-10-02">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <p class="docdate">마지막 갱신 <b>2026-10-02</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
+  </header>
+  <main class="doc">
+
+  <section class="sec" id="sec-how" data-sec="how" data-upd="2026-10-02">
+  <h2 id="how"><span class="n">0</span>열리는 자리 &mdash; 해금 의뢰 하나, 조건 넷</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <p>지도 8장 가운데 <b>해금 의뢰는 7개</b>이고, 전부 <b>한 번만</b> 뜨는 의뢰(<code>questSpawnInterval 99</code>)입니다.
+     새 지역을 만드는 코드는 <b>모험 결과 창을 닫는 자리</b>(<code>AdventureResultDialog.Finish</code> 0x287A154) 한 곳뿐입니다 &mdash;
+     의뢰가 «성공» 이면 보상 금화를 주고, 그 의뢰에 지도가 매여 있으면 <code>Map.Create &rarr; GameData.AddMap</code> 으로
+     <b>그 자리에서 새 지도 · 마을 · 의뢰판을 만듭니다.</b> 돌아가서 뭘 더 할 필요가 없습니다.</p>
+  <ul>
+    <li><b>실패해도 사라지지 않습니다.</b> 한 번짜리 의뢰는 «깬 적이 없으면» 조건을 다시 만족하는 즉시 또 게시됩니다(<code>Town.UpdateQuestStatus</code>).
+        실패하면 의뢰의 반복 보정만 하나 내려갑니다(0 바닥).</li>
+    <li><b>지도 전환에는 상한이 있습니다.</b> <code>Settings.LastMapLevel</code> 은 배포판에서 <b>7</b> 로 박힌 코드 상수입니다 &mdash;
+        8번 지역(발케인)은 의뢰를 깨도 지도로 못 넘어갑니다(<a href="#r78">7→8</a>).</li>
+  </ul>
+  <h3>의뢰가 게시판에 뜨는 조건 &mdash; 검사 순서대로</h3>
+  <p><code>Town.CanAcceptQuest</code>(0x275E070)가 아래 순서로 봅니다. 해금 의뢰 7개는 전부 ③ ④ ⑤ 를 쓰고, ① 을 쓰는 것이 5개입니다.</p>
+  <ol class="steps">
+    <li><b>선행 의뢰</b>(1~2개)를 어느 마을에서든 한 번은 깼어야 합니다. 「다른 마을」 의 의뢰여도 됩니다 &mdash; 3→4 · 5→6 이 그렇습니다.</li>
+    <li><b>조건 마을</b>이 내 마을 목록에 있어야 합니다(윈달리온 의뢰 3개만 씁니다).</li>
+    <li><b>탐색지 발견</b> &mdash; 지도에서 그 칸을 조사해 탐색지가 «내 지도» 에 있어야 합니다. 의뢰 보상으로 탐색지를 주는 칸은 데이터에 없습니다 &mdash; <b>발견 경로는 지도 탐색뿐</b>입니다.</li>
+    <li><b>평판</b> &mdash; 요구가 양수면 그 이상, <b>음수면 그 이하</b>여야 합니다(5→6 에 음수 의뢰가 있습니다).</li>
+    <li><b>그 마을에서 깬 의뢰 종류 수</b> &mdash; 1,425개 중 1,384개가 «1종 이상» 입니다. 선행 의뢰만 깨도 채워집니다.</li>
+    <li><b>빈도</b> &mdash; «항상»(Always)이면 통과, 아니면 굴림 두 번 중 하나가 맞아야 뜹니다. 해금 의뢰 7개는 전부 «항상» 이지만 <b>선행 의뢰 중엔 «대개»(Usually) 가 섞여 있어</b> 안 뜨면 갱신해야 합니다.</li>
+  </ol>
+  <h3>탐색지를 찾는 값</h3>
+  <div class="eq"><b>기본값</b> = max(3 × 지역번호 + 7, 10)   <i>1지역 10 · 2지역 13 · 3지역 16 · … · 7지역 28</i>
+<b>비용</b>   = 기본값 × 지형 배수   <i>평지 1 · 숲 4/3 · 흙·언덕 2 · 사막·늪·눈 3 · 바다·설림 4 · 산 5</i></div>
+  <p class="src">Map.SearchPrice 0x271226C · BaseSearchPrice 0x2712340. 단위는 금화로 읽힙니다(탐색 버튼이 GoldButton) &mdash; 추정.</p>
+  <h3>평판 상한 &mdash; 왜 어떤 전환은 «반복» 이 필요한가</h3>
+  <div class="eq"><b>상한</b> = 5 × (의뢰 레벨 − 마을의 maxReputationLevel + 1)   <i>최소 5 · 보상 평판이 양수인 의뢰만</i>
+<b>의뢰 레벨</b> = 표 레벨 + 반복 보정(깰 때마다 +1 · 최대 +3)   <i>같은 의뢰를 반복하면 상한이 5 씩 오른다</i></div>
+  <p>상한에 <b>닿아 있어도 한 번 더 오릅니다</b>(상한 ≥ 현재일 때 더하므로) &mdash; 실질 최대는 «상한 + 보상». 음수 보상 의뢰는 거꾸로 «상한 ≤ 현재» 일 때 깎고, 바닥은 −15 입니다.
+     실패하면 보상이 2 이상인 의뢰는 <b>보상 부호의 반대 방향</b>으로 절반(+4 의뢰 실패 → −2 · −9 의뢰 실패 → <b>+4</b>), 1 이하면 50% 로 −1 입니다.
+     나머지 게시판 이야기는 <a href="notes.html#board">원리 &sect;9</a> 에 있습니다.</p>
+  <p class="src">Town.MaxReputation 0x275D3A0 · ApplyReputationChange 0x275D1B4 · Quest.Level 0x2727A44. 평판 변동은 Party.Finish 가 Quest.Finish(반복 보정 +1) <b>보다 먼저</b> 부르므로, 상한 계산은 «이번 클리어 전» 레벨로 합니다.</p>
+  </section>
+<section class="sec" id="sec-r12" data-sec="r12" data-upd="2026-10-02">
+  <h2 id="r12"><span class="n">1</span>미스토리아 반도 &rarr; 바르디아 평원</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「산길을 가로지르는 에스코트」 <span class="tag" style="color:var(--c-quest)">브란샤르 · Lv7 · 호위 · 한 번만</span></h3>
+    <dl class="kv">
+      <dt>평판</dt><dd>브란샤르 <b>25</b> 이상</dd>
+      <dt>탐색지</dt><dd>「게이트 로드 패스」 <span class="meta">Lv4 · 좌표 8,46 · 산</span></dd>
+      <dt>선행</dt><dd><span class="q">「세키로 고개의 그림자」</span> <span class="meta">(Lv6 · 평판 22 · 게이트 로드 패스 · +2)</span> &larr; <span class="q">「묻힌 사원의 그림자」</span> <span class="meta">(Lv6 · 평판 15 · 「모래에 묻힌 사원」 Lv4 · 좌표 −3,31 · +1)</span></dd>
+      <dt>보상</dt><dd>금 1,000 · 경험치 500 · 평판 +1 · 4시간 50분</dd>
+    </dl>
+  </div>
+  <ol class="steps">
+    <li>지도 탐색으로 <b>「모래에 묻힌 사원」</b>(Lv4)을 찾는다 → 브란샤르 평판 15 → 「묻힌 사원의 그림자」 를 깬다.</li>
+    <li><b>「게이트 로드 패스」</b>(Lv4)를 찾는다 → 평판 22 → 「세키로 고개의 그림자」 를 깬다.</li>
+    <li>평판 25 → 「산길을 가로지르는 에스코트」 가 뜬다 → 성공 보고 창을 닫는 순간 바르디아 평원이 열린다.</li>
+  </ol>
+  <div class="note"><b>평판은 Lv6 의뢰만으로 닿습니다.</b> 브란샤르는 maxReputationLevel 1 이라 Lv6 의뢰 첫 클리어 상한이 30(Lv5 는 25)입니다.
+     같은 탐색지에서 뜨는 「칸로 고개 안개 속 도적단」(Lv6 · 평판 18 · +2 · 빈도 «흔히») 은 선행이 아니지만 평판 올리기엔 좋습니다.</div>
+  <div class="note warn"><b>★ 제작자 위키의 1→2 설명과 다른 점.</b>
+     «평판 30» &rarr; 데이터는 <b>25</b> · «퀘스트 클리어 100» &rarr; 값은 <b>1</b>(그 마을에서 깬 의뢰 종류 ≥ 1 &mdash; 선행만 깨도 충족)이고, 게임 전체에 100 을 요구하는 의뢰는 없습니다(최대 15) ·
+     «칸로 고개의 안개 속 도적단 완료» &rarr; 선행이 <b>아닙니다</b> · «모두가 말하는 모험가 / 산 너머의 체크포인트 / 검문소를 통과하는 요령» 은 7.2 한국어 의뢰명에 없습니다(옛 판 이름이거나 위키 자체 명칭으로 보입니다) ·
+     «카리나의 안식처» 는 탐색지가 아니라 미스토리아의 <b>마을</b>(의뢰 0개)이고 어느 조건에도 안 들어갑니다. «게이트 로드 패스 발견 → 세키로 → 에스코트» 뼈대는 맞습니다.</div>
+  </section>
+<section class="sec" id="sec-r23" data-sec="r23" data-upd="2026-10-02">
+  <h2 id="r23"><span class="n">2</span>바르디아 평원 &rarr; 뤼미에르 힐스</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「미로 숲을 함께 건너기」 <span class="tag" style="color:var(--c-quest)">루페리아 그로브 · Lv9 · 호위 · 한 번만</span></h3>
+    <dl class="kv">
+      <dt>평판</dt><dd>루페리아 그로브 <b>26</b> 이상</dd>
+      <dt>탐색지</dt><dd>「로스트우드 숲」 <span class="meta">Lv5 · 좌표 6,42 · 숲</span></dd>
+      <dt>선행</dt><dd>없음</dd>
+      <dt>보상</dt><dd>금 50 · 경험치 500 · 평판 +1 · 4시간 40분 &mdash; 다크 엘프가 나와 <b>윌 크레스트 참</b>(부적 Lv10 · 마방 13)을 떨굽니다</dd>
+    </dl>
+  </div>
+  <ol class="steps">
+    <li>「로스트우드 숲」(Lv5)을 찾는다.</li>
+    <li>루페리아 그로브 평판 26 → 게시.</li>
+  </ol>
+  <div class="note">루페리아는 maxReputationLevel 4 입니다. Lv8 의뢰로는 상한이 25 라 «한 번 더 오르는» 26 까지는 되지만, <b>Lv9 의뢰(상한 30)로 올리는 편이 확실</b>합니다. 최고 Lv10 은 35, 반복(+3)하면 50.</div>
+  </section>
+<section class="sec" id="sec-r34" data-sec="r34" data-upd="2026-10-02">
+  <h2 id="r34"><span class="n">3</span>뤼미에르 힐스 &rarr; 아르디오스 왕국</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「새벽의 문을 통과하는 공식 에스코트」 <span class="tag" style="color:var(--c-quest)">실바드 타운(2지역) · Lv6 · 호위 · 한 번만</span></h3>
+    <p class="lede2">★ 해금 의뢰가 <b>3지역이 아니라 2지역 마을</b>에 뜹니다. 평판 조건은 없고, 뤼미에르의 긴 사슬을 다 깬 뒤 바르디아로 돌아가야 합니다.</p>
+    <dl class="kv">
+      <dt>평판</dt><dd>없음(0)</dd>
+      <dt>탐색지</dt><dd>「새벽의 문」 <span class="meta">바르디아 평원 · Lv6 · 좌표 −7,21</span></dd>
+      <dt>선행</dt><dd><span class="q">「아마사키 협곡 조사」</span> <span class="meta">(밀레아 · Lv15 · 평판 30 · 「스카이클리프트 협곡」 Lv10 · 한 번만 &mdash; 금고에서 <b>슈프림 소드</b> Lv15 가 나옵니다)</span></dd>
+      <dt>보상</dt><dd>금 100 · 경험치 100 · 평판 +1 · 57분</dd>
+    </dl>
+  </div>
+  <p>「아마사키 협곡 조사」 의 선행은 <span class="q">「타워 너머, 신성한 감시 아래」</span>(군벨 · Lv12 · 평판 30 · 「발그렌 타워」 Lv9) 이고, 그 의뢰가 다시 두 갈래를 요구합니다:
+     <b>[A]</b> 「발그렌 타워 조사」(군벨 · Lv12 · 평판 18) ·
+     <b>[B]</b> 「호숫가의 거짓 기도」(밀레아 · Lv12 · 평판 30 · 「림네아 유적」 Lv8) &larr; 「포위된 피크 타워 측량을 위한 호위 임무」(군벨 · 평판 29) &larr; 「흑요석의 그림자 아래」(26) &larr; 「이호탑을 조사하는 학자 호위하기」(21) &larr; 「포위된 탑의 침묵」(Lv11 · 17) &mdash; 넷 다 「둘러싸인 봉우리의 탑」(Lv10)에서 뜹니다. 전부 한 번만 · 항상.</p>
+  <ol class="steps">
+    <li><b>「둘러싸인 봉우리의 탑」</b>(Lv10 · 좌표 −11,19)을 찾는다 → 군벨 평판 17 「포위된 탑의 침묵」 → 21 「이호탑을 조사하는 학자 호위하기」 → 26 「흑요석의 그림자 아래」 → 29 「포위된 피크 타워 측량을 위한 호위 임무」.</li>
+    <li><b>「림네아 유적」</b>(Lv8 · −22,12)을 찾고 밀레아 평판 30 → 「호숫가의 거짓 기도」.</li>
+    <li><b>「발그렌 타워」</b>(Lv9 · −9,30)를 찾는다 → 군벨 18 「발그렌 타워 조사」 → 군벨 30 「타워 너머, 신성한 감시 아래」.</li>
+    <li><b>「스카이클리프트 협곡」</b>(Lv10 · −17,23)을 찾고 밀레아 30 → 「아마사키 협곡 조사」.</li>
+    <li>2지역으로 돌아가 <b>「새벽의 문」</b>(Lv6)을 찾는다 → 실바드 타운에 평판 조건 없이 뜬다.</li>
+  </ol>
+  <div class="note">군벨은 maxReputationLevel 6 이라 Lv12 의뢰 첫 클리어 상한이 35(30 은 닿습니다) · 밀레아는 5 라 Lv12 가 40, Lv15 가 55 입니다. 전환 중 가장 긴 사슬이지만 평판이 막는 자리는 없습니다.</div>
+  </section>
+<section class="sec" id="sec-r45" data-sec="r45" data-upd="2026-10-02">
+  <h2 id="r45"><span class="n">4</span>아르디오스 왕국 &rarr; 바람의 거친 경계</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「성왕청의 통행 호위」 <span class="tag" style="color:var(--c-quest)">풋워커의 마을 · Lv20 · 호위 · 한 번만</span></h3>
+    <dl class="kv">
+      <dt>평판</dt><dd>풋워커 <b>35</b> 이상</dd>
+      <dt>탐색지</dt><dd>「작은 발 빠짐 지름」 <span class="meta">Lv15 · 좌표 −32,4 · 이동 곤란 &mdash; 도감의 아르디오스 추천 훈련지이기도 합니다</span></dd>
+      <dt>선행</dt><dd><span class="q">「성왕청의 사자, 바람의 돌도시에 동행요청」</span> <span class="meta">(풋워커 · Lv17 · 평판 25 · 「바람을 파헤치는 돌의 도시」 Lv14)</span></dd>
+      <dt>보상</dt><dd>금 4,000 · 경험치 7,111 · 평판 +1 · 4시간 10분</dd>
+    </dl>
+  </div>
+  <p>선행 의뢰가 다시 두 갈래를 요구합니다. <b>[A]</b> 「바르도의 대조사」(풋워커 · Lv15 · 평판 15 · 같은 탐색지) &larr; 「하늘로 이어지는 돌」(Lv18 · 19 · 「경보의 모래유」 Lv14) &larr; 「모래에 잠든 기둥의 그림자」(Lv17 · 14 · 같은 곳) ·
+     <b>[B]</b> 세라피오스 「돌아오지 않는 성왕청 소대 찾기」(Lv18 · 구조 · 평판 22 · 「설원의 숨겨진 유물」 Lv14) &larr; 「비공식 통행 적발」(Lv14 · 수집 · 16 · 「경계의 산」 Lv14 · +2). 전부 «항상» 이고 반복형(간격 2~3)입니다.</p>
+  <ol class="steps">
+    <li><b>「경보의 모래유」</b>(Lv14 · −24,16)를 찾는다 → 풋워커 평판 14 「모래에 잠든 기둥의 그림자」 → 19 「하늘로 이어지는 돌」.</li>
+    <li><b>「바람을 파헤치는 돌의 도시」</b>(Lv14 · −27,14)를 찾는다 → 15 「바르도의 대조사」 → 25 「성왕청의 사자, 바람의 돌도시에 동행요청」.</li>
+    <li>세라피오스: <b>「경계의 산」</b>(Lv14 · 3,8)을 찾아 평판 16 「비공식 통행 적발」 → <b>「설원의 숨겨진 유물」</b>(Lv14 · −3,21)을 찾아 22 「돌아오지 않는 성왕청 소대 찾기」.</li>
+    <li><b>「작은 발 빠짐 지름」</b>(Lv15)을 찾고 풋워커 평판 35 → 게시.</li>
+  </ol>
+  <div class="note warn"><b>★ 평판 35 는 Lv18 의뢰로 «딱» 닿습니다.</b> 풋워커는 maxReputationLevel 12 라 Lv18 의뢰 첫 클리어 상한이 35 입니다(34 → 35 로 한 칸).
+     Lv18 반복형 의뢰가 14종이라 고를 건 많고, Lv19 는 40, Lv20 은 45, 최고 Lv23 은 60 까지 줍니다. 세라피오스는 Lv16 의뢰로 25 까지라 22 는 넉넉합니다.</div>
+  </section>
+<section class="sec" id="sec-r56" data-sec="r56" data-upd="2026-10-02">
+  <h2 id="r56"><span class="n">5</span>바람의 거친 경계 &rarr; 발두나의 황야</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「통행권 대가」 <span class="tag" style="color:var(--c-quest)">세라피오스(4지역) · Lv25 · 토벌 · 한 번만</span></h3>
+    <p class="lede2">★ 해금 의뢰가 <b>4지역 세라피오스</b>에 뜹니다. 레버넌트 · 보그하그가 나와 <b>석영의 검 · 썩은 뼈의 방패 · 현무암 지팡이</b>(Lv23~25)를 떨굽니다.</p>
+    <dl class="kv">
+      <dt>평판</dt><dd>세라피오스 <b>24</b> 이상</dd>
+      <dt>탐색지</dt><dd>「강문의 동굴」 <span class="meta">아르디오스 왕국 · Lv6 · 좌표 −18,−1</span></dd>
+      <dt>선행</dt><dd><span class="q">「이문석병 토벌」</span> <span class="meta">(리스티아 · Lv25 · 평판 22 · 「베르그라트의 잔여물」 Lv20 · 한 번만)</span></dd>
+      <dt>보상</dt><dd>금 1,000 · 경험치 11,794 · 평판 +1 · 4시간 10분</dd>
+    </dl>
+  </div>
+  <p>「이문석병 토벌」 아래가 <b>리스티아 평판을 일부러 떨어뜨렸다가 다시 올려야 하는 사슬</b>입니다.
+     <b>[A]</b> 「베르그라트 잔존물 밀착조사」(Lv24 · 평판 10 · 보상 0 · 한 번만) &larr; 「베르그라트 잔기 재검토」(Lv24 · 12 · «대개») &larr; 「벨그라트 잔류물 조사」(Lv24 · 9 · «대개») ;
+     밀착조사의 두 번째 선행 「담쟁이 넝쿨 깎는 탑 내부 조사」(Lv24 · 평판 6 · <b>보상 −9</b> · 한 번만) &larr; 「산인 진흙탕 익사 조사」(Lv23 · <b>평판 −1 이하</b> · 「산인의 늪」 Lv20 · +2) &larr; 「기흔의 수련터 재현」(Lv23 · 11 · 「기흔의 수련 흔적」 Lv18 · <b>보상 −15</b> · 한 번만 · 성창의 신전을 엽니다) &larr; 「담쟁이 넝쿨째 굴러온 탑 동행조사」(Lv23 · 9 · <b>−11</b>) ; 내부 조사의 두 번째 선행 「담쟁이 넝쿨 깎는 탑 청소 도우미」(Lv23 · 배달 · 3 · <b>−6</b>) ·
+     <b>[B]</b> 「화사의례당터 이형조사」(Lv24 · 12 · 「불길한 징조의 레이트홀 유적」 Lv23 · «대개»).</p>
+  <ol class="steps">
+    <li><b>「담쟁이 넝쿨 깎는 탑」</b>(Lv20 · −32,5)을 찾는다 → 평판 3 「청소 도우미」(−6) · 평판 9 「동행조사」(−11).</li>
+    <li><b>「기흔의 수련 흔적」</b>(Lv18 · −35,2)을 찾는다 → 평판 11 「기흔의 수련터 재현」(−15 → 평판이 <b>음수</b>로 · 성창의 신전 개방).</li>
+    <li><b>「산인의 늪」</b>(Lv20 · −37,5)을 찾는다 → 평판이 <b>−1 이하인 동안</b> 「산인 진흙탕 익사 조사」(+2). 평판이 0 이상이면 음수 의뢰(청소 도우미 · 동행조사 반복)로 다시 내려야 뜹니다.</li>
+    <li>평판 6 → 「담쟁이 넝쿨 깎는 탑 내부 조사」(−9).</li>
+    <li><b>「베르그라트의 잔여물」</b>(Lv20 · −30,2)을 찾는다 → 9 「벨그라트 잔류물 조사」 → 12 「잔기 재검토」 → 10 「잔존물 밀착조사」.</li>
+    <li><b>「불길한 징조의 레이트홀 유적」</b>(Lv23 · −32,−3)을 찾는다 → 12 「화사의례당터 이형조사」.</li>
+    <li>평판 22 → 「이문석병 토벌」.</li>
+    <li>4지역으로 돌아가 <b>「강문의 동굴」</b>(Lv6)을 찾고 세라피오스 평판 24 → 「통행권 대가」 게시.</li>
+  </ol>
+  <div class="note">리스티아는 maxReputationLevel 20 이라 Lv24 첫 클리어 상한 25 · Lv25 는 30(반복형 14종)이고, 음수 바닥은 −15 입니다. 22 는 닿습니다.
+     세라피오스 24 는 Lv16 의뢰(상한 25)로 됩니다.</div>
+  <p class="src">음수 평판 조건은 CanAcceptQuest 0x275e5c8(needRep&lt;0 이면 town.rep ≤ needRep) · 음수 보상은 ApplyReputationChange 0x275d2bc(상한 ≤ 현재일 때 더함 · −15 바닥).</p>
+  </section>
+<section class="sec" id="sec-r67" data-sec="r67" data-upd="2026-10-02">
+  <h2 id="r67"><span class="n">6</span>발두나의 황야 &rarr; 칼레바스 고원</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「고갯길 성문 성수탑의 몬스터 퇴치」 <span class="tag" style="color:var(--c-quest)">트레반의 마을 · Lv30 · 소탕 · 한 번만</span></h3>
+    <dl class="kv">
+      <dt>평판</dt><dd>트레반 <b>34</b> 이상 &mdash; <b>Lv30 의뢰를 반복해야 닿습니다</b>(아래)</dd>
+      <dt>탐색지</dt><dd>「고갯마루 성수탑」 <span class="meta">Lv22 · 좌표 −25,−45 &mdash; 도감의 발두나 추천 훈련지(회피 30 · 17,273 exp/h)</span></dd>
+      <dt>선행</dt><dd><span class="q">「구릉지대에 나타난 익룡」</span> <span class="meta">(Lv30 · 토벌 · 평판 27 · 「힐라이즈 마운틴」 Lv27 · «대개»)</span> &mdash; 이 의뢰가 다시 「계곡 바닥의 물터를 빼앗는 날개」(Lv30 · 21 · 「오목한 취곡」 Lv26 · «대개») 와 「성수탑에 깃든 거수」(Lv30 · 23 · 고갯마루 성수탑) &larr; 「고갯마루 성수탑의 괴날개 퇴치」(Lv28 · 19) 를 요구합니다</dd>
+      <dt>보상</dt><dd>금 100 · 경험치 17,948 · 평판 +1 · 3시간</dd>
+    </dl>
+  </div>
+  <ol class="steps">
+    <li><b>「고갯마루 성수탑」</b>(Lv22)을 찾는다 → 트레반 평판 19 「고갯마루 성수탑의 괴날개 퇴치」 → 23 「성수탑에 깃든 거수」.</li>
+    <li><b>「오목한 취곡」</b>(Lv26 · −2,−19)을 찾는다 → 21 「계곡 바닥의 물터를 빼앗는 날개」(«대개» &mdash; 안 뜨면 갱신).</li>
+    <li><b>「힐라이즈 마운틴」</b>(Lv27 · −24,−41)을 찾는다 → 27 「구릉지대에 나타난 익룡」(«대개»).</li>
+    <li>평판 <b>34</b> → 게시.</li>
+  </ol>
+  <div class="note warn"><b>★ 첫 클리어만으로는 34 에 못 닿습니다.</b> 트레반은 maxReputationLevel 25 라 Lv30 의뢰 첫 클리어 상한이 30(한 번 더 올라 31)입니다.
+     같은 Lv30 의뢰를 <b>두 번째로</b> 깨면 반복 보정 +1 로 Lv31 로 쳐서 상한 35 → 34 에 닿습니다(반복형 Lv30 의뢰 21종 · 세 번째는 Lv32 로 40).
+     7개 전환 가운데 <b>고레벨 의뢰 반복이 필수인 유일한 자리</b>입니다.</div>
+  </section>
+<section class="sec" id="sec-r78" data-sec="r78" data-upd="2026-10-02">
+  <h2 id="r78"><span class="n">7</span>칼레바스 고원 &rarr; 발케인 지방 <span class="sm" style="font-weight:400">&mdash; 지금은 막혀 있습니다</span></h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <div class="role">
+    <h3>「칼레도 가도의 산길을 뚫다」 <span class="tag" style="color:var(--c-quest)">자르간트 마을 · Lv35 · 토벌 · 한 번만</span></h3>
+    <dl class="kv">
+      <dt>평판</dt><dd>자르간트 <b>35</b> 이상 &mdash; Lv35 의뢰 첫 클리어 상한이 딱 35 입니다(maxReputationLevel 29)</dd>
+      <dt>탐색지</dt><dd>「칼레도 가도산」 <span class="meta">Lv30 · 좌표 −12,−10 · 산</span></dd>
+      <dt>선행</dt><dd><span class="q">「사라진 조사대와 돌 제단」</span>(자르간트 · Lv35 · 30) <b>+</b> <span class="q">「밤에만 불이 켜지는 집 조사」</span>(노르그레이 · Lv34 · 24 · 한 번만)</dd>
+      <dt>보상</dt><dd>금 50 · 경험치 25,710 · 평판 +1 · 3시간</dd>
+    </dl>
+  </div>
+  <div class="note warn"><b>지도 전환이 코드로 막혀 있습니다.</b> <code>Settings.LastMapLevel</code> 은 배포판(ProductionMode)에서 <b>7</b> 이고,
+     지도 화면의 전환 버튼은 지역 번호가 그보다 크면 경고창만 띄웁니다(<code>MapScene.&lt;TapChangeMapButton&gt;</code> 0x28EA65C). 마을 목록도 7 이하만 보입니다.
+     의뢰 게시 쪽에는 이 검사가 없어서 조건만 맞으면 뜨고 깰 수 있을 것으로 읽히며, 그러면 발케인 지도와 마을 3개가 세이브에 생기지만 들어갈 수는 없습니다 &mdash; <b>코드 추론 · 실기기 미확인</b>.
+     발케인이 열리면 모래 환상 사수(40)로 모험가 천장이 41 이 되고 Lv37~40 장비가 같이 열립니다(<a href="builds.html#halls">빌드 &sect;10</a>).</div>
+  <p>선행 사슬은 길지만 평판이 막는 곳은 하나입니다. <b>[A]</b> 「사라진 조사대와 돌 제단」(Lv35 · 30 · 「발드란 보관소 터」 Lv33) &larr; 「라펠 계곡의 제단 조사」(Lv35 · 29 · 「라펠 계곡」 Lv33 · «대개») &larr; 노르그레이 「노란 꽃의 침식을 막아라」(Lv33 · 소탕 · <b>28</b> · 「엘디아의 숲」 Lv32 · «대개») &larr; 「조상 묘지의 꽃다발 의혹」(Lv32 · 1 · 「부서진 돌이 있는 강변 묘지」 Lv31) &larr; 「모래에 파묻힌 제단의 꽃다발」(Lv32 · 14 · 「노르사딜 유적」 Lv31) + 「조상 묘지의 밤의 마물」(Lv33 · 11 · 「세라노브의 조상 묘지」 Lv28) &larr; 자르간트 「조상 묘지에 대한 장난」(Lv33 · 배달 · 18) &larr; 「‘탁함’과 ‘따스함’의 도망자 정찰」(Lv32 · 11 · 「탁하고 따뜻한 늪지」 Lv30) ·
+     <b>[B]</b> 「밤에만 불이 켜지는 집 조사」 &larr; 「묘지에서 돌아오지 않는 사냥꾼들」(노르그레이 · Lv33 · 구조 · 22 · 「그레스티아 묘지」 Lv33 · «대개»).</p>
+  <ol class="steps">
+    <li>자르간트: <b>「탁하고 따뜻한 늪지」</b>(Lv30 · −13,5) → 평판 11 「‘탁함’과 ‘따스함’의 도망자 정찰」 · <b>「세라노브의 조상 묘지」</b>(Lv28 · −20,2) → 18 「조상 묘지에 대한 장난」.</li>
+    <li>노르그레이: 11 「조상 묘지의 밤의 마물」 · <b>「노르사딜 유적」</b>(Lv31 · −21,−4) → 14 「모래에 파묻힌 제단의 꽃다발」 · <b>「부서진 돌이 있는 강변 묘지」</b>(Lv31 · −5,7) → 1 「조상 묘지의 꽃다발 의혹」 · <b>「엘디아의 숲」</b>(Lv32 · −27,−8) → <b>28</b> 「노란 꽃의 침식을 막아라」.</li>
+    <li>자르간트: <b>「라펠 계곡」</b>(Lv33 · 8,−5) → 29 「라펠 계곡의 제단 조사」 · <b>「발드란 보관소 터」</b>(Lv33 · −2,−12) → 30 「사라진 조사대와 돌 제단」.</li>
+    <li>노르그레이: <b>「그레스티아 묘지」</b>(Lv33 · −29,11) → 22 「묘지에서 돌아오지 않는 사냥꾼들」 → 24 「밤에만 불이 켜지는 집 조사」.</li>
+    <li><b>「칼레도 가도산」</b>(Lv30)을 찾고 자르간트 평판 35 → 게시.</li>
+  </ol>
+  <div class="note">노르그레이는 maxReputationLevel 31 이라 Lv35 의뢰로는 25, Lv36 으로 30 입니다 &mdash; 「노란 꽃의 침식을 막아라」 의 <b>28</b> 은 Lv36 의뢰(반복형 9종)로 올리거나 Lv35 를 반복(두 번째가 Lv36)해야 닿습니다. 자르간트 35 는 Lv35 첫 클리어로 딱, Lv36 은 40.</div>
+  </section>
+<section class="sec" id="sec-rep" data-sec="rep" data-upd="2026-10-02">
+  <h2 id="rep"><span class="n">8</span>평판 상한 &mdash; 지역이 안 열린 채 그 마을 의뢰만으로 어디까지</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <p>«반복형(한 번짜리가 아니고 보상 평판이 양수인) 최고 레벨 의뢰» 를 기준으로 <b>첫 클리어 / 세 번 반복(+3)</b> 의 상한입니다. 실질은 여기에 +1 입니다.
+     한 번짜리 의뢰가 더 높은 곳은 따로 적었습니다.</p>
+  <table class="t"><thead><tr><th>지역</th><th>마을</th><th class="num">maxRep</th><th class="num">의뢰 Lv</th><th class="num">첫 클리어</th><th class="num">3회 반복</th><th>비고</th></tr></thead><tbody>
+    <tr><td>1</td><td>윈달리온 마을</td><td class="num">0</td><td class="num">6</td><td class="num">35</td><td class="num">50</td><td></td></tr>
+    <tr><td>1</td><td>브란샤르</td><td class="num">1</td><td class="num">8</td><td class="num">40</td><td class="num">55</td><td></td></tr>
+    <tr><td>2</td><td>실바드 타운</td><td class="num">2</td><td class="num">10</td><td class="num">45</td><td class="num">60</td><td></td></tr>
+    <tr><td>2</td><td>사하리오</td><td class="num">3</td><td class="num">10</td><td class="num">40</td><td class="num">55</td><td></td></tr>
+    <tr><td>2</td><td>루페리아 그로브</td><td class="num">4</td><td class="num">10</td><td class="num">35</td><td class="num">50</td><td></td></tr>
+    <tr><td>3</td><td>밀레아 마을</td><td class="num">5</td><td class="num">14</td><td class="num">50</td><td class="num">65</td><td>한 번짜리 Lv15 는 55</td></tr>
+    <tr><td>3</td><td>군벨 마을</td><td class="num">6</td><td class="num">14</td><td class="num">45</td><td class="num">60</td><td></td></tr>
+    <tr><td>4</td><td>세라피오스</td><td class="num">12</td><td class="num">22</td><td class="num">55</td><td class="num">70</td><td>한 번짜리 Lv25 「통행권 대가」 는 70</td></tr>
+    <tr><td>4</td><td>풋워커의 마을</td><td class="num">12</td><td class="num">23</td><td class="num">60</td><td class="num">75</td><td></td></tr>
+    <tr><td>5</td><td>국경을 넘는 숙소</td><td class="num">19</td><td class="num">25</td><td class="num">35</td><td class="num">50</td><td></td></tr>
+    <tr><td>5</td><td>드라이레이크 헤이븐</td><td class="num">20</td><td class="num">25</td><td class="num">30</td><td class="num">45</td><td></td></tr>
+    <tr><td>5</td><td>리스티아</td><td class="num">20</td><td class="num">25</td><td class="num">30</td><td class="num">45</td><td>음수 바닥 −15</td></tr>
+    <tr><td>6</td><td>용광로 마을</td><td class="num">22</td><td class="num">30</td><td class="num">45</td><td class="num">60</td><td></td></tr>
+    <tr class="hi"><td>6</td><td><b>트레반의 마을</b></td><td class="num">25</td><td class="num">30</td><td class="num"><b>30</b></td><td class="num">45</td><td>해금 의뢰가 34 를 요구 &mdash; 반복 필수</td></tr>
+    <tr><td>7</td><td>자르간트 마을</td><td class="num">29</td><td class="num">36</td><td class="num">40</td><td class="num">55</td><td></td></tr>
+    <tr><td>7</td><td>노르그레이 마을</td><td class="num">31</td><td class="num">36</td><td class="num">30</td><td class="num">45</td><td>「노란 꽃…」 28 은 Lv36 의뢰로</td></tr>
+    <tr style="color:var(--muted)"><td>8</td><td>베르간트 · 라제할 · 필네아</td><td class="num">34 · 35 · 36</td><td class="num">38</td><td class="num">25 · 20 · 15</td><td class="num">40 · 35 · 30</td><td>잠김</td></tr>
+  </tbody></table>
+  <div class="note"><b>의뢰가 하나도 없는 마을이 13곳입니다</b> &mdash; 평판이 오를 길이 없습니다.
+     1지역 엘름리프 빌리지 · 헤이븐 포트 · 미르나 숲 마을 · 카리나의 안식처 / 2지역 브레이든 빌리지 · 알디아 오아시스 / 3지역 선메도우 빌리지 /
+     4지역 레이자 마을 · 프로스트 드로우 빌리지 / 5지역 숲속의 숨은 마을 / 6지역 실레마을 · 라그네스 마을 · 세라노브 마을.</div>
+  </section>
+<section class="sec" id="sec-caps" data-sec="caps" data-upd="2026-10-02">
+  <h2 id="caps"><span class="n">9</span>단계별 상한 &mdash; N 지역까지 열렸을 때</h2>
+  <p class="secdate">2026-10-02 갱신</p>
+  <p>«N 단계» 는 <b>N 번 지역까지 열린 상태</b>입니다. 각 단계에 적은 것은 <b>그때까지 열린 모든 지역을 합친</b> 훈련소 천장 · 상점 재고 · 종족 · 부위별 최고 장비입니다.
+     장비 출처는 데이터에서 직접 뽑았습니다 &mdash; 상점은 재고 목록, 금고 · 습득물은 의뢰 이벤트, 드랍은 몬스터 보상표와 그 몬스터의 출현처.
+     장비를 끼는 조건은 <code>요구 레벨 ≤ 내 직업 중 최고 레벨</code>(<code>Character.CanEquip</code> 0x26DA314)이라 «전투 직업 천장» 이 그 단계의 장비 천장이고, <b>모험가는 훈련소가 없어 처음부터 36</b> 입니다 &mdash; 모험가를 주직업으로 키우면 천장 초과 표시(★)도 낄 수 있습니다.
+     역할별로 무엇을 고를지는 <a href="builds.html#stages">빌드 &sect;11</a> 에 있습니다.</p>
+
+  <div class="role">
+    <h3>1단계 · 미스토리아 반도 <span class="tag" style="color:var(--c-place)">전투 직업 천장 7</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>윈달리온 마을 · 브란샤르 <span class="meta">(의뢰가 있는 곳) + 엘름리프 빌리지 · 헤이븐 포트 · 미르나 숲 마을 · 카리나의 안식처 &mdash; 6곳</span></dd>
+      <dt>훈련소</dt><dd><b>수습 전사 6</b> <span class="meta">윈달리온 「훈련장으로 목재 운반하기」 Lv0</span> · <b>견습 사냥꾼 6</b> <span class="meta">윈달리온 「화살의 에코 계곡의 침입자」 Lv5 · 평판 15</span> ·
+        <b>견습 도끼전사 7</b> <span class="meta">브란샤르 「재단을 위한 스톤」 Lv4 · 5</span> · <b>견습 마법사 6</b> <span class="meta">브란샤르 「잠자는 태블릿」 Lv5 · 20 · 엘프·휴먼</span> ·
+        <b>견습 성직자 6</b> <span class="meta">브란샤르 「초심자 수도사의 안식처」 Lv5 · 10 · 드워프·휴먼</span> · <b>도둑 · 레인저 · 현자 35</b> <span class="meta">윈달리온 Lv2~3 &mdash; 표가 35 라 형식 천장은 처음부터 36</span></dd>
+      <dt>상점</dt><dd>윈달리온 6단계(재고 최고 Lv5 · 최종 승급 평판 16) · 브란샤르 7단계(<b>Lv6</b> · 평판 23) &mdash; 파는 것은 베테랑 시리즈 등 Lv0~6 기본 장비</dd>
+      <dt>종족</dt><dd>휴먼만 <span class="meta">윈달리온 Lv1 합 20 · 브란샤르 Lv2 합 24</span></dd>
+      <dt>갑옷</dt><dd>중갑 Lv5 11~16 <span class="meta">습득물 · 브란샤르 「침묵의 돌에 바치는 제물」</span> · 베테랑의 갑옷 Lv6 12~15 <span class="meta">상점 · 금고</span> · 은 갑옷 Lv5 마방 2 <span class="meta">금고</span></dd>
+      <dt>투구·방패</dt><dd>베테랑의 헬멧 Lv6 1~7 · 베테랑의 방패 Lv6 2~8 <span class="meta">둘 다 브란샤르 상점</span></dd>
+      <dt>의복·부적</dt><dd>정령 천 의상 Lv6 7~13 마방 3 <span class="meta">금고 · 브란샤르 「그림자 없는 충돌」</span> · <b>부적 없음</b></dd>
+      <dt>무기</dt><dd>검 베테랑의 검 Lv6 12~23 <span class="meta">상점·금고</span> · 대검 철제 대형 검 Lv5 11~22 <span class="meta">금고</span> · 도끼 도살 도끼 Lv6 11~25 <span class="meta">금고 · 윈달리온</span> ·
+        활 워샷 활 Lv5 14~23 <span class="meta">습득물 · 브란샤르 「별을 바라보는 학자」</span> · 창 베테랑의 창 Lv6 11~22 <span class="meta">금고 · 브란샤르 「가라앉은 기둥」</span> ·
+        지팡이 베테랑 지팡이 Lv6 9~21 <span class="meta">드랍 · 고블린 주술사</span> · 단검 베테랑의 단검 Lv6 10~20</dd>
+      <dt>비고</dt><dd><b>회피 · 지능 · MP 회복 장비가 하나도 없습니다.</b> 중갑 · 은 갑옷 · 도살 도끼 · 워샷 활은 상점이 아니라 금고 · 습득물입니다.</dd>
+    </dl>
+  </div>
+
+  <div class="role">
+    <h3>2단계 · 바르디아 평원 <span class="tag" style="color:var(--c-place)">전투 직업 천장 10</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 실바드 타운 · 사하리오 · 루페리아 그로브 <span class="meta">+ 브레이든 빌리지 · 알디아 오아시스 &mdash; 누적 11곳</span></dd>
+      <dt>훈련소</dt><dd><b>베테랑 파이터 10</b> <span class="meta">사하리오 「조수 바람의 메아리」 Lv7 · 5</span> · <b>숙련된 마법사 10</b> <span class="meta">사하리오 「조수-모래의 기억 추적하기」 Lv8 · 17 · 엘프·휴먼</span> ·
+        <b>숙련된 사냥꾼 10</b> <span class="meta">사하리오 「윈드헌터의 유산」 Lv4 · 5</span> · <b>견습 대검전사 8</b> <span class="meta">실바드 「훈련장의 꿈」 Lv6 · 10</span> · <b>수습 랜서 8</b> <span class="meta">실바드 「창이 다시 말을 할까요?」 Lv6 · 10</span></dd>
+      <dt>상점</dt><dd>실바드 7단계(방어구 Lv6 · 무기 Lv7 · 평판 30) · 사하리오 · 루페리아 5단계(<b>Lv9 워로드 시리즈</b> · 평판 25)</dd>
+      <dt>종족</dt><dd>+ <b>엘프</b> <span class="meta">루페리아 Lv3 · 남 합 27 · 여 합 29</span> · 휴먼 <span class="meta">실바드 Lv3 합 27</span></dd>
+      <dt>갑옷</dt><dd>맹렬한 지휘관의 갑옷 Lv10 20~23 <span class="meta">금고 · 루페리아 「문 뒤에 숨은 인텔리전스」</span> · 워로드 갑옷 Lv9 18~21 <span class="meta">상점</span> · 룬 바위 갑옷 Lv8 마방 3</dd>
+      <dt>투구·방패</dt><dd>맹렬한 사령관의 투구 Lv10 2~11 <span class="meta">금고 · 사하리오</span> · 시길 바운드 투구 Lv9 마방 4 ·
+        스펠록 방패 Lv8 4~13 마방 3 <span class="meta">금고 · 실바드 「초록빛 늪의 그림자 제거」</span> · 맹렬한 사령관의 방패 Lv10 3~12</dd>
+      <dt>의복·부적</dt><dd>맹렬한 사령관의 옷 Lv10 15~21 · 가벼운 가죽 의상 Lv5 <b>회피 +3</b> <span class="meta">금고 · 실바드 「모래에 묻힌 메아리」</span> ·
+        <b>부적 등장</b> &mdash; 불의 후광 부적 Lv10 마방 14 <span class="meta">금고 · 사하리오</span> · 윌 크레스트 참 Lv10 마방 13 <span class="meta">드랍 · 다크 엘프(해금 의뢰)</span> · 베테랑의 부적 Lv6 마방 6 <b>지능 +3</b> <span class="meta">금고 · 사하리오 「조수 왕의 잠」</span></dd>
+      <dt>무기</dt><dd>검 맹렬한 사령관의 검 Lv10 20~35 · 기사 검 Lv9 20~36 <b>마법</b> <span class="meta">금고 · 사하리오</span> · 대검 맹렬한 사령관의 대검 Lv10 21~37 · 도끼 맹렬한 사령관의 도끼 Lv10 19~37 <span class="meta">해금 의뢰 금고</span> ·
+        활 게일 발리 활 Lv10 18~34 <span class="meta">금고 · 사하리오</span> · 창 대지의 송곳니 창 Lv10 17~31 · 워로드 스피어 Lv9 <span class="meta">상점</span> · 지팡이 워로드 지팡이 Lv9 15~30 <span class="meta">상점·금고</span> · 단검 사나운 사령관의 단검 Lv10 18~32</dd>
+      <dt>비고</dt><dd>상점 재고(워로드 Lv9)만으로 세팅이 되고 Lv10 은 금고입니다. 법사가 «가능» 해지는 단계이지만 MP 회복 장비는 아직 0 입니다.</dd>
+    </dl>
+  </div>
+
+  <div class="role">
+    <h3>3단계 · 뤼미에르 힐스 <span class="tag" style="color:var(--c-place)">전투 직업 천장 15</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 밀레아 마을 · 군벨 마을 <span class="meta">+ 선메도우 빌리지 &mdash; 누적 14곳</span></dd>
+      <dt>훈련소</dt><dd><b>가드 15</b> <span class="meta">밀레아 「그림자 수호 훈련장 복원」 Lv11 · 19</span> · <b>검술사 15</b> <span class="meta">군벨 「조수에 잠긴 커팅 스탠드」 Lv8 · 13</span> · <b>대검전사 15</b> <span class="meta">군벨 Lv10 · 12</span> · <b>랜서 15</b> <span class="meta">군벨 Lv11 · 13</span> ·
+        <b>숙련된 성직자 15</b> <span class="meta">밀레아 「비밀 캡처 요청」 Lv8 · 평판 −2 · 드워프·휴먼</span> · <b>스커미셔 15</b> <span class="meta">밀레아 Lv9 · 9</span> · <b>파쇄병 15</b> <span class="meta">밀레아 Lv10 · 2</span></dd>
+      <dt>상점</dt><dd>밀레아 · 군벨 6단계(<b>Lv14 마스터크래프트 시리즈 전 부위</b> · 평판 25)</dd>
+      <dt>종족</dt><dd>+ <b>드워프</b> <span class="meta">군벨 Lv4 합 33</span></dd>
+      <dt>MP 회복</dt><dd><b>처음 등장</b> &mdash; 푸른 오라 갑옷 Lv11 +1 <span class="meta">금고 · 군벨 「맹세석의 수호자」</span> · 검은 시길 의상 Lv12 +1 <span class="meta">드랍 · 이단 숭배자</span></dd>
+      <dt>갑옷</dt><dd>마스터크래프트 갑옷 Lv14 28~31 <span class="meta">상점</span> · 룬 방어구 Lv13 27~32 마방 5 <span class="meta">드랍 · 룬 가디언</span> · 흑요석 갑옷 Lv12 마방 5 <span class="meta">금고 · 군벨</span></dd>
+      <dt>투구·방패</dt><dd>마스터크래프트 헬멧 Lv14 3~15 · 마스터크래프트 방패 Lv14 4~16 <span class="meta">둘 다 군벨 상점</span> · 데스러스트 방패 Lv10 마방 4</dd>
+      <dt>의복·부적</dt><dd>마스터크래프트 튜닉 Lv14 23~29 <span class="meta">상점 · 밀레아</span> · <b>통풍이 잘되는 옷 Lv13 21~27 마방 5 회피 +6</b> <span class="meta">습득물 · 밀레아 「숲이 길을 숨기는 이유」 &mdash; 7단계까지 의복 회피 최고</span> · 불꽃 의상 Lv12 지능 +2 ·
+        마녀사냥꾼 부적 Lv14 마방 18 <span class="meta">드랍 · 저주받은 고서</span> · 마인드실 부적 Lv12 마방 15 <span class="meta">습득물 · 밀레아</span></dd>
+      <dt>무기</dt><dd>검 슈프림 소드 Lv15 30~50 <span class="meta">금고 · 밀레아 「아마사키 협곡 조사」(3→4 선행)</span> · 화염가이드 소드 Lv15 <b>마법</b> <span class="meta">금고 · 군벨</span> · 대검 마스터크래프트 대검 Lv14 29~49 <span class="meta">상점</span> · 뼈 분쇄기 대검 Lv13 29~52 회피 −2 <span class="meta">드랍</span> ·
+        도끼 단마의 도끼 Lv14 27~49 <span class="meta">금고 · 군벨</span> · 활 마스터크래프트 활 Lv14 26~46 <span class="meta">상점 · 밀레아</span> · ★엘더 대지의 활 Lv16 27~48 <span class="meta">습득물 · 밀레아</span> ·
+        창 마스터크래프트 창 Lv14 27~46 <span class="meta">상점·금고</span> · 물 강화 창 Lv14 <b>마법</b> · 지팡이 마스터 크래프트 지팡이 Lv14 25~45 <span class="meta">상점 · 밀레아</span> · 단검 마스터크래프트 단검 Lv14 26~44</dd>
+      <dt>비고</dt><dd>상점 6단계가 Lv14 를 전 부위 팔아 <b>투구 · 방패 · 의복 최고가 금고가 아니라 상점</b>입니다. 법사는 직업(숙련된 마법사 10)이 장비(Lv12~15)보다 뒤처집니다.</dd>
+    </dl>
+  </div>
+
+  <div class="role">
+    <h3>4단계 · 아르디오스 왕국 <span class="tag" style="color:var(--c-place)">전투 직업 천장 20</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 세라피오스 · 풋워커의 마을 <span class="meta">+ 레이자 마을 · 프로스트 드로우 빌리지 &mdash; 누적 18곳</span></dd>
+      <dt>훈련소</dt><dd><b>블레이드브레이커 20</b> <span class="meta">세라피오스 「부서진 봉우리에 남은 시련」 Lv15 · 13</span> · <b>숨은 칼날의 궁사 20</b> <span class="meta">풋워커 「언덕의 거인, 떨어뜨릴 수 있을까」 Lv15 · 16</span> ·
+        <b>전술병 20</b> <span class="meta">세라피오스 Lv18 · 16</span> · <b>정령사 20</b> <span class="meta">풋워커 「카게루메의 떠다니는 섬으로의 초대」 Lv18 · 22 · 엘프·휴먼</span></dd>
+      <dt>상점</dt><dd>세라피오스 · 풋워커 5단계(<b>Lv19 전식 시리즈</b> · 평판 20)</dd>
+      <dt>종족</dt><dd>+ <b>풋워커</b> <span class="meta">풋워커의 마을 Lv5 합 36</span></dd>
+      <dt>MP 회복</dt><dd>현왕의 마나탈리스맨 Lv15 +2 마방 15 <span class="meta">금고 · 풋워커 「백묵의 진흙 표본」</span> · 마천의 부적 Lv18 +3 마방 18 <span class="meta">금고 · 세라피오스</span> · 혈액 순환의 옷 Lv17 +3 <span class="meta">금고 · 풋워커 「해골 무리를 소탕하라!」</span> · 마나림 헬름 Lv14 +1 <span class="meta">금고 · 세라피오스</span> · ★서리환 재생의 부적 Lv23 +4 마방 23</dd>
+      <dt>회피</dt><dd><b>처음 갖춰짐</b> &mdash; 실바 그린 가브 Lv15 25~31 마방 6 <b>회피 +5</b> <span class="meta">금고 · 세라피오스 「하늘의 그림자 추적하기」</span> · 슈어핸드 헬름 Lv17 회피 +2 · <b>테라 버클러 Lv16 방패 회피 +5</b> <span class="meta">금고 · 세라피오스 「기피의 숲에 사는 소녀의 소문」</span> · ★윈드리더 복장 Lv21 +5 · ★반조명 옷 Lv23 +3</dd>
+      <dt>갑옷</dt><dd>별을 부수는 갑옷 Lv20 40~43 <span class="meta">금고 · 풋워커 「습지 기침을 멈춰라」</span> · 성호재생의 갑옷 Lv20 마방 7 <span class="meta">금고 · 풋워커 「4층으로」</span> · 마철의 중무장 Lv18 마방 7 · ★잔광의 갑옷 Lv21 42~45</dd>
+      <dt>투구·방패</dt><dd>별을 부수는 투구 Lv20 5~21 <span class="meta">금고 · 풋워커</span> · 전식 헬멧 Lv19 <span class="meta">상점</span> ·
+        서리단 방패 Lv20 6~22 · 별을 부수는 방패 Lv19 <span class="meta">금고 · 풋워커 「설료의 진료소 여자 귀신 퇴치하기」</span> · 성기사의 방패 Lv18 마방 7 <span class="meta">금고 · 세라피오스</span> · ★썩은 뼈의 방패 Lv23 8~27 <span class="meta">드랍 · 레버넌트(「통행권 대가」)</span></dd>
+      <dt>의복·부적</dt><dd>★잔광의 옷 Lv21 37~43 · 실바 그린 가브 Lv15(위) · 단마의 부적 Lv19 <b>마방 32</b> <span class="meta">금고 · 풋워커 「3층의 썩은 냄새」</span></dd>
+      <dt>무기</dt><dd>검 별을 부수는 검 Lv20 40~65 <span class="meta">습득물 · 풋워커</span> · 허공의 검 Lv20 <b>마법</b> <span class="meta">드랍 · 그루넬</span> · ★석영의 검 Lv23 46~74 · 대검 전식 대검 Lv19 39~64 <span class="meta">상점</span> ·
+        도끼 전식 도끼 Lv19 37~64 <span class="meta">금고·상점</span> · ★잔광의 도끼 Lv21 · 활 별을 부수는 활 Lv20 38~64 <span class="meta">금고 · 풋워커 「불빛 떠도는 밤의 호위」</span> ·
+        창 별을 꿰뚫는 창 Lv20 39~64 <span class="meta">금고 · 풋워커 「어둠의 화물 호송」</span> · 흡혈의 창 Lv19 38~63 <span class="meta">금고 · 세라피오스</span> ·
+        지팡이 담쟁이 폭풍의 지팡이 Lv20 35~62 <b>마법</b> <span class="meta">습득물 · 세라피오스</span> · 탄광의 마법 지팡이 Lv16 <b>지능 +2</b> · ★현무암 지팡이 Lv25 · 단검 별을 부수는 단검 Lv20 38~62</dd>
+      <dt>비고</dt><dd><b>풋워커 · MP 회복 · 방패 회피가 전부 여기서 처음</b> &mdash; 회피탱 · 법사를 권할 수 있는 첫 단계입니다. ★(천장 20 초과) 9개는 풋워커 금고 5 · 세라피오스 금고 1 · 「통행권 대가」(Lv25) 드랍 3 입니다.</dd>
+    </dl>
+  </div>
+
+  <div class="role">
+    <h3>5단계 · 바람의 거친 경계 <span class="tag" style="color:var(--c-place)">전투 직업 천장 25</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 국경을 넘는 숙소 · 드라이레이크 헤이븐 · 리스티아 <span class="meta">+ 숲속의 숨은 마을 &mdash; 누적 22곳</span></dd>
+      <dt>훈련소</dt><dd><b>검투사 25</b> <span class="meta">드라이레이크 「복원 에스코트」 Lv22 · 15</span> · <b>마궁사 25</b> <span class="meta">국경을 넘는 숙소 Lv20 · 1 · 엘프·휴먼</span> ·
+        <b>성창사 25</b> <span class="meta">리스티아 「기흔의 수련터 재현」 Lv23 · 11 · 드워프·휴먼 &mdash; 5→6 사슬의 −15 의뢰</span> · <b>중도사 25</b> <span class="meta">국경을 넘는 숙소 「도끼를 되찾아라」 Lv22 · 1</span></dd>
+      <dt>상점</dt><dd>드라이레이크 · 리스티아 3단계뿐이지만 재고가 <b>Lv22</b>(요격 시리즈)라 4단계 상점(Lv19)보다 높습니다 · 평판 20</dd>
+      <dt>종족</dt><dd>휴먼 <span class="meta">드라이레이크 Lv4 합 40 · <b>리스티아 Lv4 합 41</b></span></dd>
+      <dt>MP 회복</dt><dd><b>현맥의 부적 Lv25 +7 마방 34</b> <span class="meta">습득물 · 리스티아 「외뿔 짐승의 뿔은 멀리 떨어진 사이드우드에 있습니다」</span> · <b>암숨의 법복 Lv25 +6 마방 9</b> <span class="meta">금고 · 리스티아 「원류 무덤터로 가는 용 그림자 추격전」</span> &mdash; 부적 · 의복은 이것이 끝까지 최고</dd>
+      <dt>지능</dt><dd><b>정정의 지팡이 Lv23 43~72 지능 +5</b> <span class="meta">금고 · 드라이레이크 「석상 목격 조사 호위」</span> · 마천의 지팡이 Lv24 지능 +3 <b>마법</b> <span class="meta">금고 · 리스티아</span></dd>
+      <dt>갑옷</dt><dd>현무의 갑옷 Lv25 52~57 <span class="meta">힘 39 · 금고 · 리스티아 「산음의 늪 재견의 대거북이」</span> · 현무암 갑옷 Lv25 50~53 <span class="meta">힘 30 · 금고 · 드라이레이크</span> · 숲의 숨결 재생의 갑옷 Lv24 마방 9</dd>
+      <dt>투구·방패</dt><dd>현무암 투구 Lv25 6~26 <span class="meta">금고 · 드라이레이크</span> · 반조의 투구 Lv24 마방 9 ·
+        현무암 방패 · 현무암 반사 보호막 Lv25 7~27 <span class="meta">금고 · 국경을 넘는 숙소 「가라앉은 길의 짐수레 회수」</span> · 굴절 방패 Lv24 마방 9 · 썩은 뼈의 방패 Lv23 8~27</dd>
+      <dt>의복·부적</dt><dd>암숨의 법복 · 현무암 옷 Lv25 45~51 · 그림자 바느질 경장 Lv24 회피 +2 · 현맥의 부적(위) · 단마의 부적 Lv19 마방 32</dd>
+      <dt>무기</dt><dd>검 현무암의 검 Lv25 50~80 <span class="meta">금고 · 리스티아</span> · 글라즈의 검 Lv25 <b>마법</b> <span class="meta">습득물 · 드라이레이크</span> · 대검 현무암 대검 Lv25 51~82 · 모래날의 대검 <b>마법</b> ·
+        도끼 현무암 도끼 Lv25 49~82 · ★현빙의 도끼 Lv26 · 활 현무암 활 Lv25 48~79 <span class="meta">금고 · 리스티아</span> · ★지문의 현궁 Lv26 <b>마법</b> ·
+        창 흑암관통창 Lv25 49~79 <b>마법</b> <span class="meta">금고 · 리스티아 「포위령의 정묘의 사령술사 토벌」</span> · 지팡이 현무암 지팡이 Lv25 47~78 · ★용맥의 지팡이 Lv26 · 단검 반조의 단검 · 방해석 단검 Lv24 46~74</dd>
+      <dt>비고</dt><dd><b>법사 세팅의 핵심이 전부 여기서 갖춰집니다</b>(리스티아 휴먼 · MP 회복 7+6 · 지능 +5 지팡이). 지팡이 직업은 정령사 20 그대로이고 암흑마법사 30 은 다음 단계입니다.</dd>
+    </dl>
+  </div>
+
+  <div class="role">
+    <h3>6단계 · 발두나의 황야 <span class="tag" style="color:var(--c-place)">전투 직업 천장 30</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 용광로 마을 · 트레반의 마을 <span class="meta">+ 실레마을 · 라그네스 마을 · 세라노브 마을 &mdash; 누적 27곳</span></dd>
+      <dt>훈련소</dt><dd><b>마검사 30</b> <span class="meta">용광로 「호반의 마검당 터 재정리」 Lv28 · 28 · 선행 5개 사슬</span> · <b>무장병 30</b> <span class="meta">용광로 「무장에 남는 전술서」 Lv27 · 11</span> ·
+        <b>암흑마법사 30</b> <span class="meta">트레반 「말레디크 강변 유적지로의 초대」 Lv29 · 평판 −1 · 드워프·엘프·휴먼</span></dd>
+      <dt>상점</dt><dd>용광로 7단계(<b>Lv29 송곳니왕 시리즈 전 부위</b> · 평판 30) &mdash; 금고 없이 Lv29 세팅이 됩니다</dd>
+      <dt>종족</dt><dd><b>드워프</b> <span class="meta">트레반 Lv5 합 43</span></dd>
+      <dt>회피</dt><dd><b>완성</b> &mdash; 짐승의 눈의 투구 Lv29 5~35 <b>회피 +5</b> <span class="meta">금고 · 트레반 「시그나트의 탑에 사라진 학자」</span> · 세라믹스틸 오멘워드 탈리스만 Lv27 마방 37 <b>회피 +5</b> <span class="meta">금고 · 용광로 「예당터에 나타난 붕대 전사」</span> · 통풍이 잘되는 옷 +6 · 테라 버클러 +5</dd>
+      <dt>갑옷</dt><dd>왕단의 갑옷 Lv30 60~63 <span class="meta">금고 · 트레반</span> · 송곳니 왕의 갑옷 Lv29 58~61 <span class="meta">상점</span> · 반환로 도강 갑옷 Lv27 마방 10</dd>
+      <dt>투구·방패</dt><dd>송곳니왕의 투구 Lv29 7~30 <span class="meta">상점</span> · 송곳니왕의 방패 Lv28 8~31 <span class="meta">상점·금고</span> · 검은 봉인의 방패 Lv26 7~28 <b>마방 11</b> <span class="meta">금고 · 용광로 「라그네스 외곽 동굴 남편 찾기」</span></dd>
+      <dt>의복·부적</dt><dd>왕단의 옷 Lv30 55~61 <span class="meta">금고 · 용광로</span> · 송곳니 왕의 옷 Lv29 <span class="meta">상점</span> · <b>늪왕의 부적 Lv29 마방 39</b> <span class="meta">금고 · 트레반 「토말의 개구리 재료 재입고」</span> · 흑도회마의 부적 Lv26 MP +4</dd>
+      <dt>무기</dt><dd>검 세포 소용돌이의 검 Lv30 60~95 <b>마법</b> <span class="meta">금고 · 트레반</span> · 대검 송곳니왕의 대검 Lv29 59~94 <span class="meta">상점</span> · 도끼 송곳니왕의 도끼 Lv29 57~94 <span class="meta">상점</span> ·
+        활 송곳니왕의 활 Lv29 56~91 <span class="meta">상점</span> · ★명천궁 Lv31 <b>마법</b> · 창 하늘을 뚫는 창 Lv30 59~94 <b>마법</b> <span class="meta">드랍 · 발키리</span> · 송곳니왕의 창 Lv29 <span class="meta">상점</span> ·
+        지팡이 송곳니왕의 전역 지팡이 Lv29 55~90 <span class="meta">금고 · 트레반</span> · 송곳니왕의 지팡이 <span class="meta">상점</span> · 단검 왕단의 단검 Lv30 58~92 <span class="meta">금고 · 트레반</span> · ★무감각 칼 Lv31</dd>
+      <dt>비고</dt><dd>암흑마법사 30 과 트레반 드워프로 법사 · 방어탱의 최종형 윤곽이 잡힙니다. 대검 · 도끼 피해 1위가 <b>상점 물건</b>입니다.</dd>
+    </dl>
+  </div>
+
+  <div class="role">
+    <h3>7단계 · 칼레바스 고원 <span class="tag" style="color:var(--c-place)">전투 직업 천장 35 = 모험가 36 과 같아짐</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 자르간트 마을 · 노르그레이 마을 <span class="meta">&mdash; 누적 29곳</span></dd>
+      <dt>훈련소</dt><dd><b>마도병 35</b> <span class="meta">노르그레이 「봉인된 수련장 탈환」 Lv34 · 19 · 드워프·엘프·휴먼</span> · <b>목 베기 35</b> <span class="meta">자르간트 「단죄대 터 정비」 Lv31 · 6</span> ·
+        <b>순례 사제 35</b> <span class="meta">노르그레이 「마지막 순례자의 석판」 Lv33 · 11</span> · <b>풍현사 35</b> <span class="meta">노르그레이 「잃어버린 바람줄의 사격장」 Lv35 · 0 · 엘프만</span></dd>
+      <dt>상점</dt><dd>자르간트 · 노르그레이 5단계(<b>Lv34 진악 시리즈</b> · 평판 20) &mdash; 모든 부위의 2~3위를 채웁니다(단검은 진악의 단검이 1위)</dd>
+      <dt>종족</dt><dd>변화 없음 <span class="meta">발케인의 엘프(합 45)는 잠김</span></dd>
+      <dt>MP 회복</dt><dd>고목의 부적 Lv34 +6 <b>마방 46</b> <span class="meta">금고 · 노르그레이 「가면이 예고한 죽음」</span> · 갈증의 갑옷 Lv35 +6 마방 12 <span class="meta">금고 · 자르간트 「모래 마물의 왕관 뿔」</span> · 아오미네의 부적 Lv30 +3</dd>
+      <dt>갑옷</dt><dd>갈증의 갑옷 · 피철 갑옷 Lv35 70~73 <span class="meta">금고</span> · 세이타니의 갑옷 Lv34 마방 12 · 진악의 갑옷 Lv34 68~71 <span class="meta">상점</span></dd>
+      <dt>투구·방패</dt><dd>피철 투구 Lv35 8~36 <span class="meta">금고 · 노르그레이 「돌감의 화로돌」</span> · 진악의 투구 Lv34 <span class="meta">상점</span> ·
+        영묘의 방패 Lv35 9~37 <b>마방 17</b> <span class="meta">금고 · 자르간트 「돌아오지 않는 남편의 행방」</span> · 피의 방패 Lv35 · 진악의 방패 Lv34 <span class="meta">상점</span></dd>
+      <dt>의복·부적</dt><dd>이와오리의 옷 Lv33 66~72 · 피철의 옷 Lv35 65~71 · 재의 여행복 Lv34 마방 12 회피 +2 · 고목의 부적(위) · 늪왕의 부적 Lv29 마방 39</dd>
+      <dt>무기</dt><dd>검 피철의 검 Lv35 70~110 <span class="meta">금고 · 자르간트 「아르젠의 탑에서 돌뱀 퇴치」</span> · 유령의 검 Lv31 <b>마법</b> · 대검 피철의 대검 Lv35 71~112 · 회염의 대검 Lv32 <b>마법</b> <span class="meta">습득물 · 자르간트</span> ·
+        도끼 모래 쪼개는 도끼 Lv35 69~112 <span class="meta">금고 · 노르그레이</span> · 활 피철의 활 Lv35 68~109 <span class="meta">금고 · 노르그레이</span> · 불타는 활 Lv34 <b>마법</b> ·
+        창 피철의 창 Lv35 69~109 <span class="meta">금고 · 노르그레이 「모래 속에 잠긴 유적」</span> · 눈물 흘리는 창 Lv34 <b>마법</b> <span class="meta">금고 · 자르간트 「백골 순례를 멈춰라」</span> ·
+        지팡이 피의 지팡이 Lv35 67~108 <span class="meta">금고 · 자르간트</span> · 단검 진악의 단검 Lv34 66~104 <span class="meta">상점 · 노르그레이</span></dd>
+      <dt>비고</dt><dd>회피 · 지능 장비는 6단계 이전 것이 그대로 최고입니다(회피: 통풍이 잘되는 옷 +6 · 짐승의 눈의 투구 +5 · 오멘워드 탈리스만 +5 / 지능: 정정의 지팡이 +5 · 베테랑의 부적 +3 · 불꽃 의상 +2). 7단계 신규는 방어 · 피해 · 마방만 오릅니다. 지금의 <a href="builds.html#deftank">빌드 &sect;2~&sect;7</a> 이 이 단계의 답입니다.</dd>
+    </dl>
+  </div>
+  <p class="src">출처 집계: 상점 = buildings.shopWeapons/shopArmors 재고 · 금고·습득물 = quests.questEvents.chest/foundItem · 드랍 = monsters.rewardWeapons/rewardArmors × 출현처(caves.monsterGroups · quests.questEvents.monsterGroups). 단계별 출처 있는 장비 112 · 214 · 321 · 454 · 566 · 658 · 756개.</p>
+  </section>
+</main>
+<script>
+/* 절 탭 — docpages.py. 스크립트가 없으면 예전처럼 한 장으로 보인다. */
+(function(){
+  var main=document.querySelector("main.doc"); if(!main) return;
+  var secs=[].slice.call(main.querySelectorAll("section.sec")); if(!secs.length) return;
+  var bar=document.querySelector(".toc.tabs"); if(!bar) return;
+  var tabs=[].slice.call(bar.querySelectorAll("a"));
+  document.documentElement.classList.add("tabbed");
+  main.parentNode.insertBefore(bar, main);            // 머리말 밖으로 — 본문 내내 위에 붙는다
+  bar.setAttribute("role","tablist");
+  tabs.forEach(function(a){ a.setAttribute("role","tab"); });
+  var KEY="tsa.tab."+location.pathname.split("/").pop();
+  var today=new Date(); today.setHours(0,0,0,0);
+  tabs.forEach(function(a){
+    var d=a.getAttribute("data-upd"); if(!d) return;
+    var p=d.split("-"), t=new Date(+p[0],+p[1]-1,+p[2]);
+    var age=(today-t)/864e5;
+    if(age<=7){ a.classList.add("fresh"); a.title=d+" 갱신"; }
+  });
+  function setH(){ document.documentElement.style.setProperty("--tabh",(bar.offsetHeight+12)+"px"); }
+  function secOf(el){ while(el && el!==main){ if(el.classList && el.classList.contains("sec")) return el; el=el.parentNode; } return null; }
+  function show(sec){
+    secs.forEach(function(s){ s.hidden = !!sec && s!==sec; });
+    tabs.forEach(function(a){
+      var on = sec ? a.getAttribute("data-sec")===sec.getAttribute("data-sec") : !!a.getAttribute("data-all");
+      a.setAttribute("aria-selected", on?"true":"false");
+      if(on && a.scrollIntoView && bar.scrollWidth>bar.clientWidth){
+        bar.scrollLeft = a.offsetLeft - (bar.clientWidth-a.offsetWidth)/2;
+      }
+    });
+    try{ localStorage.setItem(KEY, sec ? sec.getAttribute("data-sec") : "all"); }catch(e){}
+    setH();
+  }
+  function top(){ var y=bar.getBoundingClientRect().top+window.pageYOffset; if(window.pageYOffset>y) window.scrollTo(0,y); }
+  function route(hash, scroll){
+    var id=""; try{ id=decodeURIComponent((hash||"").replace(/^#/,"")); }catch(e){ id=(hash||"").slice(1); }
+    if(id==="all"){ show(null); if(scroll) top(); return; }
+    var t=id && document.getElementById(id), sec=t ? secOf(t) : null;
+    if(!sec){
+      var last=null; try{ last=localStorage.getItem(KEY); }catch(e){}
+      if(last==="all"){ show(null); return; }
+      sec=(last && document.getElementById("sec-"+last)) || secs[0];
+      show(sec); return;
+    }
+    show(sec);
+    if(scroll){
+      var h=sec.querySelector("h2");
+      if(t===h || t===sec) top(); else t.scrollIntoView();
+    }
+  }
+  bar.addEventListener("click", function(e){
+    var a=e.target.closest ? e.target.closest("a") : null; if(!a) return;
+    e.preventDefault();
+    var h=a.getAttribute("href");
+    if(location.hash!==h) history.pushState(null,"",h);
+    route(h,true);
+  });
+  window.addEventListener("hashchange", function(){ route(location.hash,true); });
+  window.addEventListener("popstate", function(){ route(location.hash,true); });
+  window.addEventListener("resize", setH);
+  route(location.hash, !!location.hash);
+  if(location.hash) setTimeout(function(){ route(location.hash,true); }, 0);
+})();
+</script>
+
+  <footer class="foot">
+    <p>수치는 <b>7.2</b>(versionCode 145) 데이터로 냈습니다. 코드 주소는 7.1 기준이고 7.2 에서 본문이 같음을 확인했습니다.
+       근거 파일은 <code>full/regions/</code> 의 unlock · places · caps 입니다.</p>
+  </footer>
+</div>
+
+</body>
+</html>

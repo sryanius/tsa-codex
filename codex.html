@@ -148,6 +148,14 @@ table.mini{border-collapse:collapse;margin:8px 0;font-family:"IBM Plex Mono",mon
 table.mini th,table.mini td{border:1px solid var(--line);padding:3px 9px;text-align:center}
 table.mini th{color:var(--faint);font-weight:600}
 table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--muted)}
+/* 지역별 훈련 추천 장소 — 탐색지 목록 맨 위. 줄은 아래 목록과 같은 모양이고, 사유만 길게 접힌다 */
+.recs .rsub{padding:9px 14px 3px;font-size:12px;font-weight:600;color:var(--c-place);
+  border-top:1px solid var(--line-soft);background:var(--ground)}
+.recs .rsub:first-child{border-top:0}
+.row.rec .nm span{white-space:normal;line-height:1.5}
+.row.rec .nm .loot{color:var(--c-item)}
+.recs-note{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.6}
+.recs-note b{color:var(--ink);font-weight:600}
 .t-magic{color:var(--f-arch);border-color:var(--f-arch);border-width:2px}
 .t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
 /* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
@@ -204,7 +212,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
 
 <div class="wrap">
   <nav class="topnav">
-    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="builds.html">빌드</a></nav>
+    <a href="index.html">자료실</a><a href="quests.html">퀘스트 색인</a><a class="here" href="codex.html">도감</a><a href="calc.html">계산기</a><a href="save.html">내 세이브</a><a href="notes.html">원리</a><a href="regions.html">지역</a><a href="builds.html">빌드</a></nav>
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 세계와 용병단</p>
     <h1>도감</h1>
@@ -283,7 +291,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
     <p><b>추가 공격 · 전체 공격은 «강화(craft)» 로만 붙습니다.</b> 마스터 데이터에 없고, <code>Weapon.Craft</code> 가 굴립니다. 결정적인 건 <b>한 번에 5단계 이상 강화될 때만 도는 블록</b>이 있다는 점입니다. 그 안에서 <b>추가 공격 5%</b>(마법 무기 15%), 그리고 <b>추가 공격이 붙은 경우에만</b> 후열 포함 15%(마법 25%) · <b>전체 공격 5%</b>(마법 15%) 를 굴립니다.</p>
     <p><b>상점에서 사면 강화 등급이 이렇게 정해집니다</b> (<code>TapBuyButton</code>): +1 이 20%, +2 가 5%, +3 이 1%, 그리고 <b>0.1%</b> 로 +3~+5 중 하나. 즉 <b>+5 로 나올 확률이 약 1/3000</b> 입니다. 곱하면 상점 무기에 추가 공격이 붙을 확률은 <b>약 6만분의 1</b>, 전체 공격은 <b>약 120만분의 1</b> 입니다 &mdash; 안 붙는 게 정상입니다.</p>
     <p><b>활만 예외입니다.</b> 강화 단계마다 5% 관문을 통과하면 <code>Weapon.Kind.Bow</code> 는 추가 공격이 <b>확정</b>으로 붙습니다(5단계 조건 없음). 그 외에는 <b>제작등급 5 이상으로 떨어지는 드랍</b>을 노리는 편이 빠릅니다 &mdash; 위 «+5강 이상 드랍» 태그로 걸러 보세요. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 입니다.</p>
-    <p>모든 수치는 <b>7.1</b>(versionCode 144) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
+    <p>모든 수치는 <b>7.2</b>(versionCode 145) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
     <p>보물금고에서 나오는 아이템은 이 마스터 데이터에 없습니다 — 별도 로직이거나 서버 쪽입니다. 여기 실린 드랍은 <b>몬스터 처치 보상</b>만입니다.</p>
   </footer>
 </div>
@@ -511,6 +519,7 @@ var MT=makeTagBox("mtbox","mtand","mtclear",MTAG,
 // 이름으로 찾는 색인. 드랍/그룹에는 이름만 들어 있어서 되짚으려면 필요하다.
 var MONBY={}; D.monsters.forEach(function(m){ MONBY[m.n||m.i]=m; });
 var ITEMBY={}; D.items.forEach(function(x){ ITEMBY[x.n||x.i]=x; });
+var PBY={}; D.places.forEach(function(p){ PBY[p.i]=p; });
 // 아이템을 «어디서 잡으면 나오는가». 떨구는 몬스터를 거쳐 탐색지까지 간다.
 // showLocked 에 따라 달라지므로 미리 굳혀 두지 않는다.
 /* 떨구는 몬스터가 나오는 퀘스트. 탐색지에 안 나오는 몬스터가 80종이라
@@ -892,9 +901,47 @@ function block(title,sub,rows,color){
     +'<div class="list">'+rows.join("")+'</div></section>';
 }
 
+/* ---------- 지역별 훈련 추천 장소 ----------
+   full/regions/places.json 에서 손으로 고른 28곳. 레벨·요구 회피·벌이는 D.places 의 것을 그대로 쓴다 —
+   build_codex.py 가 표의 숫자와 대조해 두었고(다르면 빌드가 선다), 표에서 오는 건 사유·전리품 글뿐이다. */
+function recRow(rc){
+  var p=PBY[rc.i]; if(!p) return "";
+  var need=needAvoid(p.mh,30);
+  var av = rc.here!==need
+    ? ('회피 '+need+'+ <span class="dim">· '+esc(rc.t)+' <b>'+rc.here+'</b></span>')
+    : ('회피 '+need+'+');
+  return '<div class="row rec" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button" '
+    +'style="grid-template-columns:minmax(0,1fr) 54px 120px 92px 84px">'
+    +'<span class="nm"><b>'+esc(p.n||p.i)+'</b><span>'+esc(rc.why)
+    +(rc.loot?' <span class="loot">전리품 '+esc(rc.loot)+'</span>':'')+'</span></span>'
+    +'<span class="num">Lv'+(p.lv||0)+'</span>'
+    +'<span class="num r3">'+av+'</span>'
+    +'<span class="num'+(p.eh?'':' dim')+'">'+(p.eh? fmt(p.eh) : "–")+'<span class="dim sm"> exp/h</span></span>'
+    +'<span class="num'+(p.gh?'':' dim')+'">'+(p.gh? fmt(p.gh) : "–")+'<span class="dim sm"> G/h</span></span></div>';
+}
+function recsBlock(){
+  if(state.q || !D.recs) return "";
+  var rows=[], last=null, n=0;
+  D.recs.forEach(function(rc){
+    var p=PBY[rc.i]; if(!p || !okPlace(p)) return;
+    if(state.reg && p.r!==state.reg) return;
+    if(p.r!==last){ last=p.r; rows.push('<div class="rsub">'+esc(p.r)+'</div>'); }
+    rows.push(recRow(rc)); n++;
+  });
+  if(!n) return "";
+  return '<section class="group recs"><div class="ghead"><h2 style="color:var(--c-place)">지역별 훈련 추천 장소</h2>'
+    +'<span class="sub">'+n+'곳 · 지역마다 경험치 1위 · 골드 1위 · 낮은 회피로 가는 곳</span><span class="rule"></span></div>'
+    +'<p class="recs-note"><b>회피 N+</b> 는 아래 목록의 것과 같은 값입니다 &mdash; 민첩 30 기준으로, 그곳에서 가장 잘 맞히는 놈의 평타를 2d6 이 최소로 나와도 피하는 회피값입니다. '
+    +'지형이 평지가 아니면 그 자리에 박힌 보정(이동 곤란 +2 · 매우 곤란 +4 · 숲 &minus;1)을 더한 값을 옆에 굵게 적었습니다. '
+    +'마법·상태이상 스킬은 회피로 못 막으니 사유에 적어 두었고, 경험치는 파티 전체 몫입니다. 줄을 누르면 그 탐색지가 열립니다. '
+    +'지역이 열리는 조건은 <a href="regions.html">지역</a> 에 있습니다.</p>'
+    +'<div class="list">'+rows.join("")+'</div></section>';
+}
+
 function render(){
   var html="", n=0;
   if(state.view==="place"){
+    html+=recsBlock();
     var byR={};
     D.places.forEach(function(p){
       if(!okPlace(p)) return;
