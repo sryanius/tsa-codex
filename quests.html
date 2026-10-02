@@ -891,11 +891,15 @@ function chestHTML(x){
           ? '<a class="ilink" href="codex.html?v=item&q='+encodeURIComponent(c.item)+'">'
               +esc(c.item)+'</a> <span class="cmeta">('+esc(c.cat)+')</span>'
           : (c.gold? c.gold.toLocaleString()+'G' : '내용 미지정');
-        var bits=[];
+        var bits=[], lv=curLv(x)[0];
         bits.push('시작 '+hhmm(c.at)+' 후');
         if(c.ins) bits.push('통찰력 판정');
-        if(c.fv)  bits.push('발견 난이도 '+c.fv);
-        if(c.ud)  bits.push('해제 난이도 '+c.ud);
+        /* 확정선 = 지금 의뢰 레벨(클리어 보너스 포함) + 난이도 + 9 — 원리 §8. 습득물은 내 값에 +6 이 붙어 3.
+           해제는 난이도 0 이면 판정 자체가 없다. 모자란 만큼의 성공률은 원리 §8 에 있다. */
+        if(c.src==="금고") bits.push('발견 확정선 '+(lv+(c.fv||0)+9)+(c.fv?' (난이도 '+c.fv+')':''));
+        else               bits.push('습득 확정선 '+(lv+(c.fv||0)+3)+(c.fv?' (난이도 '+c.fv+')':''));
+        if(c.ud)  bits.push('해제 확정선 '+(lv+c.ud+9)+' (난이도 '+c.ud+')');
+        else if(c.src==="금고") bits.push('해제 판정 없음');
         if(c.cv)  bits.push('제작등급 '+c.cv);
         if(c.trap) bits.push('함정 있음');
         var line = itemLine(it);
