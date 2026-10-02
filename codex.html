@@ -156,6 +156,7 @@ table.mini td:first-child,table.mini th:first-child{text-align:left;color:var(--
 .row.rec .nm .loot{color:var(--c-item)}
 .row.rec .num.r3{white-space:normal;line-height:1.35}
 .row.rec .tadj{display:block;font-size:11px;color:var(--muted)}
+.row .cfl{display:block;font-size:10.5px;color:var(--c-place);white-space:normal;line-height:1.3}
 .row.rec .tadj b{color:var(--ink);font-weight:600}
 .recs-note{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.6}
 .recs-note b{color:var(--ink);font-weight:600}
@@ -644,9 +645,28 @@ function placeRow(p){
     /* 시간당 경험치·골드. 지역끼리 견주려면 이게 줄에 보여야 한다.
        ★ 경험치는 «파티 전체» 몫이다 — 한 명이 받는 건 생존 인원수로 나눈 값이다. */
     +'<span class="num'+(p.eh?'':' dim')+'">'+(p.eh? fmt(p.eh) : "–")
-    +'<span class="dim sm"> exp/h</span></span>'
+    +'<span class="dim sm"> exp/h</span>'+cfLine(p)+'</span>'
     +'<span class="num'+(p.gh?'':' dim')+'">'+(p.gh? fmt(p.gh) : "–")
     +'<span class="dim sm"> G/h</span></span></div>';
+}
+/* 부름 탐색지 — 시뮬로 낸 시간당 경험치(파티 전체 몫). 최소 = 그 단계 추천 4인, 최대 = 회피탱 혼자 쩔(안전할 때만).
+   쩔이 위험한 곳(24시간 안에 전멸하거나 저레벨이 죽음)은 최대를 안 적고 «쩔 불가» 로 둔다. */
+function cfLine(p){
+  var c=p.cf; if(!c) return "";
+  var hi = c.safe && c.max>c.min ? c.max : null;
+  var t = hi ? (fmt(c.min)+'~'+fmt(hi)) : fmt(c.min);
+  return '<span class="cfl" title="부름 포함 시뮬 — 상세에 자세히">부름 '+t+(c.safe?'':' · 쩔 불가')+'</span>';
+}
+function cfBlock(p){
+  var c=p.cf; if(!c) return "";
+  var risk = c.safe ? '<b style="color:var(--good)">24시간 안전</b>'
+    : '<b style="color:var(--f-vault)">쩔 위험</b> — 24시간 판 중 전멸 '+c.wipe+'% · 저레벨 사망 판당 '+c.lowd+'명';
+  return '<div class="dcell"><dt>부름 포함 <span class="sm">시뮬</span></dt><dd class="mono">'
+    + '추천 4인 파티 <b>'+fmt(c.min)+' exp/h</b> · '+fmt(c.ming)+' G/h<br>'
+    + '쩔(회피탱 혼자 · 반격 단검 · 저레벨 셋 무기 없음) <b>'+fmt(c.max)+' exp/h</b> · 저레벨 한 명 '+fmt(c.low)+'/h<br>'
+    + '<span class="sm">'+risk+' · 전투당 부름 '+c.calls+(c.draw?(' · 무승부 '+c.draw+'%'):'')+' · 탱 '+esc(c.tank)+'</span><br>'
+    + '<span class="sm">위 «벌이» 는 처음 나온 몬스터만 센 값이라 부름 몫이 빠져 있습니다. 이 값은 24시간 판 48번의 평균이고 전멸하면 그 뒤는 0 으로 셉니다. '
+    + '<a href="notes.html#farm">원리 &sect;13</a></span></dd></div>';
 }
 /* 몬스터의 명중에는 주사위가 없다(고정값). 내 회피만 2d6 을 굴린다.
    그래서 «회피값 + ⌊CreateRandomValue(민첩)/6⌋ ≥ 몬스터 명중» 이면
@@ -698,6 +718,7 @@ function placeDetail(p){
       + '<b>'+fmt(p.eh)+' exp/h</b> · <b>'+fmt(p.gh)+' G/h</b> <span class="sm">(평균 '+p.gap+'분마다)</span><br>'
       + '<span class="sm">경험치는 파티 전체 몫입니다 — 한 명이 받는 건 생존 인원수로 나눈 값입니다. '
       + '<a href="notes.html#spots">원리 &sect;13</a></span></dd></div>' : "";
+  _rate += cfBlock(p);
   var tot=p.g.reduce(function(a,g){return a+(g.f||0)},0)||1;
   var gh=p.g.map(function(g){
     var share=Math.round((g.f||0)/tot*100);   // ★ pct() 함수와 이름이 겹치면 상세가 통째로 터진다
@@ -919,7 +940,7 @@ function recRow(rc){
     +(rc.loot?' <span class="loot">전리품 '+esc(rc.loot)+'</span>':'')+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
     +'<span class="num r3">'+av+'</span>'
-    +'<span class="num'+(p.eh?'':' dim')+'">'+(p.eh? fmt(p.eh) : "–")+'<span class="dim sm"> exp/h</span></span>'
+    +'<span class="num'+(p.eh?'':' dim')+'">'+(p.eh? fmt(p.eh) : "–")+'<span class="dim sm"> exp/h</span>'+cfLine(p)+'</span>'
     +'<span class="num'+(p.gh?'':' dim')+'">'+(p.gh? fmt(p.gh) : "–")+'<span class="dim sm"> G/h</span></span></div>';
 }
 function recsBlock(){
