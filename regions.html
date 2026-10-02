@@ -365,13 +365,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         8번 지역(발케인)은 의뢰를 깨도 지도로 못 넘어갑니다(<a href="#r78">7→8</a>).</li>
   </ul>
   <h3>의뢰가 게시판에 뜨는 조건 &mdash; 검사 순서대로</h3>
-  <p><code>Town.CanAcceptQuest</code>(0x275E070)가 아래 순서로 봅니다. 해금 의뢰 7개는 전부 ③ ④ ⑤ 를 쓰고, ① 을 쓰는 것이 5개입니다.</p>
+  <p><code>Town.CanAcceptQuest</code>(0x275E070)가 아래 순서로 봅니다. 해금 의뢰 7개는 전부 ③ ⑤ 를 쓰고, ④ 평판은 여섯(3→4 는 평판 조건 없음), ① 선행은 여섯(2→3 은 선행 없음)이 씁니다.</p>
   <ol class="steps">
     <li><b>선행 의뢰</b>(1~2개)를 어느 마을에서든 한 번은 깼어야 합니다. 「다른 마을」 의 의뢰여도 됩니다 &mdash; 3→4 · 5→6 이 그렇습니다.</li>
     <li><b>조건 마을</b>이 내 마을 목록에 있어야 합니다(윈달리온 의뢰 3개만 씁니다).</li>
     <li><b>탐색지 발견</b> &mdash; 지도에서 그 칸을 조사해 탐색지가 «내 지도» 에 있어야 합니다. 의뢰 보상으로 탐색지를 주는 칸은 데이터에 없습니다 &mdash; <b>발견 경로는 지도 탐색뿐</b>입니다.</li>
     <li><b>평판</b> &mdash; 요구가 양수면 그 이상, <b>음수면 그 이하</b>여야 합니다(5→6 에 음수 의뢰가 있습니다).</li>
-    <li><b>그 마을에서 깬 의뢰 종류 수</b> &mdash; 1,425개 중 1,384개가 «1종 이상» 입니다. 선행 의뢰만 깨도 채워집니다.</li>
+    <li><b>그 마을에서 깬 의뢰 종류 수</b> &mdash; 1,467개 중 1,425개가 «1종 이상» 입니다(7.2 · 발케인 42개 포함). 선행 의뢰만 깨도 채워집니다.</li>
     <li><b>빈도</b> &mdash; «항상»(Always)이면 통과, 아니면 굴림 두 번 중 하나가 맞아야 뜹니다. 해금 의뢰 7개는 전부 «항상» 이지만 <b>선행 의뢰 중엔 «대개»(Usually) 가 섞여 있어</b> 안 뜨면 갱신해야 합니다.</li>
   </ol>
   <h3>탐색지를 찾는 값</h3>
@@ -380,7 +380,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p class="src">Map.SearchPrice 0x271226C · BaseSearchPrice 0x2712340. 단위는 금화로 읽힙니다(탐색 버튼이 GoldButton) &mdash; 추정.</p>
   <h3>평판 상한 &mdash; 왜 어떤 전환은 «반복» 이 필요한가</h3>
   <div class="eq"><b>상한</b> = 5 × (의뢰 레벨 − 마을의 maxReputationLevel + 1)   <i>최소 5 · 보상 평판이 양수인 의뢰만</i>
-<b>의뢰 레벨</b> = 표 레벨 + 반복 보정(깰 때마다 +1 · 최대 +3)   <i>같은 의뢰를 반복하면 상한이 5 씩 오른다</i></div>
+<b>의뢰 레벨</b> = 표 레벨 + 반복 보정(깰 때마다 +1 · 그 의뢰의 maxAddLevel 까지)   <i>대개 3 이지만 0 인 반복 의뢰도 58개 있다 — 그런 건 반복해도 상한이 안 오른다</i></div>
   <p>상한에 <b>닿아 있어도 한 번 더 오릅니다</b>(상한 ≥ 현재일 때 더하므로) &mdash; 실질 최대는 «상한 + 보상». 음수 보상 의뢰는 거꾸로 «상한 ≤ 현재» 일 때 깎고, 바닥은 −15 입니다.
      실패하면 보상이 2 이상인 의뢰는 <b>보상 부호의 반대 방향</b>으로 절반(+4 의뢰 실패 → −2 · −9 의뢰 실패 → <b>+4</b>), 1 이하면 50% 로 −1 입니다.
      나머지 게시판 이야기는 <a href="notes.html#board">원리 &sect;9</a> 에 있습니다.</p>
@@ -560,6 +560,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h2 id="rep"><span class="n">8</span>평판 상한 &mdash; 지역이 안 열린 채 그 마을 의뢰만으로 어디까지</h2>
   <p class="secdate">2026-10-02 갱신</p>
   <p>«반복형(한 번짜리가 아니고 보상 평판이 양수인) 최고 레벨 의뢰» 를 기준으로 <b>첫 클리어 / 세 번 반복(+3)</b> 의 상한입니다. 실질은 여기에 +1 입니다.
+     «세 번 반복» 은 그 의뢰의 maxAddLevel 이 3 일 때이고(Lv30 · Lv35 급은 전부 3), 0~2 인 의뢰로는 거기까지 못 갑니다.
      한 번짜리 의뢰가 더 높은 곳은 따로 적었습니다.</p>
   <table class="t"><thead><tr><th>지역</th><th>마을</th><th class="num">maxRep</th><th class="num">의뢰 Lv</th><th class="num">첫 클리어</th><th class="num">3회 반복</th><th>비고</th></tr></thead><tbody>
     <tr><td>1</td><td>윈달리온 마을</td><td class="num">0</td><td class="num">6</td><td class="num">35</td><td class="num">50</td><td></td></tr>
