@@ -695,6 +695,37 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p>짝이 안 맞는 것도 둘입니다 &mdash; <b>이기적은 무모한을 좋아하지만 무모한은 감정적만</b>,
      <b>사교적은 이기적을 좋아하지만 이기적은 무모한 · 합리적만</b> 좋아합니다. 나머지 «잘 맞음» 은 서로 대칭입니다.</p>
   <p class="src">CharacterPersonalityExtensions.IsGood / IsBad &middot; Character.CheckCompatibility</p>
+
+  <h3>친밀도 &mdash; 사이가 틀어지면 같은 파티를 거부합니다</h3>
+  <p>용병끼리는 서로에 대한 친밀도(&minus;100 ~ +100)를 따로 갖습니다. 퀘스트 사건이 이 값을 움직이고(위 궁합 배수가 곱해짐),
+     <b>둘 중 한쪽이라도 &minus;60 이하이면 편성 창에서 같은 파티로 못 고릅니다</b>(이름이 회색으로 바뀝니다).</p>
+  <table class="t"><thead><tr><th>사이에 생긴 일</th><th class="num">대개</th><th>가끔</th></tr></thead><tbody>
+    <tr><td>신뢰</td><td class="num">+10~14</td><td>5% +20~29</td></tr>
+    <tr><td>함께 승리 <span class="sub">전투에서 이김</span></td><td class="num">+6~11</td><td>5% +15~24</td></tr>
+    <tr><td>같이 기뻐함 · 도움</td><td class="num">+5~9</td><td>5 · 8% +15~24 · +12~19</td></tr>
+    <tr><td>같이 슬퍼함</td><td class="num">+3~7</td><td>3% +12~19</td></tr>
+    <tr><td>농담</td><td class="num">+1~3</td><td>10% +5~19 · 5% &minus;20~&minus;11</td></tr>
+    <tr><td>함께 실패 <span class="sub">전투에서 짐</span></td><td class="num">&minus;3~+2</td><td>10% +8~14 · 5% &minus;15~&minus;11</td></tr>
+    <tr><td>작전 충돌</td><td class="num">&minus;5~&minus;3</td><td>10% &minus;15~&minus;9</td></tr>
+    <tr><td>다툼</td><td class="num">&minus;10~&minus;5</td><td>10% &minus;30~&minus;21 · 5% +10~14</td></tr>
+    <tr class="hi"><td><b>배신</b></td><td class="num"><b>&minus;20~&minus;11</b></td><td>10% &minus;40~&minus;31</td></tr>
+  </tbody></table>
+  <ul>
+    <li><b>결과가 나쁜 사건</b>(제작자가 본 «함정에 걸려 서로 어색해졌다» 같은 일)이면 «리더 말발 + 주사위» 를 «의뢰 난이도 + 주사위» 와 차례로 견줘,
+        지는 순서대로 <b>배신 &rarr; 다툼 &rarr; 작전 충돌 &rarr; 함께 실패</b> 중 하나가 생깁니다 &mdash; 리더 말발(위 표)이 높을수록 덜 생깁니다.</li>
+    <li>친밀도를 <b>깎는</b> 변화는 용병이 4명 이상일 때만 들어갑니다. 살아 있는 파티원이 둘 미만이면 아무 일도 없습니다.</li>
+    <li><b>시간이 지나면 풀립니다</b> &mdash; 전원의 친밀도가 0 쪽으로 돌아옵니다.
+      <ul>
+        <li>하루 첫 접속 보너스(날짜가 바뀐 뒤 마을 화면)에 <b>50</b></li>
+        <li>어느 파티든 퀘스트에 출발할 때마다 <b>5</b></li>
+        <li>쓰러졌다가 되살아난 용병은 자기 친밀도가 <b>절반</b>으로</li>
+      </ul>
+      &minus;60 아래로 떨어진 둘도 다음 날 첫 접속이면 대개 &minus;60 위로 올라와 다시 같이 고를 수 있습니다.</li>
+  </ul>
+  <p class="src">Character.CheckCompatibility 0x26DECD8(&minus;100~100 으로 자름 · 깎는 쪽은 GameData.Characters 4명 이상) &middot; GetBaseCompatibilityChange 0x26DF050(Rand 는 위 끝 미포함) &middot;
+     IsBadCompatibility 0x26DF63C(point &lt; &minus;59) &middot; QuestCharactersDialog.CheckCompatibilityInParty 0x28A5D8C(양쪽 · TapSelectButton · UpdateGreyNameAndAssignedCharacters) &middot;
+     FlatterCompatibility 0x26DF4D0(TownScene.ShowLoingBonus 50 · GameData.LoginBonus 0x2770978 의 일 · 월 · 년 비교 / Party.Create 5) &middot; HalfCompatibility 0x26DDE44(Character.Revive) &middot;
+     Party.UpdateCompatibilityFromEvent 0x26F9A28(나쁜 사건 = 사건 결과 2 · 살아 있는 인원 2 미만이면 건너뜀)</p>
   </section>
 <section class="sec" id="sec-hit" data-sec="hit" data-upd="2026-10-03">
   <h2 id="hit"><span class="n">5</span>전투 ① &mdash; 맞나 안 맞나</h2>
