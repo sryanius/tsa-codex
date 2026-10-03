@@ -335,6 +335,39 @@ input[type="search"]{min-width:0}
 }
 /* 화면 읽기 프로그램에만 — 돌리기 시작 · 끝 · 취소만 알린다(진행률은 알리지 않는다) */
 .srlive{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* 판 다시 보기 — 결과 카드 끝. 줄은 폰에서 접혀 흐른다(가로 스크롤 없음) · 누르는 것은 36px */
+.rp{margin:16px 0 0;padding:12px 0 0;border-top:1px dashed var(--line)}
+.rph{margin:0 0 6px;font-size:15px;color:var(--ink)}
+.rph:focus{outline:none}
+.chip .rpn{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-weight:600;margin-left:2px}
+.rplist{display:flex;flex-direction:column;gap:4px;margin:6px 0 0}
+.rprow{font:inherit;font-size:12.5px;text-align:left;padding:7px 10px;min-height:36px;border:1px solid var(--line);border-radius:7px;
+  background:var(--surface);color:var(--body);cursor:pointer;overflow-wrap:anywhere}
+.rprow:hover,.rprow.on{border-color:var(--accent)}
+.rpv{margin:8px 0 0;min-width:0}
+.rpt{font-size:13px;color:var(--ink)}
+.rpo{margin:0 0 6px;font-size:13.5px;color:var(--ink);font-weight:600}
+.rpd{margin:0 0 6px;padding-left:18px;font-size:13px;color:var(--f-heal);line-height:1.6;overflow-wrap:anywhere}
+.rpm{margin:4px 0}
+details.rpb{border:1px solid var(--line-soft);border-radius:8px;margin:6px 0;background:var(--surface);min-width:0}
+details.rpb.dead{border-color:var(--f-heal)}
+details.rpb>summary{cursor:pointer;padding:8px 10px;font-size:12.5px;color:var(--body);min-height:36px;list-style:none;overflow-wrap:anywhere}
+details.rpb>summary::-webkit-details-marker{display:none}
+details.rpb>summary::before{content:"▸ ";color:var(--faint)}
+details.rpb[open]>summary::before{content:"▾ "}
+.rpbody{padding:2px 10px 8px}
+.rl{margin:2px 0;font-size:12.5px;line-height:1.5;color:var(--body);overflow-wrap:anywhere}
+.rl.k-round{margin-top:8px;color:var(--ink)}
+.rl.k-info,.rl.k-rend,.rl.k-idle,.rl.k-atk,.rl.k-expire{color:var(--muted);font-size:12px}
+.rl.k-ctr,.rl.k-actr,.rl.k-refl,.rl.k-rsk,.rl.k-rstat,.rl.k-astat,.rl.k-stat,.rl.k-drain,.rl.k-mdrain,.rl.k-elem{padding-left:10px;border-left:2px solid var(--f-ware)}
+.rl.k-call{padding-left:10px;border-left:2px solid var(--accent)}
+.rl.bad{color:var(--f-heal)}
+.rl.k-death{color:var(--f-heal);font-weight:700}
+.rl.k-bend{color:var(--ink);font-weight:600}
+.rl.k-trap,.rl.k-ret{color:var(--f-ware)}
+.hpb{display:inline-block;width:36px;height:6px;border-radius:3px;background:var(--line-soft);overflow:hidden;vertical-align:middle}
+.hpb i{display:block;height:100%;background:var(--f-lodge)}
+.hpb.low i{background:var(--f-heal)}
 /* 폰 — 손가락으로 누르는 것은 36px 이상(공통 부품의 작은 버튼 · 칩 · 체크박스를 이 페이지에서만 키운다) */
 @media (pointer:coarse), (max-width:760px){
   button.mini,.seg.small button,.calc .chip,.calc .seg button{min-height:36px}
@@ -442,7 +475,7 @@ input[type="search"]{min-width:0}
     <h2 id="reshead" tabindex="-1">결과<small id="ressum"></small></h2>
     <div id="res"><p class="empty">아직 돌리지 않았습니다.</p></div>
     <p class="note">
-      <b>읽는 법</b> &mdash; 드랍 · 후유증 · 친밀도는 시뮬에 없습니다. 7단계 회피탱의 사망은 실제보다 낮게 봅니다(세이브에서는 단검 반사 마비가 절반).
+      <b>읽는 법</b> &mdash; 드랍 · 후유증 · 친밀도는 시뮬에 없습니다.
       <b>시뮬이 따지지 않는 것</b> &mdash; 의뢰의 성별 · 종족 · 인원 조건(게임은 편성 창에서 막습니다)과 매혹(걸리면 편이 바뀜)은 엔진에 없습니다.
       해당 의뢰를 고르면 실행 칸에 알림이 뜹니다 &mdash; 매혹이 나오는 의뢰에서 그 대상(대개 남자)이 낀 파티 값은 낙관적입니다.
       물리 무효 몬스터는 마법 무기나 공격 마법으로만 잡힙니다(3단계 의뢰 다수 · <a href="builds.html#stages">빌드 &sect;0</a> «마법 무기로 바꿔 듦»).
@@ -1106,8 +1139,12 @@ input[type="search"]{min-width:0}
     this.n_callfail = 0;
     this.trace = Q.trace;
     this.ev = Q.ev === undefined ? null : Q.ev;
+    // 판 다시 보기 사건 기록 (partysim.py Battle.lg) — QuestRun.log 가 배열이면 사건을 덧붙인다. 난수 · 흐름 · 판 기록은 그대로.
+    this.lg = (Q.log === undefined || Q.log === null) ? null : Q.log;
   }
   var B = Battle.prototype;
+  // 사건 기록용 참조 — 아군 ["a", 편성 자리] · 몬스터 ["m", 이 전투의 몬스터 번호]
+  B.rf = function (x) { return x.is_ally ? ["a", x.i] : ["m", this.ms.indexOf(x)]; };
 
   // ---------------- 대상: 몬스터 → 아군 ----------------
   B.cand_vs_allies = function (mo, tt) {
@@ -1319,10 +1356,15 @@ input[type="search"]{min-width:0}
     }
     var tg = this.weapon_targets(a);
     if (tg.length) this.attack(a, tg);
-    else if (this.trace !== null && this.trace !== undefined) this.trace.push(["notgt", a, null]);
+    else {
+      if (this.lg !== null) this.lg.push({ k: "idle", a: a.i });
+      if (this.trace !== null && this.trace !== undefined) this.trace.push(["notgt", a, null]);
+    }
   };
 
   B.cast_heal = function (a, sp) {
+    var lg = this.lg, le = null;
+    if (lg !== null) { le = { k: "heal", a: a.i, sp: sp.n, mp0: a.mp, mp1: a.mp - sp.mp, tg: [] }; lg.push(le); }
     a.mp -= sp.mp;
     var A = this.al.filter(function (x) { return x.hp > 0 && !(x.eff !== null && (x.eff.has(52) || x.eff.has(81))); });
     if (!A.length) return;
@@ -1337,6 +1379,7 @@ input[type="search"]{min-width:0}
     for (i = 0; i < tg.length; i++) {
       var x = tg[i];
       var h = this.R.rand(sp.h0, sp.h1) + a.s.mag;
+      if (lg !== null) le.tg.push([x.i, h, x.hp, Math.min(x.mx, x.hp + h)]);
       x.hp = Math.min(x.mx, x.hp + h);
     }
     this.Q.n_heal += 1;
@@ -1344,6 +1387,7 @@ input[type="search"]{min-width:0}
   };
 
   B.cast_spell = function (a, sp) {
+    if (this.lg !== null) this.lg.push({ k: "cast", a: a.i, sp: sp.n, mp0: a.mp, mp1: a.mp - sp.mp });
     a.mp -= sp.mp;
     var c = this.cand_vs_mons(a, sp.tt);
     if (!c.length) return;
@@ -1364,7 +1408,10 @@ input[type="search"]{min-width:0}
 
   B.spell_hit = function (a, sp, m) {
     var s = m.s, R = this.R, el = sp.elem;
-    if (T(el) && s.inv_el[el]) return;
+    if (T(el) && s.inv_el[el]) {
+      if (this.lg !== null) this.lg.push({ k: "spell", a: a.i, to: this.rf(m), sp: sp.n, inv: true, d: 0, hp0: m.hp, hp1: m.hp });
+      return;
+    }
     var v = R.rand(sp.d0, sp.d1) + a.s.mag;
     if (T(el)) {
       if (s.weak_el[el]) v += 2;
@@ -1379,12 +1426,14 @@ input[type="search"]{min-width:0}
       v -= s.mdf;
       if (v <= 0) v += R.n(3);
     }
+    if (this.lg !== null) this.lg.push({ k: "spell", a: a.i, to: this.rf(m), sp: sp.n, inv: false, d: v >= 1 ? v : 0, hp0: m.hp, hp1: v >= 1 ? m.hp - v : m.hp });
     if (v >= 1) m.hp -= v;
   };
 
   B.attack = function (a, tg) {
     var n = 1 + a.s.wcnt;
     if (a.s.wind && !SW.BUG.has("no_wind") && this.R.succ(a.s.wind)) n += 1;      // ⑭ 풍현사 추가 타격
+    if (this.lg !== null) this.lg.push({ k: "atk", a: a.i, n: n });
     for (var i = 0; i < n; i++) {
       if (i) tg = this.weapon_targets(a);
       for (var j = 0; j < tg.length; j++) {
@@ -1404,18 +1453,22 @@ input[type="search"]{min-width:0}
     else if (terr === 3) th = s.bow ? -1 : 0;
     var H = R.d2() + Math.floor(R.crv(s.dex) / 6) + (forget ? 0 : s.hitV) + th + ((s.bow && ms.fly) ? 2 : 0);
     var avo = m.avo + ((s.bow && ms.nobow) ? 999 : 0);
-    var ev = this.ev, d;
+    var ev = this.ev, d, lg = this.lg, le = null;
     if (avo >= H + 2) {                                                   // 빗나감
       if (ev !== null) ev.push(["a", a, m, 0, 0, 0]);
+      if (lg !== null) lg.push({ k: "hit", by: ["a", a.i], to: this.rf(m), res: 0, H: H, avo: avo });
       if (ms.counter && !(s.bow && SW.RULES.has("bow_no_counter"))) {    // 몬스터 반격 — 무기를 안 본다
         d = Math.max(1, m.atk - Math.floor(this.ally_def(a) / 2));
+        if (lg !== null) { le = { k: "ctr", by: this.rf(m), to: ["a", a.i], d: d, hp0: a.hp }; lg.push(le); }
         this.hurt(a, d);
+        if (lg !== null) le.hp1 = a.hp;
         if (ev !== null) ev.push(["mc", m, a, d]);
       }
       return;
     }
     if (ms.nophys && !s.wmagic) {
       if (ev !== null) ev.push(["a", a, m, 2, 0, 0]);
+      if (lg !== null) lg.push({ k: "hit", by: ["a", a.i], to: this.rf(m), res: 2, H: H, avo: avo });
       return;
     }
     var A = R.rand(s.a0, s.a1) + R.crv(s.strdiv);
@@ -1432,6 +1485,7 @@ input[type="search"]{min-width:0}
       if (d <= 0) d = R.succ(35) ? 1 : 0;
     }
     if (ev !== null) ev.push(["a", a, m, 1, d, crit]);
+    if (lg !== null) lg.push({ k: "hit", by: ["a", a.i], to: this.rf(m), res: 1, H: H, avo: avo, crit: crit, d: d, hp0: m.hp, hp1: d >= 1 ? m.hp - d : m.hp });
     var r;
     if (d >= 1) {
       m.hp -= d;
@@ -1443,16 +1497,23 @@ input[type="search"]{min-width:0}
         }
         if (ms.refl && m.hp > 0 && a.hp > 0) {
           r = ms.refl * d;
-          this.hurt(a, r > 99 ? Math.floor(r / 100) : 1);
+          var rd = r > 99 ? Math.floor(r / 100) : 1;
+          if (lg !== null) { le = { k: "refl", by: this.rf(m), to: ["a", a.i], d: rd, hp0: a.hp }; lg.push(le); }
+          this.hurt(a, rd);
+          if (lg !== null) le.hp1 = a.hp;
         }
       }
       if (s.steal && !ms.undead && a.hp > 0) {
         r = s.steal * d;
+        if (lg !== null) lg.push({ k: "drain", a: a.i, from: this.rf(m), h: r > 99 ? Math.floor(r / 100) : 1, hp0: a.hp,
+          hp1: Math.min(a.mx, a.hp + (r > 99 ? Math.floor(r / 100) : 1)) });
         a.hp = Math.min(a.mx, a.hp + (r > 99 ? Math.floor(r / 100) : 1));
       }
       if (!s.bow && m.hp > 0 && a.hp > 0 && ms.rsk !== null) {
         var v = this.skill_value(m, ms.rsk, a);
+        if (lg !== null) { le = { k: "rsk", by: this.rf(m), to: ["a", a.i], sk: ms.rsk.name, d: v, hp0: a.hp }; lg.push(le); }
         if (v >= 1) this.hurt(a, v);
+        if (lg !== null) le.hp1 = a.hp;
       }
     }
     if (m.hp > 0 && T(s.welem)) {                                         // 추가 속성
@@ -1466,8 +1527,13 @@ input[type="search"]{min-width:0}
         if (ms.strong_el[el]) e = Math.floor(e / 2);
         if (e > 0) {
           if (el === "어둠" && !SW.BUG.has("dark_hp")) {                  // ⑧ 어둠은 MP 를 깎는다
+            if (lg !== null) { le = { k: "elem", a: a.i, to: this.rf(m), el: el, d: e, mp0: m.mp }; lg.push(le); }
             if (m.mpmax > 0) m.mp = m.mp > e ? m.mp - e : 0;
-          } else m.hp -= e;
+            if (lg !== null) le.mp1 = m.mp;
+          } else {
+            if (lg !== null) lg.push({ k: "elem", a: a.i, to: this.rf(m), el: el, d: e, hp0: m.hp, hp1: m.hp - e });
+            m.hp -= e;
+          }
         }
       }
     }
@@ -1544,12 +1610,18 @@ input[type="search"]{min-width:0}
         if (!T(p.call) || !this.Q.D.mon.has(p.call[0])) continue;
         if (this.called) {
           this.n_callfail += 1;                                          // ⑬ 이번 턴에 이미 불렀다 → 실패, 그 행동은 끝
+          if (this.lg !== null) this.lg.push({ k: "call", by: this.rf(mo), key: p.call[0], ok: false, why: "turn" });
         } else if ((SW.BUG.has("call_total6") || SW.BUG.has("skill_nofallback")) && alive(this.ms).length >= 6) {
           // 보정 전 엔진의 옛 상한
+          if (this.lg !== null) this.lg.push({ k: "call", by: this.rf(mo), key: p.call[0], ok: false, why: "cap" });
         } else {
           this.ms.push(new Mon(this.Q.D.mon.get(p.call[0]), mo.a + p.call[1], p.call[2], this.R));
           this.called = true;
           this.n_call += 1;
+          if (this.lg !== null) {
+            var nm = this.ms[this.ms.length - 1];
+            this.lg.push({ k: "call", by: this.rf(mo), key: p.call[0], ok: true, new: this.ms.length - 1, n: nm.s.n, lv: nm.s.lv + nm.a, hp: nm.hp, v: !!nm.v });
+          }
         }
       }
     }
@@ -1574,12 +1646,14 @@ input[type="search"]{min-width:0}
     if (this.trace !== null && this.trace !== undefined) this.trace.push(["m_atk", mo, t]);
     var hit = mo.hit + p.hitadd;
     var eff = t.eff;
+    var lg = this.lg, le = null, av = null;
     if (!(eff !== null && (eff.has(7) || eff.has(16) || eff.has(17)))) {
-      var av = R.d2() + Math.floor(R.crv(ts.agi) / 6) + ((eff !== null && eff.has(11)) ? 0 : ts.avoidV) + this.tav;
+      av = R.d2() + Math.floor(R.crv(ts.agi) / 6) + ((eff !== null && eff.has(11)) ? 0 : ts.avoidV) + this.tav;
       if (ts.bow && s.fly) av += 3;
       if (eff !== null) eff.forEach(function (_v, k) { av -= AVOID_PEN.has(k) ? AVOID_PEN.get(k) : 0; });
       if (av >= hit + 2) {
         if (this.ev !== null) this.ev.push(["m", mo, t, 0, 0, 0, 0]);
+        if (lg !== null) lg.push({ k: "hit", by: this.rf(mo), to: ["a", t.i], res: 0, av: av, need: hit + 2, zero: [] });
         if (ts.counter && !SW.BUG.has("no_ally_counter")) {             // ⑦ 아군 반격
           A = R.rand(ts.a0, ts.a1) + R.crv(ts.strdiv);
           if (eff !== null && eff.has(11)) A = Math.trunc(A / 2);
@@ -1587,6 +1661,7 @@ input[type="search"]{min-width:0}
           if (d < 1) d = 1;
           if (s.nophys) d = 0;
           if (this.ev !== null) this.ev.push(["ac", t, mo, d]);
+          if (lg !== null) lg.push({ k: "actr", by: ["a", t.i], to: this.rf(mo), d: d, hp0: mo.hp, hp1: (d > 0 && mo.hp > 0) ? mo.hp - d : mo.hp });
           if (d > 0 && mo.hp > 0) mo.hp -= d;
         }
         return;
@@ -1609,13 +1684,22 @@ input[type="search"]{min-width:0}
       if (d <= 0) d = R.succ(35) ? 1 : 0;
     }
     if (this.ev !== null) this.ev.push(["m", mo, t, 1, d, crit, blocked ? 1 : 0]);
+    if (lg !== null) {
+      // av null = 혼란 · 수면 · 마비라 회피를 굴리지 않음(회피 0) — zero 에 그 상태들
+      var zero = [];
+      if (av === null) eff.forEach(function (_v, k) { if (k === 7 || k === 16 || k === 17) zero.push(k); });
+      le = { k: "hit", by: this.rf(mo), to: ["a", t.i], res: 1, av: av, need: hit + 2, zero: zero, blk: blocked ? 1 : 0, crit: crit, d: d, hp0: t.hp };
+      lg.push(le);
+    }
     if (d >= 1) {
       this.hurt(t, d);
+      if (lg !== null) le.hp1 = t.hp;
       if (p.steal && mo.hp > 0) {
         var r = p.steal * d;
+        if (lg !== null) lg.push({ k: "mdrain", by: this.rf(mo), h: r > 99 ? Math.floor(r / 100) : 1, hp0: mo.hp, hp1: Math.min(mo.mx, mo.hp + (r > 99 ? Math.floor(r / 100) : 1)) });
         mo.hp = Math.min(mo.mx, mo.hp + (r > 99 ? Math.floor(r / 100) : 1));
       }
-    }
+    } else if (lg !== null) le.hp1 = t.hp;
     var sk = p.skill;
     if (sk !== null && sk.kind === 30 && t.hp > 0 && (d >= 1 || !SW.BUG.has("atkstatus_generic"))) {
       if (SW.BUG.has("atkstatus_generic")) this.status(mo, sk, t);
@@ -1657,8 +1741,9 @@ input[type="search"]{min-width:0}
     var k = sk.kind, i, m, t, v;
     if (!(k === 20 || k === 21 || k === 30 || k === 32)) return;
     if (mo.mp < sk.cost) return;
-    var tt = sk.tt, tr = sk.tr, tg;
+    var tt = sk.tt, tr = sk.tr, tg, lg = this.lg, le = null;
     if (k === 32 || tt === 5 || tt === 60) {
+      if (lg !== null) lg.push({ k: "mcast", by: this.rf(mo), sk: sk.name, mp0: mo.mp, mp1: mo.mp - sk.cost, tg: [] });
       mo.mp -= sk.cost;
       if (this.ev !== null) this.ev.push(["mcast", mo, sk.name]);
       if (k === 32) {
@@ -1673,7 +1758,9 @@ input[type="search"]{min-width:0}
         }
         for (i = 0; i < tg.length; i++) {
           m = tg[i];
-          m.hp = Math.min(m.mx, m.hp + this.R.rand(sk.minH, sk.maxH) + mo.mag);
+          var h = this.R.rand(sk.minH, sk.maxH) + mo.mag;
+          if (lg !== null) lg.push({ k: "mheal", by: this.rf(mo), to: this.rf(m), sk: sk.name, h: h, hp0: m.hp, hp1: Math.min(m.mx, m.hp + h) });
+          m.hp = Math.min(m.mx, m.hp + h);
         }
       }
       return;
@@ -1681,6 +1768,7 @@ input[type="search"]{min-width:0}
     if (k === 30) tg = this.mon_targets(mo, tt === 50 ? 4 : tt, tr, tr !== 2 ? sk.effect : 0);
     else tg = this.mon_targets(mo, tt === 50 ? 4 : tt, tr, 0);
     if (!tg.length) return;
+    if (lg !== null) { var self0 = this; lg.push({ k: "mcast", by: this.rf(mo), sk: sk.name, mp0: mo.mp, mp1: mo.mp - sk.cost, tg: tg.map(function (x) { return self0.rf(x); }) }); }
     mo.mp -= sk.cost;
     if (this.ev !== null) this.ev.push(["mcast", mo, sk.name]);
     if (this.trace !== null && this.trace !== undefined) for (i = 0; i < tg.length; i++) this.trace.push(["m_skill", mo, tg[i]]);
@@ -1690,9 +1778,12 @@ input[type="search"]{min-width:0}
       if (k === 20) {
         v = this.skill_value(mo, sk, t);
         if (this.ev !== null) this.ev.push(["ms", mo, t, v]);
+        if (lg !== null) { le = { k: "mskill", by: this.rf(mo), to: this.rf(t), sk: sk.name, d: v, hp0: t.hp }; lg.push(le); }
         if (v >= 1) this.hurt(t, v);
+        if (lg !== null) le.hp1 = t.hp;
       } else if (k === 21) {
         v = this.skill_value(mo, sk, t);
+        if (lg !== null) lg.push({ k: "mpdrain", by: this.rf(mo), to: this.rf(t), sk: sk.name, d: v, mp0: t.mp, mp1: Math.max(0, t.mp - v) });
         t.mp = Math.max(0, t.mp - v);
       } else this.status(mo, sk, t);
     }
@@ -1705,37 +1796,50 @@ input[type="search"]{min-width:0}
 
   B.attack_status = function (mo, sk, t) {           // ⑪ 평타에 붙은 상태이상
     var e = sk.effect;
-    if (!T(e) || t.hp <= 0 || t.s.invEff.has(e)) return;
+    if (!T(e) || t.hp <= 0 || t.s.invEff.has(e)) {
+      if (T(e) && t.hp > 0 && this.lg !== null) this.lg.push({ k: "astat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: true });
+      return;
+    }
     var R = this.R;
     var d1 = R.d2();
     var cv = R.crv(t.s.con);
     var d2 = R.d2();
-    if ((mo.s.lv + mo.a) - t.s.maxJob + d1 + d2 - Math.floor(cv / 6) >= 1) {
+    var v = (mo.s.lv + mo.a) - t.s.maxJob + d1 + d2 - Math.floor(cv / 6);
+    if (v >= 1) {
       putEff(t, e, sk, mo);
       if (FIXED_EFF.indexOf(e) >= 0) mo.fix = t;
       this.Q.n_status += 1;
       if (this.ev !== null && t.is_ally) this.ev.push(["st", mo, t, e]);
     }
+    if (this.lg !== null) this.lg.push({ k: "astat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: false, v: v, ok: v >= 1 });
   };
 
   B.reflect_status = function (mo, sk, t) {          // ⑨ 상태 반사(81)
     var e = sk.effect;
-    if (!T(e) || t.hp <= 0 || t.s.invEff.has(e)) return;
+    if (!T(e) || t.hp <= 0 || t.s.invEff.has(e)) {
+      if (T(e) && t.hp > 0 && this.lg !== null) this.lg.push({ k: "rstat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: true });
+      return;
+    }
     var R = this.R;
     var d1 = R.d2();
     var cv = R.crv(t.s.con);
     var d2 = R.d2();
-    if ((mo.s.lv + mo.a) - t.s.maxJob + sk.level + d1 + d2 - Math.floor(cv / 6) >= 1) {
+    var v = (mo.s.lv + mo.a) - t.s.maxJob + sk.level + d1 + d2 - Math.floor(cv / 6);
+    if (v >= 1) {
       putEff(t, e, sk, mo);
       if (FIXED_EFF.indexOf(e) >= 0) mo.fix = t;
       this.Q.n_status += 1;
       if (this.ev !== null && t.is_ally) this.ev.push(["st", mo, t, e]);
     }
+    if (this.lg !== null) this.lg.push({ k: "rstat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: false, v: v, ok: v >= 1 });
   };
 
   B.status = function (mo, sk, t) {
     var e = sk.effect;
-    if (!T(e) || t.s.invEff.has(e)) return;
+    if (!T(e) || t.s.invEff.has(e)) {
+      if (T(e) && this.lg !== null) this.lg.push({ k: "stat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: true });
+      return;
+    }
     var R = this.R;
     var atk = R.d2c(10) + mo.mag + sk.addSR;
     var de = R.d2() + (sk.useMdef ? t.s.mdef : t.s.pow);
@@ -1745,6 +1849,7 @@ input[type="search"]{min-width:0}
       if (FIXED_EFF.indexOf(e) >= 0) mo.fix = t;
       this.Q.n_status += 1;
     }
+    if (this.lg !== null) this.lg.push({ k: "stat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: false, v: atk - de, ok: atk - de >= 1 });
   };
 
   // ---------------- 라운드 ----------------
@@ -1766,7 +1871,7 @@ input[type="search"]{min-width:0}
   };
 
   B.turn_end = function () {
-    var i, a, s;
+    var i, a, s, lg = this.lg;
     for (i = 0; i < this.al.length; i++) {
       a = this.al[i];
       if (a.hp <= 0) continue;
@@ -1775,9 +1880,19 @@ input[type="search"]{min-width:0}
         for (var j = 0; j < keys.length; j++) {
           var k = keys[j], e = a.eff.get(k);
           if (e[3]) { e[3] = false; continue; }
-          if (e[2] > 0) this.hurt(a, e[2]);
+          if (e[2] > 0) {
+            if (lg !== null && a.hp > 0) {
+              var le = { k: "dot", a: a.i, eff: k, d: e[2], hp0: a.hp };
+              lg.push(le);
+              this.hurt(a, e[2]);
+              le.hp1 = a.hp;
+            } else this.hurt(a, e[2]);
+          }
           e[0] -= 1;
-          if (e[0] <= 0) a.eff.delete(k);
+          if (e[0] <= 0) {
+            a.eff.delete(k);
+            if (lg !== null) lg.push({ k: "expire", a: a.i, eff: k });
+          }
         }
         if (a.hp <= 0) continue;
       }
@@ -1793,6 +1908,9 @@ input[type="search"]{min-width:0}
         if (s.autoMp && m.mpmax) m.mp = Math.min(m.mpmax, m.mp + s.autoMp);
       }
     }
+    if (lg !== null) {                                  // 라운드 끝(재생 · 자동 회복 뒤) HP · MP
+      lg.push({ k: "rend", r: this.rnd, a: this.al.map(function (x) { return [x.i, x.hp, x.mp]; }), m: this.ms.map(function (x) { return x.hp; }) });
+    }
   };
 
   B.run = function () {
@@ -1801,6 +1919,7 @@ input[type="search"]{min-width:0}
       var r = this.rnd;
       this.called = false;
       var ord = this.order();
+      if (this.lg !== null) { var selfR = this; this.lg.push({ k: "round", r: r, o: ord.map(function (x) { return selfR.rf(x[1]); }) }); }
       for (var i = 0; i < ord.length; i++) {
         var c = ord[i][1];
         if (c.hp <= 0) continue;
@@ -1809,7 +1928,10 @@ input[type="search"]{min-width:0}
           if (c.eff !== null && c.eff.size) {
             var blocked = false;
             c.eff.forEach(function (_v, k) { if (BLOCK.has(k)) blocked = true; });
-            if (blocked) continue;
+            if (blocked) {
+              if (this.lg !== null) { var be = []; c.eff.forEach(function (_v, k) { if (BLOCK.has(k)) be.push(k); }); this.lg.push({ k: "skip", a: c.i, eff: be }); }
+              continue;
+            }
           }
           this.ally_act(c);
         } else {
@@ -1918,6 +2040,8 @@ input[type="search"]{min-width:0}
       this.start_tick = 0;
       this.ev = null;
       this.last_battle = null;
+      this.log = null;           // 판 다시 보기 사건 기록 (partysim.py QuestRun.log) — 배열이면 덧붙임
+      this._pre = null;
     }
 
     lb(a) { return a === this.leader ? a.s.lb : 0; }
@@ -1926,10 +2050,26 @@ input[type="search"]{min-width:0}
       if (!t.is_ally) return;
       var where = [this.tick, b !== null ? this.nb : null, b !== null ? b.rnd : null];
       this.deaths.push([t.i].concat(where));
+      if (this.log !== null) this.log_death(t, where);
       if (t.s.tank) {
         if (this.tank_death === null) this.tank_death = where;
         if (this.allies.every(function (a) { return !a.s.tank || a.hp <= 0; })) this.tanks_dead = where;
       }
+    }
+
+    // 쓰러짐 — 원인은 바로 앞의 사건(쓰러짐 말고)
+    log_death(t, where) {
+      var last = null;
+      for (var i = this.log.length - 1; i >= 0; i--) if (this.log[i].k !== "death") { last = this.log[i]; break; }
+      this.log.push({ k: "death", s: t.i, t: where[0], b: where[1], r: where[2],
+        cause: last ? last.k : null, by: (last && last.by !== undefined) ? last.by : null, d: (last && last.d !== undefined) ? last.d : null,
+        eff: (t.eff !== null && t.eff.size) ? Array.from(t.eff.keys()) : [] });
+    }
+
+    log_start(what) {
+      var self = this;
+      this.log.push({ k: "start", what: what, id: this.q.id, n: this.q.n, lv: this.P.lv, add: this.addq, diff: this.diff, goal: this.P.goal,
+        party: this.allies.map(function (a) { return { s: a.i, lab: a.s.label, tank: a.s.tank, v: !!a.v, lead: a === self.leader, mx: a.mx, mpmax: a.mpmax }; }) });
     }
 
     // ---------------- 전투 하나 ----------------
@@ -1948,9 +2088,11 @@ input[type="search"]{min-width:0}
         }
       }
       var w = mv + this.addq;
-      if (R.d2c(10) + cv >= w + R.d2() + 8) return 1;
-      if (R.d2c(10) + cv >= w) return 0;
-      return 2;
+      var x1 = R.d2c(10), y = R.d2(), x2 = null, res;            // 왼쪽부터 굴린다(예전 한 줄 식과 같은 순서)
+      if (x1 + cv >= w + y + 8) res = 1;
+      else { x2 = R.d2c(10); res = x2 + cv >= w ? 0 : 2; }
+      if (this.log !== null) this._pre = { we: cv, they: w, r: res === 1 ? [x1, y] : [x1, y, x2] };
+      return res;
     }
 
     battle(members, boss, first) {
@@ -1963,6 +2105,7 @@ input[type="search"]{min-width:0}
       var A = alive(this.allies);
       if (!A.length || !members.length) return A.length ? 1 : 3;
       var R = this.R;
+      this._pre = null;
       if (first === undefined || first === null) first = this.preempt(members);
       this.firsts[first] += 1;
       var self = this;
@@ -1979,10 +2122,19 @@ input[type="search"]{min-width:0}
       }
       this.nb += 1;
       this.battle_rows.push([this.tick, A.map(function (x) { return x.i; }), A.filter(function (x) { return x.v; }).map(function (x) { return x.i; })]);
+      if (this.log !== null) {
+        this.log.push({ k: "battle", b: this.nb, t: this.tick, boss: !!boss, first: first, terr: terr, pre: this._pre,
+          m: ms.map(function (m) { return { key: m.s.key, n: m.s.n, lv: m.s.lv + m.a, hp: m.hp, mp: m.mp, v: !!m.v }; }),
+          a: A.map(function (a) { return { s: a.i, hp: a.hp, mx: a.mx, mp: a.mp, mpmax: a.mpmax, v: !!a.v, eff: (a.eff !== null && a.eff.size) ? Array.from(a.eff.keys()) : [] }; }) });
+      }
       var b = new Battle(this, A, ms, terr, boss, first);
       this.cur = b;
       var res = b.run();
       this.cur = null;
+      if (this.log !== null) {
+        this.log.push({ k: "bend", b: this.nb, res: res, rounds: b.rnd, a: A.map(function (a) { return [a.i, a.hp, a.mp]; }),
+          m: b.ms.map(function (m) { return m.hp; }), calls: b.n_call, callfail: b.n_callfail });
+      }
       this.last_battle = b;
       this.nr += b.rnd;
       for (i = 0; i < A.length; i++) A[i].eff = null;
@@ -2007,6 +2159,11 @@ input[type="search"]{min-width:0}
       if (!A.length || tr === null || tr === undefined) return;
       var R = this.R, order, i, a, jl, v;
       this.ntrap += 1;
+      var lg = this.log, le = null;
+      if (lg !== null) {          // det = 알아챈 사람 · dis = 해제한 사람(false = 다 실패) · hit = 맞은 사람마다
+        le = { k: "trap", t: this.tick, tr: tr.name, kind: tr.kind, trig: tr.trig, lv: tr.level, all: tr.all, det: null, dis: null, fired: false, hit: [], mons: tr.mons.length > 0 };
+        lg.push(le);
+      }
       if (tr.trig !== 2) {
         order = A.slice();
         R.shuffle(order);
@@ -2016,7 +2173,7 @@ input[type="search"]{min-width:0}
           jl = a.s.joblv(tr.jobKind);
           v = jl + this.lb(a);
           if (jl >= 1) v += Math.floor(R.crv(a.s.ins) / 6);
-          if (R.d2c(10) + v >= tr.level + this.diff + R.d2()) { det = true; break; }
+          if (R.d2c(10) + v >= tr.level + this.diff + R.d2()) { det = true; if (lg !== null) le.det = a.i; break; }
         }
         if (det) {
           if (tr.trig === 1) return;
@@ -2028,31 +2185,39 @@ input[type="search"]{min-width:0}
               jl = a.s.joblv(tr.jobKind);
               var st = (tr.kind === 1 || tr.kind === 2 || tr.kind === 3) ? a.s.dex : a.s.ins;
               v = jl + (jl >= 1 ? Math.floor(R.crv(st) / 6) : 0);
-              if (R.d2c(10) + v >= tr.level + this.diff + R.d2()) return;
+              if (R.d2c(10) + v >= tr.level + this.diff + R.d2()) { if (lg !== null) le.dis = a.i; return; }
             }
+            if (lg !== null) le.dis = false;
           }
         }
       }
       this.ntrap_fired += 1;
+      if (lg !== null) le.fired = true;
       var tg = tr.all ? A : [A[R.n(A.length)]];
       for (i = 0; i < tg.length; i++) {
         a = tg[i];
         var ap = this.trap_ap(tr, a);
         if (tr.kind === 1 || tr.kind === 2) {
+          var hx = null;
+          if (lg !== null) { hx = { s: a.i, v: ap, hp0: a.hp }; le.hit.push(hx); }
           this.trap_dmg += ap < a.hp ? ap : a.hp;
           this.trap_log.push([this.nb, ap < a.hp ? ap : a.hp]);
           a.hp -= ap;
           if (a.hp <= 0) { a.hp = 0; this.on_death(a, null); }
+          if (lg !== null) hx.hp1 = a.hp;
         } else if (tr.kind === 3) {
+          if (lg !== null) le.hit.push({ s: a.i, v: ap, mp0: a.mp, mp1: Math.max(0, a.mp - ap) });
           a.mp = Math.max(0, a.mp - ap);
         } else if (tr.kind === 20) {
+          if (lg !== null) le.hit.push({ s: a.i, v: ap, cond: ap >= 1 });
           if (ap >= 1) a.conds += 1;
         } else if (tr.kind === 21) {
+          if (lg !== null) le.hit.push({ s: a.i, v: ap, eff: (ap >= 1 && T(tr.addEffect) && !a.s.invEff.has(tr.addEffect)) ? tr.addEffect : 0 });
           if (ap >= 1 && T(tr.addEffect) && !a.s.invEff.has(tr.addEffect)) {
             if (a.carry === null) a.carry = [];
             a.carry.push(tr.addEffect);
           }
-        }
+        } else if (lg !== null) le.hit.push({ s: a.i, v: ap });
       }
       if (tr.mons.length && anyAlive(this.allies)) {
         var res = this.battle(tr.mons, false, 2);
@@ -2066,6 +2231,11 @@ input[type="search"]{min-width:0}
       var A = alive(this.allies);
       if (!A.length) return;
       var R = this.R, ok, i, a, t, v;
+      var lg = this.log, le = null;
+      if (lg !== null) {          // found / open = 해낸 사람 · null = 못 함 · -1 = 굴림 없음(몬스터 함정 상자 · 잠금 없음)
+        le = { k: "chest", t: this.tick, found: -1, open: -1, trap: tr !== null ? tr.name : null };
+        lg.push(le);
+      }
       if (!(tr !== null && tr.mons.length)) {
         ok = false;
         for (i = 0; i < A.length; i++) {
@@ -2073,9 +2243,9 @@ input[type="search"]{min-width:0}
           t = a.s.thief;
           v = t + this.lb(a);
           if (v >= 1) v += Math.floor(R.crv(a.s.ins) / 6);
-          if (R.d2c(10) + v >= this.diff + found + R.d2()) { ok = true; break; }
+          if (R.d2c(10) + v >= this.diff + found + R.d2()) { ok = true; if (lg !== null) le.found = a.i; break; }
         }
-        if (!ok) return;
+        if (!ok) { if (lg !== null) le.found = null; return; }
       }
       if (unlock >= 1) {
         ok = false;
@@ -2083,9 +2253,9 @@ input[type="search"]{min-width:0}
           a = A[i];
           t = a.s.thief;
           v = t + (t >= 1 ? Math.floor(R.crv(a.s.dex) / 6) : 0);
-          if (R.d2c(10) + v >= this.diff + unlock + R.d2()) { ok = true; break; }
+          if (R.d2c(10) + v >= this.diff + unlock + R.d2()) { ok = true; if (lg !== null) le.open = a.i; break; }
         }
-        if (!ok) return;
+        if (!ok) { if (lg !== null) le.open = null; return; }
       }
       if (tr !== null) this.trap(tr);
     }
@@ -2100,6 +2270,7 @@ input[type="search"]{min-width:0}
     do_event(e) {
       var before = this.snap();
       var k = e.kind, won = false, res;
+      if (this.log !== null) this.log.push({ k: "qev", t: this.tick, i: e.i, kind: k, clear: e.isClear });
       if (k === 11) {
         if (T(e.group)) {
           res = this.battle(e.group, e.boss);
@@ -2116,8 +2287,10 @@ input[type="search"]{min-width:0}
         this.log_hp(k);
         return;
       }
+      var c0 = this.cleared;
       if (e.isClear && (k !== 11 || won)) this.cleared = true;
       if (!this.P.has_clear && e.i === this.P.last_i) this.cleared = true;
+      if (this.log !== null && this.cleared && !c0) this.log.push({ k: "clear", t: this.tick });
       this.log_hp(k);
       if (!this.cleared && !this.returning && e.retreat) {
         var sc = retreat_score(k, e.retreat, before, this.allies, this.R, this.diff);
@@ -2130,6 +2303,7 @@ input[type="search"]{min-width:0}
             this.ret_from = this.tick;
             this.retreat_tick = this.tick;
           }
+          if (this.log !== null) this.log.push({ k: "retreat", t: this.tick, cond: e.retreat, sc: sc, rp: this.rp, th: th, go: this.rp >= th, alive: A, lead: this.leader.hp > 0 });
         }
       }
     }
@@ -2141,6 +2315,7 @@ input[type="search"]{min-width:0}
         if (R.f() * iv < 1) {                                          // RandSuccess(1, iv)
           var g = groups.length > 1 ? groups[R.n(groups.length)] : groups[0];
           this.nwander += 1;
+          if (this.log !== null) this.log.push({ k: "wander", t: this.tick, w: "battle" });
           var res = this.battle(g[0], g[1]);
           if (res === 3) this.wiped = true;
           this.log_hp(-11);
@@ -2151,6 +2326,7 @@ input[type="search"]{min-width:0}
         iv = P.tgrades[i][0]; var traps = P.tgrades[i][1];
         if (R.f() * iv < 1) {
           var tr = traps.length > 1 ? traps[R.n(traps.length)] : traps[0];
+          if (this.log !== null) this.log.push({ k: "wander", t: this.tick, w: "trap" });
           this.trap(tr);
           if (!anyAlive(this.allies)) this.wiped = true;
           this.log_hp(-80);
@@ -2161,6 +2337,7 @@ input[type="search"]{min-width:0}
 
     run() {
       var P = this.P, R = this.R, goal = P.goal, prog = this.start_tick, ticks = 0;
+      if (this.log !== null) this.log_start("quest");
       while (true) {
         ticks += 1;
         this.tick = prog;
@@ -2209,6 +2386,7 @@ input[type="search"]{min-width:0}
       }
       if (this.wiped) this.result = "wipe";
       this.ticks = ticks;
+      if (this.log !== null) this.log.push({ k: "end", t: this.tick, res: this.result, ticks: ticks });
       return this.record();
     }
 
@@ -2324,6 +2502,7 @@ input[type="search"]{min-width:0}
       this.first_dist = opts.firstDist || null;
       this.low_share = !!opts.lowShare;
       this.death_info = !!opts.deathInfo;
+      this.death_at = !!opts.deathAt;          // (판 다시 보기 목록) 쓰러짐마다 [자리, 틱, 전투 번호, 라운드] — 판 기록의 다른 칸은 그대로
     }
 
     preempt(members) {
@@ -2370,6 +2549,7 @@ input[type="search"]{min-width:0}
       var r = { t: this.tick, g: key, res: res, first: b.first, rounds: b.rnd, kills: kills,
         calls: b.n_call, callfail: b.n_callfail, mons: b.ms.length, exp: exp, gold: gold,
         dead: alive0 - alive1, alive: alive1 };
+      if (this.log !== null) this.log.push({ k: "loot", b: this.nb, exp: exp, gold: gold, kills: kills, dead: alive0 - alive1 });
       if (!Object.prototype.hasOwnProperty.call(this.bygroup, key)) this.bygroup[key] = {};
       var Gs = [this.acc, this.bygroup[key]];
       for (var gi = 0; gi < 2; gi++) {
@@ -2397,6 +2577,7 @@ input[type="search"]{min-width:0}
     }
 
     run() {
+      if (this.log !== null) this.log_start("farm");
       for (var t = 1; t <= this.T; t++) {
         this.tick = t;
         this.wander();
@@ -2407,6 +2588,7 @@ input[type="search"]{min-width:0}
         }
       }
       this.result = this.wiped ? "wipe" : "done";
+      if (this.log !== null) this.log.push({ k: "end", t: this.tick, res: this.result, ticks: this.end_tick || this.T });
       var bg = {}, self = this;
       Object.keys(this.bygroup).forEach(function (k) { bg[k] = Object.assign({}, self.bygroup[k]); });
       var rec = { cave: this.cave, hours: this.hours, ticks: this.end_tick || this.T, res: this.result,
@@ -2418,6 +2600,7 @@ input[type="search"]{min-width:0}
         rec.death_idx = this.deaths.map(function (d) { return d[0]; });
         rec.death_trap = this.deaths.map(function (d) { return d[2] === null; });
       }
+      if (this.death_at) rec.death_at = this.deaths.map(function (d) { return d.slice(); });
       return rec;
     }
   }
@@ -2631,22 +2814,24 @@ input[type="search"]{min-width:0}
     if (q === undefined) throw new Error("퀘스트 없음: " + questId);
     return q;
   }
-  // opts: recordHp(기본 true — Python 과 같다) · trace(배열) · ev(배열) · wrapRng(function(R) — 뽑기 감싸기, 검사용)
+  // opts: recordHp(기본 true — Python 과 같다) · trace(배열) · ev(배열) · log(배열 — 판 다시 보기 사건 기록) · wrapRng(function(R) — 뽑기 감싸기, 검사용)
   function runQuest(D, party, questId, add, seed, opts) {
     opts = opts || {};
     if (party && !Array.isArray(party) && party.party) party = party.party;     // partyFromSheets 결과를 그대로 넘겨도 된다
     var q = typeof questId === "string" ? findQuest(D, questId) : questId;
     var Q = new QuestRun(D, party, q, add, seed, opts.recordHp === undefined ? true : !!opts.recordHp, opts.trace);
     if (opts.ev) Q.ev = opts.ev;
+    if (opts.log) Q.log = opts.log;
     if (opts.wrapRng) opts.wrapRng(Q.R);
     return Q.run();
   }
-  // opts: keepLog(기본 true) · firstDist · lowShare · deathInfo · wrapRng
+  // opts: keepLog(기본 true) · firstDist · lowShare · deathInfo · deathAt · log(배열) · wrapRng
   function runFarm(D, party, caveKey, hours, seed, opts) {
     opts = opts || {};
     if (party && !Array.isArray(party) && party.party) party = party.party;
     var F = new FarmRun(D, party, caveKey, hours, seed, opts);
     if (opts.ev) F.ev = opts.ev;
+    if (opts.log) F.log = opts.log;
     if (opts.wrapRng) opts.wrapRng(F.R);
     return F.run();
   }
@@ -2708,11 +2893,14 @@ input[type="search"]{min-width:0}
 //   {type:"init", core}                                 → D = PartySim.load(core) · {type:"ready", quests, caves} 를 돌려준다
 //   {type:"quest", id, members, questId, add, n, seed}  → n 판 (i 번째 판의 씨앗 = seed + i, BigInt 덧셈 = runFarmMany 와 같은 약속)
 //   {type:"farm",  id, members, caveKey, hours, n, seed, keepRuns?}   keepRuns = 판마다의 기록도 돌려준다(검사용)
+//   {type:"replay", id, kind:"quest"|"farm", members, questId, add | caveKey, hours, seed, i, h?}
+//        → 판 i(씨앗 seed + i)만 «사건 기록을 켜고» 다시 돌려 {type:"replay", id, i, seed, log, rec, h} 를 돌려준다.
+//          h(집계 때 그 판 기록의 지문)를 주면 다시 돈 판의 지문과 같아야 한다 — 다르면 오류(다른 판을 보여 주지 않는다).
 //   {type:"cancel", id}
 //   members = [{sheet, front, leader, label}]  (편성 순서 · PartySim.partyFromSheets 그대로)
 // 보내는 말
 //   {type:"progress", id, done, n}  — 약 50ms 마다
-//   {type:"done", id, kind, result} — 집계 + 파티원별 요약
+//   {type:"done", id, kind, result} — 집계 + 파티원별 요약 + result.rix(판 다시 보기 목록: 갈래마다 판 수 · 앞의 RCAP 판 번호 · 그 판들의 한 줄 자료)
 //   {type:"cancelled", id} · {type:"error", id, message}
 // 같은 씨앗 · 같은 판 수로 파티만 바꿔 돌리면 판 i 끼리 같은 난수열에서 출발한다(짝 비교).
 (function (G) {
@@ -2736,6 +2924,40 @@ input[type="search"]{min-width:0}
 
   function seedStr(seed) { return G.PyRandom.seedInt(seed).toString(); }
 
+  // ── 판 다시 보기 목록 ──
+  //   갈래(퀘스트): wipe 전멸 · tank 탱이 쓰러짐 · death 누군가 쓰러짐 · retreat 후퇴 · fail 실패
+  //   갈래(탐색지): death 쓰러진 판 · wipe 전멸
+  //   갈래마다 판 수(n)와 앞의 RCAP 판 번호(list) · 목록에 든 판의 한 줄 자료(ent[i]: 씨앗 · 결과 · 쓰러짐 · 지문)
+  var RCAP = 30;
+  var QCATS = ["wipe", "tank", "death", "retreat", "fail"], FCATS = ["death", "wipe"];
+  function fnv(s) {                      // 판 기록 지문(FNV-1a 32비트) — 다시 돈 판이 집계 때 판과 같은가
+    var h = 0x811c9dc5;
+    for (var k = 0; k < s.length; k++) { h ^= s.charCodeAt(k); h = Math.imul(h, 0x01000193) >>> 0; }
+    return ("0000000" + h.toString(16)).slice(-8);
+  }
+  function recHash(r) { return fnv(JSON.stringify(r)); }
+  function newIndex(cats) { var o = { cap: RCAP, cats: {}, ent: {} }; cats.forEach(function (c) { o.cats[c] = { n: 0, list: [] }; }); return o; }
+  function quests_cats(r) {
+    var o = [];
+    if (r.res === "wipe") o.push("wipe");
+    if (r.tank_death) o.push("tank");
+    if (r.dead.length) o.push("death");
+    if (r.res === "retreat") o.push("retreat");
+    if (r.res === "fail") o.push("fail");
+    return o;
+  }
+  function farm_cats(r) {
+    var o = [];
+    if (r.deaths > 0) o.push("death");
+    if (r.res === "wipe") o.push("wipe");
+    return o;
+  }
+  function indexRun(ix, i, cats, ent) {
+    var want = false;
+    cats.forEach(function (c) { var x = ix.cats[c]; x.n++; if (x.list.length < ix.cap) { x.list.push(i); want = true; } });
+    if (want) ix.ent[i] = ent();
+  }
+
   // 파티원별 요약 — 표시용 이름 · 역할 · 탱 여부 · 리더
   function memberInfo(pf) {
     return pf.party.map(function (a, i) { return { label: a.label, role: a.role, tank: !!a.tank, front: !!a.front, leader: i === pf.leaderIndex }; });
@@ -2748,6 +2970,7 @@ input[type="search"]{min-width:0}
     var acc = PS.newAcc(party.length), runs = [];
     var n = m.n, i = 0, t0 = now();
     var me = { id: m.id, cancel: false };
+    var ix = newIndex(QCATS), base = G.PyRandom.seedInt(m.seed);
     job = me;
     function step() {
       if (me.cancel) { job = null; post({ type: "cancelled", id: m.id, done: i, n: n }); return; }
@@ -2756,6 +2979,10 @@ input[type="search"]{min-width:0}
         while (i < n && now() - t < SLICE) {
           var r = PS.runQuest(D, party, m.questId, m.add, G.PyRandom.seedInt(m.seed) + BigInt(i), { recordHp: false });
           PS.addRun(acc, r, li);
+          indexRun(ix, i, quests_cats(r), function () {
+            return { i: i, seed: (base + BigInt(i)).toString(), res: r.res, min: r.min, battles: r.battles, deaths: r.deaths,
+              tank_death: r.tank_death, wipe_at: r.wipe_at, retreat_tick: r.retreat_tick, h: recHash(r) };
+          });
           // summarize 가 읽는 칸만 남긴다(hp 기록 · 사망 목록은 버린다)
           runs.push({ res: r.res, min: r.min, battles: r.battles, rounds: r.rounds, draws: r.draws, dead: r.dead,
             tank_death: r.tank_death, tanks_dead: r.tanks_dead, after_tank: r.after_tank, first: r.first });
@@ -2770,7 +2997,7 @@ input[type="search"]{min-width:0}
       members.forEach(function (x, k) { x.dead = acc.dead[k]; x.dead_pct = n ? 100 * acc.dead[k] / n : 0; });
       post({ type: "done", id: m.id, kind: "quest", result: {
         kind: "quest", questId: m.questId, add: m.add, n: n, seed: seedStr(m.seed), ms: Math.round(now() - t0),
-        acc: acc, summary: s, members: members, leaderIndex: li } });
+        acc: acc, summary: s, members: members, leaderIndex: li, rix: ix } });
     }
     step();
   }
@@ -2783,6 +3010,7 @@ input[type="search"]{min-width:0}
     var me = { id: m.id, cancel: false };
     job = me;
     var base = G.PyRandom.seedInt(m.seed);
+    var ix = newIndex(FCATS);
     function step() {
       if (me.cancel) { job = null; post({ type: "cancelled", id: m.id, done: i, n: n }); return; }
       var t = now();
@@ -2790,8 +3018,15 @@ input[type="search"]{min-width:0}
         while (i < n && now() - t < SLICE) {
           var k = Math.min(per, n - i);
           var t1 = now();
-          var got = PS.runFarmMany(D, party, m.caveKey, m.hours, k, base + BigInt(i), { keepLog: true, deathInfo: true });
-          for (var j = 0; j < got.runs.length; j++) runs.push(slimFarm(got.runs[j]));
+          var got = PS.runFarmMany(D, party, m.caveKey, m.hours, k, base + BigInt(i), FARM_OPTS);
+          for (var j = 0; j < got.runs.length; j++) {
+            var fr = got.runs[j], fi = i + j;
+            runs.push(slimFarm(fr));
+            indexRun(ix, fi, farm_cats(fr), function () {
+              return { i: fi, seed: (base + BigInt(fi)).toString(), res: fr.res, ticks: fr.ticks, battles: fr.acc.n || 0,
+                deaths: fr.death_at, h: recHash(fr) };
+            });
+          }
           i += k;
           // 한 판이 짧으면 한 번에 여러 판 (조각 시간 안에서)
           var dt = now() - t1;
@@ -2801,9 +3036,26 @@ input[type="search"]{min-width:0}
       post({ type: "progress", id: m.id, done: i, n: n });
       if (i < n) { setTimeout(step, 0); return; }
       job = null;
-      post({ type: "done", id: m.id, kind: "farm", result: farmResult(m, pf, runs, t0) });
+      var res = farmResult(m, pf, runs, t0);
+      res.rix = ix;
+      post({ type: "done", id: m.id, kind: "farm", result: res });
     }
     step();
+  }
+  // 탐색지 판 — 집계와 다시 보기가 «같은 옵션» 으로 돌아야 판 기록(지문)이 같다
+  var FARM_OPTS = { keepLog: true, deathInfo: true, deathAt: true };
+
+  // ── 판 다시 보기: 판 i 만 사건 기록을 켜고 ──
+  function replayJob(m) {
+    var pf = PS.partyFromSheets(D, m.members);
+    var seed = G.PyRandom.seedInt(m.seed) + BigInt(m.i);
+    var log = [], rec;
+    var t0 = now();
+    if (m.kind === "quest") rec = PS.runQuest(D, pf.party, m.questId, m.add, seed, { recordHp: false, log: log });
+    else rec = PS.runFarm(D, pf.party, m.caveKey, m.hours, seed, Object.assign({ log: log }, FARM_OPTS));
+    var h = recHash(rec);
+    if (m.h && m.h !== h) { post({ type: "error", id: m.id, message: "다시 돈 판(#" + (m.i + 1) + ")이 집계 때 판과 다릅니다 — 지문 " + h + " ≠ " + m.h }); return; }
+    post({ type: "replay", id: m.id, i: m.i, seed: seed.toString(), log: log, rec: rec, h: h, ms: Math.round(now() - t0) });
   }
 
   // 판 기록에서 집계에 쓰는 칸만 — 전투 기록은 «누가 몇 명 쓰러졌나 · 어느 무리» 만 남긴다
@@ -2868,6 +3120,8 @@ input[type="search"]{min-width:0}
         runQuestJob(m);
       } else if (m.type === "farm") {
         runFarmJob(m);
+      } else if (m.type === "replay") {
+        replayJob(m);
       }
     } catch (e) {
       job = null;
@@ -4071,10 +4325,13 @@ function onWorker(ev){
     el("enginenote").textContent="엔진을 준비하지 못했습니다: "+m.message+" — 새로고침해도 같으면 자료가 낡았을 수 있습니다.";
     el("tgt").innerHTML='<p class="empty">엔진을 준비하지 못했습니다.</p>'; renderRun(); return;
   }
+  // 판 다시 보기 — 실행과 따로 오가는 말(id = S.rp.req)
+  if(m.type==="replay"){ if(S.rp.req===m.id) onReplay(m); return; }
+  if(m.type==="error" && S.rp.req!=null && m.id===S.rp.req){ var own=rpOwnsFocus(); S.rp.req=null; S.rp.err="다시 보기 오류: "+m.message; renderReplay(); if(own) rpFocus("rperr"); return; }
   if(!S.running || m.id!==S.running.id) return;
   if(m.type==="progress"){ S.running.done=m.done; showProgress(m.done, m.n); }
-  else if(m.type==="done"){ var r=m.result; r.target=S.running.target; r.party=S.running.party; r.at=Date.now();
-    S.result=r; finishRun(); renderResult(); showResult(); }
+  else if(m.type==="done"){ var r=m.result; r.target=S.running.target; r.party=S.running.party; r.at=Date.now(); r.job=S.running.job;
+    S.result=r; S.rp=newRp(); finishRun(); renderResult(); showResult(); }
   else if(m.type==="cancelled"){ finishRun("취소했습니다 ("+m.done+"/"+m.n+"판에서 멈춤)."); }
   else if(m.type==="error"){ finishRun("오류: "+m.message); }
 }
@@ -4727,7 +4984,7 @@ function run(){
   var target;
   if(S.mode==="quest"){ msg.type="quest"; msg.questId=S.questId; msg.add=S.add; target={kind:"quest", id:S.questId, add:S.add, label:targetLabel()}; }
   else { msg.type="farm"; msg.caveKey=S.caveKey; msg.hours=S.hours; target={kind:"farm", id:S.caveKey, hours:S.hours, label:targetLabel()}; }
-  S.running={id:id, done:0, n:n, target:target, party:members.map(function(x){ return {label:x.label, title:x.title, slot:x.slot}; })};
+  S.running={id:id, done:0, n:n, target:target, party:members.map(function(x){ return {label:x.label, title:x.title, slot:x.slot}; }), job:msg};
   showProgress(0,n);
   el("runmsg").textContent="씨앗 "+S.seed+" 부터 "+n+"판을 돌리는 중입니다…";
   announce(n+"판을 돌리기 시작했습니다.");
@@ -4772,7 +5029,9 @@ function renderResult(){
   h+=r.kind==="quest" ? questHTML(r,B) : farmHTML(r,B);
   h+='<div class="crow" style="margin-top:12px"><button type="button" class="mini" data-act="base"'+(S.baseline===r?' disabled':'')+'>'+(S.baseline===r?'이 결과가 기준입니다':'이 결과를 기준으로 고정')+'</button>'+
      (S.baseline?'<button type="button" class="mini" data-act="unbase">기준 지우기</button>':'')+'</div>';
+  h+='<div class="rp" id="rpbox"></div>';
   el("res").innerHTML=h;
+  renderReplay();
 }
 function questHTML(r,B){
   var s=r.summary, a=r.acc, n=r.n, bs=B&&B.summary, ba=B&&B.acc;
@@ -4838,6 +5097,302 @@ function memberTable(r, B, f, head, farm){
        (b?delta(f(m), f(b), "%p", -1):'')+'</td>'+(farm?'<td class="num">'+m.battleDeaths+'</td><td class="num">'+m.trapDeaths+'</td>':'')+'</tr>';
   });
   return h+'</table></div>';
+}
+
+/* ── 판 다시 보기 ──
+   돌린 판 중 하나를 «사건 기록을 켜고» 다시 돌려(같은 씨앗이라 같은 판) 어떻게 쓰러지고 전멸했는지 한 줄씩 보인다.
+   목록(갈래 · 판 번호 · 한 줄)은 워커가 집계하며 만든 result.runs, 사건 기록은 워커의 replay 말(엔진 = partysim.py QuestRun.log 와 같은 꼴).
+   긴 기록(탐색지 24시간 · 전투 수십)은 전투마다 접어 두고, 펼칠 때 그린다(첫 쓰러짐이 난 전투와 마지막 전투만 처음부터 펼침). */
+var RCAT_Q=[["wipe","전멸"],["tank","탱이 쓰러짐"],["death","누군가 쓰러짐"],["retreat","후퇴"],["fail","실패"]];
+var RCAT_F=[["death","쓰러진 판"],["wipe","전멸"]];
+var RES_Q={complete:"완료", wipe:"전멸", retreat:"후퇴", fail:"실패"};
+var BRES={1:"승리", 2:"무승부", 3:"패배"};
+// 상태 번호 → 이름 (battlelog.py · extract_logs.py 의 EFFECT 표와 같음)
+var EFFN={2:"둘러싸기",3:"독",4:"올가미",5:"넘어짐",6:"정신교란",7:"혼란",8:"붙잡기",9:"광신",10:"침묵",11:"망각",12:"춤",13:"매혹",14:"놀람",
+  15:"짓눌림",16:"수면",17:"마비",18:"이동 곤란",19:"익사",20:"생명 흡수",21:"먹힘",22:"매우 이동 곤란",23:"실명",41:"무기 강화",42:"보호",
+  48:"슬로우",49:"헤이스트",50:"석화",51:"기절",52:"저주",55:"지속 피해"};
+var TRAPK={1:"물리 피해",2:"피해",3:"MP 피해",20:"후유증",21:"상태이상"};
+function effName(k){ return EFFN[k]||("상태 "+k); }
+function newRp(){ return {cat:null, req:null, sel:null, view:null, err:"", open:{}, blocks:null}; }
+S.rp=newRp();
+function tickText(t){ var m=Math.floor((t||0)/6); return m>=60 ? Math.floor(m/60)+"시간"+(m%60?" "+(m%60)+"분":"") : m+"분"; }
+function skName(key){
+  var s=(D.core.skills||{})[key]; if(!s) return String(key);
+  if(s.n) return s.n;
+  var k=s.kind, e=s.effect;
+  if(k===81) return "상태 반사("+effName(e)+")";
+  if(k===30) return effName(e)+" 공격";
+  if(k===18||k===19) return "반사";
+  if(k===21) return "MP 공격";
+  if(k===32) return "회복";
+  return k===20 ? "공격 스킬" : String(key);
+}
+function rpCats(r){ return r.kind==="quest" ? RCAT_Q : RCAT_F; }
+function rpLab(r, s){ var m=r.members[s]; return m ? m.label : "자리 "+(s+1); }
+// 목록 한 줄 — 첫 쓰러짐(+ 탱이 그 뒤에 쓰러졌으면 탱) → 결과
+function rpDeathPhrase(r, d){   // d = [자리, 틱, 전투, 라운드]
+  var who=rpLab(r, d[0]);
+  if(d[2]==null) return (r.kind==="farm" ? tickText(d[1])+" " : "")+"함정에 "+who+" 쓰러짐";
+  return "전투 "+d[2]+(r.kind==="farm" ? "("+tickText(d[1])+")" : "")+" · "+(d[3]+1)+"라운드에 "+who+" 쓰러짐";
+}
+function runLine(r, e){
+  var ds=e.deaths||[], out="#"+(e.i+1)+" · ";
+  if(!ds.length) out+="전투 "+e.battles+"번 · 아무도 안 쓰러짐";
+  else {
+    out+=rpDeathPhrase(r, ds[0])+(ds.length>1 ? " 외 "+(ds.length-1)+"명" : "");
+    var t=null; for(var k=1;k<ds.length;k++) if(r.members[ds[k][0]] && r.members[ds[k][0]].tank && !(r.members[ds[0][0]]||{}).tank){ t=ds[k]; break; }
+    if(t) out+=" · 탱: "+rpDeathPhrase(r, t);
+  }
+  if(r.kind==="quest") out+=" → "+(RES_Q[e.res]||e.res);
+  else out+=" → "+(e.res==="wipe" ? "전멸("+tickText(e.ticks)+")" : r.hours+"시간 끝까지");
+  return out;
+}
+function renderReplay(){
+  var box=el("rpbox"), r=S.result; if(!box) return;
+  if(!r || !r.rix){ box.innerHTML=""; return; }
+  var R=r.rix, cats=rpCats(r), rp=S.rp;
+  if(rp.cat==null){ rp.cat=cats[0][0]; for(var c=0;c<cats.length;c++) if(R.cats[cats[c][0]] && R.cats[cats[c][0]].n){ rp.cat=cats[c][0]; break; } }
+  var h='<h3 class="rph" id="rphead" tabindex="-1">판 다시 보기</h3>'+
+    '<p class="note" style="margin:0 0 8px">이 결과의 판 하나를 같은 씨앗으로 다시 돌려, 누가 언제 무엇에 쓰러졌는지 한 줄씩 봅니다(결과는 집계 때와 같습니다).</p>'+
+    '<div class="crow" role="group" aria-label="판 갈래">';
+  cats.forEach(function(x){ var g=R.cats[x[0]]||{n:0};
+    h+='<button type="button" class="chip" id="rpc-'+x[0]+'" data-act="rcat" data-v="'+x[0]+'" aria-pressed="'+(rp.cat===x[0])+'"'+(g.n?'':' disabled')+'>'+x[1]+' <b class="rpn">'+g.n.toLocaleString("ko-KR")+'</b></button>'; });
+  h+='</div>';
+  if(rp.view){ h+=replayViewHTML(r, rp.view); }
+  else {
+    var g=R.cats[rp.cat]||{n:0, list:[]};
+    if(!g.n) h+='<p class="empty">이 갈래의 판이 없습니다.</p>';
+    else {
+      h+='<div class="rplist" id="rplist">'+g.list.map(function(i){ var e=R.ent[i];
+        return '<button type="button" class="rprow'+(rp.sel===i?' on':'')+'" id="rpr-'+i+'" data-act="rrun" data-v="'+i+'">'+esc(runLine(r, e))+'</button>'; }).join("")+'</div>';
+      if(g.n>g.list.length) h+='<p class="note" style="margin:6px 0 0">앞의 '+g.list.length+'판만 보입니다(이 갈래 전부 '+g.n.toLocaleString("ko-KR")+'판).</p>';
+    }
+    if(rp.req!=null) h+='<p class="note" id="rpwait">#'+(rp.sel+1)+' 판을 다시 돌리는 중입니다…</p>';
+  }
+  if(rp.err) h+='<p class="msg err" id="rperr" tabindex="-1">'+esc(rp.err)+'</p>';
+  box.innerHTML=h;
+}
+function replayRun(i){
+  var r=S.result; if(!r || !r.job || !W) return;
+  if(S.running){ S.rp.err="돌리는 중에는 다시 볼 수 없습니다 — 끝난 뒤에 누르세요."; renderReplay(); rpFocus("rperr"); return; }
+  var e=r.rix && r.rix.ent[i], j=r.job, id=++JOBID;
+  var msg={type:"replay", id:id, kind:r.kind, members:j.members, seed:j.seed, i:i, h:e?e.h:undefined};
+  if(r.kind==="quest"){ msg.questId=j.questId; msg.add=j.add; } else { msg.caveKey=j.caveKey; msg.hours=j.hours; }
+  S.rp.req=id; S.rp.sel=i; S.rp.err=""; S.rp.view=null; S.rp.blocks=null; S.rp.open={};
+  renderReplay();
+  rpFocus("rpr-"+i);   // 누른 줄은 다시 그려져 사라졌다 — 같은 판의 새 줄로(화면 읽기 커서가 body 로 안 떨어지게)
+  W.postMessage(msg);
+}
+function onReplay(m){
+  var rp=S.rp; rp.req=null;
+  var v={i:m.i, seed:m.seed, log:m.log, ms:m.ms};
+  rp.blocks=rpBlocks(m.log); rp.view=v; rp.open={};
+  var ks=rpAutoOpen(rp.blocks); ks.forEach(function(k){ rp.open[k]=true; });
+  var own=rpOwnsFocus();   // 기다리는 동안 포커스가 이 상자(누른 줄)에 있었나 — 그새 다른 데로 갔으면 뺏지 않는다
+  renderReplay();
+  if(own) reveal(el("rpbox"), el("rpt"), false);   // 판 제목(«#N 판»)으로 — 이미 보여도 옮긴다. 그새 다른 칸으로 간 사람은 끌어오지도 뺏지도 않는다
+}
+// 갈래 칩 — 다른 갈래로 가면 기다리던 다시 보기를 버린다(답이 와도 안 연다: 그 판은 새 갈래의 판이 아니고, 대기 줄 · «목록으로» 가 돌아갈 판 줄도 없다).
+//   같은 갈래를 다시 누르면 그대로 기다린다(보던 판 줄도 그대로 표시).
+function rpCat(c){
+  var rp=S.rp; if(c!==rp.cat){ rp.req=null; rp.sel=null; }
+  rp.cat=c; rp.view=null; rp.blocks=null; renderReplay(); rpFocus("rpc-"+c);
+}
+// 판 다시 보기의 포커스 — renderReplay 가 상자를 통째로 다시 그려 누른 단추가 사라지므로, 같은 자리의 새 단추로 옮긴다
+function rpOwnsFocus(){ var a=document.activeElement, box=el("rpbox"); return !a || a===document.body || !!(box && box.contains(a)); }
+function rpFocus(id, scroll){
+  var b=el(id), box=el("rpbox"); if(!b || !box || !box.contains(b)) return false;
+  try{ if(scroll) b.focus(); else b.focus({preventScroll:true}); }catch(e){}
+  return true;
+}
+// 기록을 덩어리로 — {b: 전투 사건, ev: [그 전투의 사건(bend · loot 까지)]} 또는 {misc: [전투 밖 사건]}
+function rpBlocks(L){
+  var out=[], misc=[], cur=null;
+  for(var k=0;k<L.length;k++){
+    var e=L[k];
+    if(e.k==="battle"){ if(misc.length){ out.push({misc:misc}); misc=[]; } cur={b:e, ev:[], n:out.length}; out.push(cur); continue; }
+    if(cur && !cur.done){ cur.ev.push(e); if(e.k==="bend") cur.done=true; continue; }
+    if(cur && cur.done && e.k==="loot" && !cur.loot){ cur.loot=e; continue; }
+    cur=null; misc.push(e);
+  }
+  if(misc.length) out.push({misc:misc});
+  return out;
+}
+function rpAutoOpen(B){   // 첫 쓰러짐이 난 전투 · 마지막 전투
+  var ks=[], first=null, last=null;
+  B.forEach(function(x, k){ if(!x.b) return; last=k; if(first==null && x.ev.some(function(e){ return e.k==="death"; })) first=k; });
+  if(first!=null) ks.push(first);
+  if(last!=null && last!==first) ks.push(last);
+  return ks;
+}
+// 이 전투의 몬스터 이름(같은 이름이 둘 이상이면 «이름#번호»)
+function rpMonNames(blk){
+  var ms=blk.b.m.map(function(m){ return m.n; });
+  blk.ev.forEach(function(e){ if(e.k==="call" && e.ok) ms[e.new]=e.n; });
+  var cnt={}; ms.forEach(function(n){ cnt[n]=(cnt[n]||0)+1; });
+  return ms.map(function(n, i){ return cnt[n]>1 ? n+"#"+(i+1) : n; });
+}
+function rpCtx(v){
+  var st=v.log[0]||{party:[]}, labs={}, tank={}, mx={};
+  (st.party||[]).forEach(function(p){ labs[p.s]=p.lab; tank[p.s]=p.tank; mx[p.s]=p.mx; });
+  return {labs:labs, tank:tank, mx:mx, st:st};
+}
+function rpWho(ctx, ref, mons){ if(!ref) return "?"; return ref[0]==="a" ? (ctx.labs[ref[1]]||"자리 "+(ref[1]+1)) : ((mons&&mons[ref[1]])||"몬스터 "+(ref[1]+1)); }
+function hpTo(e){ return "HP "+e.hp0+"→"+Math.max(0, e.hp1); }
+function hpBar(hp, mx){
+  var p=mx>0 ? Math.max(0, Math.min(100, Math.round(100*hp/mx))) : 0;
+  return '<span class="hpb'+(p<=33?' low':'')+'" aria-hidden="true"><i style="width:'+p+'%"></i></span>';
+}
+// 쓰러짐의 원인 사건 — 엔진과 같은 규칙: 바로 앞의 사건(쓰러짐 말고)
+function rpCauseOf(L, di){ for(var k=di-1;k>=0;k--) if(L[k].k!=="death") return L[k]; return null; }
+// 위 요약 — «방어탱: 전투 4 · 2라운드 · 아이스 맨드레이크 평타 41 (반사 마비 중 · 회피 0)»
+function rpDeathText(v, ctx, di){
+  var L=v.log, d=L[di], c=rpCauseOf(L, di), who=ctx.labs[d.s]||"자리 "+(d.s+1);
+  var blk=null; if(d.b!=null) for(var k=0;k<S.rp.blocks.length;k++){ var x=S.rp.blocks[k]; if(x.b && x.b.b===d.b){ blk=x; break; } }
+  var mons=blk ? rpMonNames(blk) : [];
+  var where=d.b!=null ? "전투 "+d.b+" · "+(d.r+1)+"라운드" : tickText(d.t)+" 함정";
+  var what="?", notes=[];
+  if(c){
+    if(c.k==="hit") what=rpWho(ctx, c.by, mons)+" 평타 "+c.d;
+    else if(c.k==="mskill") what=rpWho(ctx, c.by, mons)+" «"+skName(c.sk)+"» "+c.d;
+    else if(c.k==="ctr") what=rpWho(ctx, c.by, mons)+" 반격 "+c.d;
+    else if(c.k==="refl") what=rpWho(ctx, c.by, mons)+" 피해 반사 "+c.d;
+    else if(c.k==="rsk") what=rpWho(ctx, c.by, mons)+" 반사 스킬 "+c.d;
+    else if(c.k==="dot") what="지속 피해("+effName(c.eff)+") "+c.d;
+    else if(c.k==="trap"){ var hx=null; c.hit.forEach(function(x){ if(x.s===d.s) hx=x; }); what="함정("+(TRAPK[c.kind]||"함정")+") "+(hx?hx.v:"?"); }
+    else what=c.k;
+  }
+  // 걸려 있던 상태 — 이 전투에서 상태 반사로 걸린 것이면 «반사 »
+  var refl={};
+  if(blk) for(var k2=0;k2<blk.ev.length;k2++){ var e=blk.ev[k2]; if(e===d) break; if(e.k==="rstat" && e.ok && e.to[0]==="a" && e.to[1]===d.s) refl[e.eff]=1; }
+  (d.eff||[]).forEach(function(x){ notes.push((refl[x]?"반사 ":"")+effName(x)+" 중"); });
+  if(c && c.k==="hit"){
+    if(c.av===null) notes.push("회피 0");
+    if(c.blk) notes.push("방패로 막음");
+    if(c.crit) notes.push("치명");
+  }
+  return who+": "+where+" · "+what+(notes.length?" ("+notes.join(" · ")+")":"");
+}
+function rpOutcome(r, v){
+  var L=v.log, end=L[L.length-1]||{}, nb=0; L.forEach(function(e){ if(e.k==="battle") nb++; });
+  if(r.kind==="quest") return "결과: "+(RES_Q[end.res]||end.res)+" · 전투 "+nb+"번 · "+tickText(end.ticks);
+  return "결과: "+(end.res==="wipe" ? "전멸 — "+tickText(end.ticks)+"에" : r.hours+"시간 끝까지")+" · 전투 "+nb+"번";
+}
+function replayViewHTML(r, v){
+  var ctx=rpCtx(v), L=v.log, B=S.rp.blocks;
+  var h='<div class="rpv" id="rpview"><div class="crow" style="margin:0 0 6px"><button type="button" class="mini" data-act="rback">목록으로</button>'+
+    '<b class="rpt" id="rpt" tabindex="-1">#'+(v.i+1)+' 판</b></div>';
+  h+='<p class="rpo">'+esc(rpOutcome(r, v))+'</p>';
+  var ds=[]; L.forEach(function(e, k){ if(e.k==="death") ds.push(k); });
+  if(ds.length) h+='<ul class="rpd">'+ds.map(function(k){ return '<li>'+esc(rpDeathText(v, ctx, k))+'</li>'; }).join("")+'</ul>';
+  else h+='<p class="note" style="margin:0 0 6px">이 판에서는 아무도 쓰러지지 않았습니다.</p>';
+  h+='<p class="note rpseed" style="margin:0 0 10px">이 판 씨앗 <b class="mono">'+esc(v.seed)+'</b> — 씨앗 칸에 넣고 «고정» 해 돌리면 첫 판(#1)이 이 판입니다.</p>';
+  B.forEach(function(x, k){
+    if(x.misc){ var t=x.misc.map(function(e){ return rpMiscLine(ctx, e); }).filter(Boolean); if(t.length) h+='<div class="rpm">'+t.join("")+'</div>'; return; }
+    h+='<details class="rpb'+(x.ev.some(function(e){ return e.k==="death"; })?' dead':'')+'" data-rb="'+k+'"'+(S.rp.open[k]?' open':'')+'><summary>'+esc(rpBattleSummary(ctx, x))+'</summary>'+
+      '<div class="rpbody" id="rpb-'+k+'">'+(S.rp.open[k] ? battleBody(ctx, x) : '')+'</div></details>';
+  });
+  return h+'</div>';
+}
+function rpBattleSummary(ctx, x){
+  var b=x.b, cnt={}, order=[];
+  b.m.forEach(function(m){ if(!cnt[m.n]){ cnt[m.n]=0; order.push(m.n); } cnt[m.n]++; });
+  var who=order.map(function(n){ return n+(cnt[n]>1?" ×"+cnt[n]:""); }).join(" · ");
+  /* 부름으로 들어온 몬스터 — 접힌 머리줄에도 보이게(검토 지적: 부름 몬스터가 탱을 쓰러뜨린 전투에서 머리줄과 위 요약이 다른 이야기를 했다) */
+  var called=x.ev.filter(function(e){ return e.k==="call" && e.ok; }).length;
+  if(called) who+=" + 부름 "+called;
+  var end=x.ev[x.ev.length-1]||{}, dead=x.ev.filter(function(e){ return e.k==="death"; }).map(function(e){ return ctx.labs[e.s]; });
+  return "전투 "+b.b+" · "+tickText(b.t)+" · "+who+" — "+(end.k==="bend" ? end.rounds+"라운드 · "+(BRES[end.res]||end.res) : "")+(dead.length ? " · "+dead.join(" · ")+" 쓰러짐" : "");
+}
+function rpPre(b){
+  var f=b.first===1 ? "우리가 먼저(몬스터는 1라운드에 못 움직임)" : (b.first===2 ? "몬스터가 먼저(우리는 1라운드에 못 움직임)" : "선제 없음");
+  if(!b.pre) return "선제: "+f+(b.first===2 ? " — 함정에서 튀어나옴" : "");
+  var p=b.pre, s="우리 "+p.we+" + 굴림 "+p.r[0]+" = "+(p.we+p.r[0])+" vs 몬스터 "+p.they+" + 2d6 "+p.r[1]+" + 8 = "+(p.they+p.r[1]+8);
+  if(p.r.length>2) s+=" · 다시 우리 "+p.we+" + 굴림 "+p.r[2]+" = "+(p.we+p.r[2])+" vs "+p.they;
+  return "선제: "+f+" ("+s+")";
+}
+function battleBody(ctx, x){
+  var b=x.b, mons=rpMonNames(x), h='';
+  h+='<p class="rl k-info">몬스터: '+esc(b.m.map(function(m, i){ return mons[i]+" Lv"+m.lv+" HP "+m.hp+(m.v?" 앞줄":" 뒷줄"); }).join(" · "))+'</p>';
+  h+='<p class="rl k-info">'+esc(rpPre(b))+'</p>';
+  h+='<p class="rl k-info">시작: '+b.a.map(function(a){ return esc(ctx.labs[a.s])+" "+hpBar(a.hp, a.mx)+" "+a.hp+"/"+a.mx+(a.mpmax?" MP "+a.mp+"/"+a.mpmax:"")+(a.eff.length?" ("+esc(a.eff.map(effName).join(" · "))+")":""); }).join(" · ")+'</p>';
+  x.ev.forEach(function(e){ h+=rpLine(ctx, e, mons, b); });
+  if(x.loot) h+='<p class="rl k-info">경험치 '+x.loot.exp.toLocaleString("ko-KR")+' · 골드 '+x.loot.gold.toLocaleString("ko-KR")+' · 처치 '+x.loot.kills+'</p>';
+  return h;
+}
+function rpLine(ctx, e, mons, b){
+  var WN=function(r){ return esc(rpWho(ctx, r, mons)); }, A=function(s){ return esc(ctx.labs[s]||"자리 "+(s+1)); };
+  var cls="k-"+e.k, t="";
+  switch(e.k){
+    case "round": return '<p class="rl k-round"><b>'+(e.r+1)+'라운드</b> · 순서 '+e.o.map(WN).join(" › ")+'</p>';
+    case "atk": if(e.n<2) return ""; t=A(e.a)+" 평타 "+e.n+"타"; break;
+    case "hit":
+      if(e.by[0]==="a"){
+        t=WN(e.by)+" → "+WN(e.to)+": "+(e.res===0 ? "빗나감 (명중 "+e.H+" · 회피 "+e.avo+")" : (e.res===2 ? "물리 무효" :
+          "명중"+(e.crit?" · 치명":"")+" · 피해 "+e.d+" · "+hpTo(e)+(e.hp1<=0?" · 쓰러뜨림":"")));
+      } else {
+        t=WN(e.by)+" 평타 → "+WN(e.to)+": "+(e.res===0 ? "회피 (회피 "+e.av+" ≥ "+e.need+")" :
+          (e.blk?"막음 · ":"")+"명중"+(e.crit?" · 치명":"")+" · 피해 "+e.d+" · "+hpTo(e)+(e.av===null ? " (회피 0: "+esc(e.zero.map(effName).join(" · "))+")" : " (회피 "+e.av+" < "+e.need+")"));
+      }
+      break;
+    case "ctr": t="↳ "+WN(e.by)+" 반격 → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
+    case "actr": t="↳ "+WN(e.by)+" 반격 → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
+    case "refl": t="↳ "+WN(e.by)+" 피해 반사 → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
+    case "rsk": t="↳ "+WN(e.by)+" 반사 스킬 «"+esc(skName(e.sk))+"» → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
+    case "rstat": case "astat": case "stat":
+      t=(e.k==="stat"?"":"↳ ")+WN(e.by)+" "+(e.k==="rstat" ? "상태 반사" : (e.k==="astat" ? "평타 상태이상" : "«"+esc(skName(e.sk))+"»"))+"("+esc(effName(e.eff))+") → "+WN(e.to)+": "+
+        (e.imm ? "면역" : (e.ok ? "걸림" : "안 걸림")+" (판정 "+(e.v>0?"+":"")+e.v+")");
+      cls+=e.ok?" bad":"";
+      break;
+    case "drain": t="↳ "+A(e.a)+" HP 흡수 +"+e.h+" · "+hpTo(e); break;
+    case "mdrain": t="↳ "+WN(e.by)+" HP 흡수 +"+e.h+" · "+hpTo(e); break;
+    case "elem": t="↳ "+A(e.a)+" 추가 속성("+esc(e.el)+") → "+WN(e.to)+": "+("mp0" in e ? "MP "+e.d+" · MP "+e.mp0+"→"+e.mp1 : "피해 "+e.d+" · "+hpTo(e)); break;
+    case "cast": t=A(e.a)+" 마법 «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1; break;
+    case "spell": t="  → "+WN(e.to)+": "+(e.inv ? "무효" : "피해 "+e.d+" · "+hpTo(e)+(e.hp1<=0?" · 쓰러뜨림":"")); break;
+    case "heal": t=A(e.a)+" «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1+(e.tg.length ? " → "+e.tg.map(function(x){ return A(x[0])+" +"+x[1]+" (HP "+x[2]+"→"+x[3]+")"; }).join(" · ") : " (대상 없음)"); break;
+    case "mcast": t=WN(e.by)+" «"+esc(skName(e.sk))+"» · MP "+e.mp0+"→"+e.mp1; break;
+    case "mskill": t="  → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
+    case "mpdrain": t="  → "+WN(e.to)+": MP −"+e.d+" (MP "+e.mp0+"→"+e.mp1+")"; break;
+    case "mheal": t=WN(e.by)+" 회복 → "+WN(e.to)+" +"+e.h+" (HP "+e.hp0+"→"+e.hp1+")"; break;
+    case "call": t=WN(e.by)+" 부름 "+(e.ok ? "→ "+esc(mons[e.new]||e.n)+" (Lv"+e.lv+" · HP "+e.hp+" · "+(e.v?"앞줄":"뒷줄")+")" : "실패 ("+(e.why==="turn"?"이번 라운드에 이미 불림":"수 상한")+")"); break;
+    case "skip": t=A(e.a)+" 못 움직임 ("+esc(e.eff.map(effName).join(" · "))+")"; break;
+    case "idle": t=A(e.a)+": 칠 대상 없음"; break;
+    case "dot": t=A(e.a)+" 지속 피해("+esc(effName(e.eff))+") "+e.d+" · "+hpTo(e); break;
+    case "expire": t=A(e.a)+" "+esc(effName(e.eff))+" 풀림"; break;
+    case "death": return '<p class="rl k-death">'+A(e.s)+' 쓰러짐</p>';
+    case "rend": return '<p class="rl k-rend">라운드 끝 '+e.a.map(function(x){ return A(x[0])+" "+hpBar(x[1], ctx.mx[x[0]])+" "+Math.max(0,x[1]); }).join(" · ")+'</p>';
+    case "bend": return '<p class="rl k-bend">전투 끝: '+(BRES[e.res]||e.res)+' · '+e.rounds+'라운드 — '+e.a.map(function(x){ return A(x[0])+" "+hpBar(x[1], ctx.mx[x[0]])+" "+Math.max(0,x[1])+"/"+ctx.mx[x[0]]; }).join(" · ")+(e.calls||e.callfail?' · 부름 '+e.calls+'번(실패 '+e.callfail+')':'')+'</p>';
+    default: t=esc(e.k);
+  }
+  return t ? '<p class="rl '+cls+'">'+t+'</p>' : "";
+}
+function rpMiscLine(ctx, e){
+  var A=function(s){ return esc(ctx.labs[s]||"자리 "+(s+1)); };
+  switch(e.k){
+    case "qev": return e.kind===50 ? '<p class="rl k-info">'+tickText(e.t)+' 동굴에 들어감</p>' : (e.kind===51 ? '<p class="rl k-info">'+tickText(e.t)+' 동굴을 나옴</p>' : "");
+    case "trap":
+      var s=tickText(e.t)+" 함정("+(TRAPK[e.kind]||"함정")+" · "+esc(e.tr)+")";
+      s+=e.det!=null ? " — 알아챔: "+A(e.det) : (e.trig===2 ? " — 알아챌 수 없는 함정" : " — 아무도 못 알아챔");
+      if(e.dis===false) s+=" · 해제 실패"; else if(e.dis!=null) s+=" · 해제: "+A(e.dis);
+      if(e.fired) s+=" → 발동"+(e.hit.length ? ": "+e.hit.map(function(x){ return A(x.s)+" "+("hp0" in x ? "−"+x.v+" (HP "+x.hp0+"→"+x.hp1+")" : ("mp0" in x ? "MP −"+x.v : ("cond" in x ? (x.cond?"후유증":"버팀") : ("eff" in x ? (x.eff?effName(x.eff):"버팀") : x.v)))); }).join(" · ") : "")+(e.mons?" · 몬스터가 튀어나옴":"");
+      else if(e.det!=null) s+=" → 피함";
+      return '<p class="rl k-trap">'+s+'</p>';
+    case "chest":
+      return '<p class="rl k-info">'+tickText(e.t)+' 상자 — '+(e.found===null ? "못 찾음" : (e.found===-1 ? "" : "찾음: "+A(e.found)+" · "))+
+        (e.found===null ? "" : (e.open===null ? "못 엶" : (e.open===-1 ? "잠금 없음" : "엶: "+A(e.open))))+(e.trap?" · 함정 상자":"")+'</p>';
+    case "wander": return e.w==="trap" ? '<p class="rl k-info">'+tickText(e.t)+' 떠돌다 함정을 만남</p>' : "";
+    case "retreat": return '<p class="rl k-ret">'+tickText(e.t)+' 후퇴 점수 +'+e.sc+' → 누적 '+e.rp+' / 기준 '+(e.th>=2147483647?"없음(무모함)":e.th)+' — '+(e.go?"<b>후퇴합니다</b>":"계속 갑니다")+(e.lead?"":" (리더 쓰러짐)")+'</p>';
+    case "clear": return '<p class="rl k-info">'+tickText(e.t)+' 목표 달성</p>';
+    case "death": return '<p class="rl k-death">'+A(e.s)+' 쓰러짐 ('+tickText(e.t)+' 함정)</p>';
+    case "end": return '<p class="rl k-bend">끝: '+(RES_Q[e.res]||(e.res==="done"?"끝까지 돌았음":e.res))+' · '+tickText(e.ticks)+'</p>';
+    default: return "";
+  }
+}
+function onRpToggle(ev){
+  var d=ev.target; if(!d || !d.getAttribute) return;
+  var k=d.getAttribute("data-rb"); if(k==null || !S.rp.blocks) return;
+  S.rp.open[k]=!!d.open;
+  if(d.open){ var b=el("rpb-"+k); if(b && !b.innerHTML) b.innerHTML=battleBody(rpCtx(S.rp.view), S.rp.blocks[+k]); }
 }
 
 /* ── 저장한 파티 ── */
@@ -4988,7 +5543,7 @@ el("svdir").addEventListener("change", function(){
 el("nsel").onchange=function(){ var n=+el("nsel").value; if(S.mode==="quest") S.nQuest=n; else S.nFarm=n; renderRunBar(runBlock()); };
 el("seed").onchange=function(){
   var v=el("seed").value.trim();
-  if(/^\d{1,18}$/.test(v)){ S.seed=String(BigInt(v)); S.seedFixed=true; }
+  if(/^\d{1,30}$/.test(v)){ S.seed=String(BigInt(v)); S.seedFixed=true; }   // «이 판 씨앗»(seed+i)이 19자리가 될 수 있다 — 칸이 그대로 받아야 약속이 지켜진다
   el("seed").value=S.seed; el("seedfix").checked=S.seedFixed;
 };
 el("seedfix").onchange=function(){ S.seedFixed=el("seedfix").checked; };
@@ -5009,7 +5564,11 @@ el("res").addEventListener("click", function(ev){
   if(t.dataset.act==="base"){ S.baseline=S.result; S.seedFixed=true; S.seed=S.result.seed; renderRun(); renderResult();
     S.runNote="기준을 고정했습니다 — 씨앗 "+S.seed+" 도 고정했으니 파티를 바꿔 다시 돌리면 짝 비교가 됩니다."; renderRun(); }
   else if(t.dataset.act==="unbase"){ S.baseline=null; renderResult(); }
+  else if(t.dataset.act==="rcat"){ rpCat(t.dataset.v); }
+  else if(t.dataset.act==="rrun"){ replayRun(+t.dataset.v); }
+  else if(t.dataset.act==="rback"){ S.rp.view=null; S.rp.blocks=null; renderReplay(); if(!rpFocus("rpr-"+S.rp.sel, true)) reveal(el("rpbox"), el("rphead"), false); }   // 보던 판의 줄로(목록에서 이어 고르게)
 });
+el("res").addEventListener("toggle", onRpToggle, true);   // 판 다시 보기 — 전투를 펼칠 때 그린다(toggle 은 거품이 안 올라와서 잡기로)
 el("psave").onclick=function(){
   var nm=el("pname").value.trim(); if(!nm) { el("pname").focus(); return; }
   var st=lsGet(LS_PARTY)||{}; st.saved=st.saved||{}; st.saved[nm]=clone(S.members);
