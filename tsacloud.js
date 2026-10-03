@@ -30,7 +30,8 @@
    *   그 데이터가 그 사람 행으로 넘어간다 (퀘스트 화면은 버튼도 없이 자동으로 올린다).
    *   tsa.rep.v1 · tsa.showlocked.v1 은 개인 기록이 아니라 화면 설정이라 남긴다. */
   var LOCAL_KEYS = ["tsa.save.v1", "tsa.crew.v1", "tsa.qstate.v1", "tsa.levels.v1",
-                    "tsa.fac.v1", "tsa.done.v1", "tsa.maps.v1", "tsa.fav.v1"];
+                    "tsa.fac.v1", "tsa.done.v1", "tsa.maps.v1", "tsa.fav.v1",
+                    "tsa.simparty.v1", "tsa.simcrew.v1"];   // 시뮬 — 저장한 파티 · 세이브 폴더에서 읽은 용병
 
   function wipeLocal() {
     for (var i = 0; i < LOCAL_KEYS.length; i++) {
@@ -43,7 +44,7 @@
    *   캐시 키 앞에 붙여서, 데이터를 새로 올리면 «기기에 남은 옛 캐시가 저절로 버려진다».
    *   이게 없던 동안 버킷은 새것인데 화면은 옛날 숫자인 상태가 조용히 유지됐다
    *   (특히 fetchBlob 은 캐시가 있으면 아예 다시 안 받아서 지도 배경이 영영 안 바뀐다). */
-  var STAMP = "2683005aba7f";
+  var STAMP = "10a5acc044aa";
   function ck(k) { return STAMP + "|" + k; }
 
   /* ── 저장 헬퍼 ─────────────────────────────────────────────────────── */
