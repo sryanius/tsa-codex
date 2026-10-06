@@ -1093,6 +1093,15 @@ function render(){
     html+=groupBlock("길드 퀘스트", orphan.length+"건 · 도시 게시판에 안 뜨고 세이브에도 기록이 없어 진행도 집계에서 뺐습니다", orphan, null);
   }
   el("out").innerHTML=html;
+  openLinked();
+}
+/* 다른 페이지가 ?q=의뢰이름 으로 «이 의뢰» 를 가리켜 오면(빌드 §9 얻는 곳 · 도감 출처) 한 건만 걸릴 때 펼쳐 둔다 — 도감이 그렇게 한다.
+   검색어가 그대로인 동안은 다시 그려도(클라우드 진행도가 늦게 와서 render 가 또 돈다) 펼친 채로 둔다. */
+var QP_OPEN=null;
+function openLinked(){
+  if(!QP_OPEN || state.q!==QP_OPEN) return;
+  var rs=el("out").querySelectorAll(".row[data-id]");
+  if(rs.length===1 && !rs[0].classList.contains("open")) toggleRow(rs[0]);
 }
 
 
@@ -1200,7 +1209,7 @@ el("v-guild").onclick=function(){ setView("guild"); };
 // quests.html?q=... 로 들어오면 그 검색어로 시작한다 (도감에서 넘어올 때)
 try{
   var qp=new URLSearchParams(location.search).get("q");
-  if(qp){ state.q=qp; el("q").value=qp; }
+  if(qp){ state.q=qp; el("q").value=qp; QP_OPEN=qp; }
 }catch(e){}
 
 // 클라우드에 올릴 «화면 상태» 한 덩어리.
