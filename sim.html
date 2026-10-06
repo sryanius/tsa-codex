@@ -4295,7 +4295,7 @@ function lsGet(k){ try{ return JSON.parse(localStorage.getItem(k)||"null"); }cat
 function lsSet(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); return true; }catch(e){ return false; } }
 
 var S={
-  mode:"quest", stage:7, q:"", questId:null, add:0,
+  mode:"quest", stage:7, town:"", q:"", questId:null, add:0,
   region:0, cq:"", caveKey:null, hours:24,
   members:[null,null,null,null], edit:null, etab:"preset", pstage:0, prole:"",
   nQuest:200, nFarm:48, seed:"", seedFixed:false,
@@ -4366,7 +4366,17 @@ function renderTarget(){
   if(S.mode==="quest"){
     h+='<div class="crow"><span class="lvlabel">단계</span>';
     for(var k=1;k<=7;k++) h+='<button type="button" class="chip" data-act="stage" data-v="'+k+'" aria-pressed="'+(S.stage===k)+'">'+k+'단계</button>';
-    h+='</div><div class="crow"><input type="search" data-act="q" placeholder="퀘스트 · 마을 이름으로 찾기" aria-label="퀘스트 찾기" value="'+esc(S.q)+'"></div>';
+    h+='</div>';
+    // 마을 — 그 단계의 의뢰를 내주는 마을(2~3곳 · 의뢰 50~112개). 단계를 바꾸면 «전체» 로 돌아간다(제작자 2026-10-06 «마을이라도 선택해서»)
+    var tw={}, tws=[];
+    CAT.quests.forEach(function(q){ if(q.stage!==S.stage || !okRegion(q.region)) return; var t=q.town||"?"; if(!tw[t]){ tw[t]=0; tws.push(t); } tw[t]++; });
+    if(S.town && !tw[S.town]) S.town="";
+    if(tws.length>1){
+      h+='<div class="crow"><span class="lvlabel">마을</span><button type="button" class="chip" data-act="town" data-v="" aria-pressed="'+(!S.town)+'">전체 <span class="dim">'+tws.reduce(function(a,t){ return a+tw[t]; },0)+'</span></button>';
+      tws.forEach(function(t){ h+='<button type="button" class="chip" data-act="town" data-v="'+esc(t)+'" aria-pressed="'+(S.town===t)+'">'+esc(t)+' <span class="dim">'+tw[t]+'</span></button>'; });
+      h+='</div>';
+    }
+    h+='<div class="crow"><input type="search" data-act="q" placeholder="퀘스트 · 마을 이름으로 찾기" aria-label="퀘스트 찾기" value="'+esc(S.q)+'"></div>';
     h+=listBox();
     var cur=QBY[S.questId];
     if(cur){
@@ -4388,7 +4398,7 @@ function listBox(){ return '<div id="tgtlist">'+targetListHTML()+'</div>'; }
 /* 목록만 — 검색칸에 칠 때는 이것만 다시 그린다(검색칸 자체를 새로 만들면 한글 조합이 끊기고 폰 키보드가 닫힌다) */
 function targetListHTML(){
   if(S.mode==="quest"){
-    var qs=CAT.quests.filter(function(q){ return q.stage===S.stage && okRegion(q.region) && (!S.q || (q.n+" "+(q.town||"")).toLowerCase().indexOf(S.q.toLowerCase())>=0); });
+    var qs=CAT.quests.filter(function(q){ return q.stage===S.stage && okRegion(q.region) && (!S.town || (q.town||"?")===S.town) && (!S.q || (q.n+" "+(q.town||"")).toLowerCase().indexOf(S.q.toLowerCase())>=0); });
     return listHTML(qs, function(q){
       var hz=questHazard(q.id), lk=isLockedRegion(q.region);
       return '<div class="row'+(q.id===S.questId?' on':'')+(lk?' locked':'')+'" data-act="pickq" data-v="'+esc(q.id)+'" tabindex="0">'+
@@ -4408,8 +4418,9 @@ function targetListHTML(){
 }
 function listHTML(items, row){
   if(!items.length) return '<div class="list"><p class="empty">맞는 것이 없습니다.</p></div>';
-  var LIM=60, h='<div class="list pick">'+items.slice(0,LIM).map(row).join("")+'</div>';
-  if(items.length>LIM) h+='<p class="hint" style="margin:6px 0 0">'+(items.length-LIM)+'개 더 — 검색으로 좁히세요.</p>';
+  // 예전엔 60개에서 끊고 «N개 더 — 검색으로 좁히세요» 였다 — 한 단계 의뢰가 다 안 보였다(제작자 2026-10-06). 목록 칸이 자체 스크롤이라 다 그린다.
+  var h='<div class="list pick">'+items.map(row).join("")+'</div>';
+  h+='<p class="hint" style="margin:6px 0 0">'+items.length+'개</p>';
   return h;
 }
 function targetLabel(){
@@ -5419,7 +5430,8 @@ var qt=null;
 el("tgt").addEventListener("click", function(ev){
   var t=ev.target.closest("[data-act]"); if(!t) return;
   var a=t.dataset.act, v=t.dataset.v;
-  if(a==="stage"){ S.stage=+v; renderTarget(); renderRecSel(); }
+  if(a==="stage"){ S.stage=+v; S.town=""; renderTarget(); renderRecSel(); }
+  else if(a==="town"){ S.town=v; renderTarget(); }
   else if(a==="region"){ S.region=v==="0"?0:v; renderTarget(); }
   else if(a==="pickq"){ S.questId=v; S.add=0; var q=QBY[v]; if(q) S.stage=q.stage; renderTarget(); renderRun(); }
   else if(a==="pickc"){ S.caveKey=v; renderTarget(); renderRun(); }
