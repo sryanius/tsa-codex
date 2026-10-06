@@ -298,7 +298,7 @@ ol.how .meta{display:block;margin-top:3px}
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 내 기록</p>
     <h1>세이브 넣기</h1>
-    <p class="lede">여기 한 번 넣으면 <b>모든 페이지가 같은 세이브를 봅니다</b> &mdash; 퀘스트 진행도, 시설 레벨, 도시별 주점·상점, 그리고 용병 현황까지. <b>복호화는 이 브라우저 안에서만</b> 일어나고 파일은 어디로도 전송되지 않습니다.</p>
+    <p class="lede">여기 한 번 넣으면 <b>모든 페이지가 같은 세이브를 봅니다</b> &mdash; 퀘스트 진행도, 시설 레벨, 도시별 주점·상점, 용병 현황, 그리고 지도에서 연 칸(<a href="meta.html?v=map">도감 › 지도</a>의 «내 지도»)까지. <b>복호화는 이 브라우저 안에서만</b> 일어나고 파일은 어디로도 전송되지 않습니다.</p>
     <div class="stats">
       <div class="stat"><b id="s-q">–</b><span>깬 퀘스트</span></div>
       <div class="stat"><b id="s-c">–</b><span>활동 용병</span></div>
@@ -695,6 +695,9 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
     if (t === 0x09) { this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4; return {__ref:oid}; }
     if (t === 0x0a) { this.i++; return null; }
     if (t === 0x0d) { this.i++; return {__nulls:this.b[this.i++]}; }
+    // ObjectNullMultiple — null 이 256개 이상 이어질 때(개수가 int32). 2026-10-06 전에는 이게 없어서
+    // 연 칸이 많은 지도(List 의 빈 자리가 256 을 넘는다)를 통째로 못 읽고 «안 연 지역» 으로 쳤다.
+    if (t === 0x0e) { this.i++; v = {__nulls:this.dv.getInt32(this.i,true)}; this.i += 4; return v; }
     if (t === 0x0c) { this.i++; this.i+=4; this.str(); return this.rec(); }   // BinaryLibrary
     if (t === 0x0f) {                                   // ArraySinglePrimitive
       this.i++; oid=this.dv.getInt32(this.i,true); var ln=this.dv.getInt32(this.i+4,true); this.i+=8;
@@ -809,10 +812,31 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
   /* 내가 «연» 지역. GameData.Maps() 에 들어간 것만 세이브에 남는다.
      이걸 읽으면 «미출시» 를 손으로 못 박을 필요가 없다 —
      게임이 업데이트돼 새 지역이 열리면 세이브에 저절로 나타난다. */
-  function readMap(plain){
+  function readMap(plain){ var s = readMapState(plain); return s ? s.id : null; }
+
+  /* 지도 한 장의 «내 상태» — Map 모델(dump73 TypeDefIndex 4463)의 두 목록.
+       exploredPositions  List<Map.Position{x,y}> — 내가 밟아 연 칸. 셀 좌표라 지도 그림의
+                          도시·탐색지 x,y 와 같은 자다(첫 칸이 뤼미에르 힐스의 «짐승의 숨결 숲» 자리와 맞는다).
+       caves              List<Cave{masterName, memo}> — 찾은 탐색지. 게임이 아이콘을 띄우는
+                          GetAlreadyFoundAreas 가 «도시 전부 + 이 목록» 이다. memo 는 내가 적은 메모.
+     게임이 이걸로 안개를 어떻게 그리는지는 meta-tpl.html 의 fogSVG 에 적었다. */
+  function readMapState(plain){
     var p = parseNrbf(plain), R = p.root;
     if (!R || R.__ !== "Map") return null;
-    return assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"])) || null;
+    var id = assetId(deref(p, R.assetName) || deref(p, R["Model+assetName"]));
+    if (!id) return null;
+    var e = [], c = [], memo = {};
+    listOf(p, R.exploredPositions).forEach(function(q){
+      if (q && typeof q.x === "number" && typeof q.y === "number") e.push(q.x, q.y);
+    });
+    listOf(p, R.caves).forEach(function(cv){
+      var n = cv && deref(p, cv.masterName);
+      if (!n) return;
+      c.push(n);
+      var m = deref(p, cv.memo);
+      if (m) memo[n] = String(m).slice(0, 200);
+    });
+    return { id: id, e: e, c: c, memo: memo };
   }
 
   /* .NET DateTime.ToBinary() — 위 2비트가 Kind, 나머지 62비트가 0001-01-01 부터의 100ns 틱. */
@@ -883,6 +907,7 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
     _char: readCharacter,
     _equip: readEquipment,
     _map: readMap,
+    _mapState: readMapState,
     _town: readTown,
     _adventure: readAdventure,
     _date: dotnetDate,
@@ -890,7 +915,7 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
     DATA_VERSION: DATA_VERSION,
     ingest: async function (files, onProgress) {
       var valid = validSet(), into = {}, blds = {}, ok = 0, bad = 0, errs = [], ver = 0;
-      var chars = [], equips = {}, openMaps = {};
+      var chars = [], equips = {}, openMaps = {}, explore = {};
       var qstate = {}, hist = [];
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
@@ -908,8 +933,8 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
             var c = readCharacter(plain);
             if (c) chars.push(c);
             else {
-              var mp = readMap(plain);
-              if (mp) openMaps[mp] = 1;
+              var mp = readMapState(plain);
+              if (mp) { openMaps[mp.id] = 1; explore[mp.id] = { e: mp.e, c: mp.c, memo: mp.memo }; }
               else {
                 var tw = readTown(plain);
                 if (tw) { for (var qn in tw.q) qstate[qn] = tw.q[qn]; }
@@ -934,6 +959,11 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
       try { localStorage.setItem(SKEY, JSON.stringify(payload)); } catch (e) { }
       // 열린 지역은 모든 페이지가 본다 — 한 곳에 따로 둔다.
       try { localStorage.setItem("tsa.maps.v1", JSON.stringify(payload.maps)); } catch (e) { }
+      // 지도마다 내가 연 칸 · 찾은 탐색지(도감 › 지도의 «내 지도»). 지도 파일이 하나도 없던 폴더면
+      // 예전 것을 지우지 않는다 — 세이브 일부만 넣었을 때 내 지도가 통째로 사라지면 안 된다.
+      if (Object.keys(explore).length) {
+        try { localStorage.setItem("tsa.explored.v1", JSON.stringify({ at: payload.at, m: explore })); } catch (e) { }
+      }
       // 퀘스트 상태(게시 중인가 · 며칠 뒤에 뜨나)와 모험 기록(마지막 클리어 날짜).
       // 퀘스트 색인이 쓴다. 세이브를 뜬 시각을 같이 적어 둔다 — 남은 일수의 기준점이다.
       hist.sort(function(a,b){ return a.at < b.at ? 1 : -1; });
@@ -950,7 +980,7 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
       return { ok: ok, bad: bad, quests: Object.keys(into).length, errs: errs,
                payload: payload, buildings: blds,
                version: ver, dataVersion: DATA_VERSION,
-               chars: chars, equips: equips, maps: payload.maps,
+               chars: chars, equips: equips, maps: payload.maps, explore: explore,
                qstate: qstate, hist: hist };
     }
   };
@@ -1160,7 +1190,8 @@ function bindSave(id){
       try{ CREW=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(err){}
       var bn=r.buildings? Object.keys(r.buildings).filter(function(k){return k!=="towns"&&k!=="halls"}).length : 0;
       msg.textContent="반영 완료 — 파일 "+r.ok+"개 · 퀘스트 "+r.quests+"건 · 시설 "+bn+"개 · 용병 "
-        +(r.chars?r.chars.length:0)+"명"+(r.bad?" (실패 "+r.bad+")":"");
+        +(r.chars?r.chars.length:0)+"명 · 지도 "+(r.explore?Object.keys(r.explore).length:0)+"장"
+        +(r.bad?" (실패 "+r.bad+")":"");
       el("saveclear").hidden=false;
       showVersion(r.version, r.dataVersion);
       paint();
@@ -1424,7 +1455,12 @@ function gatherState(){
   try{ done=JSON.parse(localStorage.getItem("tsa.done.v1")||"{}")||{}; }catch(e){}
   // 용병 목록도 같이 올린다. 안 그러면 다른 기기에서 세이브를 또 넣어야 했다.
   try{ crew=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){}
-  return { q:(S&&S.q)||{}, at:(S&&S.at)||"", levels:lv, fac:fac, done:done, crew:crew };
+  var st={ q:(S&&S.q)||{}, at:(S&&S.at)||"", levels:lv, fac:fac, done:done, crew:crew };
+  /* 내 지도(지도마다 연 칸 · 찾은 탐색지)는 «있을 때만» 담는다 — 담지 않은 칸은 클라우드의 것이 남는다.
+     null 로 담으면 지도 기능 전에 넣은 세이브로 올릴 때 다른 기기에서 올린 내 지도가 지워진다. */
+  var ex=null; try{ ex=JSON.parse(localStorage.getItem("tsa.explored.v1")||"null"); }catch(e){}
+  if(ex && ex.m) st.explore=ex;
+  return st;
 }
 function cloudStatus(extra){
   var C=window.TSA_CLOUD; if(!C){ el("cloudcard").hidden=true; return; }
@@ -1479,6 +1515,7 @@ async function pushCloud(ok){
       if(p.done) localStorage.setItem("tsa.done.v1", JSON.stringify(p.done));
       if(p.crew){ localStorage.setItem("tsa.crew.v1", JSON.stringify(p.crew)); CREW=p.crew; }
     }catch(e){}
+    if(C.adoptExplore) C.adoptExplore(p, true);   // 도감 › 지도의 «내 지도»
     cloudStatus(p.crew ? "받았습니다 — 용병 "+((p.crew.chars||[]).length)+"명 포함"
                        : "받았습니다 — 이 계정에는 아직 용병 목록이 없습니다(한 번 다시 올려 주세요)");
     if(CREW && CREW.ver) showVersion(CREW.ver, window.TSA_SAVE.DATA_VERSION);
@@ -1526,6 +1563,8 @@ window.__TSA_MAPIMG = function(id){
     }
     // 클라우드에 저장된 상태가 있으면 그대로 되살린다
     C.getProgress().then(function(p){
+      // 내 지도 — 다른 기기에서 넣은 세이브의 연 칸. 이 기기 것보다 새것일 때만 바꾸고, 바뀌면 지도를 다시 그린다.
+      if(p && C.adoptExplore && C.adoptExplore(p, false) && window.__TSA_ON_EXPLORE) window.__TSA_ON_EXPLORE();
       if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
       else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
     }).catch(function(e){

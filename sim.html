@@ -3142,7 +3142,7 @@ details.rpb[open]>summary::before{content:"▾ "}
 // ── simweb/statlib.gen.js ──
 // ★ 자동 생성 파일 — 손으로 고치지 말 것. python simweb/gen_statlib.py 로 다시 만든다.
 //   save-tpl.html · calc-tpl.html 의 함수를 이름으로 잘라 본문을 그대로 붙였다(tools/sim/engine.mjs 와 같은 방식).
-//   잘라 온 조각의 sha1: save-tpl 9871a8952356 · calc-tpl 45174c7e1dcd
+//   잘라 온 조각의 sha1: save-tpl 4e1020590680 · calc-tpl 45174c7e1dcd
 //   save-tpl.html: equipsOf, gearSum, avoidValue, hitValue, gearField, enhSum, enhPart, weaponOf, weaponSelf, attackRange, jobBonusW, jobBonus, jobBonus2, jobLabel, gearLabel, statOf, defenseRange, gearDefRange, shieldRange, critRate, critDef, magicDef, shieldAvoid, weaponCrit, ceilDiv10, agiFloor, maxDodge, spellsOf
 //   calc-tpl.html: conv, uniform, crvDist, halfDist, sumAb, ppDist, binomRow, statFinal, pointDist
 // 클래식 스크립트(import/export·DOM·Node API 없음) — 전역 SimStat 하나만 단다.
@@ -3963,9 +3963,9 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
 })(typeof globalThis !== "undefined" ? globalThis : this);
 // ── simweb/savecrew.gen.js ──
 // ★ 자동 생성 파일 — 손으로 고치지 말 것. python simweb/gen_savecrew.py 로 다시 만든다.
-//   savelib.html 의 복호화·NRBF 파서·readCharacter·readEquipment 를 글자 그대로 잘라 붙이고 PATCH 두 곳만 바꿨다.
-//   잘라 온 조각의 sha1: savelib 1046f013905d
-//   PATCH: 0x0E(ObjectNullMultiple) 기록 · readCharacter 에 sk(마법 켜기)·pos(줄) — 이유는 gen_savecrew.py 머리말
+//   savelib.html 의 복호화·NRBF 파서·readCharacter·readEquipment 를 글자 그대로 잘라 붙이고 PATCH 한 곳만 바꿨다.
+//   잘라 온 조각의 sha1: savelib c699e15da3ec
+//   PATCH: readCharacter 에 sk(마법 켜기)·pos(줄) — 이유는 gen_savecrew.py 머리말
 // 클래식 스크립트(import/export·DOM·Node API 없음, TextDecoder·crypto.subtle 만) — 전역 SimSave 하나만 단다.
 (function (G) {
   "use strict";
@@ -4074,7 +4074,9 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
     if (t === 0x09) { this.i++; oid=this.dv.getInt32(this.i,true); this.i+=4; return {__ref:oid}; }
     if (t === 0x0a) { this.i++; return null; }
     if (t === 0x0d) { this.i++; return {__nulls:this.b[this.i++]}; }
-    if (t === 0x0e) { this.i++; var nn=this.dv.getInt32(this.i,true); this.i+=4; return {__nulls:nn}; }
+    // ObjectNullMultiple — null 이 256개 이상 이어질 때(개수가 int32). 2026-10-06 전에는 이게 없어서
+    // 연 칸이 많은 지도(List 의 빈 자리가 256 을 넘는다)를 통째로 못 읽고 «안 연 지역» 으로 쳤다.
+    if (t === 0x0e) { this.i++; v = {__nulls:this.dv.getInt32(this.i,true)}; this.i += 4; return v; }
     if (t === 0x0c) { this.i++; this.i+=4; this.str(); return this.rec(); }   // BinaryLibrary
     if (t === 0x0f) {                                   // ArraySinglePrimitive
       this.i++; oid=this.dv.getInt32(this.i,true); var ln=this.dv.getInt32(this.i+4,true); this.i+=8;
@@ -5653,6 +5655,8 @@ window.__TSA_MAPIMG = function(id){
     }
     // 클라우드에 저장된 상태가 있으면 그대로 되살린다
     C.getProgress().then(function(p){
+      // 내 지도 — 다른 기기에서 넣은 세이브의 연 칸. 이 기기 것보다 새것일 때만 바꾸고, 바뀌면 지도를 다시 그린다.
+      if(p && C.adoptExplore && C.adoptExplore(p, false) && window.__TSA_ON_EXPLORE) window.__TSA_ON_EXPLORE();
       if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
       else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
     }).catch(function(e){

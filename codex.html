@@ -1256,6 +1256,8 @@ window.__TSA_MAPIMG = function(id){
     }
     // 클라우드에 저장된 상태가 있으면 그대로 되살린다
     C.getProgress().then(function(p){
+      // 내 지도 — 다른 기기에서 넣은 세이브의 연 칸. 이 기기 것보다 새것일 때만 바꾸고, 바뀌면 지도를 다시 그린다.
+      if(p && C.adoptExplore && C.adoptExplore(p, false) && window.__TSA_ON_EXPLORE) window.__TSA_ON_EXPLORE();
       if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
       else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
     }).catch(function(e){

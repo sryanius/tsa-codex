@@ -31,7 +31,8 @@
    *   tsa.rep.v1 · tsa.showlocked.v1 은 개인 기록이 아니라 화면 설정이라 남긴다. */
   var LOCAL_KEYS = ["tsa.save.v1", "tsa.crew.v1", "tsa.qstate.v1", "tsa.levels.v1",
                     "tsa.fac.v1", "tsa.done.v1", "tsa.maps.v1", "tsa.fav.v1",
-                    "tsa.simparty.v1", "tsa.simcrew.v1"];   // 시뮬 — 저장한 파티 · 세이브 폴더에서 읽은 용병
+                    "tsa.simparty.v1", "tsa.simcrew.v1",    // 시뮬 — 저장한 파티 · 세이브 폴더에서 읽은 용병
+                    "tsa.explored.v1"];                     // 지도 — 내가 연 칸 · 찾은 탐색지 · 탐색지 메모
 
   function wipeLocal() {
     for (var i = 0; i < LOCAL_KEYS.length; i++) {
@@ -191,6 +192,20 @@
       return k;
     },
 
+    /** 클라우드에서 받은 «내 지도»(지도마다 연 칸 · 찾은 탐색지)를 이 기기에 둔다.
+     *  force 가 거짓이면(페이지가 뜰 때 저절로) 이 기기 것보다 새것일 때만 바꾼다 —
+     *  이 기기에서 방금 넣은 세이브를 올리기 전에 받은 옛 것으로 덮으면 안 된다.
+     *  열린 지역 목록(tsa.maps.v1)도 같은 세이브에서 나온 것이라 같이 맞춘다. 바꿨으면 참. */
+    adoptExplore: function (p, force) {
+      var ex = p && p.explore;
+      if (!ex || !ex.m) return false;
+      var cur = ls("tsa.explored.v1");
+      if (!force && cur && cur.at && !(String(ex.at || "") > String(cur.at))) return false;
+      ls("tsa.explored.v1", ex);
+      ls("tsa.maps.v1", Object.keys(ex.m));
+      return true;
+    },
+
     /**
      * 로그아웃. 기본은 «이 기기의 개인 기록까지» 지운다 —
      * 남기면 다음에 로그인한 사람이 앞사람 것을 보고 자기 행에 올려 버린다.
@@ -347,7 +362,8 @@
           fac: pick("fac", null),
           done: pick("done", {}),
           crew: pick("crew", null),
-          fav: pick("fav", null)      /* 담기만 하고 저장된 적이 없던 칸 */
+          fav: pick("fav", null),     /* 담기만 하고 저장된 적이 없던 칸 */
+          explore: pick("explore", null)   /* 도감 › 지도의 «내 지도» — 세이브 화면만 담아 온다 */
         }),
         saved_at: now, cleared: cleared, recorded: recorded, updated_at: now
       };

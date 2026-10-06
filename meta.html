@@ -272,6 +272,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .mt:hover circle{fill:#fff}
 .mt text{font-family:"IBM Plex Sans KR",sans-serif;font-weight:700;
   fill:#fff;paint-order:stroke;stroke:#1a1a22;stroke-width:5;stroke-linejoin:round;cursor:pointer}
+.mapctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin:18px 0 2px}
+.mapnote{flex:1 1 260px;margin:0;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.mapnote b{color:var(--body);font-weight:600}
 .seglab{font-size:11px;letter-spacing:.08em;color:var(--faint);font-weight:600;
   align-self:center;margin:0 -2px 0 4px}
 .seglab:first-child{margin-left:0}
@@ -631,16 +634,91 @@ function cellPx(cx, cy, g){
   var ux = cx + ((cy % 2) ? 0.5 : 0), uy = cy * 0.75;
   return [(ux - g.x0) * g.s, (g.y1 - uy) * g.s];
 }
+/* ── 내 지도 ─────────────────────────────────────────────────────────
+   세이브의 Map 모델이 지도마다 «내가 연 칸» 목록을 들고 있다(savelib.html readMapState → tsa.explored.v1).
+   게임은 그걸로 이렇게 그린다 — 7.3 MapController.RenderBlackTile 0x28E4898 · RenderShowTile 0x28E3C10:
+     ① 지도 범위 전체에 Black(불투명) 칸을 깐다
+     ② 연 칸은 지운다
+     ③ 연 칸의 이웃 6칸 중 아직 덮인 칸은 BlackAlpha50
+     ④ 그 이웃들의 이웃 중 아직 Black 인 칸은 BlackAlpha75
+     ⇒ 순서와 상관없이 «가장 가까운 연 칸까지 0 / 1 / 2 / 그 밖» = 투명 / 50% / 75% / 100% 검정.
+        알파는 번들의 스프라이트를 재 봤다(가운데 픽셀 Black 255 · BlackAlpha75 191 · BlackAlpha50 127).
+   아이콘(ShowBuildingIfMatchPosition 0x28E4B2C)은 거리 2 안 + «찾은 것» 이어야 뜬다.
+     찾은 것 = Map.GetAlreadyFoundAreas = 도시 전부 + 세이브의 Map.caves.
+   이웃(TileMapController.GetNearPosition 0x28E4DB8): 좌우 둘 + 위아래 줄에서
+     y 가 홀수면 x · x+1, 짝수면 x−1 · x — 홀수 줄이 반 칸 오른쪽으로 밀린 격자라서다(cellPx 와 같은 규칙). */
+var EKEY="tsa.explored.v1", MMKEY="tsa.mapmode.v1";
+var EXPL=null;
+function loadExplored(){
+  EXPL=null;
+  try{ EXPL=JSON.parse(localStorage.getItem(EKEY)||"null"); }catch(e){}
+  if(!EXPL || !EXPL.m) EXPL=null;
+}
+loadExplored();
+var mapMode="all";
+try{ if(localStorage.getItem(MMKEY)==="mine") mapMode="mine"; }catch(e){}
+function nearCells(x, y){
+  return (y & 1)
+    ? [[x-1,y],[x+1,y],[x+1,y+1],[x+1,y-1],[x,y+1],[x,y-1]]
+    : [[x-1,y],[x+1,y],[x-1,y+1],[x-1,y-1],[x,y+1],[x,y-1]];
+}
+/* 칸 → 가장 가까운 연 칸까지의 거리(0·1·2). 목록에 없는 칸은 완전히 덮인 칸이다. */
+function fogLevels(e){
+  var lv={}, ring1=[], i;
+  for(i=0;i+1<e.length;i+=2) lv[e[i]+","+e[i+1]]=0;
+  for(i=0;i+1<e.length;i+=2) nearCells(e[i], e[i+1]).forEach(function(c){
+    var k=c[0]+","+c[1];
+    if(lv[k]===undefined){ lv[k]=1; ring1.push(c); }
+  });
+  ring1.forEach(function(n){ nearCells(n[0], n[1]).forEach(function(c){
+    var k=c[0]+","+c[1];
+    if(lv[k]===undefined) lv[k]=2;
+  }); });
+  return lv;
+}
+/* 육각 칸 하나 = 폭 1 · 높이 1 유닛의 뾰족한 육각형(스프라이트 256px · PPU 256). 줄 간격 0.75 라 빈틈없이 맞물린다. */
+function hexPath(keys, g){
+  var a=g.s*0.5, b=g.s*0.25, r=function(v){ return Math.round(v*10)/10; };
+  return keys.map(function(k){
+    var p=k.split(","), q=cellPx(+p[0], +p[1], g), x=q[0], y=q[1];
+    return "M"+r(x)+" "+r(y-a)+"L"+r(x+a)+" "+r(y-b)+"L"+r(x+a)+" "+r(y+b)
+      +"L"+r(x)+" "+r(y+a)+"L"+r(x-a)+" "+r(y+b)+"L"+r(x-a)+" "+r(y-b)+"Z";
+  }).join("");
+}
+/* 덮개 세 겹. 같은 단계의 칸은 한 path 에 몰아야 맞닿은 변에 실금이 안 생긴다. */
+function fogSVG(lv, g){
+  var k0=[], k1=[], k2=[];
+  for(var k in lv){ (lv[k]===0 ? k0 : lv[k]===1 ? k1 : k2).push(k); }
+  return '<g class="fog" aria-hidden="true">'
+    +'<path fill="#000" fill-rule="evenodd" d="M0 0H'+g.w+'V'+g.h+'H0Z'+hexPath(k0.concat(k1, k2), g)+'"></path>'
+    +(k2.length ? '<path fill="#000" fill-opacity=".75" d="'+hexPath(k2, g)+'"></path>' : '')
+    +(k1.length ? '<path fill="#000" fill-opacity=".5" d="'+hexPath(k1, g)+'"></path>' : '')
+    +'</g>';
+}
+/* «내 지도» 로 그릴 수 있는 지도면 그 상태를, 아니면 null(→ 전체 지도). */
+function myMap(m){
+  if(mapMode!=="mine" || !EXPL) return null;
+  var s=EXPL.m[m.i];
+  if(!s) return { none:true };
+  var found={}; (s.c||[]).forEach(function(i){ found[i]=1; });
+  return { lv:fogLevels(s.e||[]), found:found, memo:s.memo||{}, n:(s.e||[]).length/2 };
+}
 function mapSVG(m){
   var g = D.mapimg && D.mapimg[m.i];
   if(!g) return '<p class="empty">이 지역은 배경을 못 구웠습니다.</p>';
-  var caves=m.c.map(function(c){
+  var my=myMap(m);
+  if(my && (my.none || !my.n))
+    return '<p class="empty">'+(my.none ? '세이브에 이 지역이 없습니다 — 아직 안 연 지역입니다.'
+                                       : '아직 연 칸이 없습니다.')+'</p>';
+  var seen=function(o){ return !my || my.lv[o.x+","+o.y]!==undefined; };
+  var memo=(EXPL && EXPL.m[m.i] && EXPL.m[m.i].memo) || {};
+  var caves=m.c.filter(function(c){ return seen(c) && (!my || my.found[c.i]); }).map(function(c){
     var q=cellPx(c.x, c.y, g);
     return '<g class="mc" data-go="p:'+esc(c.n)+'">'
       +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(g.s*0.34).toFixed(1)+'"></circle>'
-      +'<title>'+esc(c.n)+' · Lv'+c.lv+'</title></g>';
+      +'<title>'+esc(c.n)+' · Lv'+c.lv+(memo[c.i] ? ' · 메모: '+esc(memo[c.i]) : '')+'</title></g>';
   }).join("");
-  var towns=m.t.map(function(t){
+  var towns=m.t.filter(seen).map(function(t){
     var q=cellPx(t.x, t.y, g);
     return '<g class="mt" data-go="t:'+esc(t.n)+'">'
       +'<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(g.s*0.5).toFixed(1)+'"></circle>'
@@ -652,8 +730,27 @@ function mapSVG(m){
     +'preserveAspectRatio="xMidYMid meet" role="img" aria-label="'+esc(m.n)+' 지도">'
     +'<image data-map="'+esc(m.i)+'" x="0" y="0" width="'+g.w+'" height="'+g.h+'" '
       +'style="image-rendering:auto"></image>'
+    + (my ? fogSVG(my.lv, g) : '')
     + caves + towns + '</svg></div>';
 }
+/* 지도 보기 위의 토글 줄. 상태는 tsa.mapmode.v1 — 화면 설정이라 로그아웃해도 남긴다. */
+function mapCtlHTML(){
+  var note;
+  if(mapMode!=="mine")
+    note='게임 지도 전체입니다. «내 지도» 는 세이브에서 내가 연 칸만 게임처럼 보여 줍니다.';
+  else if(!EXPL)
+    note='아직 세이브의 지도 기록이 없습니다 — <a href="save.html">내 세이브</a>에서 세이브 폴더를 넣으면'
+      +'(전에 넣었어도 한 번 더) 내가 연 칸이 보입니다. 지금은 전체 지도입니다.';
+  else
+    note='세이브 기준 <b>'+esc(EXPL.at||"")+'</b> — 연 칸은 밝게, 둘레 한 칸은 반쯤, 두 칸째는 옅게 보이고 나머지는 가립니다. '
+      +'도시·탐색지 표시도 게임처럼 «보이는 곳 + 찾은 탐색지» 만입니다.';
+  return '<div class="mapctl"><div class="seg" role="group" aria-label="지도 보기">'
+    +'<button type="button" data-mm="all" aria-pressed="'+(mapMode!=="mine")+'">전체 지도</button>'
+    +'<button type="button" data-mm="mine" aria-pressed="'+(mapMode==="mine")+'">내 지도</button>'
+    +'</div><p class="mapnote">'+note+'</p></div>';
+}
+/* 클라우드: 다른 기기에서 넣은 세이브의 내 지도가 늦게 도착하면 다시 그린다(build_cloud.py 의 부팅 스크립트가 부른다). */
+window.__TSA_ON_EXPLORE=function(){ loadExplored(); if(state.view==="map") render(); };
 /* 배경 그림은 나중에 채운다. 로컬은 파일이 그냥 있고, 클라우드는
    비공개 버킷이라 로그인해서 받아야 한다 — 그쪽에서 이 함수를 갈아끼운다. */
 window.__TSA_MAPIMG = window.__TSA_MAPIMG || function(id){
@@ -674,9 +771,14 @@ function fillMapImages(){
   });
 }
 function mapBlock(m){
+  var my=myMap(m), mine='';
+  if(my && !my.none){
+    var nf=m.c.filter(function(c){ return my.found[c.i]; }).length;
+    mine=' · 연 칸 '+my.n+' · 찾은 탐색지 '+nf+'/'+m.c.length;
+  }
   return '<section class="group"><div class="ghead"><h2>'+esc(m.n)+'</h2>'
     +'<span class="sub">도시 '+m.t.length+'곳 · 탐색지 '+m.c.length+'곳'
-    +(m.lock?' · 미출시 지역':'')+'</span><span class="rule"></span></div>'
+    +(m.lock?' · 미출시 지역':'')+mine+'</span><span class="rule"></span></div>'
     + mapSVG(m) + '</section>';
 }
 /* ---------- 마법 ---------- */
@@ -1609,8 +1711,8 @@ function render(){
   } else if(state.view==="map"){
     var ms=D.maps.filter(function(m){ return (state.showLocked || !m.lock)
       && (!state.q || m.n.toLowerCase().indexOf(state.q.toLowerCase())>=0); });
-    el("out").innerHTML = ms.length ? ms.map(mapBlock).join("")
-      : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
+    el("out").innerHTML = mapCtlHTML() + (ms.length ? ms.map(mapBlock).join("")
+      : '<p class="empty">조건에 맞는 지역이 없습니다.</p>');
     el("count").textContent=ms.length+" 지역";
     el("wk").style.display="none"; if(el("jst")) el("jst").style.display="none";
     fillMapImages();
@@ -1699,6 +1801,13 @@ function setView(v){
   render();
 }
 VIEWS.forEach(function(v){ el("v-"+v).onclick=function(){ setView(v); }; });
+// 지도: 전체 지도 / 내 지도
+el("out").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-mm]"); if(!b) return;
+  mapMode=b.getAttribute("data-mm")==="mine" ? "mine" : "all";
+  try{ localStorage.setItem(MMKEY, mapMode); }catch(err){}
+  render();
+});
 // 도감의 다른 반쪽에서 넘어오면 ?v= 가 붙어 온다
 var _v=(new URLSearchParams(location.search)).get("v");
 if(VIEWS.indexOf(_v)>=0) state.view=_v;
@@ -1858,6 +1967,8 @@ window.__TSA_MAPIMG = function(id){
     }
     // 클라우드에 저장된 상태가 있으면 그대로 되살린다
     C.getProgress().then(function(p){
+      // 내 지도 — 다른 기기에서 넣은 세이브의 연 칸. 이 기기 것보다 새것일 때만 바꾸고, 바뀌면 지도를 다시 그린다.
+      if(p && C.adoptExplore && C.adoptExplore(p, false) && window.__TSA_ON_EXPLORE) window.__TSA_ON_EXPLORE();
       if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
       else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
     }).catch(function(e){
