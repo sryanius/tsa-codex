@@ -607,9 +607,11 @@ var ITAG=[
   // 현실적 경로라서, 추가공격·전체공격이 붙을 수 있는 후보다.
   {k:"cl5",   l:"+5강 이상 드랍", t:function(x){ return maxCl(x)>=5; }},
   {k:"shop",  l:"상점 판매",   t:function(x){ return shopOf(x).length>0; }},
-  // 드랍·퀘스트·상점 어디에도 없는 것 = 제작으로만 얻는다.
-  // 예전 «획득처 없음» 은 상점 판매와 145개나 겹쳐 같은 말처럼 보였다.
-  {k:"craft", l:"제작 전용",   t:function(x){ return !x.drop.length && !qdOf(x).length && !shopOf(x).length; }}
+  // 드랍·의뢰·상점 어디에도 없는 것 = 지금 판에서는 손에 넣을 길이 없다.
+  //   ★ «제작 전용» 이 아니다(2026-10-07 고침) — 장비를 새로 만드는 Armor.Create 0x26FC820 를 부르는 곳은 드랍 · 습득물 ·
+  //     금고 · 상점(과 아무도 안 부르는 에디터 단추 _CreateAbility)뿐이고, 대장간은 가진 장비를 강화만 한다.
+  //     예전에는 판매처가 틀려(townMaster) 상점 물건 140개가 여기 섞여 «제작» 으로 보였다. 남은 것: 스피릿마크 의상 · 재생의 부적.
+  {k:"craft", l:"얻는 곳 없음", t:function(x){ return !x.drop.length && !qdOf(x).length && !shopOf(x).length; }}
 ];
 state.kinds={};
 var KD=makeTagBox("kdbox","kdand","kdclear",KTAG,
@@ -944,7 +946,8 @@ function itemDetail(x){
           +'<span class="meta"> — '+esc(z.r||"")+(isLockedRegion(z.r)?' · 미출시 지역':'')+'</span></li>'; }).join("")
     + '</ul></div>' : "";
   if(!x.drop.length && !xq.length && !xs.length)
-    qd='<div class="blk"><h4>획득처</h4><ul><li>사냥·퀘스트·상점 어디에도 없습니다 — 제작 전용입니다</li></ul></div>';
+    qd='<div class="blk"><h4>획득처</h4><ul><li><b>얻는 곳 없음</b> — 몬스터 드랍 · 의뢰 금고/습득물 · 상점 어디에도 없어 지금 판에서는 손에 넣을 수 없습니다'
+      +'<span class="meta"> (대장간은 가진 장비를 강화만 하고 새로 만들지 않습니다)</span></li></ul></div>';
   var perf = x.cat==="무기"
     ? '<div class="dcell"><dt>공격력</dt><dd class="mono">'+esc(x.dmg||"-")+'</dd></div>'
       +'<div class="dcell"><dt>치명타</dt><dd class="mono">'+(x.crit||0)+'%</dd></div>'
