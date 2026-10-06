@@ -379,6 +379,11 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
       <select id="wk" aria-label="무기"><option value="">모든 무기</option></select>
       <select id="jst" aria-label="능력치"><option value="">모든 능력치</option></select>
+      <select id="mapsel" aria-label="지역" style="display:none"><option value="">모든 지역</option></select>
+      <div class="seg" id="mapmode" role="group" aria-label="지도 보기" style="display:none">
+      <button type="button" data-mm="all" aria-pressed="true">전체 지도</button>
+      <button type="button" data-mm="mine" aria-pressed="false">내 지도</button>
+      </div>
       <label class="toggle" title="아직 못 가는 지역에서만 열리는 클래스·도시·지도까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 것도 보기</label>
         <span class="count" id="count"></span>
     </div>
@@ -744,10 +749,29 @@ function mapCtlHTML(){
   else
     note='세이브 기준 <b>'+esc(EXPL.at||"")+'</b> — 연 칸은 밝게, 둘레 한 칸은 반쯤, 두 칸째는 옅게 보이고 나머지는 가립니다. '
       +'도시·탐색지 표시도 게임처럼 «보이는 곳 + 찾은 탐색지» 만입니다.';
-  return '<div class="mapctl"><div class="seg" role="group" aria-label="지도 보기">'
-    +'<button type="button" data-mm="all" aria-pressed="'+(mapMode!=="mine")+'">전체 지도</button>'
-    +'<button type="button" data-mm="mine" aria-pressed="'+(mapMode==="mine")+'">내 지도</button>'
-    +'</div><p class="mapnote">'+note+'</p></div>';
+  return '<div class="mapctl"><p class="mapnote">'+note+'</p></div>';
+}
+/* 지역 고르기와 «전체 지도 / 내 지도» 는 위쪽 고정 막대(.bar)에 있다 — 지도 일곱 장을 펼치면 폰에서 2,000px 를 넘어
+   본문 맨 위에 두면 내려간 뒤 못 바꿨다(제작자: «스크롤 내리면 전체지도/내지도 선택하기 힘드네»).
+   고른 지역은 tsa.mapsel.v1 — 화면 설정이라 로그아웃해도 남긴다. «모든 지역» 이 기본(빈 값). */
+var MSKEY="tsa.mapsel.v1", mapSel="";
+try{ mapSel=localStorage.getItem(MSKEY)||""; }catch(e){}
+/* 보일 지도 — 고른 지역이 지금 목록에 없으면(잠긴 지역을 골라 두고 «잠긴 것도 보기» 를 끈 경우) 모든 지역. */
+function visMaps(all){
+  if(mapSel){
+    var one=all.filter(function(m){ return m.i===mapSel; });
+    if(one.length) return one;
+  }
+  return all;
+}
+function paintMapBar(all){
+  var s=el("mapsel"), keep=all.some(function(m){ return m.i===mapSel; }) ? mapSel : "";
+  s.innerHTML='<option value="">모든 지역</option>'+all.map(function(m){
+    return '<option value="'+esc(m.i)+'">'+esc(m.n)+(m.lock?' (미출시)':'')+'</option>'; }).join("");
+  s.value=keep;
+  Array.prototype.forEach.call(el("mapmode").querySelectorAll("button[data-mm]"), function(b){
+    b.setAttribute("aria-pressed", String(b.getAttribute("data-mm")===mapMode));
+  });
 }
 /* 클라우드: 다른 기기에서 넣은 세이브의 내 지도가 늦게 도착하면 다시 그린다(build_cloud.py 의 부팅 스크립트가 부른다). */
 window.__TSA_ON_EXPLORE=function(){ loadExplored(); if(state.view==="map") render(); };
@@ -1669,8 +1693,10 @@ function headStats(){
   el("stats").innerHTML = out.map(function(x){
     return '<div class="stat"><b>'+x[0]+'</b><span>'+esc(x[1])+'</span></div>'; }).join("");
   el("tabnote").textContent = TABNOTE[state.view] || "";
-  // 계산기에서는 검색칸이 아무 일도 안 한다
-  el("q").style.display = state.view==="calc" ? "none" : "";
+  // 계산기에서는 검색칸이 아무 일도 안 한다 · 지도에서는 지역 고르기가 그 자리를 쓴다
+  el("q").style.display = (state.view==="calc" || state.view==="map") ? "none" : "";
+  el("mapsel").style.display = state.view==="map" ? "" : "none";
+  el("mapmode").style.display = state.view==="map" ? "" : "none";
 }
 
 function render(){
@@ -1709,11 +1735,13 @@ function render(){
     n=ss.length;
     html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
   } else if(state.view==="map"){
-    var ms=D.maps.filter(function(m){ return (state.showLocked || !m.lock)
-      && (!state.q || m.n.toLowerCase().indexOf(state.q.toLowerCase())>=0); });
+    // 검색칸은 지도에서 숨긴다(지역 고르기가 대신한다) — 다른 보기에서 쳐 둔 글자로 지도가 몰래 걸러지지 않게 state.q 는 안 쓴다
+    var allM=D.maps.filter(function(m){ return state.showLocked || !m.lock; });
+    var ms=visMaps(allM);
+    paintMapBar(allM);
     el("out").innerHTML = mapCtlHTML() + (ms.length ? ms.map(mapBlock).join("")
       : '<p class="empty">조건에 맞는 지역이 없습니다.</p>');
-    el("count").textContent=ms.length+" 지역";
+    el("count").textContent=(ms.length===allM.length ? "" : ms.length+" / ")+allM.length+" 지역";
     el("wk").style.display="none"; if(el("jst")) el("jst").style.display="none";
     fillMapImages();
     return;
@@ -1801,12 +1829,20 @@ function setView(v){
   render();
 }
 VIEWS.forEach(function(v){ el("v-"+v).onclick=function(){ setView(v); }; });
-// 지도: 전체 지도 / 내 지도
-el("out").addEventListener("click",function(e){
+// 지도: 전체 지도 / 내 지도 · 지역 고르기 (둘 다 위쪽 고정 막대)
+el("mapmode").addEventListener("click",function(e){
   var b=e.target.closest("button[data-mm]"); if(!b) return;
   mapMode=b.getAttribute("data-mm")==="mine" ? "mine" : "all";
   try{ localStorage.setItem(MMKEY, mapMode); }catch(err){}
   render();
+});
+el("mapsel").addEventListener("change",function(e){
+  mapSel=e.target.value||"";
+  try{ localStorage.setItem(MSKEY, mapSel); }catch(err){}
+  render();
+  // 고른 지도가 막대 바로 아래 오게 — 아래로 내려가 있던 채면 새 지도의 중간부터 보인다
+  var o=el("out"), top=o.getBoundingClientRect().top+window.scrollY-document.querySelector(".bar").offsetHeight;
+  if(window.scrollY>top) window.scrollTo(0, Math.max(0, top));
 });
 // 도감의 다른 반쪽에서 넘어오면 ?v= 가 붙어 온다
 var _v=(new URLSearchParams(location.search)).get("v");
