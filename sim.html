@@ -4988,7 +4988,9 @@ function partyPayload(){
   var out=[], seen={};
   S.members.forEach(function(m,slot){
     if(!m) return;
-    var base=m.label||m.spec.role||"파티원", lab=base;
+    // 이름표 — 내 용병은 이름, 추천 빌드 · 직접 구성은 «지금» 역할. 예전엔 직접 구성의 이름표가 만들 때 역할(편집기 기본 «방어탱»)에
+    //   고정돼, 카드에서 회피탱으로 바꿔도 결과 · 판 다시 보기에 «방어탱» 으로 나왔다(제작자 2026-10-06).
+    var base=(m.src==="crew" ? m.label : m.spec.role)||m.label||"파티원", lab=base;
     seen[base]=(seen[base]||0)+1; if(seen[base]>1) lab=base+"#"+seen[base];
     var sh=sheetOf(m);
     out.push({sheet:sh, front:!!m.front, leader:!!m.leader, label:lab, title:m.title, slot:slot, tank:String(m.spec.role).indexOf("탱")>=0});
@@ -5468,7 +5470,7 @@ el("slots").addEventListener("click", function(ev){
 el("slots").addEventListener("change", function(ev){
   if(fromEditor(ev)) return;
   var t=ev.target, a=t.dataset.act, i=+t.dataset.i, m=S.members[i]; if(!m) return;
-  if(a==="role"){ m.spec.role=t.value; if(m.src==="preset") m.label=t.value; persist(); renderParty(); }
+  if(a==="role"){ m.spec.role=t.value; if(m.src!=="crew") m.label=t.value; persist(); renderParty(); }
   else if(a==="pers"){ m.spec.personality=t.value; persist(); renderParty(); }
   else if(a==="spell"){
     var sh=sheetOf(m), on={}; (sh.spellsOn||[]).forEach(function(n){ on[n]=1; });
