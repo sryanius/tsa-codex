@@ -390,6 +390,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <option value="rep">요구 평판 낮은 순</option>
       </select>
       <label class="toggle"><input type="checkbox" id="undone"> 안 깬 것만</label>
+      <label class="toggle" title="아직 못 가는 지역(발케인 지방)의 마을 의뢰까지 같이 봅니다 — 도감 · 계산기 · 시뮬과 같은 설정입니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
       <span class="count" id="count"></span>
     </div>
     <div class="bar-row" id="chips"></div>
@@ -419,7 +420,11 @@ window.__TSA_BOOT=function(D){
 var FAC={"숙소":"--f-lodge","창고":"--f-ware","치료소":"--f-heal","금고":"--f-vault","대장간":"--f-forge","모험가 아카이브":"--f-arch"};
 var FORD=["숙소","창고","치료소","금고","대장간","모험가 아카이브"];
 var LKEY="tsa.levels.v1", KEY_SAVE="tsa.save.v1", FKEY="tsa.fac.v1";
-var LOCKED={};   // 칼레바스 고원이 열려서 지금은 감출 도시가 없다 (2026-09-08)
+/* 아직 못 가는 지역의 마을 — 도감 · 계산기 · 시뮬과 같은 목록(data.json locked = codex.json locked).
+   전에는 «감출 도시가 없다» 로 비워 둬서 7.3 새 발케인 의뢰가 «미출시» 표시 없이 기본 화면에 나왔다(2026-10-06). */
+var LOCKED={};
+(function(){ var L={}; (D.locked||[]).forEach(function(r){ L[r]=1; });
+  (D.towns||[]).forEach(function(t){ if(L[t.r]) LOCKED[t.n]=1; }); })();
 var lv={};
 try{ lv=JSON.parse(localStorage.getItem(LKEY)||"{}")||{}; }catch(e){ lv={}; }
 function saveLv(){ try{ localStorage.setItem(LKEY,JSON.stringify(lv)); }catch(e){} }
@@ -1356,7 +1361,7 @@ render();
      퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
   /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
      게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
-  var DATA_VERSION = 7020;   /* 7.2 (versionCode 145) — build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
+  var DATA_VERSION = 7030;   /* 7.3 (versionCode 146) — Settings..cctor 0x27B7898 이 rodata 0xf40850 에서 읽는 첫 값. build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
 
   var TKIND = { 1: "주점", 2: "무기상점", 3: "방어구상점" };
   var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };

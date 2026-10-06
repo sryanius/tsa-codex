@@ -499,7 +499,7 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
      퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
   /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
      게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
-  var DATA_VERSION = 7020;   /* 7.2 (versionCode 145) — build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
+  var DATA_VERSION = 7030;   /* 7.3 (versionCode 146) — Settings..cctor 0x27B7898 이 rodata 0xf40850 에서 읽는 첫 값. build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
 
   var TKIND = { 1: "주점", 2: "무기상점", 3: "방어구상점" };
   var BKIND = { 30: "창고", 31: "모험가 아카이브", 32: "숙소", 33: "치료소", 34: "금고", 35: "대장간" };

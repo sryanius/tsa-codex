@@ -486,7 +486,7 @@ details.rpb[open]>summary::before{content:"▾ "}
 
   <footer class="foot">
     <p>엔진은 <code>tools/sim/partysim.py</code>(+ 탐색지는 <code>callfarm.py</code>)를 그대로 옮긴 것이고, 같은 씨앗이면 판 기록이 파이썬과 비트까지 같습니다. 시트(능력치)는 <a href="save.html">내 세이브</a> 화면과 같은 식으로 만듭니다.</p>
-    <p>모든 수치는 <b>7.2</b>(versionCode 145) 의 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다.</p>
+    <p>모든 수치는 <b>7.3</b>(versionCode 146) 의 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다.</p>
   </footer>
   <div class="runbar" id="runbar" role="region" aria-label="실행 줄">
     <span class="rbt" id="rbtxt"></span>
@@ -1516,24 +1516,29 @@ details.rpb[open]>summary::before{content:"▾ "}
         if (lg !== null) le.hp1 = a.hp;
       }
     }
-    if (m.hp > 0 && T(s.welem)) {                                         // 추가 속성
-      var el = s.welem;
-      if (!ms.inv_el[el]) {
-        var e = R.crv(s.wepow);
-        if (ms.weak_el[el]) e *= 2;
-        e -= ms.mdf;
-        if (-1 <= e && e <= 0) e = (R.succ(25) || R.succ(5)) ? 1 : 0;
-        else if (e <= -2) e = R.succ(5) ? 1 : 0;
-        if (ms.strong_el[el]) e = Math.floor(e / 2);
-        if (e > 0) {
-          if (el === "어둠" && !SW.BUG.has("dark_hp")) {                  // ⑧ 어둠은 MP 를 깎는다
-            if (lg !== null) { le = { k: "elem", a: a.i, to: this.rf(m), el: el, d: e, mp0: m.mp }; lg.push(le); }
-            if (m.mpmax > 0) m.mp = m.mp > e ? m.mp - e : 0;
-            if (lg !== null) le.mp1 = m.mp;
-          } else {
-            if (lg !== null) lg.push({ k: "elem", a: a.i, to: this.rf(m), el: el, d: e, hp0: m.hp, hp1: m.hp - e });
-            m.hp -= e;
-          }
+    if (m.hp > 0 && T(s.welem)) this.ally_elem(a, m, 0);                  // 추가 속성
+  };
+
+  // 무기 추가 속성 한 번 — 7.3 ApplyAdditionalElementDamage 0x26C94D4 (7.2 는 PhysicsAttack 안 인라인). 부르는 쪽이 대상 생존 · 속성 유무를 먼저 본다.
+  // 일반 타격(ally_strike)과 ⑮ 아군 반격 뒤(mon_strike, ctr 1)가 같이 쓴다. 반격 뒤 기록에는 ctr: 1.
+  B.ally_elem = function (a, m, ctr) {
+    var s = a.s, ms = m.s, R = this.R, lg = this.lg, le = null;
+    var el = s.welem;
+    if (!ms.inv_el[el]) {
+      var e = R.crv(s.wepow);
+      if (ms.weak_el[el]) e *= 2;
+      e -= ms.mdf;
+      if (-1 <= e && e <= 0) e = (R.succ(25) || R.succ(5)) ? 1 : 0;
+      else if (e <= -2) e = R.succ(5) ? 1 : 0;
+      if (ms.strong_el[el]) e = Math.floor(e / 2);
+      if (e > 0) {
+        if (el === "어둠" && !SW.BUG.has("dark_hp")) {                    // ⑧ 어둠은 MP 를 깎는다
+          if (lg !== null) { le = { k: "elem", a: a.i, to: this.rf(m), el: el, d: e, mp0: m.mp }; if (ctr) le.ctr = 1; lg.push(le); }
+          if (m.mpmax > 0) m.mp = m.mp > e ? m.mp - e : 0;
+          if (lg !== null) le.mp1 = m.mp;
+        } else {
+          if (lg !== null) { le = { k: "elem", a: a.i, to: this.rf(m), el: el, d: e, hp0: m.hp, hp1: m.hp - e }; if (ctr) le.ctr = 1; lg.push(le); }
+          m.hp -= e;
         }
       }
     }
@@ -1663,6 +1668,9 @@ details.rpb[open]>summary::before{content:"▾ "}
           if (this.ev !== null) this.ev.push(["ac", t, mo, d]);
           if (lg !== null) lg.push({ k: "actr", by: ["a", t.i], to: this.rf(mo), d: d, hp0: mo.hp, hp1: (d > 0 && mo.hp > 0) ? mo.hp - d : mo.hp });
           if (d > 0 && mo.hp > 0) mo.hp -= d;
+          // ⑮ 7.3: 반격 뒤 반격한 아군 무기의 추가 속성 — 0x26C8800 → ApplyAdditionalElementDamage 0x26C94D4 (대상 IsAlive 먼저)
+          //    물리 무효라 반격 피해 d 가 0 이어도 살아 있으면 온다 — 심는 버그 ctr_elem_needs_dmg 가 «0 이면 건너뜀»(partysim.py 와 같은 스위치)
+          if (mo.hp > 0 && T(ts.welem) && !SW.BUG.has("no_ctr_elem") && (d > 0 || !SW.BUG.has("ctr_elem_needs_dmg"))) this.ally_elem(t, mo, 1);
         }
         return;
       }
@@ -2860,7 +2868,7 @@ details.rpb[open]>summary::before{content:"▾ "}
   }
 
   root.PartySim = {
-    version: "partysim.py 2026-10-03 (⑦~⑭)",
+    version: "partysim.py 2026-10-06 (⑦~⑮ · 7.3)",
     switches: SW,
     load: load,
     partyFromSheets: partyFromSheets,
@@ -3820,6 +3828,8 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
       var wandLv = wg && wg.k === "지팡이" ? (wg.lv || 0) : 0;
       var dwarfHp = r.race === "드워프" ? jobs.reduce(function (a, j) { return a + Math.trunc((j.lv || 0) / 10); }, 0) : 0;
       var con = statOf("체력"), def = S.defenseRange(c);
+      // 7.3 Character.AutoHealHp 0x26D93F0: 주직업이 치유사(Job.Kind 0x68 = Priest4)면 레벨 >> 2(레벨 < 4 면 0)를 턴 끝 HP 회복에 더한다 — engine.mjs priestHeal 과 같다
+      var priestHeal = function (id, lv) { return id === "Priest4" && lv >= 4 ? lv >> 2 : 0; };
       // 방어구
       var ahp = 0, amp = 0, armor = [];
       eqs.forEach(function (e) {
@@ -3869,7 +3879,7 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
         defense: { display: def, roll: { min: def[0] - Math.floor(con / 4), max: def[1] - Math.floor(con / 4), con: con, conPart: Math.floor(con / 4) } },
         shieldAvoid: S.shieldAvoid(c), shieldDefense: S.shieldRange(c), magicDefense: S.magicDef(c),
         crit: S.critRate(c), critDefense: S.critDef(c),
-        regenHp: ahp, regenMp: amp,
+        regenHp: ahp + priestHeal(main, c.mainLv), regenMp: amp,
         armor: armor, spells: spells, spellsOn: on,
         preset: preset, warnings: warnings, errors: errors, defaulted: defaulted
       };
@@ -5346,7 +5356,7 @@ function rpLine(ctx, e, mons, b){
       break;
     case "drain": t="↳ "+A(e.a)+" HP 흡수 +"+e.h+" · "+hpTo(e); break;
     case "mdrain": t="↳ "+WN(e.by)+" HP 흡수 +"+e.h+" · "+hpTo(e); break;
-    case "elem": t="↳ "+A(e.a)+" 추가 속성("+esc(e.el)+") → "+WN(e.to)+": "+("mp0" in e ? "MP "+e.d+" · MP "+e.mp0+"→"+e.mp1 : "피해 "+e.d+" · "+hpTo(e)); break;
+    case "elem": t="↳ "+A(e.a)+(e.ctr ? " 반격 추가 속성(" : " 추가 속성(")+esc(e.el)+") → "+WN(e.to)+": "+("mp0" in e ? "MP "+e.d+" · MP "+e.mp0+"→"+e.mp1 : "피해 "+e.d+" · "+hpTo(e)); break;
     case "cast": t=A(e.a)+" 마법 «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1; break;
     case "spell": t="  → "+WN(e.to)+": "+(e.inv ? "무효" : "피해 "+e.d+" · "+hpTo(e)+(e.hp1<=0?" · 쓰러뜨림":"")); break;
     case "heal": t=A(e.a)+" «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1+(e.tg.length ? " → "+e.tg.map(function(x){ return A(x[0])+" +"+x[1]+" (HP "+x[2]+"→"+x[3]+")"; }).join(" · ") : " (대상 없음)"); break;

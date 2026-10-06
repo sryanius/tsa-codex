@@ -323,7 +323,7 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
     <p><b>추가 공격 · 전체 공격은 «강화(craft)» 로만 붙습니다.</b> 마스터 데이터에 없고, <code>Weapon.Craft</code> 가 굴립니다. 결정적인 건 <b>한 번에 5단계 이상 강화될 때만 도는 블록</b>이 있다는 점입니다. 그 안에서 <b>추가 공격 5%</b>(마법 무기 15%), 그리고 <b>추가 공격이 붙은 경우에만</b> 후열 포함 15%(마법 25%) · <b>전체 공격 5%</b>(마법 15%) 를 굴립니다.</p>
     <p><b>상점에서 사면 강화 등급이 이렇게 정해집니다</b> (<code>TapBuyButton</code>): +1 이 20%, +2 가 5%, +3 이 1%, 그리고 <b>0.1%</b> 로 +3~+5 중 하나. 즉 <b>+5 로 나올 확률이 약 1/3000</b> 입니다. 곱하면 상점 무기에 추가 공격이 붙을 확률은 <b>약 6만분의 1</b>, 전체 공격은 <b>약 120만분의 1</b> 입니다 &mdash; 안 붙는 게 정상입니다.</p>
     <p><b>활만 예외입니다.</b> 강화 단계마다 5% 관문을 통과하면 <code>Weapon.Kind.Bow</code> 는 추가 공격이 <b>확정</b>으로 붙습니다(5단계 조건 없음). 그 외에는 <b>제작등급 5 이상으로 떨어지는 드랍</b>을 노리는 편이 빠릅니다 &mdash; 위 «+5강 이상 드랍» 태그로 걸러 보세요. 가장 높은 건 <b>좀비 워리어의 녹슨 검(+9)</b> 입니다.</p>
-    <p>모든 수치는 <b>7.2</b>(versionCode 145) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
+    <p>모든 수치는 <b>7.3</b>(versionCode 146) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
     <p>보물금고에서 나오는 아이템은 이 마스터 데이터에 없습니다 — 별도 로직이거나 서버 쪽입니다. 여기 실린 드랍은 <b>몬스터 처치 보상</b>만입니다.</p>
   </footer>
 </div>
@@ -386,10 +386,12 @@ function monQuestBlock(m){
     + '</ul></div>';
 }
 
-el("s-p").textContent=visPlaces().length;
-el("s-m").textContent=D.monsters.length;
-el("s-i").textContent=D.items.length;
-el("s-d").textContent=D.items.filter(function(x){return x.drop&&x.drop.length}).length;
+function headCounts(){
+  el("s-p").textContent=visPlaces().length;
+  el("s-m").textContent=visMons().length;
+  el("s-i").textContent=visItems().length;
+  el("s-d").textContent=visItems().filter(function(x){return x.drop&&x.drop.length}).length;
+}
 
 /* 지역은 «가나다» 가 아니라 «난이도» 순이다. D.places 가 이미 그 순서로
    실려 오므로(build_codex.py 의 REGIONS), 나온 순서대로 담기만 하면 된다. */
@@ -540,11 +542,21 @@ var MTAG=[];
     add("k:"+e,"스킬 "+e,function(m){ return (m.skills||[]).indexOf(e)>=0; }); });
 })();
 state.mtags={};
+/* 기본 화면(잠긴 지역 끔)에 나오는 몬스터 = 열린 지역의 탐색지나 퀘스트에 나오는 것 + 출처가 하나도 없는 것.
+   ★ 2026-10-06 전에는 «탐색지 출현지가 없으면 늘 보임 · 탐색지가 전부 잠겼으면 숨김» 이었다 —
+     그래서 퀘스트에만 나오는 잠긴 발케인 몬스터 10종(7.3 새 몬스터 5종 포함)이 잠김 표시 없이 보였고,
+     칼레바스 퀘스트에 나오는데 탐색지는 발케인뿐인 18종은 숨었다. 원리 머리말의 «몬스터 371» 과 같은 규칙이다(lockcheck.mjs). */
 function visMons(){
   return D.monsters.filter(function(m){
-    return state.showLocked || !(m.places||[]).length || monPlaces(m).length;
+    if(state.showLocked) return true;
+    if(monPlaces(m).length || monQuests(m).length) return true;
+    return !(m.places||[]).length && !(m.quests||[]).length;
   });
 }
+function visItems(){ return D.items.filter(function(x){ return !x.lock || state.showLocked; }); }
+/* 금고 · 습득물 출처(qd)도 잠긴 지역 의뢰는 «잠긴 것 보기» 일 때만 — z.r = 그 마을의 지역(build_codex).
+   전에는 걸러지지 않아 잠기지 않은 장비(35_Bow 등)에 발케인 의뢰가 출처로 붙어 보였다(2026-10-06). */
+function qdOf(x){ return (x.qd||[]).filter(function(z){ return okPlace(z); }); }
 var MT=makeTagBox("mtbox","mtand","mtclear",MTAG,
                   visMons, state.mtags, {on:false});
 
@@ -584,7 +596,7 @@ function itemPlaces(x){
 var ITAG=[
   {k:"drop",  l:"몬스터 드랍", t:function(x){ return x.drop.length>0; }},
   {k:"place", l:"탐색지",      t:function(x){ return itemPlaces(x).length>0; }},
-  {k:"quest", l:"퀘스트",      t:function(x){ return x.qd.length>0; }},
+  {k:"quest", l:"퀘스트",      t:function(x){ return qdOf(x).length>0; }},
   {k:"sp",    l:"특수능력",    t:function(x){ return x.sp.length>0; }},
   // 제작등급 5 이상으로 떨어지는 것. Weapon.Craft 의 «5단계» 블록이 도는 유일한
   // 현실적 경로라서, 추가공격·전체공격이 붙을 수 있는 후보다.
@@ -592,7 +604,7 @@ var ITAG=[
   {k:"shop",  l:"상점 판매",   t:function(x){ return !!x.shop; }},
   // 드랍·퀘스트·상점 어디에도 없는 것 = 제작으로만 얻는다.
   // 예전 «획득처 없음» 은 상점 판매와 145개나 겹쳐 같은 말처럼 보였다.
-  {k:"craft", l:"제작 전용",   t:function(x){ return !x.drop.length && !x.qd.length && !x.shop; }}
+  {k:"craft", l:"제작 전용",   t:function(x){ return !x.drop.length && !qdOf(x).length && !x.shop; }}
 ];
 state.kinds={};
 var KD=makeTagBox("kdbox","kdand","kdclear",KTAG,
@@ -650,7 +662,7 @@ function itemCard(name){
     +(pl.length?'<p class="cmeta"><b>탐색지</b> '
         +esc(pl.map(function(z){return z.n}).slice(0,5).join(", "))
         +(pl.length>5?" 외 "+(pl.length-5):"")+'</p>':"")
-    +((x.qd&&x.qd.length)?'<p class="cmeta"><b>퀘스트</b> '+x.qd.length+'곳에서 나옵니다</p>':"")
+    +(qdOf(x).length?'<p class="cmeta"><b>퀘스트</b> '+qdOf(x).length+'곳에서 나옵니다</p>':"")
     +'</div>';
 }
 function hhmm(m){var h=Math.floor(m/60);return (h?h+"시간 ":"")+(m%60)+"분";}
@@ -868,7 +880,7 @@ function itemRow(x){
            + (cl>=5? '<em class="tag t-cl">+'+cl+'강</em>' : "")
            + (x.drop.length? '<em class="tag t-drop">몬스터</em>' : "")
            + (ip.length? '<em class="tag t-place">탐색지</em>' : "")
-           + (x.qd.length? '<em class="tag t-quest">퀘스트</em>' : "")
+           + (qdOf(x).length? '<em class="tag t-quest">퀘스트</em>' : "")
            + (x.sp.length? '<em class="tag t-sp">특수</em>' : "");
   var s = x.cat==="무기" ? ("공격 "+(x.dmg||"-")+" · "+(x.rng||"")+" "+(x.tgt||""))
                         : ("방어 "+(x.def||"-"));
@@ -907,8 +919,9 @@ function itemDetail(x){
     + (iq.length>12 ? '<li class="meta">… 그 밖에 '+(iq.length-12)+'건</li>' : "")
     + '</ul></div>' : "";
   // 퀘스트 보물금고/습득물에서 나오는 것
-  var qd=x.qd.length? '<div class="blk"><h4>퀘스트에서 획득 ('+x.qd.length+')</h4><ul>'
-    + x.qd.map(function(z){
+  var xq=qdOf(x);
+  var qd=xq.length? '<div class="blk"><h4>퀘스트에서 획득 ('+xq.length+')</h4><ul>'
+    + xq.map(function(z){
         var bits=[z.src, "시작 "+hhmm(z.at)+" 후"];
         if(z.ins) bits.push("통찰력 판정");
         if(z.ud)  bits.push("해제 난이도 "+z.ud);
@@ -917,7 +930,7 @@ function itemDetail(x){
         return '<li><a class="jump" href="quests.html?q='+encodeURIComponent(z.q)+'">'+esc(z.q)+'</a>'
           +'<span class="meta"> — '+esc(z.t)+' · '+esc(bits.join(" · "))+'</span></li>'; }).join("")
     + '</ul></div>' : "";
-  if(!x.drop.length && !x.qd.length)
+  if(!x.drop.length && !xq.length)
     qd='<div class="blk"><h4>획득처</h4><ul><li>'
       + (x.shop ? '사냥·퀘스트로는 안 나옵니다 — '+esc(x.shop)+' 에서 삽니다'
                 : '사냥·퀘스트·상점 어디에도 없습니다 — 제작 전용입니다')
@@ -1050,20 +1063,20 @@ function render(){
         if(x.lock && !state.showLocked) return false;
         if(x.cat!==cat) return false;
         if(KD.any() && !KD.match(x)) return false;
-        if(state.only && !x.drop.length && !x.qd.length) return false;
+        if(state.only && !x.drop.length && !qdOf(x).length) return false;
         if(IT.any() && !IT.match(x)) return false;
         if(anyAbil() && !abilMatch(x)) return false;
         return hit(x.n+" "+x.i+" "+x.d+" "+(x.shop||"")+" "+x.kind
           +" "+itemPlaces(x).map(function(z){return z.n+" "+z.r}).join(" ")
           +" "+x.sp.map(function(a){return a.k+" "+a.v}).join(" ")
           +" "+x.drop.map(function(d){return d.m}).join(" ")
-          +" "+x.qd.map(function(z){return z.q+" "+z.t}).join(" "));
+          +" "+qdOf(x).map(function(z){return z.q+" "+z.t}).join(" "));
       });
       n+=rows.length;
       html+=block(cat, rows.length+"종", rows.map(itemRow), "var(--c-item)");
     });
   }
-  el("s-p").textContent=visPlaces().length;
+  headCounts();
   el("count").textContent=n+" 건";
   el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
   // 아이템 전용 필터는 아이템 탭에서만 보인다

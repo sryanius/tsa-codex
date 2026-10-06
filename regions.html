@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- 지역 — 다음 지역이 열리는 조건과, N 지역까지 열렸을 때의 상한. 근거는 full/regions/{unlock,caps}.json (7.2 데이터 · 역어셈블 주소는 7.1). -->
+<!-- 지역 — 다음 지역이 열리는 조건과, N 지역까지 열렸을 때의 상한. 근거는 full/regions/{unlock,caps}.json (7.2 데이터로 뽑았고 7.3 에서 지역 1~7 · 해금 의뢰 레코드가 안 바뀐 것을 확인 · 역어셈블 주소는 7.1). -->
 <title>침묵의 기록자 지역</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -346,8 +346,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <b>평판 · 탐색지 발견 · 선행 의뢰</b> 세 조건을 맞춰야 하고, 어느 조건이 어디서 막히는지는 지역마다 다릅니다.
       앞 절반은 그 일곱 번의 전환을, 뒤 절반은 «N 지역까지 열렸을 때» 훈련소 · 상점 · 금고가 어디까지 주는지를 적습니다.
       역할별로 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
-    <div class="note" style="margin-top:14px"><b>근거.</b> 의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>7.2</b>(versionCode 145) 데이터에서 그대로 읽었고,
-      «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 에서도 본문이 같습니다).
+    <div class="note" style="margin-top:14px"><b>근거.</b> 의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>7.3</b>(versionCode 146) 데이터에서 그대로 읽었고,
+      «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 · 7.3 에서도 본문이 같습니다).
       실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</div>
     <table class="t" style="margin-top:12px"><thead><tr><th>전환</th><th>해금 의뢰</th><th>어느 마을</th><th class="num">Lv</th><th class="num">평판</th><th>막히는 자리</th></tr></thead><tbody>
       <tr><td><a href="#r12">1 &rarr; 2</a></td><td>산길을 가로지르는 에스코트</td><td>브란샤르</td><td class="num">7</td><td class="num">25</td><td>선행 둘 · 탐색지 둘</td></tr>
@@ -358,14 +358,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <tr><td><a href="#r67">6 &rarr; 7</a></td><td>고갯길 성문 성수탑의 몬스터 퇴치</td><td>트레반의 마을</td><td class="num">30</td><td class="num"><b>34</b></td><td>Lv30 의뢰를 <b>반복</b>해야 닿는 평판</td></tr>
       <tr style="color:var(--muted)"><td><a href="#r78">7 &rarr; 8</a></td><td>칼레도 가도의 산길을 뚫다</td><td>자르간트 마을</td><td class="num">35</td><td class="num">35</td><td>배포판은 지도 전환이 막힘</td></tr>
     </tbody></table>
-    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-10-02">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-10-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-02">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-10-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-10-03">7→8<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-10-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-10-03">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
-    <p class="docdate">마지막 갱신 <b>2026-10-03</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
+    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-10-06">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-10-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-02">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-10-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-10-06">7→8<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-10-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-10-03">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <p class="docdate">마지막 갱신 <b>2026-10-06</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
   <main class="doc">
 
-  <section class="sec" id="sec-how" data-sec="how" data-upd="2026-10-02">
+  <section class="sec" id="sec-how" data-sec="how" data-upd="2026-10-06">
   <h2 id="how"><span class="n">0</span>열리는 자리 &mdash; 해금 의뢰 하나, 조건 넷</h2>
-  <p class="secdate">2026-10-02 갱신</p>
+  <p class="secdate">2026-10-06 갱신</p>
   <p>지도 8장 가운데 <b>해금 의뢰는 7개</b>이고, 전부 <b>한 번만</b> 뜨는 의뢰(<code>questSpawnInterval 99</code>)입니다.
      새 지역을 만드는 코드는 <b>모험 결과 창을 닫는 자리</b>(<code>AdventureResultDialog.Finish</code> 0x287A154) 한 곳뿐입니다 &mdash;
      의뢰가 «성공» 이면 보상 금화를 주고, 그 의뢰에 지도가 매여 있으면 <code>Map.Create &rarr; GameData.AddMap</code> 으로
@@ -383,7 +383,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li><b>조건 마을</b>이 내 마을 목록에 있어야 합니다(윈달리온 의뢰 3개만 씁니다).</li>
     <li><b>탐색지 발견</b> &mdash; 지도에서 그 칸을 조사해 탐색지가 «내 지도» 에 있어야 합니다. 의뢰 보상으로 탐색지를 주는 칸은 데이터에 없습니다 &mdash; <b>발견 경로는 지도 탐색뿐</b>입니다.</li>
     <li><b>평판</b> &mdash; 요구가 양수면 그 이상, <b>음수면 그 이하</b>여야 합니다(5→6 에 음수 의뢰가 있습니다).</li>
-    <li><b>그 마을에서 깬 의뢰 종류 수</b> &mdash; 1,467개 중 1,425개가 «1종 이상» 입니다(7.2 · 발케인 42개 포함). 선행 의뢰만 깨도 채워집니다.</li>
+    <li><b>그 마을에서 깬 의뢰 종류 수</b> &mdash; 1,495개 중 1,456개가 «1종 이상» 입니다(7.3 · 그중 잠긴 발케인 마을 의뢰 108개). 선행 의뢰만 깨도 채워집니다.</li>
     <li><b>빈도</b> &mdash; «항상»(Always)이면 통과, 아니면 굴림 두 번 중 하나가 맞아야 뜹니다. 해금 의뢰 7개는 전부 «항상» 이지만 <b>선행 의뢰 중엔 «대개»(Usually) 가 섞여 있어</b> 안 뜨면 갱신해야 합니다.</li>
   </ol>
   <h3>탐색지를 찾는 값</h3>
@@ -537,9 +537,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      같은 Lv30 의뢰를 <b>두 번째로</b> 깨면 반복 보정 +1 로 Lv31 로 쳐서 상한 35 → 34 에 닿습니다(반복형 Lv30 의뢰 21종 · 세 번째는 Lv32 로 40).
      7개 전환 가운데 <b>고레벨 의뢰 반복이 필수인 유일한 자리</b>입니다.</div>
   </section>
-<section class="sec" id="sec-r78" data-sec="r78" data-upd="2026-10-03">
+<section class="sec" id="sec-r78" data-sec="r78" data-upd="2026-10-06">
   <h2 id="r78"><span class="n">7</span>칼레바스 고원 &rarr; 발케인 지방 <span class="sm" style="font-weight:400">&mdash; 지금은 막혀 있습니다</span></h2>
-  <p class="secdate">2026-10-03 갱신</p>
+  <p class="secdate">2026-10-06 갱신</p>
   <div class="role">
     <h3>「칼레도 가도의 산길을 뚫다」 <span class="tag" style="color:var(--c-quest)">자르간트 마을 · Lv35 · 토벌 · 한 번만</span></h3>
     <dl class="kv">
@@ -552,7 +552,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>지도 전환이 코드로 막혀 있습니다.</b> <code>Settings.LastMapLevel</code> 은 배포판(ProductionMode)에서 <b>7</b> 이고,
      지도 화면의 전환 버튼은 지역 번호가 그보다 크면 경고창만 띄웁니다(<code>MapScene.&lt;TapChangeMapButton&gt;</code> 0x28EA65C). 마을 목록도 7 이하만 보입니다.
      의뢰 게시 쪽에는 이 검사가 없어서 조건만 맞으면 뜨고 깰 수 있을 것으로 읽히며, 그러면 발케인 지도와 마을 3개가 세이브에 생기지만 들어갈 수는 없습니다 &mdash; <b>코드 추론 · 실기기 미확인</b>.
-     발케인이 열리면 모래 환상 사수 · 선봉병(40)으로 모험가 천장이 41 이 되고 Lv37~38 장비가 같이 열립니다(<a href="builds.html#halls">빌드 &sect;11</a>).</div>
+     발케인이 열리면 모래 환상 사수 · 선봉병 · 마도학자 · 치유사(40)로 모험가 천장이 41 이 되고 Lv37~39 장비가 같이 열립니다(<a href="builds.html#halls">빌드 &sect;11</a>).</div>
   <p>선행 사슬은 길지만 평판이 막는 곳은 하나입니다. <b>[A]</b> 「사라진 조사대와 돌 제단」(Lv35 · 30 · 「발드란 보관소 터」 Lv33) &larr; 「라펠 계곡의 제단 조사」(Lv35 · 29 · 「라펠 계곡」 Lv33 · «대개») &larr; 노르그레이 「노란 꽃의 침식을 막아라」(Lv33 · 소탕 · <b>28</b> · 「엘디아의 숲」 Lv32 · «대개») &larr; 「조상 묘지의 꽃다발 의혹」(Lv32 · 1 · 「부서진 돌이 있는 강변 묘지」 Lv31) &larr; 「모래에 파묻힌 제단의 꽃다발」(Lv32 · 14 · 「노르사딜 유적」 Lv31) + 「조상 묘지의 밤의 마물」(Lv33 · 11 · 「세라노브의 조상 묘지」 Lv28) &larr; 자르간트 「조상 묘지에 대한 장난」(Lv33 · 배달 · 18) &larr; 「‘탁함’과 ‘따스함’의 도망자 정찰」(Lv32 · 11 · 「탁하고 따뜻한 늪지」 Lv30) ·
      <b>[B]</b> 「밤에만 불이 켜지는 집 조사」 &larr; 「묘지에서 돌아오지 않는 사냥꾼들」(노르그레이 · Lv33 · 구조 · 22 · 「그레스티아 묘지」 Lv33 · «대개»).</p>
   <ol class="steps">
@@ -848,7 +848,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 </script>
 
   <footer class="foot">
-    <p>수치는 <b>7.2</b>(versionCode 145) 데이터로 냈습니다. 코드 주소는 7.1 기준이고 7.2 에서 본문이 같음을 확인했습니다.
+    <p>수치는 <b>7.3</b>(versionCode 146) 데이터로 냈습니다. 코드 주소는 7.1 기준이고 7.2 · 7.3 에서 본문이 같음을 확인했습니다(이 페이지가 근거로 든 함수 전부 &mdash; 7.3 에서 바뀐 반격 · 턴 끝 HP 회복은 이 페이지와 무관합니다).
        근거 파일은 <code>full/regions/</code> 의 unlock · places · caps 입니다.</p>
   </footer>
 </div>

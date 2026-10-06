@@ -384,7 +384,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 
   <footer class="foot">
     <p>클래스 설명은 게임의 원문(<code>LCDetail</code>)입니다. 주/부 보너스는 <code>mainJobBonuses*</code> / <code>subJobBonuses*</code>, 훈련소와 시설 비용은 <code>BuildingMaster.levelManagers</code>, 종족 능력치는 <code>CharacterMaster.ability</code>, 뽑기 계산은 <code>Character.CreateParam</code> 과 <code>InviteAdventureDialog</code>, 지도는 번들 안의 <code>Tilemap</code> 을 직접 합성한 것입니다.</p>
-    <p>모든 수치는 <b>7.2</b>(versionCode 145) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
+    <p>모든 수치는 <b>7.3</b>(versionCode 146) 의 Addressables 번들과 <code>libil2cpp.so</code> 에서 뽑았습니다. 게임이 업데이트되면 낡습니다.</p>
     <p>창고·숙소·치료소·금고·대장간·아카이브 여섯은 골드로 못 올립니다 — 퀘스트로만 오릅니다. 어떤 퀘스트가 무엇을 올려주는지는 <a href="quests.html">퀘스트 색인</a>에 있습니다.</p>
   </footer>
 </div>
@@ -412,6 +412,12 @@ function isLockedRegion(r){ return !!LOCKED_SET[r]; }
 /* 훈련소를 여는 퀘스트가 못 가는 지역에만 있으면 그 직업은 아직 못 얻는다.
    판정은 build 쪽 locklib 이 하고, 여기서는 그 결과(j.lock)를 쓴다. */
 function visJobs(){ return D.jobs.filter(function(j){ return state.showLocked || !j.lock; }); }
+/* 마법도 같은 규칙 — 배우는 직업이 전부 잠긴 직업이면 기본 화면에서 뺀다.
+   ★ 2026-10-06 전에는 거르지 않아 7.3 새 치유사 전용 «리바이탈라이즈» 와 마도학자(7.3 부터 잠김) 마법 5개가
+     잠김 표시 없이 나왔다(lockcheck.mjs). 잠긴 것도 보기를 켜면 «미출시» 표시를 붙여 보인다. */
+var JLOCK={}; D.jobs.forEach(function(j){ if(j.lock) JLOCK[j.n]=1; });
+function skillLocked(s){ return !s.jobs.some(function(j){ return !JLOCK[j.j]; }); }
+function visSkills(){ return D.skills.filter(function(s){ return state.showLocked || !skillLocked(s); }); }
 
 // 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
 // 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
@@ -647,7 +653,8 @@ function mapBlock(m){
 function skillRow(s){
   return '<div class="row" data-k="s" data-i="'+esc(s.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 130px 60px 52px">'
-    +'<span class="nm"><b>'+esc(s.n||s.i)+'</b><span>'+esc(s.jobs.map(function(j){return j.j+" "+j.lv+"렙"}).join(", "))+'</span></span>'
+    +'<span class="nm"><b>'+(skillLocked(s)?'<em class="tag t-lock" title="이 마법을 배우는 직업이 전부 아직 못 얻는 직업입니다">미출시</em>':"")+esc(s.n||s.i)+'</b><span>'
+    +esc(s.jobs.filter(function(j){ return state.showLocked || !JLOCK[j.j]; }).map(function(j){return j.j+" "+j.lv+"렙"}).join(", "))+'</span></span>'
     +'<span class="num dim">'+esc(s.rng)+'</span>'
     +'<span class="num">'+(s.mp>0?"MP "+s.mp:"–")+'</span>'
     +'<span class="num dim">Lv'+s.lv+'</span></div>';
@@ -1491,8 +1498,8 @@ function headStats(){
     var bt={}; D.races.forEach(function(r){ (r.open||r.towns).forEach(function(t){ bt[t]=1; }); });
     out=[[D.races.length,"종족·성별"],[Object.keys(bt).length,"뽑는 주점"],[7,"성격"]];
   } else if(state.view==="skill"){
-    var jb={}; D.skills.forEach(function(s2){ s2.jobs.forEach(function(j){ jb[j.j]=1; }); });
-    out=[[D.skills.length,"마법"],[Object.keys(jb).length,"배우는 클래스"]];
+    var jb={}, vs=visSkills(); vs.forEach(function(s2){ s2.jobs.forEach(function(j){ if(state.showLocked || !JLOCK[j.j]) jb[j.j]=1; }); });
+    out=[[vs.length,"마법"],[Object.keys(jb).length,"배우는 클래스"]];
   } else if(state.view==="town"){
     var ts=visTowns();
     out=[[ts.length,"도시"],[ts.reduce(function(a,t){return a+t.b.length},0),"시설"]];
@@ -1535,7 +1542,7 @@ function render(){
     Object.keys(by).forEach(function(k){
       html+=block(k, by[k].length+"종", by[k].map(raceRow)); });
   } else if(state.view==="skill"){
-    var ss=D.skills.filter(function(s){
+    var ss=visSkills().filter(function(s){
       return hit(s.n+" "+s.i+" "+s.d+" "+s.jobs.map(function(j){return j.j}).join(" ")); });
     n=ss.length;
     html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
