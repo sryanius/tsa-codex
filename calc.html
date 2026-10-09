@@ -505,8 +505,24 @@ details.fine p{margin:6px 0 0;line-height:1.6}
     return tot;
   }
   function party(ps) { var f = 1; for (var i = 0; i < ps.length; i++) f *= 1 - ps[i]; return 1 - f; }
+  /* 등장 판정(통찰 이벤트 · 금고의 76%) — 7.3 AdventureMain.IsAppearanceEvent 0x27277B4 · 원리 §10:
+       리더 현자 레벨 + ⌊CreateRandomValue(통찰) ÷ 6⌋ + Dice2D ≥ 퀘스트 레벨 + addInsight + Dice2D
+     발견 · 해제와 달리 맨 2d6 끼리(대실패 · 연쇄 없음) · 리더 한 사람이 그 틱에 한 번. 고정부가 상대 + 10 이상이면 늘(2d6 차가 −10 보다 작을 수 없다). */
+  function appear(opp, sage, ins) {
+    var sh = shareDist(ins || 0), tot = 0;
+    for (var k in sh) {
+      var mine0 = (sage || 0) + (+k);
+      for (var a = 2; a <= 12; a++) for (var o = 2; o <= 12; o++) if (mine0 + a >= opp + o) tot += sh[k] * D2[a] * D2[o];
+    }
+    return tot;
+  }
+  function appearFixedLow(sage, ins) { return (sage || 0) + Math.floor(statFloor(ins || 0) / 6); }
+  /* 빈도 추첨 — 그 틱에 등급 하나를 뽑아 «항상» 이거나 같은 등급일 때만 후보(원리 §9 · §10 · partysim FREQ_P) */
+  var FREQ = { 5: [1, "항상"], 10: [0.375, "자주"], 11: [0.1875, "흔히"], 12: [0.09375, "가끔"], 13: [0.0703125, "이따금"],
+               14: [0.017578125, "드물게"], 15: [0.005573, "희귀"], 16: [0.000293, "매우 희귀"] };
   G.TSA_CHEST = { LEADER: LEADER, THIEF_CAP: THIEF_CAP, statFloor: statFloor, statForShare: statForShare,
-                  shareDist: shareDist, fixedLow: fixedLow, p: p, party: party, _d2c: d2c };
+                  shareDist: shareDist, fixedLow: fixedLow, p: p, party: party, _d2c: d2c,
+                  appear: appear, appearFixedLow: appearFixedLow, FREQ: FREQ };
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
 

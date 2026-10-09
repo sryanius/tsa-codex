@@ -1447,8 +1447,9 @@ function statOf(c, label){ return ((c.ab&&c.ab[label])||0) + jobLabel(c,label) +
 function saveChestCrew(){
   if(!CREW||!CREW.chars) return;
   var list=CREW.chars.filter(function(c){ return c.st!==6; }).map(function(c){
-    var th=0; (c.jobs||[]).forEach(function(j){ if(j.i==="Thief") th=j.lv||0; });
-    return {n:c.n||"", id:c.id, thief:th, ins:statOf(c,"통찰력"), dex:statOf(c,"재주"), pers:c.pers||""};
+    var th=0, sg=0; (c.jobs||[]).forEach(function(j){ if(j.i==="Thief") th=j.lv||0; if(j.i==="Sage") sg=j.lv||0; });
+    // sage — 금고 «등장 판정» 은 리더의 현자 레벨 + 통찰(원리 §10 · 2026-10-10 제작자 «이벤트 발생 확률도 같이»)
+    return {n:c.n||"", id:c.id, thief:th, sage:sg, ins:statOf(c,"통찰력"), dex:statOf(c,"재주"), pers:c.pers||""};
   });
   try{ localStorage.setItem("tsa.chestcrew.v1", JSON.stringify({at:CREW.at||"", list:list})); }catch(e){}
 }
