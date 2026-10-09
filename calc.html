@@ -1773,6 +1773,8 @@ function repRows(){
    퀘스트 색인 금고 줄의 «확률 계산 ↗» 가 ?v=chest&lv=퀘스트 레벨&f=발견값&u=해제 난이도&nm=내용물 로 새 창을 연다.
    파티원은 세이브 화면이 남긴 tsa.chestcrew.v1(현역 용병별 도둑 레벨 · 통찰 · 재주 · 성격)에서 도둑 레벨 높은 순 4명으로 채운다. */
 var CK_PERS=["무모한","합리적","이기적","감정적","신중한","사교적","신경질적"];
+// 도둑 최대 레벨 — 열린 지역 훈련소 천장(meta jobs[Thief].max). 다음 지역이 열리면 저절로 오른다. 퀘스트 색인(data.json thiefCap)과 같은 값.
+var CK_CAP=((D.jobs||[]).filter(function(j){ return j.i==="Thief"; })[0]||{}).max||TSA_CHEST.THIEF_CAP;
 function ckCrew(){
   var c=null; try{ c=JSON.parse(localStorage.getItem("tsa.chestcrew.v1")||"null"); }catch(e){}
   return (c&&c.list)? c.list.slice().sort(function(a,b){ return (b.thief-a.thief)||((b.ins+b.dex)-(a.ins+a.dex)); }) : [];
@@ -1781,16 +1783,16 @@ var ck=(function(){
   var p=new URLSearchParams(location.search), num=function(k,d){ var v=parseInt(p.get(k),10); return isNaN(v)? d : v; };
   var crew=ckCrew().filter(function(x){ return x.thief>=1; }).slice(0,4);
   var rows=crew.length ? crew.map(function(x){ return {n:x.n, thief:x.thief, ins:x.ins, dex:x.dex, pers:x.pers||"신중한"}; })
-                       : [{n:"용병 1", thief:35, ins:40, dex:50, pers:"무모한"}];
+                       : [{n:"용병 1", thief:CK_CAP, ins:40, dex:50, pers:"무모한"}];
   return {lv:num("lv",30), f:num("f",0), u:num("u",3), nm:p.get("nm")||"", leader:-1, rows:rows};
 })();
 function ckPct(p){ var v=p*100; if(v>=99.95) return "99.9%↑"; return (v>=99||v<1? v.toFixed(1) : String(Math.round(v)))+"%"; }
 function ckLb(i){ return i===ck.leader ? (TSA_CHEST.LEADER[ck.rows[i].pers]||0) : 0; }
 function ckNeed(line, stat){
-  var q=line-TSA_CHEST.THIEF_CAP;
+  var q=line-CK_CAP;
   if(q<=0) return "도둑 "+Math.max(1,line)+" 이상이면 확정";
   var s=TSA_CHEST.statForShare(q);
-  return "도둑 "+TSA_CHEST.THIEF_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
+  return "도둑 "+CK_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
 }
 function ckRowHTML(r, i){
   var crew=ckCrew();

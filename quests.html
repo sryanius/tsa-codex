@@ -275,6 +275,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain.chest ul{padding-left:6px}
 .chain.chest li::before{content:""}
 .chain.chest .chestnote{display:block;margin:-2px 0 8px;font-size:11.5px;line-height:1.55}
+.chain.chest select.thref{font:inherit;font-size:12px;font-weight:600;padding:0 2px;margin:0 1px;
+  border:1px solid var(--line);border-radius:5px;background:var(--raised);color:var(--accent);cursor:pointer}
 .chain.chest .calcl{display:inline-block;margin-top:4px;font-size:12px;font-weight:600;color:var(--accent)}
 .bar.folded .fold{display:none !important}
 .foldbtn{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;cursor:pointer;
@@ -1000,11 +1002,25 @@ function itemSp(it){
      확정선 = 퀘스트 레벨 + 난이도 + 9 → «도둑 레벨 + 흔들림 최솟값의 몫» 이 확정선 이상이면 대실패만 빼고 늘 이긴다.
    발견은 통찰, 해제는 재주. 스탯은 직업 · 장비를 합한 총값(화면의 그 값). 흔들림 폭은 원리 §1 · calc-tpl rnd() 와 같은 식. */
 var CH=window.TSA_CHEST;   // chestlib.html — 흔들림 · 확정선 · 정확한 확률(계산기와 같은 식)
-function chestNeed(line, stat){
-  var q=line-CH.THIEF_CAP;
+/* 기준 도둑 레벨 — 기본은 도둑 최대 레벨(data.json thiefCap = meta 의 열린 지역 훈련소 천장 · 다음 지역이 열리면 저절로 오른다).
+   금고 줄의 «도둑 N» 을 눌러 내 도둑 레벨로 바꾸면 필요한 스탯이 그 레벨 기준으로 다시 나온다(tsa.thiefref.v1 · 화면 설정).
+   (2026-10-09 제작자: «다음 맵 열리면 직업 레벨 올라가는데 기본으로 최대 레벨로 표시하고 레벨 수치 클릭하면 바꿀 수 있게») */
+var THIEF_MAX=D.thiefCap||CH.THIEF_CAP, TRKEY="tsa.thiefref.v1";
+var thiefRef=(function(){
+  var v=NaN; try{ v=parseInt(localStorage.getItem(TRKEY),10); }catch(e){}
+  return (v>=1 && v<=THIEF_MAX) ? v : THIEF_MAX;
+})();
+function refSel(){
+  var o="";
+  for(var l=THIEF_MAX;l>=1;l--) o+='<option value="'+l+'"'+(l===thiefRef?' selected':'')+'>'+l+(l===THIEF_MAX?' (최대)':'')+'</option>';
+  return '<select class="thref" aria-label="기준 도둑 레벨" title="눌러서 내 도둑 레벨로 바꾸면 필요한 스탯이 다시 나옵니다">'+o+'</select>';
+}
+/* 확정선 → «도둑 N 이상이면 확정» 또는 «도둑 ref + 스탯 S 이상». sel 이 있으면 ref 숫자 자리에 그 HTML(고르기 칸)을 넣는다 */
+function chestNeed(line, stat, ref, sel){
+  var q=line-ref;
   if(q<=0) return "도둑 "+Math.max(1,line)+" 이상이면 확정";
   var s=CH.statForShare(q);
-  return "도둑 "+CH.THIEF_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
+  return "도둑 "+(sel||ref)+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
 }
 /* 내 도둑 — 세이브 화면이 남긴 tsa.chestcrew.v1(용병별 도둑 레벨 · 통찰 · 재주 총값 · 은퇴 뺌). 도둑 레벨 1 이상만, 높은 순 4명(파티 최대)까지. */
 var THIEVES=(function(){
@@ -1031,14 +1047,9 @@ function thiefCell(kind, opp){
 }
 function chestHTML(x){
   if(!x.ch || !x.ch.length) return "";
-  var mine = THIEVES
-    ? (THIEVES.top.length
-        ? '<span class="thlist">내 도둑(세이브 '+esc(THIEVES.at)+'): '+THIEVES.top.map(function(t){
-            return '<b>'+esc(t.n)+'</b> 도둑 '+t.thief+' · 통찰 '+t.ins+' · 재주 '+t.dex; }).join(" / ")
-          +(THIEVES.all.length>4?' 외 '+(THIEVES.all.length-4)+'명':'')
-          +' — 아래 %는 그 사람 혼자 굴렸을 때(리더면 발견에 성격 보너스가 더 붙음)</span>'
-        : '<span class="thlist">세이브에 도둑 레벨이 있는 용병이 없습니다 — 맨주사위로만 굴립니다.</span>')
-    : (hasCrew() ? '<span class="thlist">내 세이브 화면을 한 번 열면 내 도둑(도둑 레벨 · 통찰 · 재주)이 여기 나옵니다.</span>' : "");
+  /* 내 도둑 목록은 안 적는다 — 상자가 너무 길어졌다(2026-10-09 제작자: «내 용병 부분은 빼자 · 하단에 확률만»).
+     세이브는 있는데 도둑 요약이 아직 없을 때만 한 줄로 알린다. */
+  var mine = (!THIEVES && hasCrew()) ? '<span class="thlist">내 세이브 화면을 한 번 열면 금고마다 내 도둑별 확률이 나옵니다.</span>' : "";
   return '<div class="chain chest"><h4>보물금고 · 습득물 '+x.ch.length+'건</h4>'
     + '<p class="cmeta chestnote">확정 = <b>도둑 레벨 + 스탯 ÷ 6</b> 이 그 숫자 이상(발견은 통찰 · 해제는 재주, 스탯은 직업·장비 합친 값) · '
     + '모자라도 4 모자라면 93% · 8 이면 66% · 12 면 29% — 파티원 중 한 명만 되면 됩니다(<a href="notes.html#check">원리 §8</a>)'
@@ -1051,18 +1062,18 @@ function chestHTML(x){
               +esc(c.item)+'</a> <span class="cmeta">('+esc(c.cat)+')</span>'
           : (c.gold? c.gold.toLocaleString()+'G' : '내용 미지정');
         var bits=[], lv=curLv(x)[0];
-        bits.push('시작 '+hhmm(c.at)+' 후');
+        bits.push(esc('시작 '+hhmm(c.at)+' 후'));
         // 등장 판정 — 리더의 현자 레벨 + 통찰로 «금고가 뜨는지» 부터 굴린다(원리 §10 · IsAppearanceEvent)
-        if(c.ins) bits.push('등장 판정(리더 현자·통찰)');
+        if(c.ins) bits.push(esc('등장 판정(리더 현자·통찰)'));
         /* 확정선 = 지금 의뢰 레벨(클리어 보너스 포함) + 난이도 + 9 — 원리 §8. «난이도» 는 이미 이 숫자 안에 있어 따로 안 적는다.
            습득물은 내 값에 +6 이 붙어 3 · 발견값 0 이면 굴리지 않고 줍는다. 해제는 난이도 0 이면 판정 자체가 없다. */
-        if(c.src==="금고"){ var fl=lv+(c.fv||0)+9; bits.push('발견 '+fl+' — '+chestNeed(fl,"통찰")); }
-        else if(c.fv){ var sl=lv+c.fv+3; bits.push('습득 '+sl+' — '+chestNeed(sl,"통찰")); }
-        else bits.push('늘 주움(판정 없음)');
-        if(c.ud){ var ul=lv+c.ud+9; bits.push('해제 '+ul+' — '+chestNeed(ul,"재주")); }
-        else if(c.src==="금고") bits.push('해제 판정 없음');
-        if(c.cv)  bits.push('제작등급 '+c.cv);
-        if(c.trap) bits.push('함정 있음');
+        if(c.src==="금고"){ var fl=lv+(c.fv||0)+9; bits.push('발견 '+fl+' — '+chestNeed(fl,"통찰",thiefRef,refSel())); }
+        else if(c.fv){ var sl=lv+c.fv+3; bits.push('습득 '+sl+' — '+chestNeed(sl,"통찰",thiefRef,refSel())); }
+        else bits.push(esc('늘 주움(판정 없음)'));
+        if(c.ud){ var ul=lv+c.ud+9; bits.push('해제 '+ul+' — '+chestNeed(ul,"재주",thiefRef,refSel())); }
+        else if(c.src==="금고") bits.push(esc('해제 판정 없음'));
+        if(c.cv)  bits.push(esc('제작등급 '+c.cv));
+        if(c.trap) bits.push(esc('함정 있음'));
         var line = itemLine(it);
         // 내 도둑마다의 확률 — 금고만(습득물은 지금 데이터에서 늘 줍는다)
         var thr = "";
@@ -1079,7 +1090,7 @@ function chestHTML(x){
           + what+'</b>'
           + (line? '<span class="cmeta ispec">'+line+'</span>' : "")
           + itemSp(it)
-          + '<span class="cmeta">'+esc(bits.join(" · "))+'</span>'+thr+'</li>'; }).join("")
+          + '<span class="cmeta">'+bits.join(" · ")+'</span>'+thr+'</li>'; }).join("")
     + '</ul></div>';
 }
 
@@ -1355,6 +1366,16 @@ el("out").addEventListener("click",function(e){
   var row=e.target.closest(".row");
   if(!row) return;
   toggleRow(row);
+});
+el("out").addEventListener("change",function(e){
+  var t=e.target.closest("select.thref"); if(!t) return;
+  thiefRef=parseInt(t.value,10)||THIEF_MAX;
+  try{ localStorage.setItem(TRKEY, String(thiefRef)); }catch(err){}
+  Array.prototype.forEach.call(el("out").querySelectorAll(".row.open"), function(row){
+    var d=row.nextElementSibling, id=row.getAttribute("data-id");
+    if(!d || !d.classList.contains("detail")) return;
+    for(var i=0;i<D.quests.length;i++) if(D.quests[i].i===id){ d.outerHTML=detailHTML(D.quests[i]); break; }
+  });
 });
 el("out").addEventListener("keydown",function(e){
   if(e.key!=="Enter" && e.key!==" ") return;
