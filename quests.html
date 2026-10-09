@@ -881,7 +881,7 @@ function itemLine(it){
   if(it.hit)  b.push("명중 "+it.hit);
   if(it.rng && it.rng!=="근접") b.push(esc(it.rng));
   if(it.tgt && it.tgt!=="단일") b.push(esc(it.tgt));
-  if(it.mag)  b.push("마법 무기");
+  if(it.mag)  b.push(it.cat==="방어구" ? "마법 장비" : "마법 무기");   // 방어구에도 «마법 무기» 로 찍혔다(2026-10-09 · 도감과 같은 말로)
   return b.join(" · ");
 }
 function itemSp(it){
