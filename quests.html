@@ -292,6 +292,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain.chest .chkth{display:block;padding-left:12px;margin-top:1px}
 .chain.chest .thok{color:var(--f-lodge);font-weight:600}
 .chain.chest .thno i{font-style:normal;color:var(--f-heal)}
+.chain.chest .thlead{color:var(--f-vault);font-weight:500}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
 .t-chest{color:var(--f-vault)} .t-find{color:var(--f-lodge)}
@@ -1037,6 +1038,12 @@ function hasCrew(){ try{ return !!localStorage.getItem("tsa.crew.v1"); }catch(e)
 function pct(p){ var v=p*100; if(v>=99.95) return "99.9%↑"; return (v>=99||v<1? v.toFixed(1) : String(Math.round(v)))+"%"; }
 /* 금고 한 판정에 내 도둑마다 — 이길 확률(흔들림까지 넣은 정확한 값) · 확정선까지 모자란 수. 리더 보너스는 안 넣는다(누가 리더일지 모름).
    «다 데려가면 N%» 는 뺐다 — 실제 파티와 상관없는 숫자라 의미가 없었다(2026-10-09 제작자). 파티 확률은 계산기 «금고 확률» 에서. */
+/* 리더 성격 보너스 — 표(CH.LEADER)에서 바로 만든다 · 0 이하는 안 적는다 («무모한·합리적 +3 · 이기적 +2 · 감정적 +1») */
+function leadTxt(){
+  var by={};
+  Object.keys(CH.LEADER).forEach(function(k){ var v=CH.LEADER[k]; if(v>0) (by[v]=by[v]||[]).push(k); });
+  return Object.keys(by).sort(function(a,b){return b-a;}).map(function(v){ return esc(by[v].join("·"))+' +'+v; }).join(" · ");
+}
 function thiefCell(kind, opp){
   if(!THIEVES||!THIEVES.top.length) return "";
   var line=opp+9;
@@ -1044,7 +1051,11 @@ function thiefCell(kind, opp){
     var st=kind==="found"? t.ins : t.dex;
     var p=CH.p(kind, opp, t.thief, st, 0);
     var lack=line-CH.fixedLow(kind, t.thief, st, 0);
-    return '<span class="'+(lack<=0?'thok':'thno')+'">'+esc(t.n)+' '+pct(p)+(lack>0?' <i>−'+lack+'</i>':'')+'</span>';
+    /* 리더로 세우면 — 발견에만 · 그 사람이 리더일 때만 성격 보너스(7.3 Party.LeaderBonus 0x26F8D20: IsLeader ? 표[성격] : 0).
+       보너스가 있고 %가 달라질 때만 «(리더 N%)» 를 붙인다(2026-10-09 제작자: «리더 보너스도 점수에 들어가지 않나?» → «응») */
+    var lb=kind==="found" ? (CH.LEADER[t.pers]||0) : 0, lead="";
+    if(lb>0){ var pl=pct(CH.p(kind, opp, t.thief, st, lb)); if(pl!==pct(p)) lead=' <span class="thlead">(리더 '+pl+')</span>'; }
+    return '<span class="'+(lack<=0?'thok':'thno')+'">'+esc(t.n)+' '+pct(p)+lead+(lack>0?' <i>−'+lack+'</i>':'')+'</span>';
   }).join(" · ");
 }
 /* 금고 줄의 판정 하나 — «발견 46 — 도둑 35 + 통찰 72 이상» 한 줄, 그 아래 내 도둑마다의 확률(있으면) */
@@ -1059,6 +1070,7 @@ function chestHTML(x){
   return '<div class="chain chest"><h4>보물금고 · 습득물 '+x.ch.length+'건</h4>'
     + '<p class="cmeta chestnote">확정 = <b>도둑 레벨 + 스탯 ÷ 6</b> 이 그 숫자 이상(발견은 통찰 · 해제는 재주, 스탯은 직업·장비 합친 값) · '
     + '모자라도 4 모자라면 93% · 8 이면 66% · 12 면 29% — 파티원 중 한 명만 되면 됩니다(<a href="notes.html#check">원리 §8</a>)'
+    + ' · 발견은 <b>리더</b>면 성격 보너스('+leadTxt()+')를 더 받습니다'+(THIEVES? ' — 도둑 옆 «(리더 N%)»' : '')
     + mine+'</p><ul>'
     + x.ch.map(function(c){
         var it = c.item ? itemOf(c.item) : null;
