@@ -274,6 +274,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   border-radius:99px;padding:1px 8px;margin:2px 4px 0 0}
 .chain.chest ul{padding-left:6px}
 .chain.chest li::before{content:""}
+.chain.chest .chestnote{display:block;margin:-2px 0 8px;font-size:11.5px;line-height:1.55}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
 .t-chest{color:var(--f-vault)} .t-find{color:var(--f-lodge)}
@@ -893,9 +894,32 @@ function itemSp(it){
       return '<em class="opt">'+esc(o.k)+v+p+'</em>';
     }).join("")+'</span>';
 }
+/* 금고 판정을 «도둑 레벨 · 스탯 몇» 으로 읽게 — 원리 §8.
+     내 값 = 주사위(최소 3, 1+1 이면 대실패) + 도둑 레벨 + ⌊흔들림(스탯) ÷ 6⌋ (+ 발견만 리더 보너스)
+     확정선 = 퀘스트 레벨 + 난이도 + 9 → «도둑 레벨 + 흔들림 최솟값의 몫» 이 확정선 이상이면 대실패만 빼고 늘 이긴다.
+   발견은 통찰, 해제는 재주. 스탯은 직업 · 장비를 합한 총값(화면의 그 값). 흔들림 폭은 원리 §1 · calc-tpl rnd() 와 같은 식. */
+var THIEF_CAP=35;   // 도둑 천장
+function statFloor(v){
+  if(v<1) return 0;
+  var n = v<=8 ? 3 : (v<=30 ? (v*171>>9) : (v<=99 ? (v*205>>11) : (v>>4)));
+  return n<=0 ? v : Math.max(0, v-(n-1));
+}
+function statForShare(q){                 // 흔들림이 가장 나빠도 ⌊값 ÷ 6⌋ ≥ q 가 되는 가장 낮은 스탯
+  if(q<=0) return 0;
+  for(var s=1;s<=300;s++) if(Math.floor(statFloor(s)/6)>=q) return s;
+  return null;
+}
+function chestNeed(line, stat){
+  var q=line-THIEF_CAP;
+  if(q<=0) return "도둑 "+Math.max(1,line)+" 이상이면 확정";
+  var s=statForShare(q);
+  return "도둑 "+THIEF_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
+}
 function chestHTML(x){
   if(!x.ch || !x.ch.length) return "";
-  return '<div class="chain chest"><h4>보물금고 · 습득물 '+x.ch.length+'건</h4><ul>'
+  return '<div class="chain chest"><h4>보물금고 · 습득물 '+x.ch.length+'건</h4>'
+    + '<p class="cmeta chestnote">확정 = <b>도둑 레벨 + 스탯 ÷ 6</b> 이 그 숫자 이상(발견은 통찰 · 해제는 재주, 스탯은 직업·장비 합친 값) · '
+    + '모자라도 4 모자라면 93% · 8 이면 66% · 12 면 29% — 파티원 중 한 명만 되면 됩니다(<a href="notes.html#check">원리 §8</a>)</p><ul>'
     + x.ch.map(function(c){
         var it = c.item ? itemOf(c.item) : null;
         /* 이름을 도감으로 건다. ?q= 로 한 줄만 걸리면 도감이 그 줄을 펼쳐 준다. */
@@ -905,12 +929,14 @@ function chestHTML(x){
           : (c.gold? c.gold.toLocaleString()+'G' : '내용 미지정');
         var bits=[], lv=curLv(x)[0];
         bits.push('시작 '+hhmm(c.at)+' 후');
-        if(c.ins) bits.push('통찰력 판정');
-        /* 확정선 = 지금 의뢰 레벨(클리어 보너스 포함) + 난이도 + 9 — 원리 §8. 습득물은 내 값에 +6 이 붙어 3.
-           해제는 난이도 0 이면 판정 자체가 없다. 모자란 만큼의 성공률은 원리 §8 에 있다. */
-        if(c.src==="금고") bits.push('발견 확정선 '+(lv+(c.fv||0)+9)+(c.fv?' (난이도 '+c.fv+')':''));
-        else               bits.push('습득 확정선 '+(lv+(c.fv||0)+3)+(c.fv?' (난이도 '+c.fv+')':''));
-        if(c.ud)  bits.push('해제 확정선 '+(lv+c.ud+9)+' (난이도 '+c.ud+')');
+        // 등장 판정 — 리더의 현자 레벨 + 통찰로 «금고가 뜨는지» 부터 굴린다(원리 §10 · IsAppearanceEvent)
+        if(c.ins) bits.push('등장 판정(리더 현자·통찰)');
+        /* 확정선 = 지금 의뢰 레벨(클리어 보너스 포함) + 난이도 + 9 — 원리 §8. «난이도» 는 이미 이 숫자 안에 있어 따로 안 적는다.
+           습득물은 내 값에 +6 이 붙어 3 · 발견값 0 이면 굴리지 않고 줍는다. 해제는 난이도 0 이면 판정 자체가 없다. */
+        if(c.src==="금고"){ var fl=lv+(c.fv||0)+9; bits.push('발견 '+fl+' — '+chestNeed(fl,"통찰")); }
+        else if(c.fv){ var sl=lv+c.fv+3; bits.push('습득 '+sl+' — '+chestNeed(sl,"통찰")); }
+        else bits.push('늘 주움(판정 없음)');
+        if(c.ud){ var ul=lv+c.ud+9; bits.push('해제 '+ul+' — '+chestNeed(ul,"재주")); }
         else if(c.src==="금고") bits.push('해제 판정 없음');
         if(c.cv)  bits.push('제작등급 '+c.cv);
         if(c.trap) bits.push('함정 있음');
