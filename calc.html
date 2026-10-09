@@ -305,6 +305,20 @@ details.fine p{margin:6px 0 0;line-height:1.6}
   border-radius:7px;background:var(--raised);color:var(--ink)}
 .statbox{display:flex;flex-wrap:wrap;gap:6px}
 .statbox .lvin{font-size:11.5px}
+/* 금고 확률 */
+.ckrow{align-items:center}
+.ckrow .ckname{width:96px;font:inherit;font-size:13px;font-weight:600;padding:4px 8px;border:1px solid var(--line);
+  border-radius:7px;background:var(--surface);color:var(--ink)}
+.ckrow .lvin input{width:40px}
+.ckrow select{font:inherit;font-size:12.5px;padding:4px 8px;border:1px solid var(--line);border-radius:7px;
+  background:var(--raised);color:var(--ink);max-width:100%}
+.ckt td .meta{font-size:11px}
+.ckt .ckok{color:var(--f-lodge)}
+.ckt .cklack{color:var(--f-heal);font-size:11.5px}
+.ckt tr.ckparty td{border-top:1px solid var(--line);border-bottom:0}
+.ckbig{margin:6px 0 8px;font-size:14px;color:var(--body)}
+.ckbig .ckall{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:18px;color:var(--accent)}
+#ckres{overflow-x:auto}
 .statbox .lvin input{width:44px}
 .t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
 .crow .lvin input{width:54px}
@@ -375,6 +389,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       <button id="v-calc" type="button" aria-pressed="false">용병 뽑기</button>
       <button id="v-stat" type="button" aria-pressed="false">능력치</button>
       <button id="v-rep" type="button" aria-pressed="false">평판</button>
+      <button id="v-chest" type="button" aria-pressed="false">금고 확률</button>
       </div>
       <label class="toggle" style="margin-left:auto" title="아직 못 가는 지역에서만 열리는 클래스·도시까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 것도 보기</label>
     </div>
@@ -389,7 +404,93 @@ details.fine p{margin:6px 0 0;line-height:1.6}
   </footer>
 </div>
 
-__CHESTLIB__
+<script>
+/* ── 금고 · 습득물 판정 확률 — 퀘스트 색인 · 계산기 · 세이브 화면이 같이 쓴다 ─────────────────────
+   build.py · build_cloud.py 가 각 페이지의 CHESTLIB 자리표에 이 파일을 끼운다(savelib.html 과 같은 방식). 식을 두 벌로 만들지 않으려고.
+   (여기에 자리표 글자를 그대로 쓰면 끼운 뒤에도 남아 build_cloud 의 «채우지 못한 자리표» 검사가 문다.)
+
+   규칙(원리 §8 · tools/sim/partysim.py chest() · 7.3 AdventureMain.OpenTreasureBox 0x27252B8):
+     살아 있는 파티원이 편성 순서대로 한 명씩 굴려 한 명만 이기면 성공 — 상대 주사위는 사람마다 새로 굴린다.
+     내 값 = Dice2DWithCritical(10) + 도둑 레벨 + (발견만 · 리더면 리더 보너스) + [가드면] ⌊CreateRandomValue(스탯) ÷ 6⌋
+       가드 — 발견: 도둑 레벨 + 리더 보너스 ≥ 1 · 해제: 도둑 레벨 ≥ 1 (안 되면 스탯 몫 없이 맨주사위)
+       스탯 — 발견은 통찰, 해제는 재주(직업 · 장비를 합한 총값)
+     상대 = 퀘스트 레벨 + 난이도(발견값 · 해제 난이도) + Dice2D        성공 = 내 값 ≥ 상대
+   Dice2DWithCritical(10): 첫 2d6 이 1+1 이면 −100(대실패) · 합이 10 이상이면 2d6 을 또 굴려 더하고 또 10 이상이면 계속(이어 굴린 1+1 은 그냥 2).
+   CreateRandomValue(b): b ≤ 8 → b ± Rand(3)(0 밑은 0) · ≤ 30 → b ± Rand(⌊b/3⌋) · ≤ 99 → b ± Rand(⌊b/10⌋) · 그 위 b ± Rand(b >> 4) — 부호 반반.
+     (게임은 ⌊b×171/512⌋ · ⌊b×205/2048⌋ 로 나누는데 그 구간에서 ⌊b/3⌋ · ⌊b/10⌋ 과 같다 — 원리 §1)
+   확률은 근사가 아니다 — 세 분포(내 주사위 · 흔든 스탯의 몫 · 상대 주사위)를 그대로 곱해 더한다(연쇄는 10번째에서 자름 — 남는 몫 6⁻¹⁰). */
+(function (G) {
+  "use strict";
+  var LEADER = { "무모한": 3, "이기적": 2, "사교적": -1, "신중한": 0, "합리적": 3, "신경질적": -1, "감정적": 1 };   // makesheet.js LEADER · 원리 §4
+  var THIEF_CAP = 35;
+  var D2 = [];                                         // Dice2D 2..12
+  for (var s = 2; s <= 12; s++) D2[s] = (6 - Math.abs(s - 7)) / 36;
+  var D2C = null;                                      // [[합, 확률]] — 대실패(−100)는 뺀다(늘 진다)
+  function d2c() {
+    if (D2C) return D2C;
+    var m = {};
+    function add(t, p) { m[t] = (m[t] || 0) + p; }
+    function chain(t, p, depth) {
+      for (var r = 2; r <= 12; r++) {
+        var q = p * D2[r];
+        if (r >= 10 && depth < 10) chain(t + r, q, depth + 1); else add(t + r, q);
+      }
+    }
+    for (var f = 3; f <= 12; f++) {                    // 첫 굴림 2(= 1+1)는 −100
+      if (f >= 10) chain(f, D2[f], 1); else add(f, D2[f]);
+    }
+    D2C = Object.keys(m).map(function (k) { return [+k, m[k]]; });
+    return D2C;
+  }
+  function crvSpread(b) { return b <= 8 ? 3 : (b <= 30 ? Math.floor(b / 3) : (b <= 99 ? Math.floor(b / 10) : (b >> 4))); }
+  /* 흔든 스탯의 ⌊÷6⌋ 몫 분포 — {몫: 확률} */
+  function shareDist(b) {
+    if (!(b >= 1)) return { 0: 1 };
+    var n = crvSpread(b), out = {};
+    function put(v, p) { var k = Math.floor((v > 0 ? v : 0) / 6); out[k] = (out[k] || 0) + p; }
+    if (n <= 0) { put(b, 1); return out; }
+    for (var r = 0; r < n; r++) { put(b + r, 0.5 / n); put(b - r, 0.5 / n); }
+    return out;
+  }
+  /* 흔들림이 가장 나쁠 때의 스탯 — 확정선을 셀 때 쓴다(원리 §1 «최솟값 = 기준값 − (n − 1)») */
+  function statFloor(v) {
+    if (v < 1) return 0;
+    var n = v <= 8 ? 3 : (v <= 30 ? (v * 171 >> 9) : (v <= 99 ? (v * 205 >> 11) : (v >> 4)));
+    return n <= 0 ? v : Math.max(0, v - (n - 1));
+  }
+  function statForShare(q) {                           // 흔들림이 가장 나빠도 ⌊값 ÷ 6⌋ ≥ q 가 되는 가장 낮은 스탯
+    if (q <= 0) return 0;
+    for (var s = 1; s <= 300; s++) if (Math.floor(statFloor(s) / 6) >= q) return s;
+    return null;
+  }
+  function base(kind, thief, lb) { return (thief || 0) + (kind === "found" ? (lb || 0) : 0); }
+  function guard(kind, thief, lb) { return kind === "found" ? base(kind, thief, lb) >= 1 : (thief || 0) >= 1; }
+  /* 한 사람의 «고정부» — 흔들림이 가장 나쁠 때. 이게 확정선(상대 + 9) 이상이면 대실패만 빼고 늘 이긴다 */
+  function fixedLow(kind, thief, stat, lb) {
+    return base(kind, thief, lb) + (guard(kind, thief, lb) ? Math.floor(statFloor(stat || 0) / 6) : 0);
+  }
+  /* 한 사람이 이길 확률. kind = "found"(발견 · 통찰) | "unlock"(해제 · 재주) · opp = 퀘스트 레벨 + 난이도 · lb = 리더면 리더 보너스(아니면 0) */
+  function p(kind, opp, thief, stat, lb) {
+    var b = base(kind, thief, lb), sh = guard(kind, thief, lb) ? shareDist(stat || 0) : { 0: 1 };
+    var dc = d2c(), tot = 0;
+    for (var k in sh) {
+      var mine0 = b + (+k), ps = sh[k];
+      for (var i = 0; i < dc.length; i++) {
+        var mine = mine0 + dc[i][0];
+        var need = mine - opp;                         // 상대 2d6 이 need 이하면 이긴다
+        var po = 0;
+        for (var o = 2; o <= 12 && o <= need; o++) po += D2[o];
+        tot += ps * dc[i][1] * po;
+      }
+    }
+    return tot;
+  }
+  function party(ps) { var f = 1; for (var i = 0; i < ps.length; i++) f *= 1 - ps[i]; return 1 - f; }
+  G.TSA_CHEST = { LEADER: LEADER, THIEF_CAP: THIEF_CAP, statFloor: statFloor, statForShare: statForShare,
+                  shareDist: shareDist, fixedLow: fixedLow, p: p, party: party, _d2c: d2c };
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+
 <script>
 window.__TSA_BOOT=function(D){
 "use strict";
@@ -1487,7 +1588,8 @@ var TABNOTE = {
   calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
   map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다.",
   stat: "주/부 직업과 장비를 바꿔 가며 수치를 봅니다. 내 용병을 불러와 거기서 고칠 수 있습니다.",
-  rep:  "슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다."
+  rep:  "슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다.",
+  chest:"파티원의 도둑 레벨 · 통찰 · 재주를 넣으면 금고 발견 · 해제 확률을 한 사람씩과 파티 전체로 계산합니다."
 };
 function headStats(){
   var out=[];
@@ -1512,6 +1614,8 @@ function headStats(){
     out=[[bt2.length,"주점"],[D.races.length,"종족·성별"],[7,"성격"]];
   } else if(state.view==="rep"){
     out=[[repTowns().length,"도시"],[state.rep,"지금 평판"],[99,"평판 상한"]];
+  } else if(state.view==="chest"){
+    out=[[ck.rows.length,"파티원"],[ck.lv+ck.f+9,"발견 확정선"],[ck.u? ck.lv+ck.u+9 : "—","해제 확정선"]];
   } else {
     var ms=D.maps.filter(function(m){ return state.showLocked || !m.lock; });
     out=[[ms.length,"지역"],
@@ -1563,6 +1667,9 @@ function render(){
   } else if(state.view==="rep"){
     el("out").innerHTML=repHTML();
     repWire();
+    return;
+  } else if(state.view==="chest"){
+    el("out").innerHTML=chestCalcHTML();
     return;
   } else {
     var ts=visTowns().filter(function(t){
@@ -1660,7 +1767,118 @@ function repRows(){
   }).join("");
 }
 
-var VIEWS=["calc","stat","rep"];
+/* ── 금고 확률 ─────────────────────────────────────────────────────────
+   파티원마다 도둑 레벨 · 통찰 · 재주 · 성격(리더면 발견에 성격 보너스)을 넣으면, 한 사람씩과 파티 전체의 발견 · 해제 확률을 낸다.
+   식은 chestlib.html(TSA_CHEST) 하나 — 퀘스트 색인 금고 줄과 같은 식이고 chestcheck.mjs 가 원리 §8 · 시뮬 절차와 맞춘다.
+   퀘스트 색인 금고 줄의 «확률 계산 ↗» 가 ?v=chest&lv=퀘스트 레벨&f=발견값&u=해제 난이도&nm=내용물 로 새 창을 연다.
+   파티원은 세이브 화면이 남긴 tsa.chestcrew.v1(현역 용병별 도둑 레벨 · 통찰 · 재주 · 성격)에서 도둑 레벨 높은 순 4명으로 채운다. */
+var CK_PERS=["무모한","합리적","이기적","감정적","신중한","사교적","신경질적"];
+function ckCrew(){
+  var c=null; try{ c=JSON.parse(localStorage.getItem("tsa.chestcrew.v1")||"null"); }catch(e){}
+  return (c&&c.list)? c.list.slice().sort(function(a,b){ return (b.thief-a.thief)||((b.ins+b.dex)-(a.ins+a.dex)); }) : [];
+}
+var ck=(function(){
+  var p=new URLSearchParams(location.search), num=function(k,d){ var v=parseInt(p.get(k),10); return isNaN(v)? d : v; };
+  var crew=ckCrew().filter(function(x){ return x.thief>=1; }).slice(0,4);
+  var rows=crew.length ? crew.map(function(x){ return {n:x.n, thief:x.thief, ins:x.ins, dex:x.dex, pers:x.pers||"신중한"}; })
+                       : [{n:"용병 1", thief:35, ins:40, dex:50, pers:"무모한"}];
+  return {lv:num("lv",30), f:num("f",0), u:num("u",3), nm:p.get("nm")||"", leader:-1, rows:rows};
+})();
+function ckPct(p){ var v=p*100; if(v>=99.95) return "99.9%↑"; return (v>=99||v<1? v.toFixed(1) : String(Math.round(v)))+"%"; }
+function ckLb(i){ return i===ck.leader ? (TSA_CHEST.LEADER[ck.rows[i].pers]||0) : 0; }
+function ckNeed(line, stat){
+  var q=line-TSA_CHEST.THIEF_CAP;
+  if(q<=0) return "도둑 "+Math.max(1,line)+" 이상이면 확정";
+  var s=TSA_CHEST.statForShare(q);
+  return "도둑 "+TSA_CHEST.THIEF_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
+}
+function ckRowHTML(r, i){
+  var crew=ckCrew();
+  var pick='<select data-ck="pick" data-r="'+i+'" aria-label="내 용병에서 고르기"><option value="">내 용병에서…</option>'
+    +crew.map(function(x,k){ return '<option value="'+k+'">'+esc(x.n)+' · 도둑 '+x.thief+' · 통찰 '+x.ins+' · 재주 '+x.dex+'</option>'; }).join("")
+    +'</select>';
+  var num=function(k,lab,max){ return '<label class="lvin">'+lab+'<input type="number" min="0" max="'+max+'" data-ck="'+k+'" data-r="'+i+'" value="'+(r[k]||0)+'"></label>'; };
+  return '<div class="crow ckrow"><span class="lvlabel"><input type="text" class="ckname" data-ck="n" data-r="'+i+'" value="'+esc(r.n)+'" aria-label="이름"></span>'
+    +num("thief","도둑 Lv",99)+num("ins","통찰",300)+num("dex","재주",300)
+    +'<select data-ck="pers" data-r="'+i+'" aria-label="성격">'+CK_PERS.map(function(p){
+        var b=TSA_CHEST.LEADER[p]; return '<option value="'+p+'"'+(p===r.pers?' selected':'')+'>'+p+' (리더 '+(b>0?'+':'')+b+')</option>'; }).join("")+'</select>'
+    +'<label class="toggle"><input type="radio" name="ckleader" data-ck="leader" data-r="'+i+'"'+(i===ck.leader?' checked':'')+'> 리더</label>'
+    +(crew.length? pick : "")
+    +(ck.rows.length>1? '<button type="button" class="mini" data-ck="del" data-r="'+i+'" aria-label="빼기">빼기</button>' : "")
+    +'</div>';
+}
+function ckResHTML(){
+  var C=TSA_CHEST, fo=ck.lv+ck.f, uo=ck.lv+ck.u, fl=fo+9, ul=uo+9;
+  var pf=[], pu=[];
+  var body=ck.rows.map(function(r,i){
+    var lb=ckLb(i);
+    var a=C.p("found", fo, r.thief, r.ins, lb), b=ck.u? C.p("unlock", uo, r.thief, r.dex, 0) : 1;
+    pf.push(a); pu.push(b);
+    var fx=C.fixedLow("found", r.thief, r.ins, lb), ux=C.fixedLow("unlock", r.thief, r.dex, 0);
+    var mk=function(x, line){ return x>=line ? '<b class="ckok">'+x+' ✓</b>' : x+' <span class="cklack">−'+(line-x)+'</span>'; };
+    var lead = i===ck.leader ? ' <span class="meta">리더 '+(lb>0?'+':'')+lb+'</span>' : '';
+    return '<tr><td>'+esc(r.n||("파티원 "+(i+1)))+lead+'</td>'
+      +'<td class="num">'+mk(fx, fl)+'</td><td class="num">'+ckPct(a)+'</td>'
+      +(ck.u? '<td class="num">'+mk(ux, ul)+'</td><td class="num">'+ckPct(b)+'</td>' : '<td class="num" colspan="2">판정 없음</td>')+'</tr>';
+  }).join("");
+  var PF=C.party(pf), PU=ck.u? C.party(pu) : 1;
+  return '<table class="sct ckt"><thead><tr><th>파티원</th><th class="num">발견 값</th><th class="num">발견</th><th class="num">해제 값</th><th class="num">해제</th></tr></thead><tbody>'
+    +body
+    +'<tr class="ckparty"><td><b>파티(한 명만 되면)</b></td><td></td><td class="num"><b>'+ckPct(PF)+'</b></td><td></td><td class="num"><b>'+(ck.u? ckPct(PU) : "—")+'</b></td></tr>'
+    +'</tbody></table>'
+    +'<p class="ckbig">이 금고를 <b>찾고 여는</b> 확률 <b class="ckall">'+ckPct(PF*PU)+'</b>'
+    +' <span class="meta">= 발견 '+ckPct(PF)+(ck.u? ' × 해제 '+ckPct(PU) : ' · 해제 판정 없음')+'</span></p>'
+    +'<p class="meta">«값» 은 흔들림이 가장 나쁠 때의 도둑 레벨 + 스탯 ÷ 6(+리더) — 확정선(발견 '+fl+(ck.u? ' · 해제 '+ul : '')+') 이상이면 ✓ 대실패(1/36)만 빼고 늘 이깁니다. '
+    +'확정하려면 발견 «'+ckNeed(fl,"통찰")+'»'+(ck.u? ' · 해제 «'+ckNeed(ul,"재주")+'»' : '')+'.</p>';
+}
+function chestCalcHTML(){
+  return '<section class="group"><div class="ghead"><h2>금고 확률</h2>'
+    +'<span class="sub">'+(ck.nm? esc(ck.nm)+' 금고 · ' : '')+'파티원의 도둑 레벨 · 통찰 · 재주로 발견 · 해제 확률을 계산합니다</span><span class="rule"></span></div>'
+    +'<div class="calc">'
+    +'<div class="crow"><span class="lvlabel">금고</span>'
+      +'<label class="lvin">퀘스트 Lv<input type="number" min="1" max="99" data-ck="lv" value="'+ck.lv+'"></label>'
+      +'<label class="lvin">발견값<input type="number" min="0" max="30" data-ck="f" value="'+ck.f+'"></label>'
+      +'<label class="lvin">해제 난이도<input type="number" min="0" max="30" data-ck="u" value="'+ck.u+'"></label>'
+      +'<span class="meta">퀘스트 레벨은 클리어 보너스까지 넣은 지금 레벨 · 해제 난이도 0 = 해제 판정 없음</span></div>'
+    + ck.rows.map(ckRowHTML).join("")
+    +'<div class="crow"><span class="lvlabel"></span>'+(ck.rows.length<4? '<button type="button" class="mini" data-ck="add">파티원 추가</button>' : '<span class="meta">파티는 4명까지</span>')
+      +(ckCrew().length? '' : ' <span class="meta">내 세이브 화면에서 세이브를 넣으면 내 도둑으로 채워집니다</span>')+'</div>'
+    +'<div id="ckres">'+ckResHTML()+'</div>'
+    +'<details class="fine"><summary>어떻게 셈하나</summary>'
+      +'<p>살아 있는 파티원이 편성 순서대로 한 명씩 굴려 <b>한 명만 이기면</b> 됩니다 — 상대 주사위는 사람마다 새로 굴립니다.</p>'
+      +'<p><b>발견</b> = 주사위 + 도둑 레벨 + (리더면 성격 보너스) + ⌊흔든 통찰 ÷ 6⌋ · <b>해제</b> = 주사위 + 도둑 레벨 + ⌊흔든 재주 ÷ 6⌋ · 상대 = 퀘스트 레벨 + 발견값(해제 난이도) + 2d6.</p>'
+      +'<p>스탯 몫은 도둑 레벨(발견은 + 리더 보너스)이 1 이상일 때만 붙습니다 — 도둑을 안 배운 사람은 맨주사위입니다. '
+      +'주사위는 1+1 이면 대실패, 10 이상이면 또 굴려 더합니다. 스탯은 굴릴 때마다 조금 흔들리고(원리 §1), 이 표의 %는 그 흔들림까지 다 넣은 값입니다.</p>'
+      +'<p>근거: 7.3 <code>AdventureMain.OpenTreasureBox</code> — 발견 0x272568C(도둑 · 리더 보너스 · 통찰) · 해제 0x27258E8(도둑 · 재주) · <a href="notes.html#check">원리 §8</a>.</p>'
+    +'</details></div></section>';
+}
+function ckRefresh(){ var r=el("ckres"); if(r) r.innerHTML=ckResHTML(); headStats(); }
+el("out").addEventListener("input",function(e){
+  var t=e.target.closest("[data-ck]"); if(!t || state.view!=="chest") return;
+  var k=t.getAttribute("data-ck"), i=+t.getAttribute("data-r");
+  if(k==="lv"||k==="f"||k==="u"){ ck[k]=Math.max(0, parseInt(t.value,10)||0); ckRefresh(); return; }
+  if(k==="thief"||k==="ins"||k==="dex"){ ck.rows[i][k]=Math.max(0, parseInt(t.value,10)||0); ckRefresh(); return; }
+  if(k==="n"){ ck.rows[i].n=t.value; ckRefresh(); }
+});
+el("out").addEventListener("change",function(e){
+  var t=e.target.closest("[data-ck]"); if(!t || state.view!=="chest") return;
+  var k=t.getAttribute("data-ck"), i=+t.getAttribute("data-r");
+  if(k==="pers"){ ck.rows[i].pers=t.value; ckRefresh(); return; }
+  if(k==="leader"){ ck.leader=i; ckRefresh(); return; }
+  if(k==="pick" && t.value!==""){
+    var x=ckCrew()[+t.value];
+    if(x) ck.rows[i]={n:x.n, thief:x.thief, ins:x.ins, dex:x.dex, pers:x.pers||"신중한"};
+    render();
+  }
+});
+el("out").addEventListener("click",function(e){
+  var t=e.target.closest("button[data-ck]"); if(!t || state.view!=="chest") return;
+  var k=t.getAttribute("data-ck"), i=+t.getAttribute("data-r");
+  if(k==="add" && ck.rows.length<4){ ck.rows.push({n:"파티원 "+(ck.rows.length+1), thief:0, ins:0, dex:0, pers:"신중한"}); render(); }
+  if(k==="del" && ck.rows.length>1){ ck.rows.splice(i,1); if(ck.leader===i) ck.leader=-1; else if(ck.leader>i) ck.leader--; render(); }
+});
+
+var VIEWS=["calc","stat","rep","chest"];
 function setView(v){
   state.view=v;
   VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });

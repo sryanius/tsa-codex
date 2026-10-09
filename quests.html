@@ -275,6 +275,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain.chest ul{padding-left:6px}
 .chain.chest li::before{content:""}
 .chain.chest .chestnote{display:block;margin:-2px 0 8px;font-size:11.5px;line-height:1.55}
+.chain.chest .calcl{display:inline-block;margin-top:4px;font-size:12px;font-weight:600;color:var(--accent)}
 .bar.folded .fold{display:none !important}
 .foldbtn{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;cursor:pointer;
   border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);
@@ -427,7 +428,93 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </footer>
 </div>
 
-__CHESTLIB__
+<script>
+/* ── 금고 · 습득물 판정 확률 — 퀘스트 색인 · 계산기 · 세이브 화면이 같이 쓴다 ─────────────────────
+   build.py · build_cloud.py 가 각 페이지의 CHESTLIB 자리표에 이 파일을 끼운다(savelib.html 과 같은 방식). 식을 두 벌로 만들지 않으려고.
+   (여기에 자리표 글자를 그대로 쓰면 끼운 뒤에도 남아 build_cloud 의 «채우지 못한 자리표» 검사가 문다.)
+
+   규칙(원리 §8 · tools/sim/partysim.py chest() · 7.3 AdventureMain.OpenTreasureBox 0x27252B8):
+     살아 있는 파티원이 편성 순서대로 한 명씩 굴려 한 명만 이기면 성공 — 상대 주사위는 사람마다 새로 굴린다.
+     내 값 = Dice2DWithCritical(10) + 도둑 레벨 + (발견만 · 리더면 리더 보너스) + [가드면] ⌊CreateRandomValue(스탯) ÷ 6⌋
+       가드 — 발견: 도둑 레벨 + 리더 보너스 ≥ 1 · 해제: 도둑 레벨 ≥ 1 (안 되면 스탯 몫 없이 맨주사위)
+       스탯 — 발견은 통찰, 해제는 재주(직업 · 장비를 합한 총값)
+     상대 = 퀘스트 레벨 + 난이도(발견값 · 해제 난이도) + Dice2D        성공 = 내 값 ≥ 상대
+   Dice2DWithCritical(10): 첫 2d6 이 1+1 이면 −100(대실패) · 합이 10 이상이면 2d6 을 또 굴려 더하고 또 10 이상이면 계속(이어 굴린 1+1 은 그냥 2).
+   CreateRandomValue(b): b ≤ 8 → b ± Rand(3)(0 밑은 0) · ≤ 30 → b ± Rand(⌊b/3⌋) · ≤ 99 → b ± Rand(⌊b/10⌋) · 그 위 b ± Rand(b >> 4) — 부호 반반.
+     (게임은 ⌊b×171/512⌋ · ⌊b×205/2048⌋ 로 나누는데 그 구간에서 ⌊b/3⌋ · ⌊b/10⌋ 과 같다 — 원리 §1)
+   확률은 근사가 아니다 — 세 분포(내 주사위 · 흔든 스탯의 몫 · 상대 주사위)를 그대로 곱해 더한다(연쇄는 10번째에서 자름 — 남는 몫 6⁻¹⁰). */
+(function (G) {
+  "use strict";
+  var LEADER = { "무모한": 3, "이기적": 2, "사교적": -1, "신중한": 0, "합리적": 3, "신경질적": -1, "감정적": 1 };   // makesheet.js LEADER · 원리 §4
+  var THIEF_CAP = 35;
+  var D2 = [];                                         // Dice2D 2..12
+  for (var s = 2; s <= 12; s++) D2[s] = (6 - Math.abs(s - 7)) / 36;
+  var D2C = null;                                      // [[합, 확률]] — 대실패(−100)는 뺀다(늘 진다)
+  function d2c() {
+    if (D2C) return D2C;
+    var m = {};
+    function add(t, p) { m[t] = (m[t] || 0) + p; }
+    function chain(t, p, depth) {
+      for (var r = 2; r <= 12; r++) {
+        var q = p * D2[r];
+        if (r >= 10 && depth < 10) chain(t + r, q, depth + 1); else add(t + r, q);
+      }
+    }
+    for (var f = 3; f <= 12; f++) {                    // 첫 굴림 2(= 1+1)는 −100
+      if (f >= 10) chain(f, D2[f], 1); else add(f, D2[f]);
+    }
+    D2C = Object.keys(m).map(function (k) { return [+k, m[k]]; });
+    return D2C;
+  }
+  function crvSpread(b) { return b <= 8 ? 3 : (b <= 30 ? Math.floor(b / 3) : (b <= 99 ? Math.floor(b / 10) : (b >> 4))); }
+  /* 흔든 스탯의 ⌊÷6⌋ 몫 분포 — {몫: 확률} */
+  function shareDist(b) {
+    if (!(b >= 1)) return { 0: 1 };
+    var n = crvSpread(b), out = {};
+    function put(v, p) { var k = Math.floor((v > 0 ? v : 0) / 6); out[k] = (out[k] || 0) + p; }
+    if (n <= 0) { put(b, 1); return out; }
+    for (var r = 0; r < n; r++) { put(b + r, 0.5 / n); put(b - r, 0.5 / n); }
+    return out;
+  }
+  /* 흔들림이 가장 나쁠 때의 스탯 — 확정선을 셀 때 쓴다(원리 §1 «최솟값 = 기준값 − (n − 1)») */
+  function statFloor(v) {
+    if (v < 1) return 0;
+    var n = v <= 8 ? 3 : (v <= 30 ? (v * 171 >> 9) : (v <= 99 ? (v * 205 >> 11) : (v >> 4)));
+    return n <= 0 ? v : Math.max(0, v - (n - 1));
+  }
+  function statForShare(q) {                           // 흔들림이 가장 나빠도 ⌊값 ÷ 6⌋ ≥ q 가 되는 가장 낮은 스탯
+    if (q <= 0) return 0;
+    for (var s = 1; s <= 300; s++) if (Math.floor(statFloor(s) / 6) >= q) return s;
+    return null;
+  }
+  function base(kind, thief, lb) { return (thief || 0) + (kind === "found" ? (lb || 0) : 0); }
+  function guard(kind, thief, lb) { return kind === "found" ? base(kind, thief, lb) >= 1 : (thief || 0) >= 1; }
+  /* 한 사람의 «고정부» — 흔들림이 가장 나쁠 때. 이게 확정선(상대 + 9) 이상이면 대실패만 빼고 늘 이긴다 */
+  function fixedLow(kind, thief, stat, lb) {
+    return base(kind, thief, lb) + (guard(kind, thief, lb) ? Math.floor(statFloor(stat || 0) / 6) : 0);
+  }
+  /* 한 사람이 이길 확률. kind = "found"(발견 · 통찰) | "unlock"(해제 · 재주) · opp = 퀘스트 레벨 + 난이도 · lb = 리더면 리더 보너스(아니면 0) */
+  function p(kind, opp, thief, stat, lb) {
+    var b = base(kind, thief, lb), sh = guard(kind, thief, lb) ? shareDist(stat || 0) : { 0: 1 };
+    var dc = d2c(), tot = 0;
+    for (var k in sh) {
+      var mine0 = b + (+k), ps = sh[k];
+      for (var i = 0; i < dc.length; i++) {
+        var mine = mine0 + dc[i][0];
+        var need = mine - opp;                         // 상대 2d6 이 need 이하면 이긴다
+        var po = 0;
+        for (var o = 2; o <= 12 && o <= need; o++) po += D2[o];
+        tot += ps * dc[i][1] * po;
+      }
+    }
+    return tot;
+  }
+  function party(ps) { var f = 1; for (var i = 0; i < ps.length; i++) f *= 1 - ps[i]; return 1 - f; }
+  G.TSA_CHEST = { LEADER: LEADER, THIEF_CAP: THIEF_CAP, statFloor: statFloor, statForShare: statForShare,
+                  shareDist: shareDist, fixedLow: fixedLow, p: p, party: party, _d2c: d2c };
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+
 <script>
 window.__TSA_BOOT=function(D){
 "use strict";
@@ -982,6 +1069,11 @@ function chestHTML(x){
         if(c.src==="금고" && THIEVES && THIEVES.top.length){
           thr = '<span class="cmeta threw"><b>발견</b> '+thiefCell("found", lv+(c.fv||0))+'</span>'
               + (c.ud ? '<span class="cmeta threw"><b>해제</b> '+thiefCell("unlock", lv+c.ud)+'</span>' : "");
+        }
+        // 계산기 «금고 확률» 탭을 새 창으로 — 이 금고의 지금 퀘스트 레벨 · 발견값 · 해제 난이도를 채워서
+        if(c.src==="금고"){
+          thr += '<a class="calcl" target="_blank" rel="noopener" href="calc.html?v=chest&lv='+lv+'&f='+(c.fv||0)+'&u='+(c.ud||0)
+               +'&nm='+encodeURIComponent(c.item || (c.gold? c.gold.toLocaleString()+'G' : ''))+'">파티로 확률 계산 ↗</a>';
         }
         return '<li><b>'+(c.src==="금고"?'<em class="tag t-chest">금고</em>':'<em class="tag t-find">습득</em>')
           + what+'</b>'
