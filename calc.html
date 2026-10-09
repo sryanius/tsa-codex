@@ -304,6 +304,20 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .crow select{font:inherit;font-size:13px;padding:4px 10px;border:1px solid var(--line);
   border-radius:7px;background:var(--raised);color:var(--ink)}
 .statbox{display:flex;flex-wrap:wrap;gap:6px}
+/* 용병 뽑기 조건 줄 */
+.conds{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1 1 260px}
+.cond{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.cond select{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--line);border-radius:7px;background:var(--raised);color:var(--ink)}
+.cond input{font:inherit;width:56px;padding:4px 6px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink);text-align:right;font-variant-numeric:tabular-nums}
+.cond .ge{color:var(--muted);font-size:13px}
+.cond .sumsel{display:inline-flex;flex-wrap:wrap;align-items:center;gap:4px}
+.cond .cband{flex:1 0 100%;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11px;margin-top:-2px}
+.cond+.cond{padding-top:8px;border-top:1px dashed var(--line-soft)}
+.condadd{display:flex;flex-wrap:wrap;gap:6px}
+@media (pointer:coarse), (max-width:760px){
+  .cond select,.cond input{font-size:16px;min-height:36px}
+  .condadd button.mini,.cond button.mini{min-height:36px}
+}
 .statbox .lvin{font-size:11.5px}
 /* 금고 확률 */
 .ckrow{align-items:center}
@@ -1335,7 +1349,7 @@ function statHTML(){
 var STAT_FLOOR={"생명점":4,"힘":2};   // CreateParam 끝에서 깔리는 바닥
 var PERS_ALL=["무모한","이기적","사교적","신중한","합리적","신경질적","감정적"];
 var PERS_BONUS={"무모한":3,"이기적":2,"신경질적":1,"감정적":1};
-var calc={bar:"", sex:"", pers:{}, min:{}, pt:0};
+var calc={bar:"", sex:"", pers:{}, mins:[], sums:[], pt:0};   // mins = [{s:능력치, v:최소}] · sums = [{ss:[능력치…], v:최소 합}]
 
 function conv(a,b){
   var out={};
@@ -1424,41 +1438,97 @@ function statBand(st, rs){
   }
   return [lo===null?keys[0]:lo, hi];
 }
-/* 8종 조건을 «동시에» 만족할 확률. 공을 어디에 몇 개 넣었는지로 DP. */
-function statJointProb(ab, need){
-  var any=false; STAT.forEach(function(k){ if((need[k]||0)>0) any=true; });
-  if(!any) return 1;
-  var S=sumAb(ab), pp=ppDist(ab), R=0, P;
+/* 조건 묶음을 «동시에» 만족할 확률 — mins = {능력치: 최소} · sums = [{ss:[능력치 2~3개], v: 최소 합}].
+   능력치 = max(바닥, 흔든 값 + 받은 공). 공(남는 포인트 P)은 기준값 비율로 하나씩 들어간다(룰렛 Rand(기준합)) —
+   능력치를 차례로 «r 개 남았을 때 이 능력치가 k 개 받을 확률 = 이항(r, 기준ᵢ ÷ 남은 기준합)» 으로 쪼갠다.
+   조건에 걸린 능력치만 앞에서부터 보고(상태 = 남은 공 r · 합 조건마다 지금까지의 합 — 목표에서 잘라 둔다),
+   조건 없는 능력치는 남은 공을 다 가져가도 상관없으니 끝에서 한꺼번에 접는다.
+   (2026-10-09 제작자: «하나씩 추가하면서 스탯과 원하는 수치를 입력 · 두세 개 스탯 합해서 몇 이상») */
+function condProb(ab, mins, sums){
+  mins=mins||{};
+  sums=(sums||[]).filter(function(c){ return c.v>0 && c.ss.length; });
+  var inv=STAT.filter(function(k){ return (mins[k]||0)>0 || sums.some(function(c){ return c.ss.indexOf(k)>=0; }); });
+  if(!inv.length) return 1;
+  var pp=ppDist(ab), R=0, P;
   for(P in pp) if(+P>R) R=+P;
-  // ok[j][k] = j번째 능력치가 공 k 개를 받았을 때 조건을 넘길 확률
-  var ok=STAT.map(function(st){
-    var m=need[st]||0, d=crvDist(ab[st]||0), fl=STAT_FLOOR[st]||0, arr=[], k;
-    for(k=0;k<=R;k++){
-      if(!m){ arr[k]=1; continue; }
-      var q=0;
-      for(var v in d) if(Math.max(fl,(+v)+k) >= m) q+=d[v];
-      arr[k]=q;
+  var caps=sums.map(function(c){ return c.v; }), strides=[], size=1, c;
+  for(c=caps.length-1;c>=0;c--){ strides[c]=size; size*=caps[c]+1; }
+  var st=new Float64Array((R+1)*size);
+  for(P in pp) st[(+P)*size]+=pp[P];
+  var rest=sumAb(ab);
+  inv.forEach(function(k){
+    var aj=ab[k]||0, wj=rest>0 ? aj/rest : 0; rest-=aj;
+    var d=crvDist(aj), fl=STAT_FLOOR[k]||0, m=mins[k]||0, inC=[], n, v;
+    sums.forEach(function(s,ci){ if(s.ss.indexOf(k)>=0) inC.push(ci); });
+    var fv=[];                      // fv[n] = 공 n 개를 받았을 때 [최종값, 확률] — 최소 조건 밑은 버린다
+    for(n=0;n<=R;n++){
+      var acc={};
+      for(v in d){ var x=Math.max(fl,(+v)+n); if(x>=m) acc[x]=(acc[x]||0)+d[v]; }
+      fv[n]=Object.keys(acc).map(function(x){ return [+x, acc[x]]; });
     }
-    return arr;
+    var ns=new Float64Array((R+1)*size);
+    for(var r=0;r<=R;r++){
+      var row=binomRow(r, wj);
+      for(var s=0;s<size;s++){
+        var p0=st[r*size+s]; if(!p0) continue;
+        for(n=0;n<=r;n++){
+          var pb=row[n]; if(!pb) continue;
+          var lst=fv[n];
+          for(var q=0;q<lst.length;q++){
+            var s2=s;
+            for(var t=0;t<inC.length;t++){
+              var ci=inC[t], cur=Math.floor(s/strides[ci])%(caps[ci]+1), nx=Math.min(caps[ci], cur+lst[q][0]);
+              s2+=(nx-cur)*strides[ci];
+            }
+            ns[(r-n)*size+s2]+=p0*pb*lst[q][1];
+          }
+        }
+      }
+    }
+    st=ns;
   });
-  // 뒤에서부터 남은 무게
-  var W=[], acc=0, j;
-  for(j=STAT.length-1;j>=0;j--){ acc+=ab[STAT[j]]||0; W[j]=acc; }
-  // g[r] = 여기부터 끝까지, 공 r 개가 남았을 때의 확률
-  var g=new Array(R+1).fill(0); g[0]=1;
-  for(j=STAT.length-1;j>=0;j--){
-    var wj=W[j]?(ab[STAT[j]]||0)/W[j]:0, ng=new Array(R+1).fill(0), r, k;
-    for(r=0;r<=R;r++){
-      if(W[j]===0){ ng[r] = (r===0) ? ok[j][0]*g[0] : 0; continue; }
-      var row=binomRow(r, wj), t=0;
-      for(k=0;k<=r;k++) if(row[k] && ok[j][k] && g[r-k]) t+=row[k]*ok[j][k]*g[r-k];
-      ng[r]=t;
-    }
-    g=ng;
-  }
-  var out=0;
-  for(P in pp) out += pp[P]*(g[+P]||0);
+  var full=0, out=0;
+  for(c=0;c<caps.length;c++) full+=caps[c]*strides[c];
+  for(var r2=0;r2<=R;r2++) out+=st[r2*size+full];
   return out;
+}
+/* 능력치 몇 개의 «합» 분포 — 합 조건 줄 옆의 폭(1~99%)과 최대를 보이려고. 같은 이항 쪼개기, 합은 자르지 않는다. */
+function sumDist(ab, ss){
+  var pp=ppDist(ab), R=0, P, mx=0;
+  for(P in pp) if(+P>R) R=+P;
+  ss.forEach(function(k){ var d=crvDist(ab[k]||0), top=0; for(var v in d) if(+v>top) top=+v; mx+=Math.max(STAT_FLOOR[k]||0, top+R); });
+  var size=mx+1, st=new Float64Array((R+1)*size), rest=sumAb(ab);
+  for(P in pp) st[(+P)*size]+=pp[P];
+  ss.forEach(function(k){
+    var aj=ab[k]||0, wj=rest>0 ? aj/rest : 0; rest-=aj;
+    var d=crvDist(aj), fl=STAT_FLOOR[k]||0, ns=new Float64Array((R+1)*size);
+    for(var r=0;r<=R;r++){
+      var row=binomRow(r, wj);
+      for(var s=0;s<size;s++){
+        var p0=st[r*size+s]; if(!p0) continue;
+        for(var n=0;n<=r;n++){ var pb=row[n]; if(!pb) continue;
+          for(var v in d){ var x=s+Math.max(fl,(+v)+n); if(x<size) ns[(r-n)*size+x]+=p0*pb*d[v]; } }
+      }
+    }
+    st=ns;
+  });
+  var out={};
+  for(var r3=0;r3<=R;r3++) for(var s3=0;s3<size;s3++){ var p=st[r3*size+s3]; if(p) out[s3]=(out[s3]||0)+p; }
+  return out;
+}
+/* 분포 여럿(종족마다)을 똑같이 섞어 1~99% 구간과 실제로 나올 수 있는 최대 */
+function bandOf(ds){
+  var mix={}, k;
+  ds.forEach(function(d){ for(k in d) mix[k]=(mix[k]||0)+d[k]/ds.length; });
+  var keys=Object.keys(mix).map(Number).sort(function(a,b){return a-b;});
+  if(!keys.length) return null;
+  var acc=0, lo=null, hi=null;
+  for(var i=0;i<keys.length;i++){
+    acc+=mix[keys[i]];
+    if(lo===null && acc>=0.01) lo=keys[i];
+    if(hi===null && acc>=0.99) hi=keys[i];
+  }
+  return [lo===null?keys[0]:lo, hi===null?keys[keys.length-1]:hi, keys[keys.length-1]];
 }
 /* 초빙 포인트의 폭. 고른 성격만 본다 — 안 골랐으면 전부. */
 function ptRange(lv){
@@ -1491,13 +1561,43 @@ function barLvOf(town){
   var t=null; D.towns.forEach(function(x){ if(x.n===town) t=x; });
   return t ? myTownLv(t.i,"주점") : null;
 }
+/* 조건 줄 → 계산식이 받는 꼴. 같은 능력치를 두 줄에 넣으면 큰 쪽 · 합 줄은 서로 다른 능력치 둘 이상일 때만 */
+function condMins(){ var m={}; calc.mins.forEach(function(c){ if(c.v>0) m[c.s]=Math.max(m[c.s]||0, c.v); }); return m; }
+function sumSet(c){ var o=[]; c.ss.forEach(function(k){ if(k && o.indexOf(k)<0) o.push(k); }); return o; }
+function condSums(){ return calc.sums.map(function(c){ return {ss:sumSet(c), v:c.v}; }).filter(function(c){ return c.v>0 && c.ss.length>=2; }); }
+function statOpts(cur, blank){
+  return (blank?'<option value=""'+(cur?'':' selected')+'>(없음)</option>':'')
+    + STAT.map(function(k){ return '<option'+(k===cur?' selected':'')+'>'+esc(k)+'</option>'; }).join("");
+}
+/* 조건 줄 — «능력치 ≥ 값» 과 «능력치 2~3개의 합 ≥ 값». 옆에 대개(98%)의 폭과 실제 최대를 같이 적는다
+   (예전엔 8칸이 늘 있고 옆에 98% 폭만 있어서 «18까지만 고를 수 있는 것처럼» 보였다 — 2026-10-09 제작자) */
+function condRowsHTML(rsel){
+  var h=calc.mins.map(function(c,k){
+    var bd=bandOf(rsel.map(function(r){ return statFinal(r.ab, c.s); }));
+    return '<div class="cond"><select data-cc="ms" data-k="'+k+'" aria-label="능력치">'+statOpts(c.s)+'</select>'
+      +'<span class="ge">&ge;</span><input type="number" min="0" max="99" data-cc="mv" data-k="'+k+'" value="'+(c.v||"")+'" placeholder="–" aria-label="'+esc(c.s)+' 최소">'
+      +'<button type="button" class="mini" data-cc="del" data-t="m" data-k="'+k+'" aria-label="'+esc(c.s)+' 조건 빼기">빼기</button>'
+      +'<span class="meta cband">'+(bd?'대개 '+bd[0]+'–'+bd[1]+' · 최대 '+bd[2]:'')+'</span></div>';
+  }).join("");
+  h+=calc.sums.map(function(c,k){
+    var set=sumSet(c), bd=set.length>=2 ? bandOf(rsel.map(function(r){ return sumDist(r.ab, set); })) : null;
+    return '<div class="cond"><span class="sumsel">'+c.ss.map(function(s,j){
+        return (j?'<span class="ge">+</span>':'')+'<select data-cc="ss" data-k="'+k+'" data-j="'+j+'" aria-label="합 능력치 '+(j+1)+'">'+statOpts(s, j>=2)+'</select>';
+      }).join("")+'</span>'
+      +'<span class="ge">&ge;</span><input type="number" min="0" max="199" data-cc="sv" data-k="'+k+'" value="'+(c.v||"")+'" placeholder="–" aria-label="합 최소">'
+      +'<button type="button" class="mini" data-cc="del" data-t="s" data-k="'+k+'" aria-label="합 조건 빼기">빼기</button>'
+      +'<span class="meta cband">'+(bd?'대개 '+bd[0]+'–'+bd[1]+' · 최대 '+bd[2]:'서로 다른 능력치를 둘 이상 고르세요')+'</span></div>';
+  }).join("");
+  return h+'<div class="condadd"><button type="button" class="mini" data-cc="addm">+ 능력치 조건</button>'
+    +'<button type="button" class="mini" data-cc="adds">+ 합 조건 (2~3개)</button></div>';
+}
 function calcRun(){
   var rs=racesSel();
   if(!rs.length) return null;
   var lv=barLvOf(calc.bar), useLv = lv!=null ? lv : 1;
   var total=0, per=[];
   rs.forEach(function(r){
-    var pStat=statJointProb(r.ab, calc.min);
+    var pStat=condProb(r.ab, condMins(), condSums());
     var cnt={}; r.pers.forEach(function(pp){ cnt[pp]=(cnt[pp]||0)+1; });
     var pAll=0;
     // 성격을 하나도 안 고르면 «아무거나» 로 본다 — 0% 를 띄우는 것보다 낫다
@@ -1525,11 +1625,6 @@ function calcHTML(){
     return '<label class="ab'+(calc.pers[pp]?" on":"")+'"><input type="checkbox" data-p="'+esc(pp)+'"'
       +(calc.pers[pp]?" checked":"")+'>'+esc(pp)+'</label>'; }).join("");
   var rsel=racesSel();
-  var statBox=STAT.map(function(k){
-    var rg=statBand(k, rsel);
-    return '<label class="lvin">'+esc(k)+'<input type="number" min="0" max="99" data-s="'+esc(k)+'" value="'
-      +(calc.min[k]||"")+'" placeholder="–">'
-      +'<i class="rg">'+(rg? rg[0]+"–"+rg[1] : "–")+'</i></label>'; }).join("");
   var ptrg=ptRange(lv!=null?lv:1);
   var sexBox=[["","전체"],["man","남"],["woman","여"]].map(function(x){
     return '<label class="ab'+(calc.sex===x[0]?" on":"")+'"><input type="radio" name="c-sex" data-x="'
@@ -1568,8 +1663,8 @@ function calcHTML(){
     +'<div class="crow"><span class="lvlabel">성별</span><div class="abils-box">'+sexBox+'</div>'
       +'<span class="meta">'+rsel.length+'종 &mdash; '+(rsel.map(function(r){return esc(r.race)+(calc.sex?"":"·"+(r.man?"남":"여"));}).join(", ")||"없음")+'</span></div>'
     +'<div class="crow"><span class="lvlabel">원하는 성격</span><div class="abils-box">'+persBox+'</div></div>'
-    +'<div class="crow"><span class="lvlabel">최소 능력치</span><div class="statbox">'+statBox+'</div>'
-      +'<span class="meta">칸 옆은 이 주점에서 <b>거의 다(98%) 이 안에 들어오는 폭</b>입니다 &mdash; 기준값을 흔든 뒤 남는 포인트까지 얹은 값</span></div>'
+    +'<div class="crow"><span class="lvlabel">능력치 조건</span><div class="conds">'+condRowsHTML(rsel)+'</div>'
+      +'<span class="meta">«대개» 는 이 주점에서 <b>98% 가 들어오는 폭</b>, «최대» 는 실제로 나올 수 있는 끝입니다(아주 드묾) &mdash; 기준값을 흔든 뒤 남는 포인트까지 얹은 값</span></div>'
     +'<div class="crow"><span class="lvlabel">최소 포인트</span>'
       +'<label class="lvin"><input type="number" id="c-pt" min="0" max="40" value="'+(calc.pt||"")+'" placeholder="–">'
       +'<i class="rg">'+(ptrg? ptrg[0]+"–"+ptrg[1] : "–")+'</i></label>'
@@ -1585,7 +1680,7 @@ var TABNOTE = {
   race: "어느 주점에서 뽑히는지, 기준값이 실제로 얼마가 되는지, 어떤 성격이 나오는지.",
   skill:"어느 클래스가 몇 레벨에 배우는지. 회복 주문은 시전자 성격이 시점을 바꿉니다.",
   town: "도시마다 어떤 시설이 몇 레벨까지 있고, 올리는 데 얼마가 드는지.",
-  calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
+  calc: "주점·성별·성격과 능력치 조건(하나씩 · 두세 개의 합)을 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
   map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다.",
   stat: "주/부 직업과 장비를 바꿔 가며 수치를 봅니다. 내 용병을 불러와 거기서 고칠 수 있습니다.",
   rep:  "슬라이더를 움직이면 그 평판에서 각 도시가 어떻게 되는지 바뀝니다.",
@@ -1627,6 +1722,47 @@ function headStats(){
   el("tabnote").textContent = TABNOTE[state.view] || "";
 }
 
+/* #out 을 새 HTML 로 바꾼다 — 단, 지금 쓰고 있는 칸(포커스)과 그 조상은 그대로 두고 둘레만 갈아 끼운다.
+   예전엔 입력 0.35초 뒤 innerHTML 을 통째로 바꾸고 새 칸에 포커스 + setSelectionRange(끝) 을 했는데,
+   type="number" 칸은 setSelectionRange 가 안 돼서(예외) 폰에서 커서가 맨 앞으로 갔다 — «1» 치고 멈췄다 «5» 를 치면 «51»
+   (2026-10-09 제작자 · 375px 화면에서 재현). 칸을 아예 안 바꾸면 커서 · 키보드 · 쓰던 글자가 그대로다.
+   새 HTML 에서 같은 칸(id 또는 data-* 가 같은 것)을 하나로 못 찾으면 예전처럼 통째로 바꾸고 포커스만 돌려준다. */
+function fieldKey(n){
+  if(n.id) return '[id="'+n.id+'"]';
+  var a=[];
+  for(var i=0;i<n.attributes.length;i++){ var at=n.attributes[i]; if(/^data-/.test(at.name)) a.push('['+at.name+'="'+String(at.value).replace(/["\\]/g,"\\$&")+'"]'); }
+  return a.length ? n.tagName.toLowerCase()+a.join("") : null;
+}
+function paintOut(html){
+  var box=el("out"), act=document.activeElement;
+  var editing=act && act!==box && box.contains(act) && /^(INPUT|SELECT|TEXTAREA)$/.test(act.tagName);
+  var key=editing ? fieldKey(act) : null;
+  if(!key){ box.innerHTML=html; return; }
+  var tmp=document.createElement("div"); tmp.innerHTML=html;
+  var hits=tmp.querySelectorAll(key);
+  var lp=[], np=[], x;
+  for(x=act; x && x!==box; x=x.parentNode) lp.unshift(x);
+  if(hits.length===1) for(x=hits[0]; x && x!==tmp; x=x.parentNode) np.unshift(x);
+  var same=np.length===lp.length;
+  for(var d=0; same && d<lp.length; d++) if(lp[d].tagName!==np[d].tagName) same=false;
+  if(!same){
+    box.innerHTML=html;
+    var again=box.querySelector(key); if(again){ try{ again.focus({preventScroll:true}); }catch(e){} }
+    return;
+  }
+  var parent=box;
+  for(d=0; d<lp.length; d++){
+    var keep=lp[d], neu=np[d], ref=keep;
+    while(keep.previousSibling) parent.removeChild(keep.previousSibling);
+    while(keep.nextSibling) parent.removeChild(keep.nextSibling);
+    while(neu.previousSibling){ var pv=neu.previousSibling; parent.insertBefore(pv, ref); ref=pv; }
+    while(neu.nextSibling) parent.appendChild(neu.nextSibling);
+    // 속성(class · open · aria-label · max …)은 새것으로 — 쓰고 있는 칸은 value 만 빼고(쓰던 글자 · 커서를 지킨다)
+    for(var i=keep.attributes.length-1;i>=0;i--){ var nm=keep.attributes[i].name; if(nm!=="value" && !neu.hasAttribute(nm)) keep.removeAttribute(nm); }
+    for(i=0;i<neu.attributes.length;i++){ var na=neu.attributes[i]; if(na.name!=="value" && keep.getAttribute(na.name)!==na.value) keep.setAttribute(na.name, na.value); }
+    parent=keep;
+  }
+}
 function render(){
   var html="", n=0;
   headStats();
@@ -1654,22 +1790,22 @@ function render(){
   } else if(state.view==="map"){
     var ms=D.maps.filter(function(m){ return (state.showLocked || !m.lock)
       && (!state.q || m.n.toLowerCase().indexOf(state.q.toLowerCase())>=0); });
-    el("out").innerHTML = ms.length ? ms.map(mapBlock).join("")
-      : '<p class="empty">조건에 맞는 지역이 없습니다.</p>';
+    paintOut(ms.length ? ms.map(mapBlock).join("")
+      : '<p class="empty">조건에 맞는 지역이 없습니다.</p>');
     fillMapImages();
     return;
   } else if(state.view==="stat"){
-    el("out").innerHTML=statHTML();
+    paintOut(statHTML());
     return;
   } else if(state.view==="calc"){
-    el("out").innerHTML=calcHTML();
+    paintOut(calcHTML());
     return;
   } else if(state.view==="rep"){
-    el("out").innerHTML=repHTML();
+    paintOut(repHTML());
     repWire();
     return;
   } else if(state.view==="chest"){
-    el("out").innerHTML=chestCalcHTML();
+    paintOut(chestCalcHTML());
     return;
   } else {
     var ts=visTowns().filter(function(t){
@@ -1680,7 +1816,7 @@ function render(){
     Object.keys(byR).forEach(function(r){
       html+='<h2 class="regname">'+esc(r)+'</h2>'+byR[r].map(townBlock).join(""); });
   }
-  el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
+  paintOut(html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>');
 }
 
 function detailFor(kind,id){
@@ -1956,8 +2092,6 @@ el("out").addEventListener("input",function(e){
     var v4=t.value;
     ct=setTimeout(function(){
       sc.goal=Math.max(0,parseInt(v4,10)||0); render();
-      var a3=el("out").querySelector("#sc-goal");
-      if(a3){ a3.focus(); try{ a3.setSelectionRange(a3.value.length,a3.value.length); }catch(e){} }
     }, 350);
     return;
   }
@@ -1966,8 +2100,6 @@ el("out").addEventListener("input",function(e){
     var v5=t.value;
     ct=setTimeout(function(){
       sc.rb=Math.max(0,Math.min(150,parseInt(v5,10)||0)); render();
-      var a5=el("out").querySelector("#sc-rb");
-      if(a5){ a5.focus(); try{ a5.setSelectionRange(a5.value.length,a5.value.length); }catch(e){} }
     }, 350);
     return;
   }
@@ -1976,8 +2108,6 @@ el("out").addEventListener("input",function(e){
     var v3=t.value;
     ct=setTimeout(function(){
       sc.xph=Math.max(0,parseInt(v3,10)||0); render();
-      var a2=el("out").querySelector("#sc-xph");
-      if(a2){ a2.focus(); try{ a2.setSelectionRange(a2.value.length,a2.value.length); }catch(e){} }
     }, 350);
     return;
   }
@@ -1993,24 +2123,45 @@ el("out").addEventListener("input",function(e){
       }
       else sc.base[el2.dataset.base]=n3;
       render();
-      var sel = el2.id ? "#"+el2.id
-        : (el2.dataset.sublv!=null ? '[data-sublv="'+el2.dataset.sublv+'"]' : '[data-base="'+el2.dataset.base+'"]');
-      var again=el("out").querySelector(sel);
-      if(again){ again.focus(); try{ again.setSelectionRange(again.value.length, again.value.length); }catch(err){} }
     }, 350);
     return;
   }
-  if(t.id!=="c-pt" && !(t.dataset && t.dataset.s!=null)) return;
+  // 용병 뽑기 — 최소 포인트 · 조건 줄의 값
+  var cc=t.dataset && t.dataset.cc;
+  if(t.id!=="c-pt" && cc!=="mv" && cc!=="sv") return;
   clearTimeout(ct);
-  var isPt=(t.id==="c-pt"), key=isPt?null:t.dataset.s, v=t.value;
+  var v=t.value, k=+(t.dataset.k||0);
   ct=setTimeout(function(){
-    if(isPt) calc.pt=Math.max(0,parseInt(v,10)||0);
-    else { var n2=Math.max(0,parseInt(v,10)||0); if(n2) calc.min[key]=n2; else delete calc.min[key]; }
+    var n2=Math.max(0,parseInt(v,10)||0);
+    if(t.id==="c-pt") calc.pt=n2;
+    else if(cc==="mv" && calc.mins[k]) calc.mins[k].v=n2;
+    else if(cc==="sv" && calc.sums[k]) calc.sums[k].v=n2;
     render();
-    // 다시 그렸으니 커서를 그 칸으로 돌려놓는다
-    var again=el("out").querySelector(isPt?"#c-pt":'[data-s="'+key+'"]');
-    if(again){ again.focus(); try{ again.setSelectionRange(again.value.length, again.value.length); }catch(err){} }
   }, 350);
+});
+// 용병 뽑기 — 조건 줄 더하기 · 빼기 · 능력치 바꾸기
+el("out").addEventListener("click",function(e){
+  var b=e.target.closest("button[data-cc]"); if(!b || state.view!=="calc") return;
+  var a=b.dataset.cc, k=+(b.dataset.k||0), focusSel=null;
+  if(a==="addm"){
+    var used={}; calc.mins.forEach(function(c){ used[c.s]=1; });
+    calc.mins.push({s:STAT.filter(function(s){ return !used[s]; })[0]||STAT[0], v:0});
+    focusSel='[data-cc="mv"][data-k="'+(calc.mins.length-1)+'"]';
+  }
+  else if(a==="adds"){ calc.sums.push({ss:["재주","통찰력",""], v:0}); focusSel='[data-cc="sv"][data-k="'+(calc.sums.length-1)+'"]'; }
+  else if(a==="del"){ (b.dataset.t==="s" ? calc.sums : calc.mins).splice(k,1); }
+  else return;
+  render();
+  // 새 줄이면 그 값 칸으로 — 폰은 바로 숫자 키보드가 뜬다
+  var f=focusSel && el("out").querySelector(focusSel); if(f){ try{ f.focus(); }catch(err){} }
+});
+el("out").addEventListener("change",function(e){
+  var t=e.target, cc=t.dataset && t.dataset.cc; if(!cc || state.view!=="calc") return;
+  var k=+(t.dataset.k||0);
+  if(cc==="ms" && calc.mins[k]){ calc.mins[k].s=t.value; render(); }
+  else if(cc==="ss" && calc.sums[k]){ calc.sums[k].ss[+t.dataset.j]=t.value; render(); }
+  else if((cc==="mv" || cc==="sv" || t.id==="c-pt")){ clearTimeout(ct); var n3=Math.max(0,parseInt(t.value,10)||0);
+    if(cc==="mv" && calc.mins[k]) calc.mins[k].v=n3; else if(cc==="sv" && calc.sums[k]) calc.sums[k].v=n3; render(); }
 });
 };
 </script>
