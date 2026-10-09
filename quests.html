@@ -275,6 +275,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain.chest ul{padding-left:6px}
 .chain.chest li::before{content:""}
 .chain.chest .chestnote{display:block;margin:-2px 0 8px;font-size:11.5px;line-height:1.55}
+.bar.folded .fold{display:none !important}
+.foldbtn{font:inherit;font-size:12.5px;font-weight:600;padding:6px 12px;cursor:pointer;
+  border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--accent);
+  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.foldbtn:hover{background:var(--raised)}
+.foldbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chain.chest .thlist{display:block;margin-top:4px;color:var(--body)}
+.chain.chest .threw{display:block;margin-top:2px}
+.chain.chest .threw b{color:var(--body);font-weight:600;margin-right:2px}
+.chain.chest .thok{color:var(--f-lodge);font-weight:600}
+.chain.chest .thno i{font-style:normal;color:var(--f-heal)}
+.chain.chest .thall{color:var(--muted)}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
 .t-chest{color:var(--f-vault)} .t-find{color:var(--f-lodge)}
@@ -370,8 +382,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <button id="v-guild" type="button" aria-pressed="false">길드</button>
       </div>
       <input type="search" id="q" placeholder="퀘스트명 · 내용 · 장소 검색" aria-label="검색">
-      <select id="town" aria-label="도시 선택"><option value="">모든 도시</option></select>
-      <select id="party" aria-label="파티 조건">
+      <button type="button" id="foldbtn" class="foldbtn" aria-expanded="true" aria-controls="chips levels saverow">필터 접기</button>
+      <select id="town" class="fold" aria-label="도시 선택"><option value="">모든 도시</option></select>
+      <select id="party" class="fold" aria-label="파티 조건">
         <option value="">파티 조건 무관</option>
         <option value="any">조건 있는 것만</option>
         <option value="num">인원 제한만</option>
@@ -379,7 +392,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <option value="여성만">여성만</option>
         <option value="혼성 필요">혼성 필요</option>
       </select>
-      <select id="sort" aria-label="정렬">
+      <select id="sort" class="fold" aria-label="정렬">
         <option value="">기본 순서</option>
         <option value="lv">레벨 낮은 순</option>
         <option value="lv-">레벨 높은 순</option>
@@ -390,13 +403,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <option value="gd-">보상 골드 많은 순</option>
         <option value="rep">요구 평판 낮은 순</option>
       </select>
-      <label class="toggle"><input type="checkbox" id="undone"> 안 깬 것만</label>
-      <label class="toggle" title="아직 못 가는 지역(발케인 지방)의 마을 의뢰까지 같이 봅니다 — 도감 · 계산기 · 시뮬과 같은 설정입니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
+      <label class="toggle fold"><input type="checkbox" id="undone"> 안 깬 것만</label>
+      <label class="toggle fold" title="아직 못 가는 지역(발케인 지방)의 마을 의뢰까지 같이 봅니다 — 도감 · 계산기 · 시뮬과 같은 설정입니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
       <span class="count" id="count"></span>
     </div>
-    <div class="bar-row" id="chips"></div>
-    <div class="bar-row" id="levels"><span class="lvlabel">내 시설 레벨</span></div>
-    <div class="bar-row" id="saverow">
+    <div class="bar-row fold" id="chips"></div>
+    <div class="bar-row fold" id="levels"><span class="lvlabel">내 시설 레벨</span></div>
+    <div class="bar-row fold" id="saverow">
       <span class="lvlabel">세이브</span>
       <span class="hint" id="savemsg"></span>
       <a class="filebtn" href="save.html">세이브 넣기 · 내 용병</a>
@@ -414,6 +427,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </footer>
 </div>
 
+__CHESTLIB__
 <script>
 window.__TSA_BOOT=function(D){
 "use strict";
@@ -898,28 +912,50 @@ function itemSp(it){
      내 값 = 주사위(최소 3, 1+1 이면 대실패) + 도둑 레벨 + ⌊흔들림(스탯) ÷ 6⌋ (+ 발견만 리더 보너스)
      확정선 = 퀘스트 레벨 + 난이도 + 9 → «도둑 레벨 + 흔들림 최솟값의 몫» 이 확정선 이상이면 대실패만 빼고 늘 이긴다.
    발견은 통찰, 해제는 재주. 스탯은 직업 · 장비를 합한 총값(화면의 그 값). 흔들림 폭은 원리 §1 · calc-tpl rnd() 와 같은 식. */
-var THIEF_CAP=35;   // 도둑 천장
-function statFloor(v){
-  if(v<1) return 0;
-  var n = v<=8 ? 3 : (v<=30 ? (v*171>>9) : (v<=99 ? (v*205>>11) : (v>>4)));
-  return n<=0 ? v : Math.max(0, v-(n-1));
-}
-function statForShare(q){                 // 흔들림이 가장 나빠도 ⌊값 ÷ 6⌋ ≥ q 가 되는 가장 낮은 스탯
-  if(q<=0) return 0;
-  for(var s=1;s<=300;s++) if(Math.floor(statFloor(s)/6)>=q) return s;
-  return null;
-}
+var CH=window.TSA_CHEST;   // chestlib.html — 흔들림 · 확정선 · 정확한 확률(계산기와 같은 식)
 function chestNeed(line, stat){
-  var q=line-THIEF_CAP;
+  var q=line-CH.THIEF_CAP;
   if(q<=0) return "도둑 "+Math.max(1,line)+" 이상이면 확정";
-  var s=statForShare(q);
-  return "도둑 "+THIEF_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
+  var s=CH.statForShare(q);
+  return "도둑 "+CH.THIEF_CAP+" + "+stat+" "+(s==null?"300 넘게":s+" 이상");
+}
+/* 내 도둑 — 세이브 화면이 남긴 tsa.chestcrew.v1(용병별 도둑 레벨 · 통찰 · 재주 총값 · 은퇴 뺌). 도둑 레벨 1 이상만, 높은 순 4명(파티 최대)까지. */
+var THIEVES=(function(){
+  var c=null; try{ c=JSON.parse(localStorage.getItem("tsa.chestcrew.v1")||"null"); }catch(e){}
+  if(!c||!c.list) return null;
+  var t=c.list.filter(function(x){ return (x.thief||0)>=1; });
+  t.sort(function(a,b){ return (b.thief-a.thief) || ((b.ins+b.dex)-(a.ins+a.dex)); });
+  return {at:c.at||"", all:t, top:t.slice(0,4)};
+})();
+function hasCrew(){ try{ return !!localStorage.getItem("tsa.crew.v1"); }catch(e){ return false; } }
+/* 대실패(1+1)가 있어 100% 는 없다 — 99.95% 이상은 «99.9%↑» 로(반올림해 «100.0%» 가 찍히면 확정처럼 보인다) */
+function pct(p){ var v=p*100; if(v>=99.95) return "99.9%↑"; return (v>=99||v<1? v.toFixed(1) : String(Math.round(v)))+"%"; }
+/* 금고 한 판정에 내 도둑마다 — 이길 확률(흔들림까지 넣은 정확한 값) · 확정선까지 모자란 수. 리더 보너스는 안 넣는다(누가 리더일지 모름). */
+function thiefCell(kind, opp){
+  if(!THIEVES||!THIEVES.top.length) return "";
+  var line=opp+9, ps=[];
+  var parts=THIEVES.top.map(function(t){
+    var st=kind==="found"? t.ins : t.dex;
+    var p=CH.p(kind, opp, t.thief, st, 0); ps.push(p);
+    var lack=line-CH.fixedLow(kind, t.thief, st, 0);
+    return '<span class="'+(lack<=0?'thok':'thno')+'">'+esc(t.n)+' '+pct(p)+(lack>0?' <i>−'+lack+'</i>':'')+'</span>';
+  });
+  return parts.join(" · ")+(ps.length>1? ' <span class="thall">· 다 데려가면 '+pct(CH.party(ps))+'</span>' : "");
 }
 function chestHTML(x){
   if(!x.ch || !x.ch.length) return "";
+  var mine = THIEVES
+    ? (THIEVES.top.length
+        ? '<span class="thlist">내 도둑(세이브 '+esc(THIEVES.at)+'): '+THIEVES.top.map(function(t){
+            return '<b>'+esc(t.n)+'</b> 도둑 '+t.thief+' · 통찰 '+t.ins+' · 재주 '+t.dex; }).join(" / ")
+          +(THIEVES.all.length>4?' 외 '+(THIEVES.all.length-4)+'명':'')
+          +' — 아래 %는 그 사람 혼자 굴렸을 때(리더면 발견에 성격 보너스가 더 붙음)</span>'
+        : '<span class="thlist">세이브에 도둑 레벨이 있는 용병이 없습니다 — 맨주사위로만 굴립니다.</span>')
+    : (hasCrew() ? '<span class="thlist">내 세이브 화면을 한 번 열면 내 도둑(도둑 레벨 · 통찰 · 재주)이 여기 나옵니다.</span>' : "");
   return '<div class="chain chest"><h4>보물금고 · 습득물 '+x.ch.length+'건</h4>'
     + '<p class="cmeta chestnote">확정 = <b>도둑 레벨 + 스탯 ÷ 6</b> 이 그 숫자 이상(발견은 통찰 · 해제는 재주, 스탯은 직업·장비 합친 값) · '
-    + '모자라도 4 모자라면 93% · 8 이면 66% · 12 면 29% — 파티원 중 한 명만 되면 됩니다(<a href="notes.html#check">원리 §8</a>)</p><ul>'
+    + '모자라도 4 모자라면 93% · 8 이면 66% · 12 면 29% — 파티원 중 한 명만 되면 됩니다(<a href="notes.html#check">원리 §8</a>)'
+    + mine+'</p><ul>'
     + x.ch.map(function(c){
         var it = c.item ? itemOf(c.item) : null;
         /* 이름을 도감으로 건다. ?q= 로 한 줄만 걸리면 도감이 그 줄을 펼쳐 준다. */
@@ -941,11 +977,17 @@ function chestHTML(x){
         if(c.cv)  bits.push('제작등급 '+c.cv);
         if(c.trap) bits.push('함정 있음');
         var line = itemLine(it);
+        // 내 도둑마다의 확률 — 금고만(습득물은 지금 데이터에서 늘 줍는다)
+        var thr = "";
+        if(c.src==="금고" && THIEVES && THIEVES.top.length){
+          thr = '<span class="cmeta threw"><b>발견</b> '+thiefCell("found", lv+(c.fv||0))+'</span>'
+              + (c.ud ? '<span class="cmeta threw"><b>해제</b> '+thiefCell("unlock", lv+c.ud)+'</span>' : "");
+        }
         return '<li><b>'+(c.src==="금고"?'<em class="tag t-chest">금고</em>':'<em class="tag t-find">습득</em>')
           + what+'</b>'
           + (line? '<span class="cmeta ispec">'+line+'</span>' : "")
           + itemSp(it)
-          + '<span class="cmeta">'+esc(bits.join(" · "))+'</span></li>'; }).join("")
+          + '<span class="cmeta">'+esc(bits.join(" · "))+'</span>'+thr+'</li>'; }).join("")
     + '</ul></div>';
 }
 
@@ -1057,7 +1099,44 @@ function repBlock(t){
     +'</tr></thead><tbody>'+body+'</tbody></table></div></section>';
 }
 
+/* 위쪽 막대 접기 — 폰에서 막대가 화면 절반을 먹어 퀘스트 칸이 너무 작았다(2026-10-09 제작자).
+   도시 · 파티 조건 · 정렬 · 체크 둘 · 시설 칩 · 내 시설 레벨 · 세이브 줄을 «필터» 단추 하나로 접는다(class="fold").
+   상태는 tsa.qbar.v1(화면 설정 — 로그아웃해도 남김) · 고른 적이 없으면 폰 폭(≤760px)에서 접고 데스크톱에서 편다.
+   접혀 있어도 켜 둔 조건은 단추에 짧게 보인다 — 숨은 필터 때문에 «왜 이것밖에 안 나오지» 하지 않게. */
+var QBKEY="tsa.qbar.v1";
+var folded=(function(){
+  var v=null; try{ v=localStorage.getItem(QBKEY); }catch(e){}
+  return v ? v==="1" : window.innerWidth<=760;
+})();
+function optText(id){ var s=el(id); var o=s && s.options[s.selectedIndex]; return o ? o.textContent : ""; }
+function foldSummary(){
+  var a=[];
+  if(state.town)  a.push(optText("town").split(" — ")[0]);
+  if(state.party) a.push(optText("party"));
+  if(state.sort)  a.push(optText("sort"));
+  if(state.undone) a.push("안 깬 것만");
+  if(state.showLocked) a.push("잠긴 지역도");
+  var nf=Object.keys(state.facs||{}).filter(function(k){ return state.facs[k]; }).length
+       +(state.fav?1:0)+(state.neg?1:0)+(state.evil?1:0);
+  if(nf) a.push("칩 "+nf);
+  return a;
+}
+function paintFold(){
+  var bar=document.querySelector(".bar"), b=el("foldbtn");
+  if(!bar||!b) return;
+  bar.classList.toggle("folded", folded);
+  b.setAttribute("aria-expanded", folded?"false":"true");
+  var s=foldSummary();
+  b.textContent = folded ? "필터 ▾"+(s.length? " · "+s.join(" · ") : "") : "필터 접기 ▴";
+}
+el("foldbtn").onclick=function(){
+  folded=!folded;
+  try{ localStorage.setItem(QBKEY, folded?"1":"0"); }catch(e){}
+  paintFold();
+};
+
 function render(){
+  paintFold();
   var rows=D.quests.filter(match);
   paintStats();
   el("count").textContent=rows.length+" / "+poolQuests().length+" 건";

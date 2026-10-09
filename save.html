@@ -1040,6 +1040,7 @@ function paint(){
   el("s-m").textContent=m.lv;
   el("s-g").textContent=(m.lv*200).toLocaleString();
   el("crewbar").hidden=false;
+  saveChestCrew();
   render();
 }
 
@@ -1432,6 +1433,17 @@ function gearLabel(c, label){
   return t;
 }
 function statOf(c, label){ return ((c.ab&&c.ab[label])||0) + jobLabel(c,label) + gearLabel(c,label); }
+/* 금고 판정용 용병 요약 — 퀘스트 색인 · 계산기의 «금고 확률» 이 읽는다(tsa.chestcrew.v1 · 로그아웃하면 지움).
+   도둑 레벨 = GetJobLevel(Thief = 200) — 주 · 부 상관없이 그 직업의 레벨. 통찰 · 재주는 이 화면의 statOf(기본 + 직업 몫 + 장비) 그대로.
+   (7.3 OpenTreasureBox 0x272545C: 발견 = 도둑 + 리더 보너스 + 통찰 · 해제 0x27258E8 = 도둑 + 재주 — chestlib.html) */
+function saveChestCrew(){
+  if(!CREW||!CREW.chars) return;
+  var list=CREW.chars.filter(function(c){ return c.st!==6; }).map(function(c){
+    var th=0; (c.jobs||[]).forEach(function(j){ if(j.i==="Thief") th=j.lv||0; });
+    return {n:c.n||"", id:c.id, thief:th, ins:statOf(c,"통찰력"), dex:statOf(c,"재주"), pers:c.pers||""};
+  });
+  try{ localStorage.setItem("tsa.chestcrew.v1", JSON.stringify({at:CREW.at||"", list:list})); }catch(e){}
+}
 /* CreateRandomValue(민첩) 의 최솟값 — 흔들림 폭이 31 에서 확 줄어든다 */
 function agiFloor(a){
   if(a<1) return 0;

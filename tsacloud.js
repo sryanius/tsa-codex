@@ -32,6 +32,7 @@
   var LOCAL_KEYS = ["tsa.save.v1", "tsa.crew.v1", "tsa.qstate.v1", "tsa.levels.v1",
                     "tsa.fac.v1", "tsa.done.v1", "tsa.maps.v1", "tsa.fav.v1",
                     "tsa.simparty.v1", "tsa.simcrew.v1",    // 시뮬 — 저장한 파티 · 세이브 폴더에서 읽은 용병
+                    "tsa.chestcrew.v1",                     // 금고 확률 — 용병별 도둑 레벨 · 통찰 · 재주(세이브 화면이 만든다)
                     "tsa.explored.v1"];                     // 지도 — 내가 연 칸 · 찾은 탐색지 · 탐색지 메모
 
   function wipeLocal() {
