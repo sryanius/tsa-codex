@@ -316,6 +316,8 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .condadd{display:flex;flex-wrap:wrap;gap:6px}
 .blk.apk p{margin:6px 0 0;line-height:1.6;font-size:13px;color:var(--body)}
 .blk.apk .meta{font-family:inherit;letter-spacing:0;font-size:12px;color:var(--muted)}
+.blk.apk .apksteps{margin:6px 0 0;padding-left:20px;font-size:13px;line-height:1.6;color:var(--body)}
+.blk.apk .apksteps li{margin:3px 0}
 .apkbtn{display:inline-flex;align-items:center;min-height:40px;margin:10px 0 2px;padding:0 18px;border-radius:8px;
   background:var(--accent);color:var(--on-accent,#fff);font-weight:600;text-decoration:none}
 .apkbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
@@ -1702,10 +1704,15 @@ function apkHTML(){
   return '<div class="blk apk"><h4>용병 뽑기 매크로 &mdash; 안드로이드 앱 (시험판)</h4>'
     +'<p>조건을 넣고 게임의 지원자 화면에서 ▶ 를 누르면, 맞는 지원자가 나올 때까지 <b>새로고침</b>을 대신 누릅니다. '
     +'분류 포인트 조건을 넣으면 <b>채용 → 포인트 확인 → 모자라면 고용하지 않음 · OK</b> 까지 합니다. 앱 안에서도 이 계산기와 같은 식으로 확률 · 예상 시간을 보여 줍니다.</p>'
-    +'<a class="apkbtn" href="dl/recruitmacro.apk" download="recruitmacro.apk">APK 받기 (0.9)</a>'
-    +'<p class="meta">게임은 ↻ 가 먹힌 뒤 1초쯤 다음 ↻ 를 받지 않습니다. 그래서 알맞은 때를 기다렸다 한 번만 누르고, 그 때를 스스로 맞춥니다(먹히면 조금 앞당기고 안 먹히면 늦춤 · 다음에도 이어 씀). 지원자 한 명에 1.2초 남짓(제작자 폰). 자세한 측정은 앱 화면 맨 아래 «마지막 측정».</p>'
-    +'<p class="meta">안드로이드 11 이상 · 설치할 때 «출처를 알 수 없는 앱» 을 허용해야 하고, 화면을 읽고 누르려고 <b>접근성 권한</b>을 씁니다(켜는 법은 앱 안에). '
-    +'갤럭시에서 접근성 스위치가 막혀 있으면 앱 정보 › ⋮ › «제한된 설정 허용» 뒤 다시 켜세요. 화면 좌표는 1080×2316 폰 기준입니다.</p></div>';
+    +'<a class="apkbtn" href="dl/recruitmacro.apk" download="recruitmacro.apk">APK 받기 (1.0)</a>'
+    +'<p><b>처음 쓰는 순서</b> — 앱을 열면 같은 순서가 맨 위에 있습니다.</p>'
+    +'<ul class="apksteps"><li>APK 를 받아 설치(«출처를 알 수 없는 앱» 허용) · 안드로이드 11 이상</li>'
+    +'<li>① <b>접근성</b> 켜기 — 앱 안내대로. 스토어 밖 앱이라 «앱 정보 › ⋮ › 제한된 설정 허용» 을 한 번 거쳐야 합니다</li>'
+    +'<li>② <b>화면 맞추기</b>(1분) — 게임에서 주점의 지원자 화면을 열고 떠 있는 판의 «맞추기». 앱이 능력치 칸을 스스로 찾고, '
+    +'안내대로 ↻ · 채용 · 고용하지 않음 · OK 단추를 한 번씩 눌러 알려 주면 앱이 직접 눌러 확인합니다. 폰마다 화면이 달라서 처음 한 번 필요합니다(만든 사람 폰과 화면 비율이 같으면 건너뛰어도 됩니다).</li>'
+    +'<li>③ 앱에서 조건 넣기 · ④ 게임의 지원자 화면에서 판의 ▶</li></ul>'
+    +'<p class="meta">게임은 ↻ 가 먹힌 뒤 1초쯤 다음 ↻ 를 받지 않아, 알맞은 때를 기다렸다 한 번만 누르고 그 때를 스스로 맞춥니다 — 지원자 한 명에 1.2초 남짓(만든 사람 폰). '
+    +'화면을 못 알아보면 스스로 멈추고 그 화면을 사진 › RecruitMacro 에 남깁니다 — 다시 맞춰도 안 되면 그 사진을 보내 주세요.</p></div>';
 }
 
 /* 탭이 여섯이라 머리글도 탭을 따라가야 한다.
