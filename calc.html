@@ -314,6 +314,11 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .cond .cband{flex:1 0 100%;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11px;margin-top:-2px}
 .cond+.cond{padding-top:8px;border-top:1px dashed var(--line-soft)}
 .condadd{display:flex;flex-wrap:wrap;gap:6px}
+.blk.apk p{margin:6px 0 0;line-height:1.6;font-size:13px;color:var(--body)}
+.blk.apk .meta{font-family:inherit;letter-spacing:0;font-size:12px;color:var(--muted)}
+.apkbtn{display:inline-flex;align-items:center;min-height:40px;margin:10px 0 2px;padding:0 18px;border-radius:8px;
+  background:var(--accent);color:var(--on-accent,#fff);font-weight:600;text-decoration:none}
+.apkbtn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 @media (pointer:coarse), (max-width:760px){
   .cond select,.cond input{font-size:16px;min-height:36px}
   .condadd button.mini,.cond button.mini{min-height:36px}
@@ -1670,7 +1675,16 @@ function calcHTML(){
       +'<i class="rg">'+(ptrg? ptrg[0]+"–"+ptrg[1] : "–")+'</i></label>'
       +'<span class="meta">화면에 별처럼 뜨는 그 숫자입니다 &mdash; 이 주점에서 <b>최대 '+(ptrg?ptrg[1]:"?")+'</b>'
       +(Object.keys(calc.pers).length?' (고른 성격 기준)':'')+'</span></div>'
-    +'</div>'+body+'</section>';
+    +'</div>'+body+apkHTML()+'</section>';
+}
+/* 용병 뽑기 매크로(안드로이드 · tools/recruitmacro) — 폰으로 보는 제작자가 바로 받게(2026-10-10). 상대 링크라 Pages(/tsa-codex/) 에서도 된다 */
+function apkHTML(){
+  return '<div class="blk apk"><h4>용병 뽑기 매크로 &mdash; 안드로이드 앱 (시험판)</h4>'
+    +'<p>조건을 넣고 게임의 지원자 화면에서 ▶ 를 누르면, 맞는 지원자가 나올 때까지 <b>새로고침</b>을 대신 누릅니다. '
+    +'분류 포인트 조건을 넣으면 <b>채용 → 포인트 확인 → 모자라면 고용하지 않음 · OK</b> 까지 합니다. 앱 안에서도 이 계산기와 같은 식으로 확률 · 예상 시간을 보여 줍니다.</p>'
+    +'<a class="apkbtn" href="dl/recruitmacro.apk" download="recruitmacro.apk">APK 받기</a>'
+    +'<p class="meta">안드로이드 11 이상 · 설치할 때 «출처를 알 수 없는 앱» 을 허용해야 하고, 화면을 읽고 누르려고 <b>접근성 권한</b>을 씁니다(켜는 법은 앱 안에). '
+    +'갤럭시에서 접근성 스위치가 막혀 있으면 앱 정보 › ⋮ › «제한된 설정 허용» 뒤 다시 켜세요. 화면 좌표는 1080×2316 폰 기준입니다.</p></div>';
 }
 
 /* 탭이 여섯이라 머리글도 탭을 따라가야 한다.
