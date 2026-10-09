@@ -281,6 +281,17 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .spsum .dim{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace}
 details.spd{margin:2px 0 6px}
 details.spd .spl{margin-top:6px}
+/* «마법 고르기» 는 단추처럼 — 회색 작은 글자라 누르는 곳으로 안 보였다(2026-10-09 «마법이 제어가 안 된다») */
+details.spd>summary{display:inline-flex;align-items:center;gap:3px;padding:3px 10px;border:1px solid var(--line);border-radius:7px;
+  background:var(--surface);color:var(--body);font-size:12.5px}
+details.spd>summary::before{color:var(--muted)}
+.spbulk{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0}
+.spl .sprow{display:inline-flex;align-items:center;gap:4px;min-width:0}
+.spl .sprng{font-style:normal;font-size:11px;color:var(--faint)}
+.spboss{font:inherit;font-size:11px;line-height:1.2;padding:2px 8px;border:1px solid var(--line);border-radius:99px;
+  background:transparent;color:var(--faint);cursor:pointer}
+.spboss[aria-pressed="true"]{border-color:var(--f-ware);color:var(--f-ware);font-weight:600}
+.spboss:focus-visible,details.spd>summary:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .slot,.ed,#resbox{scroll-margin-top:12px;scroll-margin-bottom:76px}
 .slot h3:focus,.ed h4:focus,#resbox h2:focus{outline:none}
 .msg{font-size:11.5px;line-height:1.5;margin:4px 0 0}
@@ -374,6 +385,7 @@ details.rpb[open]>summary::before{content:"▾ "}
   .spl{gap:2px 14px}
   .spl label,.calc .toggle{min-height:36px}
   .spl input,.calc .toggle input{width:20px;height:20px}
+  .spboss{min-height:30px;padding:0 10px}
   .slot .ctl{gap:8px 10px}
   /* 고르는 칸 · 숫자 칸 · 검색칸도 36px — 그리고 글자 16px: iOS Safari 는 16px 아래 칸에 포커스를 주면 화면을 확대한다 */
   .wrap select,.wrap input:not([type="checkbox"]):not([type="radio"]){font-size:16px;min-height:36px}
@@ -1039,13 +1051,14 @@ details.rpb[open]>summary::before{content:"▾ "}
     // ⑭ 풍현사 — 주직업 ElfArcher1 + 활이면 행동마다 RandSuccess(풍현사 레벨) 로 타수 +1
     this.wind = (T(mj) && mj.id === "ElfArcher1" && this.bow) ? mj.lv : 0;
     var on = new Set(OR(sh.spellsOn, []));
+    var bo = new Set(OR(sh.spellsBoss, []));   // 보스전에서만 쓰는 마법(세이브 enableBossOnly)
     var sp = [];
     var spells = OR(sh.spells, []);
     for (var s = 0; s < spells.length; s++) {
       var x = spells[s];
       if (!on.has(x.n) || !(x.kind === 20 || x.kind === 32)) continue;
       sp.push({ n: x.n, kind: x.kind, rng: OR(x.targetRange, 0), tt: OR(x.targetType, 4), lv: x.lv, mp: x.mp,
-        d0: x.dmg[0], d1: x.dmg[1], h0: x.heal[0], h1: x.heal[1], elem: nz(x.elem), phys: T(x.phys) });
+        d0: x.dmg[0], d1: x.dmg[1], h0: x.heal[0], h1: x.heal[1], elem: nz(x.elem), phys: T(x.phys), boss: bo.has(x.n) });
     }
     sp.sort(function (a, b) { return (a.kind - b.kind) || (a.rng - b.rng) || (a.lv - b.lv); });   // 안정 정렬
     this.spells = sp;
@@ -1132,6 +1145,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     this.terr = terr;
     this.tav = TERR_AVOID.has(terr) ? TERR_AVOID.get(terr) : 0;
     this.maxr = boss ? 31 : 16;
+    this.boss = !!boss;   // 보스전 — 보스전 전용 마법은 이때만 (partysim.py Battle.boss)
     this.first = first;
     this.rnd = 0;
     this.called = false;
@@ -1301,6 +1315,7 @@ details.rpb[open]>summary::before{content:"▾ "}
       var heal = null, alls = [], pier = [], sing = [];
       for (i = 0; i < s.spells.length; i++) {
         sp = s.spells[i];
+        if (sp.boss && !this.boss && !SW.BUG.has("boss_only_any")) continue;   // ⑯ 보스전 전용 — 보스전이 아니면 없는 것(난수 안 뽑음)
         if (a.mp < sp.mp) continue;
         if (sp.kind === 32) {
           if (heal === null) {
@@ -3756,6 +3771,7 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
        jobs: [{i, lv, main}],  eq: [{i, enh?:[{k,v}], id?}],
        spellsOn?: [이름] | "all" — 없으면 skills 의 on, 그것도 없으면 역할 프리셋 · "all" = 배운 것 전부,
        skills?: [{i: 마법 id, on, boss?}] — 세이브에서 온 마법 목록(있으면 이것이 spells),
+       spellsBoss?: [이름] — 보스전에서만 쓰는 마법(없으면 skills 의 boss) · 시트의 spellsBoss 로 엔진에 간다,
        position?: "앞줄"|"뒷줄" (없으면 프리셋), role?: 이름표, preset?: tank|evade|archer|melee|mage|priest|none|auto,
        leader?: bool, stage?, n?, guid? } */
   function makeSheet(spec, ctx) {
@@ -3764,8 +3780,8 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
     if (!r) throw new Error("종족 없음: " + spec.race);
     var warnings = [], errors = [];
     /* fromSave 가 세이브에서 못 읽어 기본값으로 채운 칸 — 화면이 꼭 보이도록 warnings 에도 한 줄 넣는다.
-       (지금 savelib.html 파서로 만든 tsa.crew.v1 은 마법 켜기·줄이 없다 → 켠 마법 = 배운 것 전부, 줄 = 무기로 짐작.
-        세이브를 simweb/savecrew.gen.js 로 직접 읽으면 둘 다 세이브 값이 들어와 이 줄이 안 생긴다.) */
+       (2026-10-09 전에 세이브 화면이 만든 tsa.crew.v1 은 마법 켜기·줄이 없다 → 켠 마법 = 배운 것 전부, 줄 = 무기로 짐작.
+        지금 savelib.html 은 둘 다 읽는다 — 세이브를 다시 읽으면 이 줄이 안 생긴다.) */
     var defaulted = (spec.defaulted || []).slice();
     if (defaulted.length) warnings.push("세이브에서 못 읽어 기본값으로 채운 칸: " + defaulted.map(function (d) {
       return DEFAULTED_LABEL[d] || d;
@@ -3858,6 +3874,10 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
       }
       if (spec.spellsOn === "all") on = spells.map(function (s) { return s.n; });
       else if (spec.spellsOn) on = spec.spellsOn.slice();
+      /* 보스전에서만 — 7.3 Character.EnableSkills(isBoss) 0x26DBB34: 보스전이면 켜 둔 것 전부(b__152_0 = enable),
+         아니면 켜 둠 && !보스전 전용(b__152_1). isBoss 는 BattleContext.isBoss(+0x50 · SelectActions 0x26C1C70). */
+      var bossOnly = spec.spellsBoss ? spec.spellsBoss.slice()
+        : (spec.skills || []).filter(function (s) { return s.boss; }).map(function (s) { return (C.SKI[s.i] || {}).n; }).filter(Boolean);
       on.forEach(function (n) {
         var sp = spells.filter(function (s) { return s.n === n; })[0];
         if (!sp) warnings.push("켠 마법 «" + n + "» 을 배우지 않았다");
@@ -3880,7 +3900,7 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
         shieldAvoid: S.shieldAvoid(c), shieldDefense: S.shieldRange(c), magicDefense: S.magicDef(c),
         crit: S.critRate(c), critDefense: S.critDef(c),
         regenHp: ahp + priestHeal(main, c.mainLv), regenMp: amp,
-        armor: armor, spells: spells, spellsOn: on,
+        armor: armor, spells: spells, spellsOn: on, spellsBoss: bossOnly,
         preset: preset, warnings: warnings, errors: errors, defaulted: defaulted
       };
       if (base) sheet.base = base;
@@ -3900,7 +3920,7 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
                 {id, n, race, st, pers(이름), hp, mp, ab{한글 8칸}, jobs[{i,lv,cur}], main, mainLv, eq[장비 파일 GUID]}
        equips = tsa.crew.v1 의 equips {GUID: {i, enh[{k,v}], plus}}
        opts   = { role?, position?, leader?, preset?, spellsOn? } — 화면에서 고른 것이 세이브보다 앞선다
-     ★ 지금 세이브 파서는 마법 켜기(Character.skills[].enable)와 줄(Character.position)을 안 읽는다.
+     ★ 2026-10-09 전의 세이브 파서는 마법 켜기(Character.skills[].enable)와 줄(Character.position)을 안 읽었다(옛 tsa.crew.v1).
        char.sk = [{i, on, boss}] · char.pos = 0(앞줄)/1(뒷줄) 이 있으면 그것을 쓰고, 없으면
          마법 = 직업으로 배운 것(세이브의 skills 와 129/129 같음 — sheetcheck b1) · 켜기 = 배운 것 전부("all")
          줄 = 든 무기로 짐작(preset "auto": 활·지팡이 → 뒷줄, 그 밖 → 앞줄).
@@ -3963,9 +3983,8 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
 })(typeof globalThis !== "undefined" ? globalThis : this);
 // ── simweb/savecrew.gen.js ──
 // ★ 자동 생성 파일 — 손으로 고치지 말 것. python simweb/gen_savecrew.py 로 다시 만든다.
-//   savelib.html 의 복호화·NRBF 파서·readCharacter·readEquipment 를 글자 그대로 잘라 붙이고 PATCH 한 곳만 바꿨다.
-//   잘라 온 조각의 sha1: savelib c699e15da3ec
-//   PATCH: readCharacter 에 sk(마법 켜기)·pos(줄) — 이유는 gen_savecrew.py 머리말
+//   savelib.html 의 복호화·NRBF 파서·readCharacter·readEquipment 를 글자 그대로 잘라 붙였다(바꾼 곳 없음).
+//   잘라 온 조각의 sha1: savelib 74a1ad76508a
 // 클래식 스크립트(import/export·DOM·Node API 없음, TextDecoder·crypto.subtle 만) — 전역 SimSave 하나만 단다.
 (function (G) {
   "use strict";
@@ -3997,7 +4016,7 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
     if (pt.byteLength !== declared) throw new Error("길이 불일치 " + pt.byteLength + "/" + declared);
     return new Uint8Array(pt);
   }
-  // ── savelib.html (NRBF 파서 · 용병) + PATCH ──
+  // ── savelib.html (NRBF 파서 · 용병) ──
   var PRIM = { 1:["b",1], 2:["B",1], 3:["B",1], 6:["d",8], 7:["h",2], 8:["i",4],
                9:["q",8], 10:["b",1], 11:["f",4], 12:["q",8], 13:["q",8],
                14:["H",2], 15:["I",4], 16:["Q",8] };
@@ -4168,6 +4187,9 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
       sum: sum,                                   // 전 직업 레벨 합 — 경험치 계수의 그 값
       eq: listOf(p, R.equipEquipIds).map(function(x){ return deref(p, x); }).filter(Boolean),
       lock: !!R.isLock,
+      /* 마법 켜기 · 줄 — 시뮬이 게임과 같은 마법을 쓰게(2026-10-09 제작자: «시뮬에서 마법이 제어가 안 된다»).
+         on = 켜 둠 · boss = 보스전에서만(7.3 Character.EnableSkills 0x26DBB34: 보스전이 아니면 켜 둠 && !보스전 전용).
+         pos = Character.position 열거값(0 앞줄 · 1 뒷줄). 예전엔 simweb/gen_savecrew.py 가 시뮬 쪽에만 덧대 읽었다. */
       sk: listOf(p, R.skills).map(function(s){
         return { i: assetId(deref(p, s.assetName) || deref(p, s["Model+assetName"])),
                  on: !!s.enable, boss: !!s.enableBossOnly };
@@ -4665,16 +4687,45 @@ function jobsText(sh){
     .map(function(j){ return (j.main?'<b>':'')+esc(j.n||j.id)+' '+j.lv+(j.main?'</b>':''); }).join(" · ");
 }
 /* 마법 — 켠 것만 한 줄(«켠 마법: 뇌우 · 다크페인 · Heal (3/37)») + «마법 고르기» 를 펼치면 체크 목록(«시뮬 안 씀» 태그는 목록 안에 그대로).
-   펼침은 S.splOpen[자리] · S.eSplOpen(편집기)에 둔다 — 체크하면 카드를 다시 그리는데 그때 접히면 안 된다. */
-function spellBox(spells, onList, act, i, open){
-  var on={}; (onList||[]).forEach(function(n){ on[n]=1; });
-  var names=spells.filter(function(s){ return on[s.n]; }).map(function(s){ return s.n; });
-  var h='<p class="spsum">켠 마법: '+(names.length?esc(names.join(" · ")):'없음')+' <span class="dim">('+names.length+'/'+spells.length+')</span></p>';
-  h+='<details class="fine spd" data-spl="'+(i==null?'e':i)+'"'+(open?' open':'')+'><summary>마법 고르기</summary><div class="spl">'+spells.map(function(s,k){
-    var used=s.kind===20||s.kind===32;
-    return '<label class="'+(used?'':'dim')+'"><input type="checkbox" data-act="'+act+'"'+(i==null?'':' data-i="'+i+'"')+' data-k="'+k+'"'+(on[s.n]?' checked':'')+'>'+esc(s.n)+(used?'':' <i class="tag t-warn">시뮬 안 씀</i>')+'</label>';
+   펼침은 S.splOpen[자리] · S.eSplOpen(편집기)에 둔다 — 체크하면 카드를 다시 그리는데 그때 접히면 안 된다.
+   2026-10-09 제작자 «시뮬에서 마법이 제어가 안 된다 · 수정에서 켤 마법도 선택 못 하고»:
+   ① 목록은 엔진이 고르는 순서(시뮬이 쓰는 것 먼저 · 공격 → 회복 · 단일 → 관통 → 전체 · 레벨) — 카드와 편집기가 같은 순서다
+      (예전엔 편집기만 «배운 순서» 라 같은 사람인데 목록이 달랐다). data-k 는 그대로 spells 의 번호다.
+   ② «전부 켜기 · 전부 끄기» ③ 켠 마법마다 «보스전만» — 게임의 그 단추(세이브 enableBossOnly). 보스전이 아니면 안 쓴다
+      (7.3 Character.EnableSkills 0x26DBB34). ④ 요약 줄은 data-live — 편집기는 포커스가 있는 부분을 다시 안 그리는데
+      그 탓에 체크해도 «(n/m)» 이 안 바뀌어 «안 먹는다» 로 보였다 → 그 줄만은 바로 고친다(renderEditor). */
+var SPRNG={0:"단일", 1:"관통", 2:"전체"};
+function spellUsed(s){ return s.kind===20||s.kind===32; }
+function spellOrder(spells){
+  return spells.map(function(s,k){ return k; }).sort(function(a,b){
+    var x=spells[a], y=spells[b];
+    return ((spellUsed(y)?1:0)-(spellUsed(x)?1:0)) || (x.kind-y.kind) || ((x.targetRange||0)-(y.targetRange||0)) || ((x.lv||0)-(y.lv||0)) || (a-b);
+  });
+}
+function spellBox(spells, onList, act, i, open, bossList){
+  var on={}, bo={}; (onList||[]).forEach(function(n){ on[n]=1; }); (bossList||[]).forEach(function(n){ bo[n]=1; });
+  var di=(i==null?'':' data-i="'+i+'"');
+  var names=spells.filter(function(s){ return on[s.n]; }).map(function(s){ return s.n+(bo[s.n]?'(보스전만)':''); });
+  var h='<p class="spsum" data-live="1">켠 마법: '+(names.length?esc(names.join(" · ")):'없음')+' <span class="dim">('+names.length+'/'+spells.length+')</span></p>';
+  h+='<details class="fine spd" data-spl="'+(i==null?'e':i)+'"'+(open?' open':'')+'><summary>마법 고르기</summary>'+
+     '<div class="spbulk"><button type="button" class="mini" data-act="'+act+'all"'+di+' data-v="1">전부 켜기</button>'+
+     '<button type="button" class="mini" data-act="'+act+'all"'+di+' data-v="0">전부 끄기</button></div><div class="spl">'+spellOrder(spells).map(function(k){
+    var s=spells[k], used=spellUsed(s);
+    var r='<span class="sprow"><label class="'+(used?'':'dim')+'"><input type="checkbox" data-act="'+act+'"'+di+' data-k="'+k+'"'+(on[s.n]?' checked':'')+'>'+esc(s.n)+
+      (used?' <i class="sprng">'+(s.kind===32?'회복 ':'')+(SPRNG[s.targetRange||0]||'')+'</i>':' <i class="tag t-warn">시뮬 안 씀</i>')+'</label>';
+    if(used && on[s.n]) r+='<button type="button" class="spboss" data-act="'+act+'boss"'+di+' data-k="'+k+'" aria-pressed="'+(!!bo[s.n])+'" aria-label="'+esc(s.n)+' 보스전만">보스전만</button>';
+    return r+'</span>';
   }).join("")+'</div></details>';
   return h;
+}
+/* 카드의 «전부 켜기 · 끄기» · «보스전만» — 시트의 지금 값에서 바꿔 사양(spellsOn · spellsBoss)에 적는다 */
+function cardSpellCmd(m, a, t){
+  var sh=sheetOf(m), on={}, bo={};
+  (sh.spellsOn||[]).forEach(function(n){ on[n]=1; }); (sh.spellsBoss||[]).forEach(function(n){ bo[n]=1; });
+  if(a==="spellall"){ var v=t.dataset.v==="1"; sh.spells.forEach(function(s){ if(v) on[s.n]=1; else delete on[s.n]; }); }
+  else { var sp=sh.spells[+t.dataset.k]; if(sp){ if(bo[sp.n]) delete bo[sp.n]; else bo[sp.n]=1; } }
+  m.spec.spellsOn=sh.spells.map(function(s){ return s.n; }).filter(function(n){ return on[n]; });
+  m.spec.spellsBoss=sh.spells.map(function(s){ return s.n; }).filter(function(n){ return bo[n]; });
 }
 function slotHTML(i){
   var m=S.members[i];
@@ -4697,9 +4748,12 @@ function slotHTML(i){
       .map(function(x){ return '<div>'+x[0]+'<b>'+esc(x[1])+'</b></div>'; }).join("")+'</div>';
     h+='<p class="jobs">'+jobsText(sh)+(sh.weapon?' · <span class="dim">'+esc(sh.weapon.n)+'</span>':'')+'</p>';
   }
-  if((sh.spells||[]).length) h+=spellBox(sh.spells, sh.spellsOn, "spell", i, !!S.splOpen[i]);
+  if((sh.spells||[]).length) h+=spellBox(sh.spells, sh.spellsOn, "spell", i, !!S.splOpen[i], sh.spellsBoss);
   (sh.errors||[]).forEach(function(e){ h+='<p class="msg err">'+esc(e)+'</p>'; });
   (sh.warnings||[]).forEach(function(e){ h+='<p class="msg warn">'+esc(e)+'</p>'; });
+  // 옛 형식(마법 켜기 · 줄 없이 읽은) 세이브로 넣은 내 용병 — 어떻게 하면 게임 설정대로 되는지
+  if(m.src==="crew" && (m.spec.defaulted||[]).some(function(d){ return d==="spellsOn"||d==="position"; }))
+    h+='<p class="msg">«<a href="save.html">내 세이브</a>» 에서 세이브를 한 번 다시 읽으면 게임의 마법 켜기 · 보스전만 · 줄이 들어옵니다 — 켠 마법은 저절로 바뀌고, 줄은 «바꾸기 → 내 용병» 으로 다시 넣으면 바뀝니다.</p>';
   h+='<div class="ctl" style="margin:8px 0 0"><button type="button" class="mini" data-act="edit" data-i="'+i+'">바꾸기</button>'+
      '<button type="button" class="mini" data-act="tweak" data-i="'+i+'">직접 고치기</button>'+
      '<button type="button" class="mini" data-act="clear" data-i="'+i+'">비우기</button></div></div>';
@@ -4726,7 +4780,13 @@ function renderEditor(soft){
         S.edStale=false;
         for(var i=0;i<now.length;i++){
           if(now[i].getAttribute("data-sec")!==neu[i].getAttribute("data-sec")){ S.edStale=false; live.innerHTML=editorHTML(); return; }
-          if(act && now[i].contains(act)){ S.edStale=true; continue; }
+          if(act && now[i].contains(act)){
+            S.edStale=true;
+            // 그 부분의 «살아 있는 줄»(data-live — 마법 요약 «켠 마법 … (n/m)») 만은 바로 — 아니면 체크해도 숫자가 그대로라 «안 먹는다» 로 보였다
+            var lo=now[i].querySelectorAll("[data-live]"), ln=neu[i].querySelectorAll("[data-live]");
+            if(lo.length===ln.length) for(var q=0;q<lo.length;q++) lo[q].innerHTML=ln[q].innerHTML;
+            continue;
+          }
           now[i].innerHTML=neu[i].innerHTML;
         }
         return;
@@ -4783,7 +4843,10 @@ function crewPick(){
     '<span class="hint">PC 에서 게임 세이브 폴더(files)를 고르면 마법 켜기 · 줄까지 읽습니다. 파일은 이 기기 안에서만 읽습니다.</span></div>';
   h+='<p class="hint" id="svmsg" style="margin:0 0 8px"></p>';
   if(!C) return h+'<p class="empty">불러온 용병이 없습니다 — <a href="save.html">내 세이브</a>에서 세이브를 넣거나(폰은 거기서 «받기») 위 버튼으로 폴더를 여세요.</p>';
-  h+='<p class="hint" style="margin:0 0 8px">'+(C.src==="save"?"세이브 폴더에서 읽은 용병":"«내 세이브» 에 넣어 둔 용병(마법 켜기 · 줄은 기본값으로 채웁니다)")+
+  var oldFmt=C.src!=="save" && !C.chars.some(function(c){ return c.sk; });
+  h+='<p class="hint" style="margin:0 0 8px">'+(C.src==="save"?"세이브 폴더에서 읽은 용병":
+       oldFmt?"«내 세이브» 에 넣어 둔 용병 — 마법 켜기 · 줄이 없는 옛 형식이라 기본값(마법 전부 켬 · 줄은 무기로 짐작)으로 채웁니다. «내 세이브» 에서 세이브를 한 번 다시 읽으면 게임 설정대로 들어옵니다":
+       "«내 세이브» 에 넣어 둔 용병(마법 켜기 · 보스전만 · 줄도 세이브대로)")+
      (C.at?' · '+esc(atText(C.at)):'')+' · 은퇴한 용병은 뺍니다.</p>';
   var list=C.chars.filter(function(c){ return c.st!==6; }).sort(function(a,b){ return (b.mainLv||0)-(a.mainLv||0); });
   return h+listHTML(list, function(c){
@@ -4822,6 +4885,7 @@ function eFromSpec(spec){
   (spec.eq||[]).forEach(function(e){ var g=GEAR[e.i]; if(g){ var o={i:e.i, enh:(e.enh||[]).slice()}; if(e.id) o.id=e.id; E.eq[slotOfGear(g)]=o; } });
   E.eqOrder=(spec.eq||[]).map(function(e){ var g=GEAR[e.i]; return g?slotOfGear(g):null; }).filter(Boolean);   // 세이브의 장비 순서 그대로(넣기에서 되살린다)
   var sh=SS.makeSheet(spec, CTX); E.spells=(sh.spellsOn||[]).slice();   // 켠 마법(시트의 순서 그대로) — 화면 검사는 필요 없다
+  E.spellsBoss=(sh.spellsBoss||[]).slice();                             // 보스전만(세이브 enableBossOnly 또는 화면에서 고른 것)
   if(spec.skills){ E.skills=clone(spec.skills); E.skillsJobs=JSON.stringify(eJobs(E)); }
   return E;
 }
@@ -4835,6 +4899,7 @@ function eSpellList(E){
   return SS.learnedSpells(CTX, eJobs(E));
 }
 function eSpellsOn(E, list){ return E.spells || SS.presetSpellsOn(SS.presetOf(E.role), list||eSpellList(E)); }
+function eSpellsBoss(E){ return E.spellsBoss || (eSkillsOk(E) ? E.skills.filter(function(s){ return s.boss; }).map(function(s){ return (SS.spellOf(CTX, s.i)||{}).n; }).filter(Boolean) : []); }
 /* 주직업 · 종족이 못 쓰는 칸(canSlots)의 장비는 «빼 둔다» — 사양(specFromE)에도 기본 능력치 계산(autoBase)에도 안 들어간다.
    예전엔 E.eq 에 그대로 남아 시트에 숨어 들어갔고, 그 칸의 select 는 화면에서 사라져 뺄 방법도 없었다(검토 지적:
    7단계 법사 카드 → 방패 직업 → 방패 → 암흑마법사로 되돌림 = 방어 굴림 52~58 → 59~84 · 실행도 그대로).
@@ -4851,6 +4916,7 @@ function specFromE(E){
   if(E.abCustom && E.ab) spec.ab=clone(E.ab);
   if(eSkillsOk(E)){ spec.skills=clone(E.skills); spec.spellsOn=eSpellsOn(E).slice(); }   // 세이브 순서 그대로 + 켠 것
   else if(E.spells) spec.spellsOn=E.spells.slice();
+  if(E.spellsBoss) spec.spellsBoss=E.spellsBoss.slice();
   return spec;
 }
 function autoBase(E){
@@ -4924,7 +4990,7 @@ function manualHTML(){
   h+='<div data-sec="role"><div class="crow"><span class="lvlabel">역할</span><select data-act="e-role" aria-label="역할">'+roleOptions(E.role)+'</select>'+
      '<div class="seg small" role="group" aria-label="줄"><button type="button" data-act="e-pos" data-v="앞줄" aria-pressed="'+(E.pos==="앞줄")+'">앞줄</button><button type="button" data-act="e-pos" data-v="뒷줄" aria-pressed="'+(E.pos==="뒷줄")+'">뒷줄</button></div></div>';
   var spells=eSpellList(E);
-  if(spells.length) h+='<div class="crow" style="display:block"><span class="lvlabel">마법</span>'+spellBox(spells, eSpellsOn(E, spells), "e-spell", null, S.eSplOpen)+'</div>';
+  if(spells.length) h+='<div class="crow" style="display:block"><span class="lvlabel">마법</span>'+spellBox(spells, eSpellsOn(E, spells), "e-spell", null, S.eSplOpen, eSpellsBoss(E))+'</div>';
   h+='</div>';
   // 미리 보기 (화면 검사까지 — 자리에 넣은 뒤와 같은 오류 · 경고)
   var sh=checkedSheet(specFromE(E));
@@ -4992,7 +5058,7 @@ function partyPayload(){
     if(!m) return;
     // 이름표 — 내 용병은 이름, 추천 빌드 · 직접 구성은 «지금» 역할. 예전엔 직접 구성의 이름표가 만들 때 역할(편집기 기본 «방어탱»)에
     //   고정돼, 카드에서 회피탱으로 바꿔도 결과 · 판 다시 보기에 «방어탱» 으로 나왔다(제작자 2026-10-06).
-    var base=(m.src==="crew" ? m.label : m.spec.role)||m.label||"파티원", lab=base;
+    var base=(m.src==="crew" ? m.label : (m.nm || m.spec.role))||m.label||"파티원", lab=base;
     seen[base]=(seen[base]||0)+1; if(seen[base]>1) lab=base+"#"+seen[base];
     var sh=sheetOf(m);
     out.push({sheet:sh, front:!!m.front, leader:!!m.leader, label:lab, title:m.title, slot:slot, tank:String(m.spec.role).indexOf("탱")>=0});
@@ -5464,7 +5530,8 @@ el("slots").addEventListener("click", function(ev){
   var t=ev.target.closest("[data-act]"); if(!t) return;
   var a=t.dataset.act, i=+t.dataset.i, m=S.members[i];
   if(a==="edit"){ S.edit=(S.edit===i?null:i); S.E=null; S.pstage=S.stage; renderParty(); if(S.edit!=null) revealEditor(); else revealSlot(i); }
-  else if(a==="tweak" && m){ S.edit=i; S.etab="manual"; S.E=eFromSpec(m.spec); S.eSplOpen=false; renderParty(); revealEditor(); }
+  else if(a==="tweak" && m){ S.edit=i; S.etab="manual"; S.E=eFromSpec(m.spec); if(m.src==="crew"||m.nm) S.E.nm=m.nm||m.title; S.eSplOpen=false; renderParty(); revealEditor(); }
+  else if((a==="spellall"||a==="spellboss") && m){ cardSpellCmd(m, a, t); S.splOpen[i]=true; persist(); renderParty(); }
   else if(a==="clear"){ S.members[i]=null; if(S.edit===i) S.edit=null; persist(); renderParty(); }
   else if(a==="front" && m){ m.front=t.dataset.v==="1"; m.spec.position=m.front?"앞줄":"뒷줄"; persist(); renderParty(); }
   else if(a==="leader" && m){ setLeader(i); persist(); renderParty(); }
@@ -5498,10 +5565,18 @@ el("editor").addEventListener("click", function(ev){
   else if(a==="e-enhdel"){ var e2=E.eq[t.dataset.s]; if(e2){ e2.enh.splice(+t.dataset.k,1); renderEditor(); } }
   else if(a==="e-abauto"){ E.abCustom=false; E.ab=null; renderEditor(); }
   else if(a==="e-pos"){ E.pos=v; renderEditor(); }
+  else if(a==="e-spellall"){ var sl=eSpellList(E); E.spells=v==="1" ? sl.map(function(x){ return x.n; }) : []; S.eSplOpen=true; renderEditor(); }
+  else if(a==="e-spellboss"){
+    var sl2=eSpellList(E), sp2=sl2[+t.dataset.k];
+    if(sp2){ var bo=eSpellsBoss(E).slice(), at=bo.indexOf(sp2.n); if(at>=0) bo.splice(at,1); else bo.push(sp2.n); E.spellsBoss=bo; }
+    S.eSplOpen=true; renderEditor();
+  }
   else if(a==="e-put"){
     if((checkedSheet(specFromE(E)).errors||[]).length){ renderEditor(); return; }   // 게임에 없는 구성은 자리에 안 넣는다
     var spec=specFromE(E), nm=(JOB[E.main.i]||{}).n||"직접 구성", r=RACE[E.race];
-    putMember({src:"manual", ref:null, spec:spec, title:(r?r.race+(r.man?" 남":" 여")+" · ":"")+nm+" "+E.main.lv, label:E.role, front:E.pos==="앞줄", leader:false});
+    // 내 용병을 «직접 고치기» 한 것이면 이름을 들고 간다 — 예전엔 «휴먼 여 · 암흑마법사 21» 이 되어 누구였는지 사라졌다(2026-10-09)
+    putMember({src:"manual", ref:null, spec:spec, title:E.nm ? E.nm+" (고침)" : (r?r.race+(r.man?" 남":" 여")+" · ":"")+nm+" "+E.main.lv,
+               nm:E.nm||null, label:E.role, front:E.pos==="앞줄", leader:false});
   }
 });
 el("editor").addEventListener("toggle", onSplToggle, true);
@@ -5561,7 +5636,7 @@ el("svdir").addEventListener("change", function(){
     if(!r.chars.length){ var m3=el("svmsg"); if(m3) m3.textContent="용병 파일을 못 찾았습니다 — 세이브 폴더(files)를 골랐는지 확인하세요."; return; }
     SAVECREW={at:Date.now(), chars:r.chars, equips:r.equips};
     var kept=lsSet(LS_CREW, SAVECREW);
-    renderEditor();
+    if(upgradeCrew()){ persist(); renderParty(); } else renderEditor();
     var m4=el("svmsg"); if(m4) m4.textContent="용병 "+r.chars.length+"명 · 장비 "+Object.keys(r.equips).length+"점을 읽었습니다"+(r.fails.length?" (못 읽은 파일 "+r.fails.length+")":"")+(kept?"":" · 이 기기에 저장은 못 했습니다(공간 부족)")+".";
   }, function(e){ var m5=el("svmsg"); if(m5) m5.textContent="세이브를 못 읽었습니다: "+e.message; });
   el("svdir").value="";
@@ -5611,10 +5686,25 @@ el("pdel").onclick=function(){
   delete st.saved[nm]; lsSet(LS_PARTY, st); renderSaved();
 };
 
+/* 옛 형식 세이브(마법 켜기 없이 읽은 tsa.crew.v1)로 넣은 «내 용병» — 지금 용병 목록에 마법 켜기(sk)가 있고
+   사용자가 마법을 안 건드렸으면(spellsOn 이 아직 "all") 세이브의 켜기 · 보스전만으로 바꾼다. 줄은 사용자가 바꿨을 수도 있어 그대로 둔다. */
+function upgradeCrew(){
+  var C=crewData(); if(!C) return 0;
+  var by={}, n=0; C.chars.forEach(function(c){ by[c.id||c.file]=c; });
+  S.members.forEach(function(m){
+    if(!m || m.src!=="crew" || m.spec.spellsOn!=="all") return;
+    var ch=by[m.ref]; if(!ch || !ch.sk) return;
+    m.spec.skills=ch.sk.map(function(s){ return {i:s.i, on:!!s.on, boss:!!s.boss}; });
+    delete m.spec.spellsOn;
+    m.spec.defaulted=(m.spec.defaulted||[]).filter(function(d){ return d!=="spellsOn"; });
+    n++;
+  });
+  return n;
+}
 /* ── 시작 ── */
 (function(){
   var st=lsGet(LS_PARTY);
-  if(st && st.cur && st.cur.length===4 && st.cur.some(Boolean)){ S.members=st.cur; if(st.stage) S.stage=st.stage; }
+  if(st && st.cur && st.cur.length===4 && st.cur.some(Boolean)){ S.members=st.cur; if(st.stage) S.stage=st.stage; if(upgradeCrew()) persist(); }
   else { var rec=D.parties.filter(function(p){ return p.rec && p.stage===7; })[0]; if(rec) S.members=rec.members.map(function(m){ return memberFromPreset(m.preset, m.front, m.leader); }); }
   S.seed=newSeed();
   renderRecSel(); renderTarget(); renderParty();

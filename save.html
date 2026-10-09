@@ -788,7 +788,15 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
       main: main ? main.i : "", mainLv: main ? main.lv : 0,
       sum: sum,                                   // 전 직업 레벨 합 — 경험치 계수의 그 값
       eq: listOf(p, R.equipEquipIds).map(function(x){ return deref(p, x); }).filter(Boolean),
-      lock: !!R.isLock
+      lock: !!R.isLock,
+      /* 마법 켜기 · 줄 — 시뮬이 게임과 같은 마법을 쓰게(2026-10-09 제작자: «시뮬에서 마법이 제어가 안 된다»).
+         on = 켜 둠 · boss = 보스전에서만(7.3 Character.EnableSkills 0x26DBB34: 보스전이 아니면 켜 둠 && !보스전 전용).
+         pos = Character.position 열거값(0 앞줄 · 1 뒷줄). 예전엔 simweb/gen_savecrew.py 가 시뮬 쪽에만 덧대 읽었다. */
+      sk: listOf(p, R.skills).map(function(s){
+        return { i: assetId(deref(p, s.assetName) || deref(p, s["Model+assetName"])),
+                 on: !!s.enable, boss: !!s.enableBossOnly };
+      }).filter(function(s){ return s.i; }),
+      pos: enumVal(p, R.position)
     };
   }
 
