@@ -285,8 +285,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .foldbtn:hover{background:var(--raised)}
 .foldbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .chain.chest .thlist{display:block;margin-top:4px;color:var(--body)}
-.chain.chest .threw{display:block;margin-top:2px}
-.chain.chest .threw b{color:var(--body);font-weight:600;margin-right:2px}
+.chain.chest .chk{display:block;margin-top:3px}
+.chain.chest .chk>b{display:inline;font-size:inherit;margin:0;color:var(--body);font-weight:600}   /* .chain li b(블록 · 큰 글씨)를 이 줄에선 끈다 */
+.chain.chest .chkth{display:block;padding-left:12px;margin-top:1px}
 .chain.chest .thok{color:var(--f-lodge);font-weight:600}
 .chain.chest .thno i{font-style:normal;color:var(--f-heal)}
 .chain.chest .thall{color:var(--muted)}
@@ -1045,6 +1046,10 @@ function thiefCell(kind, opp){
   });
   return parts.join(" · ")+(ps.length>1? ' <span class="thall">· 다 데려가면 '+pct(CH.party(ps))+'</span>' : "");
 }
+/* 금고 줄의 판정 하나 — «발견 46 — 도둑 35 + 통찰 72 이상» 한 줄, 그 아래 내 도둑마다의 확률(있으면) */
+function chkLine(head, need, th){
+  return '<span class="cmeta chk"><b>'+esc(head)+'</b> — '+need+(th? '<span class="chkth">'+th+'</span>' : '')+'</span>';
+}
 function chestHTML(x){
   if(!x.ch || !x.ch.length) return "";
   /* 내 도둑 목록은 안 적는다 — 상자가 너무 길어졌다(2026-10-09 제작자: «내 용병 부분은 빼자 · 하단에 확률만»).
@@ -1061,36 +1066,32 @@ function chestHTML(x){
           ? '<a class="ilink" href="codex.html?v=item&q='+encodeURIComponent(c.item)+'">'
               +esc(c.item)+'</a> <span class="cmeta">('+esc(c.cat)+')</span>'
           : (c.gold? c.gold.toLocaleString()+'G' : '내용 미지정');
-        var bits=[], lv=curLv(x)[0];
+        var bits=[], checks=[], lv=curLv(x)[0];
         bits.push(esc('시작 '+hhmm(c.at)+' 후'));
         // 등장 판정 — 리더의 현자 레벨 + 통찰로 «금고가 뜨는지» 부터 굴린다(원리 §10 · IsAppearanceEvent)
         if(c.ins) bits.push(esc('등장 판정(리더 현자·통찰)'));
         /* 확정선 = 지금 의뢰 레벨(클리어 보너스 포함) + 난이도 + 9 — 원리 §8. «난이도» 는 이미 이 숫자 안에 있어 따로 안 적는다.
-           습득물은 내 값에 +6 이 붙어 3 · 발견값 0 이면 굴리지 않고 줍는다. 해제는 난이도 0 이면 판정 자체가 없다. */
-        if(c.src==="금고"){ var fl=lv+(c.fv||0)+9; bits.push('발견 '+fl+' — '+chestNeed(fl,"통찰",thiefRef,refSel())); }
-        else if(c.fv){ var sl=lv+c.fv+3; bits.push('습득 '+sl+' — '+chestNeed(sl,"통찰",thiefRef,refSel())); }
-        else bits.push(esc('늘 주움(판정 없음)'));
-        if(c.ud){ var ul=lv+c.ud+9; bits.push('해제 '+ul+' — '+chestNeed(ul,"재주",thiefRef,refSel())); }
-        else if(c.src==="금고") bits.push(esc('해제 판정 없음'));
+           습득물은 내 값에 +6 이 붙어 3 · 발견값 0 이면 굴리지 않고 줍는다. 해제는 난이도 0 이면 판정 자체가 없다.
+           발견 · 해제는 한 줄씩 — 그 바로 아래에 내 도둑마다의 확률(2026-10-09 제작자: «발견 해제 부분 줄바꿈 필요») */
+        var showTh = c.src==="금고" && THIEVES && THIEVES.top.length;
+        if(c.src==="금고"){ var fl=lv+(c.fv||0)+9; checks.push(chkLine('발견 '+fl, chestNeed(fl,"통찰",thiefRef,refSel()), showTh? thiefCell("found", lv+(c.fv||0)) : "")); }
+        else if(c.fv){ var sl=lv+c.fv+3; checks.push(chkLine('습득 '+sl, chestNeed(sl,"통찰",thiefRef,refSel()), "")); }
+        else checks.push(chkLine('늘 주움', '판정 없음', ""));
+        if(c.ud){ var ul=lv+c.ud+9; checks.push(chkLine('해제 '+ul, chestNeed(ul,"재주",thiefRef,refSel()), showTh? thiefCell("unlock", lv+c.ud) : "")); }
+        else if(c.src==="금고") checks.push(chkLine('해제', '판정 없음', ""));
         if(c.cv)  bits.push(esc('제작등급 '+c.cv));
         if(c.trap) bits.push(esc('함정 있음'));
         var line = itemLine(it);
-        // 내 도둑마다의 확률 — 금고만(습득물은 지금 데이터에서 늘 줍는다)
-        var thr = "";
-        if(c.src==="금고" && THIEVES && THIEVES.top.length){
-          thr = '<span class="cmeta threw"><b>발견</b> '+thiefCell("found", lv+(c.fv||0))+'</span>'
-              + (c.ud ? '<span class="cmeta threw"><b>해제</b> '+thiefCell("unlock", lv+c.ud)+'</span>' : "");
-        }
         // 계산기 «금고 확률» 탭을 새 창으로 — 이 금고의 지금 퀘스트 레벨 · 발견값 · 해제 난이도를 채워서
-        if(c.src==="금고"){
-          thr += '<a class="calcl" target="_blank" rel="noopener" href="calc.html?v=chest&lv='+lv+'&f='+(c.fv||0)+'&u='+(c.ud||0)
-               +'&nm='+encodeURIComponent(c.item || (c.gold? c.gold.toLocaleString()+'G' : ''))+'">파티로 확률 계산 ↗</a>';
-        }
+        var calc = c.src==="금고"
+          ? '<a class="calcl" target="_blank" rel="noopener" href="calc.html?v=chest&lv='+lv+'&f='+(c.fv||0)+'&u='+(c.ud||0)
+              +'&nm='+encodeURIComponent(c.item || (c.gold? c.gold.toLocaleString()+'G' : ''))+'">파티로 확률 계산 ↗</a>'
+          : "";
         return '<li><b>'+(c.src==="금고"?'<em class="tag t-chest">금고</em>':'<em class="tag t-find">습득</em>')
           + what+'</b>'
           + (line? '<span class="cmeta ispec">'+line+'</span>' : "")
           + itemSp(it)
-          + '<span class="cmeta">'+bits.join(" · ")+'</span>'+thr+'</li>'; }).join("")
+          + '<span class="cmeta">'+bits.join(" · ")+'</span>'+checks.join("")+calc+'</li>'; }).join("")
     + '</ul></div>';
 }
 
