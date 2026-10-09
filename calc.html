@@ -1598,6 +1598,9 @@ function condRowsHTML(rsel){
 }
 function calcRun(){
   var rs=racesSel();
+  /* 주점은 그 도시의 종족·성별을 고르게 섞어 뽑는다 — 성별을 고르면 «그 성별만 성공» 이지 «그 성별만 나옴» 이 아니다.
+     예전엔 고른 것끼리만 나눠(1/rs.length) «남» 을 고르면 확률이 두 배로 나왔다(2026-10-10 제작자: 매크로 앱에서 «전체 · 남자만 예상 시간이 다르다»). */
+  var nAll=racesAt(calc.bar).length;
   if(!rs.length) return null;
   var lv=barLvOf(calc.bar), useLv = lv!=null ? lv : 1;
   var total=0, per=[];
@@ -1612,7 +1615,7 @@ function calcRun(){
       var pPt = calc.pt>0 ? pAtLeast(pointDist(useLv, PERS_BONUS[pp]||0), calc.pt) : 1;
       pAll += (cnt[pp]/r.pers.length) * pPt;
     });
-    var p=(1/rs.length)*pStat*pAll;
+    var p=(1/nAll)*pStat*pAll;
     per.push({r:r, p:p, pStat:pStat, pPers:pAll});
     total+=p;
   });
@@ -1666,7 +1669,8 @@ function calcHTML(){
     +'<div class="crow"><span class="lvlabel">주점</span><select id="c-bar">'+opts+'</select>'
       +'<span class="meta">'+(lv!=null?"내 주점 "+lv+"레벨":"세이브 없음 &rarr; 1레벨로 계산")+'</span></div>'
     +'<div class="crow"><span class="lvlabel">성별</span><div class="abils-box">'+sexBox+'</div>'
-      +'<span class="meta">'+rsel.length+'종 &mdash; '+(rsel.map(function(r){return esc(r.race)+(calc.sex?"":"·"+(r.man?"남":"여"));}).join(", ")||"없음")+'</span></div>'
+      +'<span class="meta">'+rsel.length+'종 &mdash; '+(rsel.map(function(r){return esc(r.race)+(calc.sex?"":"·"+(r.man?"남":"여"));}).join(", ")||"없음")
+      +(calc.sex?' · 주점은 남녀를 섞어 뽑으니 다른 성별이 나오면 «실패» 로 셉니다':'')+'</span></div>'
     +'<div class="crow"><span class="lvlabel">원하는 성격</span><div class="abils-box">'+persBox+'</div></div>'
     +'<div class="crow"><span class="lvlabel">능력치 조건</span><div class="conds">'+condRowsHTML(rsel)+'</div>'
       +'<span class="meta">«대개» 는 이 주점에서 <b>98% 가 들어오는 폭</b>, «최대» 는 실제로 나올 수 있는 끝입니다(아주 드묾) &mdash; 기준값을 흔든 뒤 남는 포인트까지 얹은 값</span></div>'
