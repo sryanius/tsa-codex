@@ -1063,11 +1063,23 @@ function sageSel(){
   for(var l=SAGE_MAX;l>=0;l--) o+='<option value="'+l+'"'+(l===sageRef?' selected':'')+'>'+l+(l===SAGE_MAX?' (최대)':'')+'</option>';
   return '<select class="thref" data-k="sage" aria-label="기준 리더 현자 레벨" title="눌러서 리더의 현자 레벨로 바꾸면 필요한 통찰이 다시 나옵니다">'+o+'</select>';
 }
+/* 리더 후보 — 금고 요약(통찰 총값)에 현자 레벨을 붙여 고정부가 높은 넷. 옛 요약(현자 레벨 없음)이면 용병 목록(tsa.crew.v1)의 직업에서 바로 —
+   세이브 화면을 다시 안 열어도 나오게(2026-10-10 제작자 «금고 등장도 용병들 확률 넣어 주면 좋겠다»). */
+function leadersOf(cc, crew){
+  if(!cc||!cc.list||!cc.list.length) return null;
+  var sg={};
+  if(crew&&crew.chars) crew.chars.forEach(function(c){ (c.jobs||[]).forEach(function(j){ if(j.i==="Sage") sg[c.id]=j.lv||0; }); });
+  var have=cc.list[0].sage!=null || (crew&&crew.chars);
+  if(!have) return null;
+  var t=cc.list.map(function(x){ return {n:x.n, ins:x.ins, sage:(x.sage!=null? x.sage : (sg[x.id]||0))}; });
+  t.sort(function(a,b){ return CH.appearFixedLow(b.sage,b.ins)-CH.appearFixedLow(a.sage,a.ins) || (b.ins-a.ins); });
+  return t.slice(0,4);   // 발견 줄의 도둑처럼 넷(파티 최대)
+}
 var LEADERS=(function(){
-  var c=null; try{ c=JSON.parse(localStorage.getItem("tsa.chestcrew.v1")||"null"); }catch(e){}
-  if(!c||!c.list||!c.list.length||c.list[0].sage==null) return null;    // 현자 레벨이 없는 옛 요약 — 세이브 화면을 한 번 열면 생긴다
-  var t=c.list.slice().sort(function(a,b){ return CH.appearFixedLow(b.sage,b.ins)-CH.appearFixedLow(a.sage,a.ins) || (b.ins-a.ins); });
-  return t.slice(0,3);
+  var c=null, w=null;
+  try{ c=JSON.parse(localStorage.getItem("tsa.chestcrew.v1")||"null"); }catch(e){}
+  try{ w=JSON.parse(localStorage.getItem("tsa.crew.v1")||"null"); }catch(e){}
+  return leadersOf(c, w);
 })();
 function freqOf(c){ return CH.FREQ[c.fq||5] || CH.FREQ[5]; }
 /* 등장 확정선 = 퀘스트 레벨 + 통찰 보정 + 10 (2d6 차는 −10 밑으로 안 간다) */
