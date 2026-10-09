@@ -290,7 +290,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain.chest .chkth{display:block;padding-left:12px;margin-top:1px}
 .chain.chest .thok{color:var(--f-lodge);font-weight:600}
 .chain.chest .thno i{font-style:normal;color:var(--f-heal)}
-.chain.chest .thall{color:var(--muted)}
 .tag{font-style:normal;font-size:10px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:0 4px;margin-right:5px;vertical-align:1px}
 .t-chest{color:var(--f-vault)} .t-find{color:var(--f-lodge)}
@@ -1034,17 +1033,17 @@ var THIEVES=(function(){
 function hasCrew(){ try{ return !!localStorage.getItem("tsa.crew.v1"); }catch(e){ return false; } }
 /* 대실패(1+1)가 있어 100% 는 없다 — 99.95% 이상은 «99.9%↑» 로(반올림해 «100.0%» 가 찍히면 확정처럼 보인다) */
 function pct(p){ var v=p*100; if(v>=99.95) return "99.9%↑"; return (v>=99||v<1? v.toFixed(1) : String(Math.round(v)))+"%"; }
-/* 금고 한 판정에 내 도둑마다 — 이길 확률(흔들림까지 넣은 정확한 값) · 확정선까지 모자란 수. 리더 보너스는 안 넣는다(누가 리더일지 모름). */
+/* 금고 한 판정에 내 도둑마다 — 이길 확률(흔들림까지 넣은 정확한 값) · 확정선까지 모자란 수. 리더 보너스는 안 넣는다(누가 리더일지 모름).
+   «다 데려가면 N%» 는 뺐다 — 실제 파티와 상관없는 숫자라 의미가 없었다(2026-10-09 제작자). 파티 확률은 계산기 «금고 확률» 에서. */
 function thiefCell(kind, opp){
   if(!THIEVES||!THIEVES.top.length) return "";
-  var line=opp+9, ps=[];
-  var parts=THIEVES.top.map(function(t){
+  var line=opp+9;
+  return THIEVES.top.map(function(t){
     var st=kind==="found"? t.ins : t.dex;
-    var p=CH.p(kind, opp, t.thief, st, 0); ps.push(p);
+    var p=CH.p(kind, opp, t.thief, st, 0);
     var lack=line-CH.fixedLow(kind, t.thief, st, 0);
     return '<span class="'+(lack<=0?'thok':'thno')+'">'+esc(t.n)+' '+pct(p)+(lack>0?' <i>−'+lack+'</i>':'')+'</span>';
-  });
-  return parts.join(" · ")+(ps.length>1? ' <span class="thall">· 다 데려가면 '+pct(CH.party(ps))+'</span>' : "");
+  }).join(" · ");
 }
 /* 금고 줄의 판정 하나 — «발견 46 — 도둑 35 + 통찰 72 이상» 한 줄, 그 아래 내 도둑마다의 확률(있으면) */
 function chkLine(head, need, th){
