@@ -656,6 +656,14 @@ details.rpb[open]>summary::before{content:"▾ "}
   // «살아 있지 않은» 효과(EffectOnCreatureKindExtensions.IsAlive 0x26FB984) — 50 석화 · 51 기절. 이런 전투 효과의 후유증은
   // Character.IsDeadFromCondition → IsAlive 거짓 → 걸리는 순간 쓰러진 것(전투 중이면 BattleCreature.IsAlive 도 같음)
   var DEAD_EFF = [50, 51];
+  // 평타 피해(≥ 1 · 대상 생존)로 풀리는 효과 — IsRemoveEffectDamage 0x26FBBD0: 13 · 16 · 46 은 늘 · 7 은 RandSuccess(50)
+  var WAKE_EFF = [13, 16, 46];
+  // EffectOnCreature.CanMagicAction 0x26FBD50 — k ≤ 46 이면 0x3FFF_FF88_230B 비트 · 아니면 50 · 55 가 아닐 때
+  function can_magic_kind(k) {
+    if (k > 46) return k !== 50 && k !== 55;
+    var lo = 0xFF88230B, hi = 0x3FFF;                     // 비트 0~31 · 32~45 (JS 비트 연산은 32비트라 둘로 나눈다)
+    return k < 32 ? ((lo >>> k) & 1) === 1 : ((hi >>> (k - 32)) & 1) === 1;
+  }
   var COND_TICKS = 600;     // 후유증 진행 판정 간격 = progressSpeed × AdventureInterval(10) × 60 (Check 0x26E0DC4)
   var FREQ_P = new Map([[5, 1.0], [10, 0.375], [11, 0.1875], [12, 0.09375], [13, 0.0703125], [14, 0.017578125], [15, 0.005573], [16, 0.000293]]);
   var WANDER_IV = [60, 60, 60, 60, 60, 120, 180, 360, 720, 1440, 4320, 17280];
@@ -1391,9 +1399,25 @@ details.rpb[open]>summary::before{content:"▾ "}
   };
 
   // ---------------- 아군 행동 ----------------
+  // BattleCreature.CanMagicAction 0x26B962C — 걸린 효과가 모두 마법을 허락해야
+  B.can_cast = function (x) {
+    if (SW.BUG.has("nomagic_ignore") || x.eff === null) return true;
+    var ok = true;
+    x.eff.forEach(function (_v, k) { if (!can_magic_kind(k)) ok = false; });
+    return ok;
+  };
+  // 평타 피해 뒤 — 매혹 · 수면 · 투명은 풀리고 혼란은 50% (효과 목록 순서로 · 혼란에서만 굴림) (partysim.py wake_on_hit)
+  B.wake_on_hit = function (t) {
+    if (t.eff === null || !t.eff.size || SW.BUG.has("wake_none")) return;
+    var R = this.R, gone = [];
+    t.eff.forEach(function (_v, k) { if (WAKE_EFF.indexOf(k) >= 0 || (k === 7 && R.succ(50))) gone.push(k); });
+    for (var i = 0; i < gone.length; i++) t.eff.delete(gone[i]);
+    if (gone.length && this.lg !== null) this.lg.push({ k: "wake", to: this.rf(t), eff: gone });
+  };
+
   B.ally_act = function (a) {
     var s = a.s, R = this.R, i, j, sp, m;
-    if (s.spells.length) {
+    if (s.spells.length && this.can_cast(a)) {
       var M = alive(this.ms);
       var heal = null, alls = [], pier = [], sing = [];
       for (i = 0; i < s.spells.length; i++) {
@@ -1611,6 +1635,7 @@ details.rpb[open]>summary::before{content:"▾ "}
         if (lg !== null) lg.push({ k: "drain", a: a.i, from: this.rf(m), h: dh, hp0: a.hp, hp1: Math.min(a.mx, a.hp + dh) });
         a.hp = Math.min(a.mx, a.hp + dh);
       }
+      if (m.hp > 0) this.wake_on_hit(m);                                   // 0x26C90E0 — 대상이 살아 있으면
       if (!s.bow && m.hp > 0 && a.hp > 0 && ms.rsk !== null) {
         var v = this.skill_value(m, ms.rsk, a);
         if (lg !== null) { le = { k: "rsk", by: this.rf(m), to: ["a", a.i], sk: ms.rsk.name, d: v, hp0: a.hp }; lg.push(le); }
@@ -1668,6 +1693,7 @@ details.rpb[open]>summary::before{content:"▾ "}
       return nv < 4;
     }
     if (p.cmd !== 10 || p.skill === null) return true;
+    if (!this.can_cast(mo)) return false;                // CanMagicAction 0x26C536C — 스킬 패턴만
     var sk = p.skill, k = sk.kind;
     if (!(k === 20 || k === 21 || k === 30 || k === 32)) return true;
     if (mo.mp < sk.cost) return false;
@@ -1809,6 +1835,7 @@ details.rpb[open]>summary::before{content:"▾ "}
         if (lg !== null) lg.push({ k: "mdrain", by: this.rf(mo), h: r > 99 ? Math.floor(r / 100) : 1, hp0: mo.hp, hp1: Math.min(mo.mx, mo.hp + (r > 99 ? Math.floor(r / 100) : 1)) });
         mo.hp = Math.min(mo.mx, mo.hp + (r > 99 ? Math.floor(r / 100) : 1));
       }
+      if (t.hp > 0) this.wake_on_hit(t);
     } else if (lg !== null) le.hp1 = t.hp;
     var sk = p.skill;
     if (sk !== null && sk.kind === 30 && t.hp > 0 && (d >= 1 || !SW.BUG.has("atkstatus_generic"))) {
@@ -3102,7 +3129,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     finalFarm: finalFarm,
     isSafe: isSafe,
     // 내부 (검사 · 디버깅용)
-    _: { RNG: RNG, Skill: Skill, CondM: CondM, cond_add: cond_add, cond_eff_time: cond_eff_time, EFF_FOREVER: EFF_FOREVER, DEAD_EFF: DEAD_EFF, AllyS: AllyS, Ally: Ally, Mon: Mon, MonS: MonS, Battle: Battle, QuestRun: QuestRun, FarmRun: FarmRun,
+    _: { RNG: RNG, Skill: Skill, CondM: CondM, cond_add: cond_add, cond_eff_time: cond_eff_time, EFF_FOREVER: EFF_FOREVER, DEAD_EFF: DEAD_EFF, can_magic_kind: can_magic_kind, AllyS: AllyS, Ally: Ally, Mon: Mon, MonS: MonS, Battle: Battle, QuestRun: QuestRun, FarmRun: FarmRun,
       plan_of: plan_of, free_grades: free_grades, il2cpp_sort: il2cpp_sort, threshold: threshold, retreat_score: retreat_score,
       pyRound: pyRound, pySum: pySum, T: T, OR: OR }
   };
@@ -5661,6 +5688,7 @@ function rpLine(ctx, e, mons, b){
     case "idle": t=A(e.a)+": 칠 대상 없음"; break;
     case "dot": t=A(e.a)+" 지속 피해("+esc(effName(e.eff))+") "+e.d+" · "+hpTo(e); break;
     case "expire": t=A(e.a)+" "+esc(effName(e.eff))+" 풀림"; break;
+    case "wake": t="↳ "+WN(e.to)+" 맞아서 "+esc(e.eff.map(effName).join(" · "))+" 풀림"; break;
     case "death": return '<p class="rl k-death">'+A(e.s)+' 쓰러짐</p>';
     case "rend": return '<p class="rl k-rend">라운드 끝 '+e.a.map(function(x){ return A(x[0])+" "+hpBar(x[1], ctx.mx[x[0]])+" "+Math.max(0,x[1]); }).join(" · ")+'</p>';
     case "bend": return '<p class="rl k-bend">전투 끝: '+(BRES[e.res]||e.res)+' · '+e.rounds+'라운드 — '+e.a.map(function(x){ return A(x[0])+" "+hpBar(x[1], ctx.mx[x[0]])+" "+Math.max(0,x[1])+"/"+ctx.mx[x[0]]; }).join(" · ")+(e.calls||e.callfail?' · 부름 '+e.calls+'번(실패 '+e.callfail+')':'')+'</p>';
