@@ -653,6 +653,9 @@ details.rpb[open]>summary::before{content:"▾ "}
   var EFF_DEF_RAND = new Map([[2, [3, 2]], [4, [3, 2]], [7, [3, 2]], [8, [3, 2]], [16, [2, 2]], [18, [3, 2]], [22, [3, 5]]]);   // Rand(n) + plus
   var EFF_KEEP0 = [50, 51, 52];
   var EFF_FOREVER = 1000000;
+  // «살아 있지 않은» 효과(EffectOnCreatureKindExtensions.IsAlive 0x26FB984) — 50 석화 · 51 기절. 이런 전투 효과의 후유증은
+  // Character.IsDeadFromCondition → IsAlive 거짓 → 걸리는 순간 쓰러진 것(전투 중이면 BattleCreature.IsAlive 도 같음)
+  var DEAD_EFF = [50, 51];
   var COND_TICKS = 600;     // 후유증 진행 판정 간격 = progressSpeed × AdventureInterval(10) × 60 (Check 0x26E0DC4)
   var FREQ_P = new Map([[5, 1.0], [10, 0.375], [11, 0.1875], [12, 0.09375], [13, 0.0703125], [14, 0.017578125], [15, 0.005573], [16, 0.000293]]);
   var WANDER_IV = [60, 60, 60, 60, 60, 120, 180, 360, 720, 1440, 4320, 17280];
@@ -909,7 +912,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     this.fgold = m.fgold;
   }
 
-  function TrapS(name, t, mons) {
+  function TrapS(name, t, mons, conds) {
     this.name = name;
     this.kind = t.kind;
     this.jobKind = t.jobKind;
@@ -919,6 +922,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     this.addDamage = OR(t.addDamage, 0);
     this.addEffect = OR(t.addEffect, 0);
     this.mons = mons;
+    this.cond = (conds && T(t.cond) && conds.has(t.cond)) ? conds.get(t.cond) : null;   // 후유증 함정(kind 20)의 addCondition
   }
 
   function load(data) {
@@ -936,7 +940,7 @@ details.rpb[open]>summary::before{content:"▾ "}
       var lst = Object.prototype.hasOwnProperty.call(tm, k) ? tm[k] : [];
       var mons = [];
       for (var i = 0; i < lst.length; i++) if (D.mon.has(lst[i][0])) mons.push([D.mon.get(lst[i][0]), lst[i][1], lst[i][2]]);
-      D.traps.set(k, new TrapS(k, data.traps[k], mons));
+      D.traps.set(k, new TrapS(k, data.traps[k], mons, D.conds));
     });
     D.caves = new Map();
     Object.keys(data.caves).forEach(function (k) { D.caves.set(k, data.caves[k]); });
@@ -1141,6 +1145,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     this.is_ally = true;
     this.cnd = [];            // 후유증 [마스터, 지금 레벨, 진행 칸(chackCount)]
     this.cpen = 0; this.cagi = 0; this.cavo = 0; this.chit = 0;
+    this.curse = false;       // 저주 후유증(kind 151) — Character.HealHp/HealMp 가 0 을 돌려준다
   }
   // 후유증 감소 = value + 2 × 지금 레벨 — 10: 모든 능력치 · 11: 민첩만 더 · 12: 회피값 · 20: 명중값 (partysim.py Ally.cond_recalc)
   Ally.prototype.cond_recalc = function () {
@@ -1155,6 +1160,9 @@ details.rpb[open]>summary::before{content:"▾ "}
       }
     }
     this.cpen = p; this.cagi = g; this.cavo = v; this.chit = h;
+    var cu = false;
+    for (var j = 0; j < this.cnd.length; j++) if (this.cnd[j][0].kind === 151) cu = true;
+    this.curse = cu && !SW.BUG.has("curse_noblock");
   };
   // 후유증이 깎은 능력치(시트 값 − 감소) — 아군 계산 자리에서만 부른다
   Ally.prototype.agi = function () { return this.s.agi - this.cpen - this.cagi; };
@@ -1469,6 +1477,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     for (i = 0; i < tg.length; i++) {
       var x = tg[i];
       var h = this.R.rand(sp.h0, sp.h1) + a.mag();
+      if (x.curse) h = 0;        // 저주 후유증 — 골라지지만(전투 효과 52 가 없으면) 회복은 0
       if (lg !== null) le.tg.push([x.i, h, x.hp, Math.min(x.mx, x.hp + h)]);
       x.hp = Math.min(x.mx, x.hp + h);
     }
@@ -1598,9 +1607,9 @@ details.rpb[open]>summary::before{content:"▾ "}
       }
       if (s.steal && !ms.undead && a.hp > 0) {
         r = s.steal * d;
-        if (lg !== null) lg.push({ k: "drain", a: a.i, from: this.rf(m), h: r > 99 ? Math.floor(r / 100) : 1, hp0: a.hp,
-          hp1: Math.min(a.mx, a.hp + (r > 99 ? Math.floor(r / 100) : 1)) });
-        a.hp = Math.min(a.mx, a.hp + (r > 99 ? Math.floor(r / 100) : 1));
+        var dh = a.curse ? 0 : (r > 99 ? Math.floor(r / 100) : 1);     // 흡수도 HealHp — 저주 후유증이면 0
+        if (lg !== null) lg.push({ k: "drain", a: a.i, from: this.rf(m), h: dh, hp0: a.hp, hp1: Math.min(a.mx, a.hp + dh) });
+        a.hp = Math.min(a.mx, a.hp + dh);
       }
       if (!s.bow && m.hp > 0 && a.hp > 0 && ms.rsk !== null) {
         var v = this.skill_value(m, ms.rsk, a);
@@ -1949,6 +1958,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     var v = (mo.s.lv + mo.a) - t.s.maxJob + lvl + d1 + d2 - Math.floor(cv / 6);
     var added = v >= 1 && cond_add(t, sk.cond);
     if (this.lg !== null) this.lg.push({ k: "acond", by: this.rf(mo), to: this.rf(t), sk: sk.name, c: sk.cond.n, v: v, ok: v >= 1, add: !!added, lv: sk.cond.st });
+    if (added) this.cond_dead_check(t, sk.cond);
   };
 
   // 후유증 반사(kind 80) — ReflectAfterPhysicsAttack 7.3 0x26C9738: 때린 아군이 살아 있으면
@@ -1962,6 +1972,15 @@ details.rpb[open]>summary::before{content:"▾ "}
     var v = (mo.s.lv + mo.a) - t.s.maxJob + cm.lv + d1 + d2 - Math.floor(cv / 6);
     var added = v >= 1 && cond_add(t, cm);
     if (this.lg !== null) this.lg.push({ k: "rcond", by: this.rf(mo), to: this.rf(t), sk: sk.name, c: cm.n, v: v, ok: v >= 1, add: !!added, lv: cm.st });
+    if (added) this.cond_dead_check(t, cm);
+  };
+
+  // 석화(전투 효과 50 · 51) 후유증은 걸리는 순간 쓰러진 것 (partysim.py Battle.cond_dead_check)
+  B.cond_dead_check = function (t, cm) {
+    if (DEAD_EFF.indexOf(cm.bae) >= 0 && t.hp > 0 && !SW.BUG.has("cond_nostone")) {
+      t.hp = 0;
+      this.Q.on_death(t, this);
+    }
   };
 
   B.status = function (mo, sk, t) {
@@ -2027,8 +2046,8 @@ details.rpb[open]>summary::before{content:"▾ "}
         if (a.hp <= 0) continue;
       }
       s = a.s;
-      if (s.rhp && !(a.eff !== null && a.eff.has(52))) a.hp = Math.min(a.mx, a.hp + s.rhp);
-      if (s.rmp) a.mp = Math.min(a.mpmax, a.mp + s.rmp);
+      if (s.rhp && !(a.eff !== null && a.eff.has(52)) && !a.curse) a.hp = Math.min(a.mx, a.hp + s.rhp);
+      if (s.rmp && !a.curse) a.mp = Math.min(a.mpmax, a.mp + s.rmp);
     }
     for (i = 0; i < this.ms.length; i++) {
       var m = this.ms[i];
@@ -2350,8 +2369,14 @@ details.rpb[open]>summary::before{content:"▾ "}
           if (lg !== null) le.hit.push({ s: a.i, v: ap, mp0: a.mp, mp1: Math.max(0, a.mp - ap) });
           a.mp = Math.max(0, a.mp - ap);
         } else if (tr.kind === 20) {
-          if (lg !== null) le.hit.push({ s: a.i, v: ap, cond: ap >= 1 });
-          if (ap >= 1) a.conds += 1;
+          if (SW.BUG.has("trap_nocond")) {                    // 옛 시뮬: 걸린 셈만 쳤다
+            if (lg !== null) le.hit.push({ s: a.i, v: ap, cond: ap >= 1 });
+            if (ap >= 1) a.conds += 1;
+          } else {
+            var tadd = ap >= 1 && cond_add(a, tr.cond);         // ExecuteTrap 0x2724150 — 마스터 없음 · 면역 · 이미 있음이면 안 붙음
+            if (lg !== null) le.hit.push({ s: a.i, v: ap, cond: ap >= 1, c: tr.cond !== null ? tr.cond.n : null, add: !!tadd });
+            if (tadd && DEAD_EFF.indexOf(tr.cond.bae) >= 0 && !SW.BUG.has("cond_nostone") && a.hp > 0) { a.hp = 0; this.on_death(a, null); }
+          }
         } else if (tr.kind === 21) {
           if (lg !== null) le.hit.push({ s: a.i, v: ap, eff: (ap >= 1 && T(tr.addEffect) && !a.s.invEff.has(tr.addEffect)) ? tr.addEffect : 0 });
           if (ap >= 1 && T(tr.addEffect) && !a.s.invEff.has(tr.addEffect)) {
@@ -3077,7 +3102,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     finalFarm: finalFarm,
     isSafe: isSafe,
     // 내부 (검사 · 디버깅용)
-    _: { RNG: RNG, Skill: Skill, CondM: CondM, cond_add: cond_add, cond_eff_time: cond_eff_time, EFF_FOREVER: EFF_FOREVER, AllyS: AllyS, Ally: Ally, Mon: Mon, MonS: MonS, Battle: Battle, QuestRun: QuestRun, FarmRun: FarmRun,
+    _: { RNG: RNG, Skill: Skill, CondM: CondM, cond_add: cond_add, cond_eff_time: cond_eff_time, EFF_FOREVER: EFF_FOREVER, DEAD_EFF: DEAD_EFF, AllyS: AllyS, Ally: Ally, Mon: Mon, MonS: MonS, Battle: Battle, QuestRun: QuestRun, FarmRun: FarmRun,
       plan_of: plan_of, free_grades: free_grades, il2cpp_sort: il2cpp_sort, threshold: threshold, retreat_score: retreat_score,
       pyRound: pyRound, pySum: pySum, T: T, OR: OR }
   };
@@ -5651,7 +5676,7 @@ function rpMiscLine(ctx, e){
       var s=tickText(e.t)+" 함정("+(TRAPK[e.kind]||"함정")+" · "+esc(e.tr)+")";
       s+=e.det!=null ? " — 알아챔: "+A(e.det) : (e.trig===2 ? " — 알아챌 수 없는 함정" : " — 아무도 못 알아챔");
       if(e.dis===false) s+=" · 해제 실패"; else if(e.dis!=null) s+=" · 해제: "+A(e.dis);
-      if(e.fired) s+=" → 발동"+(e.hit.length ? ": "+e.hit.map(function(x){ return A(x.s)+" "+("hp0" in x ? "−"+x.v+" (HP "+x.hp0+"→"+x.hp1+")" : ("mp0" in x ? "MP −"+x.v : ("cond" in x ? (x.cond?"후유증":"버팀") : ("eff" in x ? (x.eff?effName(x.eff):"버팀") : x.v)))); }).join(" · ") : "")+(e.mons?" · 몬스터가 튀어나옴":"");
+      if(e.fired) s+=" → 발동"+(e.hit.length ? ": "+e.hit.map(function(x){ return A(x.s)+" "+("hp0" in x ? "−"+x.v+" (HP "+x.hp0+"→"+x.hp1+")" : ("mp0" in x ? "MP −"+x.v : ("cond" in x ? (x.cond ? "후유증"+(x.c ? " «"+esc(x.c)+"»" : "")+(x.add===false ? " 안 붙음(이미 있음 · 면역)" : "") : "버팀") : ("eff" in x ? (x.eff?effName(x.eff):"버팀") : x.v)))); }).join(" · ") : "")+(e.mons?" · 몬스터가 튀어나옴":"");
       else if(e.det!=null) s+=" → 피함";
       return '<p class="rl k-trap">'+s+'</p>';
     case "chest":
