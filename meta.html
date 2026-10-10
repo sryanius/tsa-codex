@@ -311,6 +311,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
 .statbox .lvin input{width:44px}
 .t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
 .t-tr{color:var(--f-vault)}
+.t-bad{color:var(--f-heal)}
 .trlist li{margin:4px 0} .trlist b{color:var(--f-vault)} .trlist .est{color:var(--muted);font-size:11px}
 .jobnote{margin-top:14px} .jobnote code{font-size:12px}
 .crow .lvin input{width:54px}
@@ -350,7 +351,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 세계와 용병단</p>
     <h1>도감</h1>
-    <p class="lede">세계에 무엇이 있고 용병단이 무엇으로 이루어지는지 &mdash; 탐색지·몬스터·아이템, 그리고 클래스·종족·마법·도시 시설. 여기에 <b>지도</b>와 <b>뽑기 계산기</b>가 붙어 있습니다.</p>
+    <p class="lede">세계에 무엇이 있고 용병단이 무엇으로 이루어지는지 &mdash; 탐색지·몬스터·아이템, 그리고 클래스·종족·마법·상태이상·도시 시설. 여기에 <b>지도</b>와 <b>뽑기 계산기</b>가 붙어 있습니다.</p>
     <p class="tabnote" id="tabnote"></p>
     <div class="stats" id="stats"></div>
   </header>
@@ -369,6 +370,7 @@ details.fine p{margin:6px 0 0;line-height:1.6}
       <button id="v-job" type="button" aria-pressed="false">클래스</button>
       <button id="v-race" type="button" aria-pressed="false">종족</button>
       <button id="v-skill" type="button" aria-pressed="false">마법</button>
+      <button id="v-cond" type="button" aria-pressed="false">상태이상</button>
       <button id="v-town" type="button" aria-pressed="false">도시 시설</button>
       </div>
       <span class="seglab">도구</span>
@@ -831,6 +833,115 @@ function skillDetail(s){
     + s.jobs.map(function(j){ return '<li><b>'+esc(j.j)+'</b><span class="meta"> — '+j.lv+'레벨</span></li>'; }).join("")
     + '</ul></div>'+(s.d?'<div class="story">'+esc(s.d)+'</div>':"")+'</div>';
 }
+
+/* ---------- 상태이상 (전투 상태이상 · 후유증) ----------
+   자료는 build_meta.py → statusdata.py (효과 성질 = 7.3 기계어 비트마스크 그대로 · 출처 = 몬스터 패턴 · 함정 · 장비).
+   «미출시» 는 거는 몬스터 · 함정이 전부 아직 못 가는 지역에 있는 것 — 다른 탭과 같은 «잠긴 것도 보기» 를 따른다. */
+var ST = D.status || {effects:[], conds:[]};
+var EFN = {}; ST.effects.forEach(function(e){ EFN[e.k]=e.n; });
+function condOf(i){ for(var k=0;k<ST.conds.length;k++) if(ST.conds[k].i===i) return ST.conds[k]; return null; }
+function srcOpen(x){
+  if(x.lk) return false;
+  if(x.t==="후유증"){ var c=condOf(x.cond); return !!c && stOpen(c); }    // 그 후유증을 거는 곳이 열려 있어야
+  if(x.r) return x.r.some(function(r){ return !isLockedRegion(r); });
+  return true;
+}
+function foeSrc(x){ return x.t!=="무기" && x.t!=="마법"; }        // 아군에게 거는 것(몬스터 · 함정 · 후유증)
+function stOpen(o){ return o.src.some(function(x){ return foeSrc(x) && srcOpen(x); }); }
+function visEff(){ return ST.effects.filter(function(e){ return state.showLocked || stOpen(e); }); }
+function visCond(){ return ST.conds.filter(function(c){ return state.showLocked || stOpen(c); }); }
+function ivText(pS){ if(!pS) return "진행 없음"; var m=pS*100, h=Math.floor(m/60), mm=m%60; return h ? h+"시간"+(mm?" "+mm+"분":"") : mm+"분"; }
+function effTime(d){ return d==="내내" ? "전투 내내" : d+"라운드"; }
+var CK_EFF = {
+  "능력치":"힘 · 체력 · 지능 · 민첩 · 재주 · 통찰이 각각 −2 × 단계 (최대 HP · MP 는 그대로)",
+  "민첩":"민첩 −2 × 단계", "회피":"회피값 −2 × 단계", "명중":"명중값 −2 × 단계",
+  "실명":"능력치는 그대로 — 전투마다 실명",
+  "석화":"걸리는 순간 쓰러진 것으로 칩니다(전투 중에도) · 저절로는 안 낫습니다",
+  "저주":"HP · MP 회복이 전부 0 — 회복 마법 · 턴 끝 자동회복 · 흡수 · 의뢰 끝 MP 회복까지"};
+var RESTXT = {"레벨":"막기: 레벨 판정", "힘":"막기: 힘", "마법 방어":"막기: 마법 방어"};
+var STYPE = [["평타","몬스터 평타"],["스킬","몬스터 스킬"],["반사","몬스터 반사 — 앞에서 때리면"],["함정","함정"],
+             ["후유증","후유증 — 전투를 시작할 때마다"],["무기","아군 무기 부가 효과"],["마법","아군 마법"]];
+function srcLi(x){
+  var nm = x.t==="함정" ? "함정" :
+    (x.t==="평타"||x.t==="스킬"||x.t==="반사") ? '<a href="codex.html?v=mon&amp;q='+encodeURIComponent(x.n)+'">'+esc(x.n)+'</a>' :
+    x.t==="후유증" ? '<a href="meta.html?v=cond&amp;q='+encodeURIComponent(x.n)+'">'+esc(x.n)+'</a>' : esc(x.n);
+  var bits=[];
+  if(x.lv && x.t!=="후유증") bits.push((x.t==="무기"||x.t==="마법"?"요구 ":"")+"Lv"+x.lv);
+  if(x.sk) bits.push("«"+x.sk+"»");
+  if(x.tm) bits.push(x.tm+"라운드");
+  if(x.res) bits.push(RESTXT[x.res]||x.res);
+  if(x.jobs) bits.push(x.jobs.join(" · "));
+  return '<li>'+(srcOpen(x)?"":'<em class="tag t-lock">미출시</em>')+'<b>'+nm+'</b>'
+    +(bits.length?'<span class="meta"> — '+esc(bits.join(" · "))+'</span>':"")+'</li>';
+}
+function srcBlocks(src){
+  var h="";
+  STYPE.forEach(function(t){
+    var xs=src.filter(function(x){ return x.t===t[0] && (state.showLocked || srcOpen(x)); });
+    if(!xs.length) return;
+    if(t[0]==="함정"){ h+='<div class="blk"><h4>'+t[1]+'</h4><p class="meta" style="margin:4px 0 0">함정 '+xs.length+'종 — 못 피하면 함정 판정(원리 §8)</p></div>'; return; }
+    h+='<div class="blk"><h4>'+t[1]+'</h4><ul>'+xs.map(srcLi).join("")+'</ul></div>';
+  });
+  return h;
+}
+function effRow(e){
+  var lk = (!stOpen(e) && e.src.some(foeSrc)) ? '<em class="tag t-lock" title="거는 몬스터 · 함정이 아직 못 가는 지역에만 있습니다">미출시</em>' : "";
+  var bad = e.dead ? '<em class="tag t-bad">쓰러짐</em>' : (e.avo0 ? '<em class="tag t-bad">회피 0</em>' : "");
+  var n = e.src.filter(function(x){ return foeSrc(x) && (state.showLocked || srcOpen(x)); }).length;
+  return '<div class="row" data-k="e" data-i="'+e.k+'" tabindex="0" role="button" style="grid-template-columns:minmax(0,1fr) 78px 64px">'
+    +'<span class="nm"><b>'+lk+bad+esc(e.n)+'</b><span>'+esc(e.tags.join(" · ")||"능력치 변화 없음")+'</span></span>'
+    +'<span class="num dim">'+esc(effTime(e.dur))+'</span>'
+    +'<span class="num">'+(n ? "거는 곳 "+n : "–")+'</span></div>';
+}
+function effDetail(e){
+  var cell=function(t,v){ return '<div class="dcell"><dt>'+t+'</dt><dd>'+v+'</dd></div>'; };
+  var h='<div class="detail"><dl class="dgrid">'
+    + cell("행동", e.dead ? "쓰러진 것으로 칩니다" : (e.act ? "할 수 있음" : "<b>못 함</b>"))
+    + cell("마법", e.dead||!e.act ? "–" : (e.mag ? "쓸 수 있음" : "<b>못 씀</b>"))
+    + cell("회피", e.avo0 ? "<b>0</b> (굴리지 않음)" : (e.avo ? "−"+e.avo : "그대로"))
+    + cell("평타에 맞으면", e.wake==="늘" ? "<b>풀림</b>" : (e.wake ? "50% 로 풀림" : "그대로"))
+    + cell("기본 지속", esc(effTime(e.dur))+'<br><span class="meta" style="font-size:11.5px">스킬에 시간이 없을 때</span>')
+    + (e.mental ? cell("정신계", "«정신 없음» 몬스터에게는 안 걸림") : "")
+    + (e.fix ? cell("대상", "건 몬스터가 그 대상만 노림") : "")
+    + (e.dot.length ? cell("턴 끝 피해", e.dot[0]+(e.dot.length>1?" ~ "+e.dot[e.dot.length-1]:"")+'<br><span class="meta" style="font-size:11.5px">스킬마다</span>') : "")
+    + '</dl>'
+    + (e.x ? '<p style="margin:10px 0 0">'+esc(e.x)+'</p>' : "")
+    + srcBlocks(e.src);
+  var inv=e.inv.filter(function(g){ return state.showLocked || !g.lk; });
+  if(inv.length) h+='<div class="blk"><h4>막는 장비 — 이 상태이상 무효</h4><ul>'+inv.map(function(g){
+      return '<li>'+(g.lk?'<em class="tag t-lock">미출시</em>':"")+'<b><a href="codex.html?v=item&amp;q='+encodeURIComponent(g.n)+'">'+esc(g.n)+'</a></b><span class="meta"> — '+esc(g.k)+' · Lv'+g.lv+'</span></li>'; }).join("")+'</ul></div>';
+  if(!e.src.some(foeSrc)) h+='<p class="meta" style="margin:12px 0 0">7.3 자료에서 아군에게 이 상태이상을 거는 몬스터 · 함정은 없습니다.</p>';
+  return h+'</div>';
+}
+function condRow(c){
+  var lk = !stOpen(c) ? '<em class="tag t-lock" title="거는 몬스터 · 함정이 아직 못 가는 지역에만 있거나 없습니다">미출시</em>' : "";
+  var bad = c.kind==="석화" ? '<em class="tag t-bad">쓰러짐</em>' : (c.kind==="저주" ? '<em class="tag t-bad">회복 0</em>' : "");
+  return '<div class="row" data-k="c" data-i="'+esc(c.i)+'" tabindex="0" role="button" style="grid-template-columns:minmax(0,1fr) 92px 70px">'
+    +'<span class="nm"><b>'+lk+bad+esc(c.n)+'</b><span>'+esc(c.kind+" · 레벨 "+c.lv+(c.bae?" · 전투마다 "+(EFN[c.bae]||c.bae):""))+'</span></span>'
+    +'<span class="num dim">'+esc(ivText(c.pS))+'</span>'
+    +'<span class="num">'+(c.pS ? c.st+" → "+c.dead : "–")+'</span></div>';
+}
+function condDetail(c){
+  var cell=function(t,v){ return '<div class="dcell"><dt>'+t+'</dt><dd>'+v+'</dd></div>'; };
+  var h='<div class="detail"><p style="margin:0 0 10px">'+esc(CK_EFF[c.kind]||c.kind)+'</p><dl class="dgrid">'
+    + cell("치료소", '<span class="mono">'+c.lv+'</span> 이상이면 치료')
+    + (c.pS ? cell("단계", '<span class="mono">'+c.st+' → '+c.dead+'</span><br><span class="meta" style="font-size:11.5px">오른쪽에 닿으면 쓰러짐</span>')
+            : cell("단계", "진행 없음"))
+    + cell("판정 간격", esc(ivText(c.pS))+(c.pS?'<br><span class="meta" style="font-size:11.5px">모험 중에만 · 50%</span>':""))
+    + (c.pS ? cell("나아짐", '판정값 <span class="mono">≥ '+c.good+'</span>') + cell("나빠짐", '판정값 <span class="mono">&lt; '+c.bad+'</span>') : "")
+    + (c.pS ? cell("판정값", "최고 직업 레벨 + 2d6 + "+esc(c.res)+"/6") : "")
+    + (c.bae ? cell("전투마다", '<a href="#" data-goeff="'+c.bae+'">'+esc(EFN[c.bae]||c.bae)+'</a>') : "")
+    + '</dl>'
+    + srcBlocks(c.src)
+    + (c.d ? '<div class="story">'+esc(c.d)+'</div>' : "")
+    + '<p class="meta" style="margin:12px 0 0">걸리는 판정 · 진행 · 치료 · 부활은 <a href="notes.html#cond">원리 §14</a>.</p></div>';
+  return h;
+}
+var STATNOTE = '<div class="note jobnote"><b>읽는 법</b> — «회피 0» 은 회피를 아예 굴리지 않아 무조건 맞는 것 · «맞으면 풀림» 은 평타로 피해를 1 이상 입었을 때 ·'
+  + ' «기본 지속» 은 스킬에 시간이 안 적혀 있을 때(대부분 스킬에 따로 적혀 있습니다) · 회피 깎이는 값은 <a href="notes.html#hit">원리 §5</a>.'
+  + ' «막기: 레벨 판정» 은 (몬스터 레벨 − 맞은 용병의 최고 직업 레벨) + 2d6 + 2d6 − 체력/6 이 1 이상이면 걸리는 것 · «힘» · «마법 방어» 는 <a href="notes.html#magic">원리 §7</a> 의 저항 굴림.'
+  + ' 후유증 칸은 판정 간격과 단계(처음 → 쓰러지는 단계) — 규칙은 <a href="notes.html#cond">원리 §14</a>.'
+  + ' 시뮬은 매혹(편 바뀜) · 맞으면 풀림 · 마법 못 씀을 아직 안 돌립니다.</div>';
 
 /* ---------- 도시 시설 ---------- */
 function townBlock(t){
@@ -1658,6 +1769,7 @@ var TABNOTE = {
   job:  "무엇을 들고 무엇에 능한지, 주직업일 때와 부직업일 때 뭐가 다른지.",
   race: "어느 주점에서 뽑히는지, 기준값이 실제로 얼마가 되는지, 어떤 성격이 나오는지.",
   skill:"어느 클래스가 몇 레벨에 배우는지. 회복 주문은 시전자 성격이 시점을 바꿉니다.",
+  cond: "전투 상태이상(그 전투만)과 후유증(전투가 끝나도 남는 병). 줄을 누르면 거는 몬스터 · 막는 장비 · 숫자가 나옵니다.",
   town: "도시마다 어떤 시설이 몇 레벨까지 있고, 올리는 데 얼마가 드는지.",
   calc: "주점·성별·성격·최소 능력치를 넣으면 한 번에 나올 확률과 평균 시도 횟수를 계산합니다.",
   map:  "도시를 누르면 그 도시의 퀘스트로, 탐색지를 누르면 도감으로 갑니다.",
@@ -1675,6 +1787,10 @@ function headStats(){
   } else if(state.view==="skill"){
     var jb={}, vs=visSkills(); vs.forEach(function(s2){ s2.jobs.forEach(function(j){ if(state.showLocked || !JLOCK[j.j]) jb[j.j]=1; }); });
     out=[[vs.length,"마법"],[Object.keys(jb).length,"배우는 클래스"]];
+  } else if(state.view==="cond"){
+    var ve=visEff(), vc=visCond(), ng=0;
+    ve.forEach(function(e){ ng+=e.inv.filter(function(g){ return state.showLocked || !g.lk; }).length; });
+    out=[[ve.length,"전투 상태이상"],[vc.length,"후유증"],[ng,"막는 장비"]];
   } else if(state.view==="town"){
     var ts=visTowns();
     out=[[ts.length,"도시"],[ts.reduce(function(a,t){return a+t.b.length},0),"시설"]];
@@ -1734,6 +1850,15 @@ function render(){
       return hit(s.n+" "+s.i+" "+s.d+" "+s.jobs.map(function(j){return j.j}).join(" ")); });
     n=ss.length;
     html+=block("마법", n+"종 · 요구 레벨 순", ss.map(skillRow));
+  } else if(state.view==="cond"){
+    var es=visEff().filter(function(e){
+      return hit(e.n+" "+e.tags.join(" ")+" "+e.x+" "+e.src.map(function(x){ return x.n+" "+(x.sk||""); }).join(" ")); });
+    var cs=visCond().filter(function(c){
+      return hit(c.n+" "+c.kind+" "+c.d+" "+(EFN[c.bae]||"")+" "+c.src.map(function(x){ return x.n; }).join(" ")); });
+    n=es.length+cs.length;
+    html+=block("전투 상태이상", es.length+"종 · 그 전투에서만 · 기본 지속 · 거는 곳", es.map(effRow));
+    html+=block("후유증", cs.length+"종 · 전투가 끝나도 남음 · 판정 간격 · 단계", cs.map(condRow));
+    if(!state.q) html+=STATNOTE;
   } else if(state.view==="map"){
     // 검색칸은 지도에서 숨긴다(지역 고르기가 대신한다) — 다른 보기에서 쳐 둔 글자로 지도가 몰래 걸러지지 않게 state.q 는 안 쓴다
     var allM=D.maps.filter(function(m){ return state.showLocked || !m.lock; });
@@ -1774,6 +1899,8 @@ function detailFor(kind,id){
   if(kind==="j"){ for(var i=0;i<D.jobs.length;i++) if(D.jobs[i].i===id) return jobDetail(D.jobs[i]); }
   if(kind==="r"){ for(var i=0;i<D.races.length;i++) if(D.races[i].i===id) return raceDetail(D.races[i]); }
   if(kind==="s"){ for(var i=0;i<D.skills.length;i++) if(D.skills[i].i===id) return skillDetail(D.skills[i]); }
+  if(kind==="e"){ for(var i=0;i<ST.effects.length;i++) if(String(ST.effects[i].k)===id) return effDetail(ST.effects[i]); }
+  if(kind==="c"){ for(var i=0;i<ST.conds.length;i++) if(ST.conds[i].i===id) return condDetail(ST.conds[i]); }
   if(kind==="b") return buildDetail(id);
   return "";
 }
@@ -1803,6 +1930,12 @@ function openRow(row){
   row.classList.add("open");
 }
 el("out").addEventListener("click",function(e){
+  // 후유증 상세의 «전투마다» 효과 → 그 상태이상 줄을 열어 준다(같은 탭 안)
+  var ge=e.target.closest("a[data-goeff]");
+  if(ge){ e.preventDefault();
+    var r=el("out").querySelector('.row[data-k="e"][data-i="'+ge.getAttribute("data-goeff")+'"]');
+    if(r){ if(!r.classList.contains("open")) openRow(r); r.focus(); } return; }
+  if(e.target.closest("a")) return;                 // 상세 안의 링크는 줄을 닫지 않는다
   var row=e.target.closest(".row"); if(row) openRow(row);
 });
 el("out").addEventListener("keydown",function(e){
@@ -1822,7 +1955,7 @@ lk.addEventListener("change",function(e){
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   render();
 }); }
-var VIEWS=["job","race","skill","town","map"];
+var VIEWS=["job","race","skill","cond","town","map"];
 function setView(v){
   state.view=v;
   VIEWS.forEach(function(x){ el("v-"+x).setAttribute("aria-pressed", x===v?"true":"false"); });
@@ -1845,9 +1978,20 @@ el("mapsel").addEventListener("change",function(e){
   if(window.scrollY>top) window.scrollTo(0, Math.max(0, top));
 });
 // 도감의 다른 반쪽에서 넘어오면 ?v= 가 붙어 온다
-var _v=(new URLSearchParams(location.search)).get("v");
+var _sp=new URLSearchParams(location.search), _v=_sp.get("v"), _q=_sp.get("q");
 if(VIEWS.indexOf(_v)>=0) state.view=_v;
+if(_q){ state.q=_q; el("q").value=_q; }            // 다른 탭 · 문서에서 이름으로 넘어오면 그 줄만 보이게
 setView(state.view);
+if(_q && state.view==="cond"){                       // 이름이 꼭 맞는 줄은 바로 펼친다(출처로 걸린 다른 줄도 같이 보이므로 «한 줄» 로는 못 고른다)
+  var _rows=el("out").querySelectorAll(".row"), _hit=null;
+  for(var _k=0;_k<_rows.length;_k++){
+    var _b=_rows[_k].querySelector(".nm b"); if(!_b) continue;
+    var _t=_b.cloneNode(true); [].slice.call(_t.querySelectorAll(".tag")).forEach(function(x){ x.remove(); });
+    if(_t.textContent.trim()===_q){ _hit=_rows[_k]; break; }
+  }
+  if(!_hit && _rows.length===1) _hit=_rows[0];
+  if(_hit) openRow(_hit);
+}
 // 계산기 입력 — 결과가 바뀔 때마다 화면을 다시 그리므로 위임으로 받는다
 // 지도에서 도시·탐색지를 누르면 그 자료로 보낸다
 el("out").addEventListener("click",function(e){
