@@ -868,6 +868,7 @@ function srcLi(x){
   var bits=[];
   if(x.lv && x.t!=="후유증") bits.push((x.t==="무기"||x.t==="마법"?"요구 ":"")+"Lv"+x.lv);
   if(x.sk) bits.push("«"+x.sk+"»");
+  if(x.sex) bits.push(x.sex===1 ? "남자에게만" : "여자에게만");
   if(x.tm) bits.push(x.tm+"라운드");
   if(x.res) bits.push(RESTXT[x.res]||x.res);
   if(x.jobs) bits.push(x.jobs.join(" · "));
@@ -941,7 +942,7 @@ var STATNOTE = '<div class="note jobnote"><b>읽는 법</b> — «회피 0» 은
   + ' «기본 지속» 은 스킬에 시간이 안 적혀 있을 때(대부분 스킬에 따로 적혀 있습니다) · 회피 깎이는 값은 <a href="notes.html#hit">원리 §5</a>.'
   + ' «막기: 레벨 판정» 은 (몬스터 레벨 − 맞은 용병의 최고 직업 레벨) + 2d6 + 2d6 − 체력/6 이 1 이상이면 걸리는 것 · «힘» · «마법 방어» 는 <a href="notes.html#magic">원리 §7</a> 의 저항 굴림.'
   + ' 후유증 칸은 판정 간격과 단계(처음 → 쓰러지는 단계) — 규칙은 <a href="notes.html#cond">원리 §14</a>.'
-  + ' 시뮬은 맞으면 풀림 · 마법 못 씀까지 돌리고, 매혹(편 바뀜)은 아직 안 돌립니다.</div>';
+  + ' 시뮬은 맞으면 풀림 · 마법 못 씀 · 매혹(걸린 용병이 우리 편을 치고 몬스터를 고침)까지 돌립니다.</div>';
 
 /* ---------- 도시 시설 ---------- */
 function townBlock(t){

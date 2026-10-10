@@ -488,8 +488,8 @@ details.rpb[open]>summary::before{content:"▾ "}
     <div id="res"><p class="empty">아직 돌리지 않았습니다.</p></div>
     <p class="note">
       <b>읽는 법</b> &mdash; 드랍 · 친밀도는 시뮬에 없습니다. 후유증은 몬스터 평타 · 반사로 걸리고 의뢰 안에서 나아지거나 악화됩니다(악화로 쓰러짐까지) &mdash; 다만 판마다 후유증 없이 출발합니다(앞 의뢰에서 걸려 온 후유증은 안 넣음).
-      <b>시뮬이 따지지 않는 것</b> &mdash; 의뢰의 성별 · 종족 · 인원 조건(게임은 편성 창에서 막습니다)과 매혹(걸리면 편이 바뀜)은 엔진에 없습니다.
-      해당 의뢰를 고르면 실행 칸에 알림이 뜹니다 &mdash; 매혹이 나오는 의뢰에서 그 대상(대개 남자)이 낀 파티 값은 낙관적입니다.
+      <b>시뮬이 따지지 않는 것</b> &mdash; 의뢰의 성별 · 종족 · 인원 조건(게임은 편성 창에서 막습니다)은 엔진에 없습니다. 해당 의뢰를 고르면 실행 칸에 알림이 뜹니다.
+      매혹은 돌립니다 &mdash; 걸린 용병은 우리 편을 치고(자기 자신도) 회복 마법은 몬스터에게 씁니다. 맞으면 풀리고, «남자에게만» 매혹은 여자 용병에게 무효입니다.
       물리 무효 몬스터는 마법 무기나 공격 마법으로만 잡힙니다(3단계 의뢰 다수 · <a href="builds.html#stages">빌드 &sect;0</a> «마법 무기로 바꿔 듦»).
       전멸의 절대값은 상한 쪽입니다 &mdash; <b>절대값보다 같은 씨앗끼리의 비교로 읽으세요</b>(씨앗을 «고정» 하고 파티만 바꿔 돌리면 판마다 같은 난수에서 출발합니다).
       시뮬을 어떻게 맞췄는지는 <a href="builds.html#stages">빌드 &sect;0</a>, 전투 규칙은 <a href="notes.html">원리</a>에 있습니다.
@@ -833,6 +833,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     this.minH = OR(d.minHeal, 0);
     this.maxH = OR(d.maxHeal, 0);
     this.healT = OR(d.healTiming, 5);
+    this.sex = OR(d.sex, 0);              // 대상 성별 1 남 · 2 여 (SkillMaster.targetSex 0x68)
     var k = this.kind;
     this.cost = (k === 20 || k === 21 || k === 30 || k === 32) ? Math.max(0, this.useMp + this.level + (this.phys ? 2 : 3)) : 0;
   }
@@ -1137,6 +1138,9 @@ details.rpb[open]>summary::before{content:"▾ "}
       OR(a.invalidEffects, []).forEach(function (z) { ie.add(Math.trunc(Number(z))); });
     }
     this.strongEl = st; this.invEl = iv; this.invEff = ie;
+    // 성별 — 종족 id 의 Man/Woman (partysim.py 와 같다). 모르면 null(성별 마법도 걸린다고 본다)
+    var rc = sh.race, rid = (rc !== null && rc !== undefined && typeof rc === "object" ? rc.id : rc) || "";
+    this.man = rid.indexOf("Woman") >= 0 ? false : (rid.indexOf("Man") >= 0 ? true : null);
   }
   AllyS.prototype.joblv = function (kind) {
     var nm = JOBKIND.get(kind);
@@ -1316,13 +1320,26 @@ details.rpb[open]>summary::before{content:"▾ "}
     return null;
   };
 
+  // ---------------- 매혹(13) — 편 뒤집기 (partysim.py charmed · foes · mates) ----------------
+  // BattleContext.GetEnemies 0x26C4018: 걸린 아군의 적 = 아군 전원(자신 포함 · 도망 안 감 · 생존) · GetMembers 0x26C42D4 도 뒤집힘
+  B.charmed = function (x) { return x.eff !== null && x.eff.has(13) && !SW.BUG.has("charm_off"); };
+  B.foes = function (a) { return this.charmed(a) ? alive(this.al) : alive(this.ms); };
+  B.mates = function (a) { return this.charmed(a) ? this.ms : this.al; };
+  // 속성 · 물리 무효 — 몬스터는 마스터 표, 아군은 방어구(약점 없음 · 저항 strongEl · 무효 invEl · 물리 무효 없음)
+  function x_weak(x, el) { return x.is_ally ? false : !!x.s.weak_el[el]; }
+  function x_strong(x, el) { return x.is_ally ? x.s.strongEl.has(el) : !!x.s.strong_el[el]; }
+  function x_inv(x, el) { return x.is_ally ? x.s.invEl.has(el) : !!x.s.inv_el[el]; }
+  function x_nophys(x) { return x.is_ally ? false : !!x.s.nophys; }
+
   // ---------------- 대상: 아군 → 몬스터 ----------------
-  B.cand_vs_mons = function (a, tt) {
-    var M = alive(this.ms), f;
+  B.cand_vs_mons = function (a, tt, M) {
+    if (M === undefined) M = alive(this.ms);
+    var f;
     if (!M.length) return M;
     if (tt === 1) {
       if (!a.v) {
-        for (var i = 0; i < this.al.length; i++) { var x = this.al[i]; if (x.hp > 0 && x.v) return []; }
+        var mt = this.mates(a);         // 매혹이면 «같은 편» 이 몬스터 [추정: 이 판정이 GetMembers 를 쓴다]
+        for (var i = 0; i < mt.length; i++) { var x = mt[i]; if (x.hp > 0 && x.v) return []; }
       }
       f = M.filter(function (m) { return m.v; });
       return f.length ? f : M;
@@ -1341,13 +1358,13 @@ details.rpb[open]>summary::before{content:"▾ "}
   B.ally_pick = function (c, elem) {
     if (elem === undefined) elem = null;
     if (c.length >= 2) {
-      var k = c.filter(function (m) { return !m.s.nophys; });
+      var k = c.filter(function (m) { return !x_nophys(m); });
       if (k.length) c = k;
       if (elem !== null) {
-        var w = c.filter(function (m) { return m.s.weak_el[elem]; });
+        var w = c.filter(function (m) { return x_weak(m, elem); });
         if (w.length) c = w;
         else {
-          var k2 = c.filter(function (m) { return !m.s.strong_el[elem]; });
+          var k2 = c.filter(function (m) { return !x_strong(m, elem); });
           if (k2.length) c = k2;
         }
       }
@@ -1365,11 +1382,12 @@ details.rpb[open]>summary::before{content:"▾ "}
 
   B.weapon_targets = function (a) {
     var s = a.s;
-    var c = this.cand_vs_mons(a, s.wtt);
+    var F = this.foes(a);
+    var c = this.cand_vs_mons(a, s.wtt, F);
     if (!c.length || s.wrng === 2) return c;
     var t = this.ally_pick(c);
     if (s.wrng === 1 && t.v) {
-      var b = this.ms.filter(function (m) { return m.hp > 0 && !m.v; });
+      var b = F.filter(function (m) { return m.hp > 0 && !m.v; });
       if (b.length) return [t, b[this.R.n(b.length)]];
     }
     return [t];
@@ -1418,7 +1436,7 @@ details.rpb[open]>summary::before{content:"▾ "}
   B.ally_act = function (a) {
     var s = a.s, R = this.R, i, j, sp, m;
     if (s.spells.length && this.can_cast(a)) {
-      var M = alive(this.ms);
+      var M = this.foes(a), mates = this.mates(a);
       var heal = null, alls = [], pier = [], sing = [];
       for (i = 0; i < s.spells.length; i++) {
         sp = s.spells[i];
@@ -1427,13 +1445,13 @@ details.rpb[open]>summary::before{content:"▾ "}
         if (sp.kind === 32) {
           if (heal === null) {
             var n = 0;
-            for (j = 0; j < this.al.length; j++) if (this.injured(a, sp, this.al[j])) n += 1;
+            for (j = 0; j < mates.length; j++) if (this.injured(a, sp, mates[j])) n += 1;
             if (n >= (sp.rng === 2 ? 2 : 1)) heal = sp;
           }
         } else if (M.length) {
           var nv;
           if (!T(sp.elem)) nv = M.length;
-          else { nv = 0; for (j = 0; j < M.length; j++) if (!M[j].s.inv_el[sp.elem]) nv += 1; }
+          else { nv = 0; for (j = 0; j < M.length; j++) if (!x_inv(M[j], sp.elem)) nv += 1; }
           if (sp.rng === 2) { if (nv >= 2) alls.push(sp); }
           else if (nv >= 1) (sp.rng === 1 ? pier : sing).push(sp);
         }
@@ -1450,7 +1468,7 @@ details.rpb[open]>summary::before{content:"▾ "}
             if (T(sp.elem)) {
               for (j = 0; j < M.length; j++) {
                 m = M[j];
-                sc += 2 * (m.s.weak_el[sp.elem] ? 1 : 0) - (m.s.inv_el[sp.elem] ? 1 : 0);
+                sc += 2 * (x_weak(m, sp.elem) ? 1 : 0) - (x_inv(m, sp.elem) ? 1 : 0);
               }
             }
             if (bs === null || sc > bs) { best = sp; bs = sc; }
@@ -1463,8 +1481,8 @@ details.rpb[open]>summary::before{content:"▾ "}
         var cand = [];
         for (i = 0; i < sing.length; i++) {
           sp = sing[i];
-          if (T(sp.elem) && M.some(function (mm) { return mm.s.weak_el[sp.elem]; })) { this.cast_spell(a, sp); return; }
-          if (M.some(function (mm) { return mm.s.nophys; })) { this.cast_spell(a, sp); return; }
+          if (T(sp.elem) && M.some(function (mm) { return x_weak(mm, sp.elem); })) { this.cast_spell(a, sp); return; }
+          if (M.some(function (mm) { return x_nophys(mm); })) { this.cast_spell(a, sp); return; }
           cand.push(sp);
         }
         R.boolean();                    // RandBool — 결과를 버린다(아군 대상 단일 버프가 없으니 어느 쪽이든 평타 갈래)
@@ -1488,7 +1506,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     var lg = this.lg, le = null;
     if (lg !== null) { le = { k: "heal", a: a.i, sp: sp.n, mp0: a.mp, mp1: a.mp - sp.mp, tg: [] }; lg.push(le); }
     a.mp -= sp.mp;
-    var A = this.al.filter(function (x) { return x.hp > 0 && !(x.eff !== null && (x.eff.has(52) || x.eff.has(81))); });
+    var A = this.mates(a).filter(function (x) { return x.hp > 0 && !(x.eff !== null && (x.eff.has(52) || x.eff.has(81))); });
     if (!A.length) return;
     var tg, i;
     if (sp.rng === 2) tg = A;
@@ -1501,8 +1519,8 @@ details.rpb[open]>summary::before{content:"▾ "}
     for (i = 0; i < tg.length; i++) {
       var x = tg[i];
       var h = this.R.rand(sp.h0, sp.h1) + a.mag();
-      if (x.curse) h = 0;        // 저주 후유증 — 골라지지만(전투 효과 52 가 없으면) 회복은 0
-      if (lg !== null) le.tg.push([x.i, h, x.hp, Math.min(x.mx, x.hp + h)]);
+      if (x.is_ally && x.curse) h = 0;        // 저주 후유증 — 골라지지만(전투 효과 52 가 없으면) 회복은 0
+      if (lg !== null) le.tg.push([x.is_ally ? x.i : this.rf(x), h, x.hp, Math.min(x.mx, x.hp + h)]);   // 매혹된 시전자는 몬스터를 고친다
       x.hp = Math.min(x.mx, x.hp + h);
     }
     this.Q.n_heal += 1;
@@ -1512,7 +1530,8 @@ details.rpb[open]>summary::before{content:"▾ "}
   B.cast_spell = function (a, sp) {
     if (this.lg !== null) this.lg.push({ k: "cast", a: a.i, sp: sp.n, mp0: a.mp, mp1: a.mp - sp.mp });
     a.mp -= sp.mp;
-    var c = this.cand_vs_mons(a, sp.tt);
+    var F = this.foes(a);
+    var c = this.cand_vs_mons(a, sp.tt, F);
     if (!c.length) return;
     var tg;
     if (sp.rng === 2) tg = c;
@@ -1520,11 +1539,16 @@ details.rpb[open]>summary::before{content:"▾ "}
       var t = this.ally_pick(c, sp.elem);
       tg = [t];
       if (sp.rng === 1 && t.v) {
-        var b = this.ms.filter(function (m) { return m.hp > 0 && !m.v; });
+        var b = F.filter(function (m) { return m.hp > 0 && !m.v; });
         if (b.length) tg.push(b[this.R.n(b.length)]);
       }
     }
-    for (var i = 0; i < tg.length; i++) if (tg[i].hp > 0) this.spell_hit(a, sp, tg[i]);
+    for (var i = 0; i < tg.length; i++) {
+      if (tg[i].hp > 0) {
+        if (tg[i].is_ally) this.spell_hit_ally(a, sp, tg[i]);
+        else this.spell_hit(a, sp, tg[i]);
+      }
+    }
     this.Q.n_spell += 1;
     if (this.ev !== null) this.ev.push(["cast", a, sp.n, 20]);
   };
@@ -1553,6 +1577,90 @@ details.rpb[open]>summary::before{content:"▾ "}
     if (v >= 1) m.hp -= v;
   };
 
+  // 매혹된 아군의 공격 마법이 아군에게 — 몬스터에게와 같은 식을 맞는 쪽만 아군으로 (partysim.py spell_hit_ally)
+  B.spell_hit_ally = function (a, sp, t) {
+    var ts = t.s, R = this.R, el = sp.elem;
+    if (T(el) && ts.invEl.has(el)) {
+      if (this.lg !== null) this.lg.push({ k: "spell", a: a.i, to: ["a", t.i], sp: sp.n, inv: true, d: 0, hp0: t.hp, hp1: t.hp });
+      return;
+    }
+    var v = R.rand(sp.d0, sp.d1) + a.mag();
+    if (T(el) && ts.strongEl.has(el)) v -= 2;
+    while (R.d2() > 9) v += Math.floor(R.rand(sp.d0, sp.d1) / 2);
+    if (v < 1) v = 1;
+    if (sp.phys) {
+      v -= this.ally_def(t);
+      if (v <= 0) v = R.succ(25) ? 1 : 0;
+    } else {
+      v -= ts.mdef;
+      if (v <= 0) v += R.n(3);
+    }
+    var d = v >= 1 ? v : 0;
+    if (this.lg !== null) this.lg.push({ k: "spell", a: a.i, to: ["a", t.i], sp: sp.n, inv: false, d: d, hp0: t.hp, hp1: Math.max(0, t.hp - d) });
+    if (d >= 1) this.hurt(t, d);
+  };
+
+  // 매혹된 아군 → 아군 평타 — PhysicsAttack 순서를 «둘 다 아군» 으로 (partysim.py ally_hit_ally)
+  B.ally_hit_ally = function (a, t) {
+    var s = a.s, ts = t.s, R = this.R, lg = this.lg, d, A;
+    var forget = a.eff !== null && a.eff.has(11);
+    var terr = this.terr, th = 0;
+    if (terr === 1 || terr === 2) th = s.bow ? 0 : (terr === 1 ? -2 : -4);
+    else if (terr === 3) th = s.bow ? -1 : 0;
+    var hit_roll = function () { return R.d2() + Math.floor(R.crv(a.dex()) / 6) + (forget ? 0 : s.hitV - a.chit) + th; };
+    var eff = t.eff, av = null;
+    if (!(eff !== null && (eff.has(7) || eff.has(16) || eff.has(17)))) {
+      av = R.d2() + Math.floor(R.crv(t.agi()) / 6) + ((eff !== null && eff.has(11)) ? 0 : ts.avoidV - t.cavo) + this.tav;
+      if (eff !== null) eff.forEach(function (_v, k) { av -= AVOID_PEN.has(k) ? AVOID_PEN.get(k) : 0; });
+    }
+    var H = hit_roll();
+    if (av !== null && av >= H + 2) {
+      if (lg !== null) lg.push({ k: "hit", by: ["a", a.i], to: ["a", t.i], res: 0, H: H, avo: av, ch: 1 });
+      if (ts.counter && !SW.BUG.has("no_ally_counter")) {               // 맞는 쪽 반격 — 피해 굴림 → 때린 쪽(아군) 방어 굴림
+        A = R.rand(ts.a0, ts.a1) + R.crv(t.strdiv());
+        if (eff !== null && eff.has(11)) A = Math.trunc(A / 2);
+        d = A - Math.floor(this.ally_def(a) / 2);
+        if (d < 1) d = 1;
+        if (lg !== null) lg.push({ k: "actr", by: ["a", t.i], to: ["a", a.i], d: d, hp0: a.hp, hp1: Math.max(0, a.hp - d) });
+        this.hurt(a, d);
+      }
+      return;
+    }
+    A = R.rand(s.a0, s.a1) + R.crv(a.strdiv());
+    if (forget) A = Math.trunc(A / 2);
+    var blocked = false;
+    if (ts.hasShield) {
+      if (R.d2() + ts.shA + Math.trunc(this.tav / 2) >= hit_roll() + 1) blocked = true;
+    }
+    var df = this.ally_def(t);
+    if (blocked) df += R.rand(ts.sh0, ts.sh1);
+    var crit = 0;
+    if (!blocked && df >= 2 && R.succ100(s.crit - ts.cdef)) {
+      crit = 1;
+      d = A - Math.floor(df / 2);
+      if (d < 1) d = 1;
+    } else {
+      d = A - df;
+      if (d <= 0) d = R.succ(35) ? 1 : 0;
+    }
+    if (lg !== null) {
+      var zero = [];
+      if (av === null) eff.forEach(function (_v, k) { if (k === 7 || k === 16 || k === 17) zero.push(k); });
+      lg.push({ k: "hit", by: ["a", a.i], to: ["a", t.i], res: 1, H: H, avo: av, ch: 1, zero: zero, blk: blocked ? 1 : 0, crit: crit, d: d,
+                hp0: t.hp, hp1: d >= 1 ? Math.max(0, t.hp - d) : t.hp });
+    }
+    if (d >= 1) {
+      this.hurt(t, d);
+      if (s.steal && a.hp > 0) {
+        var r = s.steal * d;
+        var h = a.curse ? 0 : (r > 99 ? Math.floor(r / 100) : 1);
+        if (lg !== null) lg.push({ k: "drain", a: a.i, from: ["a", t.i], h: h, hp0: a.hp, hp1: Math.min(a.mx, a.hp + h) });
+        a.hp = Math.min(a.mx, a.hp + h);
+      }
+      if (t.hp > 0) this.wake_on_hit(t);
+    }
+  };
+
   B.attack = function (a, tg) {
     var n = 1 + a.s.wcnt;
     if (a.s.wind && !SW.BUG.has("no_wind") && this.R.succ(a.s.wind)) n += 1;      // ⑭ 풍현사 추가 타격
@@ -1561,7 +1669,10 @@ details.rpb[open]>summary::before{content:"▾ "}
       if (i) tg = this.weapon_targets(a);
       for (var j = 0; j < tg.length; j++) {
         var m = tg[j];
-        if (m.hp > 0 && a.hp > 0) this.ally_strike(a, m);
+        if (m.hp > 0 && a.hp > 0) {
+          if (m.is_ally) this.ally_hit_ally(a, m);                 // 매혹 — 적 목록이 아군
+          else this.ally_strike(a, m);
+        }
       }
     }
     this.Q.n_atk += 1;
@@ -2010,8 +2121,16 @@ details.rpb[open]>summary::before{content:"▾ "}
     }
   };
 
+  // SkillAttack 0x26CA4A8 — 마법의 대상 성별(1 남 · 2 여)이 맞는 아군과 안 맞으면 «무효»(굴림 없음)
+  B.sex_miss = function (sk, t) {
+    return !!sk.sex && t.is_ally && t.s.man !== null && t.s.man !== (sk.sex === 1) && !SW.BUG.has("sex_ignore");
+  };
   B.status = function (mo, sk, t) {
     var e = sk.effect;
+    if (T(e) && this.sex_miss(sk, t)) {
+      if (this.lg !== null) this.lg.push({ k: "stat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: true, sex: sk.sex });
+      return;
+    }
     if (!T(e) || t.s.invEff.has(e)) {
       if (T(e) && this.lg !== null) this.lg.push({ k: "stat", by: this.rf(mo), to: this.rf(t), sk: sk.name, eff: e, imm: true });
       return;
@@ -4795,7 +4914,7 @@ function checkedSheet(spec){
       재 보니(3단계 추천 파티 · 167개 · 60판) 클리어 전투에 있는 21개는 21개 모두 완료 0%, 다른 전투에만 있는 29개는 29개 모두 95~100%였다
       → 클리어 전투일 때만 «못 끝냅니다» 로 경고하고, 다른 전투면 «무승부까지 길어진다» 로 알린다(1단계 추천은 그런 의뢰 4개 중 2개가 0% — 그동안 맞는다).
    ② 의뢰 조건(성별 · 종족 · 인원): D.qrules — 게임은 편성 창에서 막지만 시뮬은 그대로 돈다.
-   ③ 매혹(effect 13 · 편이 바뀜): 확정 전투 + 떠돌이 무리(enableEncounters 일 때)에서 그 마법을 쓰는 몬스터 — 엔진에 없다. */
+   ③ 매혹(effect 13 · 편이 바뀜): 확정 전투 + 떠돌이 무리(enableEncounters 일 때)에서 그 마법을 쓰는 몬스터 — 2026-10-10 부터 엔진이 돌린다(대상 성별도). 알림만 남김. */
 var QRAW={}; D.core.stages.forEach(function(st){ st.quests.forEach(function(q){ QRAW[q.id]=q; }); });
 var CHARM=D.charm||{}, HZ={};
 function questHazard(qid){
@@ -4859,8 +4978,8 @@ function renderHazard(){
   }
   if(hz.charm.length){
     var menOnly=Object.keys(hz.charmSex).every(function(x){ return x==="1"; }), men=ms.filter(isMan).length;
-    h+= (menOnly && !men) ? '<p class="msg">매혹을 쓰는 몬스터('+esc(hz.charm.join(" · "))+')가 나오지만 남자에게만 걸려 이 파티는 면역입니다(시뮬에는 매혹이 없습니다).</p>'
-      : '<p class="msg warn">매혹(걸리면 편이 바뀜)을 쓰는 몬스터('+esc(hz.charm.join(" · "))+')가 나옵니다 — 시뮬에 없어서 '+(menOnly?'남자 '+men+'명이 낀 ':'')+'이 파티의 값은 낙관적입니다.</p>';
+    h+= (menOnly && !men) ? '<p class="msg">매혹을 쓰는 몬스터('+esc(hz.charm.join(" · "))+')가 나오지만 남자에게만 걸려 이 파티는 면역입니다.</p>'
+      : '<p class="msg warn">매혹(걸리면 우리 편을 침)을 쓰는 몬스터('+esc(hz.charm.join(" · "))+')가 나옵니다'+(menOnly?' — 남자 '+men+'명이 걸릴 수 있습니다':'')+'. 시뮬 결과에 들어 있습니다.</p>';
   }
   box.innerHTML=h;
 }
@@ -5651,7 +5770,11 @@ function rpLine(ctx, e, mons, b){
     case "round": return '<p class="rl k-round"><b>'+(e.r+1)+'라운드</b> · 순서 '+e.o.map(WN).join(" › ")+'</p>';
     case "atk": if(e.n<2) return ""; t=A(e.a)+" 평타 "+e.n+"타"; break;
     case "hit":
-      if(e.by[0]==="a"){
+      if(e.ch){                     /* 매혹 — 아군이 아군을 침(맞는 쪽 회피 · 방패 · 방어 굴림) */
+        t=WN(e.by)+" (매혹) → "+WN(e.to)+": "+(e.res===0 ? "빗나감 (명중 "+e.H+" · 회피 "+e.avo+")" :
+          (e.blk?"막음 · ":"")+"명중"+(e.crit?" · 치명":"")+" · 피해 "+e.d+" · "+hpTo(e)+(e.hp1<=0?" · 쓰러뜨림":"")+(e.avo===null ? " (회피 0: "+esc(e.zero.map(effName).join(" · "))+")" : ""));
+        cls+=" bad";
+      } else if(e.by[0]==="a"){
         t=WN(e.by)+" → "+WN(e.to)+": "+(e.res===0 ? "빗나감 (명중 "+e.H+" · 회피 "+e.avo+")" : (e.res===2 ? "물리 무효" :
           "명중"+(e.crit?" · 치명":"")+" · 피해 "+e.d+" · "+hpTo(e)+(e.hp1<=0?" · 쓰러뜨림":"")));
       } else {
@@ -5665,7 +5788,7 @@ function rpLine(ctx, e, mons, b){
     case "rsk": t="↳ "+WN(e.by)+" 반사 스킬 «"+esc(skName(e.sk))+"» → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
     case "rstat": case "astat": case "stat":
       t=(e.k==="stat"?"":"↳ ")+WN(e.by)+" "+(e.k==="rstat" ? "상태 반사" : (e.k==="astat" ? "평타 상태이상" : "«"+esc(skName(e.sk))+"»"))+"("+esc(effName(e.eff))+") → "+WN(e.to)+": "+
-        (e.imm ? "면역" : (e.ok ? "걸림" : "안 걸림")+" (판정 "+(e.v>0?"+":"")+e.v+")");
+        (e.imm ? (e.sex ? "무효("+(e.sex===1?"남자":"여자")+"에게만)" : "면역") : (e.ok ? "걸림" : "안 걸림")+" (판정 "+(e.v>0?"+":"")+e.v+")");
       cls+=e.ok?" bad":"";
       break;
     case "acond": case "rcond":
@@ -5678,7 +5801,7 @@ function rpLine(ctx, e, mons, b){
     case "elem": t="↳ "+A(e.a)+(e.ctr ? " 반격 추가 속성(" : " 추가 속성(")+esc(e.el)+") → "+WN(e.to)+": "+("mp0" in e ? "MP "+e.d+" · MP "+e.mp0+"→"+e.mp1 : "피해 "+e.d+" · "+hpTo(e)); break;
     case "cast": t=A(e.a)+" 마법 «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1; break;
     case "spell": t="  → "+WN(e.to)+": "+(e.inv ? "무효" : "피해 "+e.d+" · "+hpTo(e)+(e.hp1<=0?" · 쓰러뜨림":"")); break;
-    case "heal": t=A(e.a)+" «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1+(e.tg.length ? " → "+e.tg.map(function(x){ return A(x[0])+" +"+x[1]+" (HP "+x[2]+"→"+x[3]+")"; }).join(" · ") : " (대상 없음)"); break;
+    case "heal": t=A(e.a)+" «"+esc(e.sp)+"» · MP "+e.mp0+"→"+e.mp1+(e.tg.length ? " → "+e.tg.map(function(x){ return (Array.isArray(x[0]) ? WN(x[0])+"(매혹)" : A(x[0]))+" +"+x[1]+" (HP "+x[2]+"→"+x[3]+")"; }).join(" · ") : " (대상 없음)"); break;
     case "mcast": t=WN(e.by)+" «"+esc(skName(e.sk))+"» · MP "+e.mp0+"→"+e.mp1; break;
     case "mskill": t="  → "+WN(e.to)+": 피해 "+e.d+" · "+hpTo(e); break;
     case "mpdrain": t="  → "+WN(e.to)+": MP −"+e.d+" (MP "+e.mp0+"→"+e.mp1+")"; break;
