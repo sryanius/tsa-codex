@@ -341,8 +341,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <div class="note warn" style="margin-top:14px;font-size:14px"><b>★ 참고용으로만 보세요.</b>
       빌드와 수치는 시뮬과 세이브 기록으로 계속 고치는 중이라 자주 바뀌고, 시뮬은 실제와 다를 수 있습니다
       (절마다 고친 날짜가 제목 아래에 있습니다). <b>게임 화면이 정답입니다.</b></div>
-    <nav class="toc tabs" aria-label="절"><a href="#stages" data-sec="stages" data-upd="2026-10-06">단계별 파티<i class="dot" aria-hidden="true"></i></a><a href="#why" data-sec="why" data-upd="2026-10-06">전제<i class="dot" aria-hidden="true"></i></a><a href="#deftank" data-sec="deftank" data-upd="2026-10-06">방어탱<i class="dot" aria-hidden="true"></i></a><a href="#dodge" data-sec="dodge" data-upd="2026-10-06">회피탱<i class="dot" aria-hidden="true"></i></a><a href="#which" data-sec="which" data-upd="2026-10-03">두 길<i class="dot" aria-hidden="true"></i></a><a href="#bow" data-sec="bow" data-upd="2026-10-06">활<i class="dot" aria-hidden="true"></i></a><a href="#mage" data-sec="mage" data-upd="2026-10-06">마법사<i class="dot" aria-hidden="true"></i></a><a href="#spells" data-sec="spells" data-upd="2026-10-06">마법 켜기<i class="dot" aria-hidden="true"></i></a><a href="#spear" data-sec="spear" data-upd="2026-10-06">기타 무기<i class="dot" aria-hidden="true"></i></a><a href="#gear" data-sec="gear" data-upd="2026-10-06">무기·방어구<i class="dot" aria-hidden="true"></i></a><a href="#party" data-sec="party" data-upd="2026-10-03">조합 · 솔플<i class="dot" aria-hidden="true"></i></a><a href="#halls" data-sec="halls" data-upd="2026-10-06">훈련소<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
-    <p class="docdate">마지막 갱신 <b>2026-10-06</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
+    <nav class="toc tabs" aria-label="절"><a href="#stages" data-sec="stages" data-upd="2026-10-06">단계별 파티<i class="dot" aria-hidden="true"></i></a><a href="#why" data-sec="why" data-upd="2026-10-06">전제<i class="dot" aria-hidden="true"></i></a><a href="#deftank" data-sec="deftank" data-upd="2026-10-06">방어탱<i class="dot" aria-hidden="true"></i></a><a href="#dodge" data-sec="dodge" data-upd="2026-10-11">회피탱<i class="dot" aria-hidden="true"></i></a><a href="#which" data-sec="which" data-upd="2026-10-03">두 길<i class="dot" aria-hidden="true"></i></a><a href="#bow" data-sec="bow" data-upd="2026-10-06">활<i class="dot" aria-hidden="true"></i></a><a href="#mage" data-sec="mage" data-upd="2026-10-06">마법사<i class="dot" aria-hidden="true"></i></a><a href="#spells" data-sec="spells" data-upd="2026-10-06">마법 켜기<i class="dot" aria-hidden="true"></i></a><a href="#spear" data-sec="spear" data-upd="2026-10-06">기타 무기<i class="dot" aria-hidden="true"></i></a><a href="#gear" data-sec="gear" data-upd="2026-10-06">무기·방어구<i class="dot" aria-hidden="true"></i></a><a href="#party" data-sec="party" data-upd="2026-10-03">조합 · 솔플<i class="dot" aria-hidden="true"></i></a><a href="#halls" data-sec="halls" data-upd="2026-10-06">훈련소<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <p class="docdate">마지막 갱신 <b>2026-10-11</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
   <main class="doc">
 
@@ -688,9 +688,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      턴 끝 회복 = Character.AutoHealHp 0x26D9208(장비 중 방어구 회복의 합 · 7.3 부터 치유사가 주직업이면 ⌊치유사 레벨/4⌋ 을 더합니다 &mdash; 치유사는 잠긴 발케인 직업 · 7.3 0x26D9460~0x26D9498). 영묘의 방패 마방 17 = 더하는 마방 5 + 장비 몫 12(build_meta _amdef).
      갈증 · 피철 갑옷 수치 full/meta.json. 무기 · 민첩 13 은 칼레바스 퀘스트(보정 3) 방어판 + 법사 둘 4,000판 시험(<a href="#party">&sect;10</a>).</p>
   </section>
-<section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-06">
+<section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-11">
   <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 판정 자체를 없앤다</h2>
-  <p class="secdate">2026-10-06 갱신</p>
+  <p class="secdate">2026-10-11 갱신</p>
   <p>회피탱은 <b>한 용병을 4단계부터 7단계까지 이어서</b> 키웁니다. 종족은 못 바꾸니 갈래는 <b>엘프</b>와 <b>풋워커</b> 둘입니다.
      경험치는 앞 단계 레벨 위에 얹어 온 <b>누적</b> 값이고, «탱 사망» 은 그 단계 의뢰 전부를 회피탱 + 방어탱 + 활 + 법사로 150번씩 돌린 파티 시뮬 값입니다.</p>
 
@@ -775,7 +775,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <ul>
     <li><b>새 지역을 막 열었을 때가 가장 위험합니다.</b> 앞 단계 빌드로 다음 단계 의뢰를 돌리면 탱 사망이 29~66% 였습니다 &mdash; 새 지역 의뢰는 그 단계 빌드를 맞춘 뒤에 가세요.</li>
     <li><b>강화로 회피가 붙으면 그만큼 부직업을 덜 키워도 됩니다.</b> 방어구 강화 2단계에서 회피 +1~2 가 후보에 오르지만 매번 붙지는 않으니(<a href="notes.html#craft">원리 &sect;11</a>), 붙은 만큼만 줄이세요.</li>
-    <li>지역마다 필요한 완봉선은 <a href="notes.html#hit">원리 &sect;5</a>, 탐색지마다는 <a href="codex.html">도감</a> 에 있습니다.</li>
+    <li>지역마다 필요한 완봉선은 <a href="notes.html#dodgeline">원리 &sect;5 «지역별 완봉선»</a>, 탐색지마다는 <a href="codex.html">도감</a> 에 있습니다.</li>
   </ul>
   <div class="note warn"><b>구멍은 넷입니다 &mdash; 회피값으로는 하나도 못 막습니다.</b>
      <b>혼란 · 수면 · 마비</b>가 걸리면 회피가 계산 없이 <b>0</b> 이고,
