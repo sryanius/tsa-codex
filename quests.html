@@ -238,6 +238,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .detail{padding:2px 14px 18px 52px;border-top:1px dashed var(--line-soft);background:var(--raised)}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px 22px;margin:14px 0 0}
 .dcell{display:flex;flex-direction:column;gap:2px}
+.dcell.wide{grid-column:1/-1}
+.dcell.wide dd{line-height:1.6;overflow-wrap:anywhere}
 .dcell dt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
 .dcell dd{margin:0;font-size:13.5px;color:var(--ink)}
 .dcell dd.mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-variant-numeric:tabular-nums}
@@ -810,7 +812,7 @@ function match(x){
   if(anyFac() && !facMatch(x)) return false;
   if(state.q){
     var s=state.q.toLowerCase();
-    var hay=(x.n+" "+x.o+" "+x.d+" "+x.p+" "+x.t+" "+x.i+" "+(x.u||"")+" "+(x.g||"")
+    var hay=(x.n+" "+x.o+" "+x.d+" "+x.p+" "+x.t+" "+x.i+" "+(x.u||"")+" "+(x.g||"")+" "+(x.rw||"")
              +" "+monNames(x)+" "+(x.ch||[]).map(function(c){ return c.item||""; }).join(" ")).toLowerCase();
     if(hay.indexOf(s)<0) return false;
   }
@@ -962,6 +964,7 @@ function detailHTML(x){
     + '<div class="dcell"><dt>인원</dt><dd class="mono">'+members(x.mem)+'</dd></div>'
     + '<div class="dcell"><dt>소요</dt><dd class="mono">'+esc(x.tm)+'</dd></div>'
     + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp+'</dd></div>'
+    + rewardCell(x)
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
     + agBlock + monHTML(x)
@@ -971,6 +974,31 @@ function detailHTML(x){
   + '</div>';
 }
 function hhmm(min){ var h=Math.floor(min/60), m=min%60; return (h?h+"시간 ":"")+m+"분"; }
+/* 게임 의뢰 창의 보상 문구 — «드물게 몫을 받을 수 있다» 처럼 뭘 주는지 흐릿한 것이 많아서(2026-10-13 제작자 «보상이 아리송하다 · 정리해 줘»)
+   문구 옆에 실제로 받는 것을 한 줄로: 골드 · 경험치 · 시설 업그레이드 · 훈련소 · 금고/습득물 아이템(등장 조건은 아래 금고 칸).
+   문구는 게임이 그대로 보여 주는 것이라 손대지 않는다(번역 안 된 «山分け» = 나눠 갖기 · «Vault» = 금고). */
+var RW_FIX={"山分け":"나눠 갖기 — 게임에 번역 안 된 채로 나옴"};
+function rewardCell(x){
+  if(!x.rw) return "";
+  var real=[];
+  if(x.gd) real.push(x.gd.toLocaleString()+"G");
+  real.push(x.xp.toLocaleString()+"xp");
+  if(x.g) real.push(esc(x.g)+" 업그레이드");
+  if(x.u) real.push(esc(x.u)+" 건설");
+  var its=(x.ch||[]).map(function(c){
+    var fq=freqOf(c), how=[];
+    if(c.ins) how.push("리더 통찰 판정");
+    if(fq[0]<1) how.push("빈도 «"+fq[1]+"»");
+    return (c.item ? esc(c.item) : (c.gold ? c.gold.toLocaleString()+"G" : "내용 미지정"))
+      + '<span class="sm"> ('+esc(c.src)+' · '+(how.length ? esc(how.join(" · ")) : "늘 뜸")+')</span>';
+  });
+  if(its.length) real.push(its.join(" · "));
+  return '<div class="dcell wide"><dt>게임 보상 문구</dt><dd>«'+esc(x.rw)+'»'
+    + (RW_FIX[x.rw] ? ' <span class="sm">('+esc(RW_FIX[x.rw])+')</span>' : '')
+    + '<br><span class="sm">실제로는 &rarr; </span>'+real.join(" · ")
+    + (its.length ? ' <span class="sm">— 금고 · 습득물이 뜨는 조건은 아래 «보물금고 · 습득물»</span>' : '')
+    + '</dd></div>';
+}
 /* 퀘스트 전투에 나오는 몬스터.
    368종 가운데 80종은 탐색지에 안 나오고 여기에만 나온다 — 발키리가 그렇다.
    그것 때문에 퀘스트에서만 얻는 장비의 출처가 도감에서 비어 있었다. */
