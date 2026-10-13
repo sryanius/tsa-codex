@@ -963,12 +963,15 @@ function detailHTML(x){
     + '<div class="dcell"><dt>권장 레벨</dt><dd class="mono">'+x.lv+(x.ml?' (+'+x.ml+'까지)':'')+'</dd></div>'
     + '<div class="dcell"><dt>인원</dt><dd class="mono">'+members(x.mem)+'</dd></div>'
     + '<div class="dcell"><dt>소요</dt><dd class="mono">'+esc(x.tm)+'</dd></div>'
-    + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp+'</dd></div>'
+    + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp
+      + (x.fg ? '<br><span class="sm">+ 줍는 골드 '+fgSum(x).toLocaleString()+'G(아래)</span>' : '')
+      + '<br><span class="sm">반복 +N 이면 골드 · 경험치 ×(1 + N÷3) — +3 이면 2배</span></dd></div>'
     + rewardCell(x)
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
     + agBlock + monHTML(x)
     + chestHTML(x)
+    + goldHTML(x)
     + chain
     + (x.d ? '<div class="story">'+esc(x.d)+'</div>' : "")
   + '</div>';
@@ -985,6 +988,7 @@ function rewardCell(x){
   real.push(x.xp.toLocaleString()+"xp");
   if(x.g) real.push(esc(x.g)+" 업그레이드");
   if(x.u) real.push(esc(x.u)+" 건설");
+  if(x.fg) real.push("줍는 골드 "+fgSum(x).toLocaleString()+"G");
   var its=(x.ch||[]).map(function(c){
     var fq=freqOf(c), how=[];
     if(c.ins) how.push("리더 통찰 판정");
@@ -1208,6 +1212,26 @@ function chestHTML(x){
           + (line? '<span class="cmeta ispec">'+line+'</span>' : "")
           + itemSp(it)
           + '<span class="cmeta">'+bits.join(" · ")+'</span>'+checks.join("")+calc+'</li>'; }).join("")
+    + '</ul></div>';
+}
+
+/* ── 줍는 골드(이벤트 GoldFound 60) — 2026-10-14 «보상 불명 · 제비뽑기로 나누기» 같은 퀘스트를 코드로 보다가 찾음.
+   금고 · 습득물과 달리 발견 · 해제가 없다 — 뜨면(통찰 이벤트면 리더 판정 · 빈도) 바로 줍는다.
+   금액 = 흔들기(foundGold + ⌊foundGold × 반복 보정 ÷ 10⌋) · 성공 · 실패 · 후퇴와 상관없이 돌아오면 소지금에 들어온다
+   (AdventureMain.RunQuest 0x27225A0 · AdventureResultDialog.Finish 0x287A6FC — 상태 검사보다 먼저). */
+function fgSum(x){ return (x.fg||[]).reduce(function(a,g){ return a+g.g; }, 0); }
+function goldHTML(x){
+  if(!x.fg || !x.fg.length) return "";
+  var lv=curLv(x)[0];
+  return '<div class="chain chest"><h4>줍는 골드 '+x.fg.length+'건 · 합 '+fgSum(x).toLocaleString()+'G</h4>'
+    + '<p class="cmeta chestnote">발견 · 해제 판정 없이 뜨면 바로 줍습니다 · 금액은 반복 +N 마다 +10% 에 조금 흔들림 · '
+    + '<b>실패하거나 후퇴해도 주운 만큼은 들어옵니다</b>(보상 골드는 성공했을 때만 · <a href="notes.html#reward">원리 §9</a>)</p><ul>'
+    + x.fg.map(function(g){
+        var fq=freqOf(g), ftx=fq[0]<1 ? '빈도 «'+fq[1]+'» '+fpct(fq[0])+'(한 번 굴림)' : '', chk;
+        if(g.ins){ var al=appearLine(lv, g); chk=chkLine('등장 '+al, appearNeed(al)+(ftx?' · '+ftx:''), leaderCell(lv+(g.ai||0), fq[0])); }
+        else chk=chkLine('등장', ftx ? ftx+' — 리더와 상관없음' : '정해진 시각에 반드시', "");
+        return '<li><b><em class="tag t-find">골드</em>'+g.g.toLocaleString()+'G</b><span class="cmeta">'+esc('시작 '+hhmm(g.at)+' 후')+'</span>'+chk+'</li>';
+      }).join("")
     + '</ul></div>';
 }
 
