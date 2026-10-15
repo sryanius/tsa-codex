@@ -95,6 +95,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   color:var(--line);vertical-align:-1px}
 .istar:hover,.istar.on{color:var(--warn)}
 .istar:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+#favtoast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:60;
+  background:var(--ink);color:var(--ground);font-size:13px;padding:9px 14px;border-radius:8px;box-shadow:var(--shadow);
+  transition:opacity .2s,transform .2s;max-width:calc(100vw - 32px)}
+#favtoast.on{opacity:1;transform:translate(-50%,0)}
+@media (prefers-reduced-motion:reduce){ #favtoast{transition:none} }
 @media (max-width:700px){ .istar{font-size:18px;padding:8px 8px 8px 0;margin:-8px 0} }
 .nm{min-width:0;display:flex;flex-direction:column;gap:1px}
 .nm b{font-weight:500;color:var(--ink);font-size:14px;line-height:1.35}
@@ -371,10 +376,13 @@ function favStored(){ try{ return JSON.parse(localStorage.getItem(FAVKEY)||"[]")
 function favItemSet(){ var s={}; favStored().forEach(function(k){ k=String(k); if(k.indexOf("item:")===0) s[k.slice(5)]=1; }); return s; }
 var FAVI=favItemSet(), favTimer=null;
 function favCountI(){ return Object.keys(FAVI).length; }
-function saveFavItems(){
-  var keep=favStored().filter(function(k){ return String(k).indexOf("item:")!==0; });
-  Object.keys(FAVI).forEach(function(i){ keep.push("item:"+i); });
-  try{ localStorage.setItem(FAVKEY, JSON.stringify(keep)); }catch(e){}
+/* 누른 것만 더하고 빼기(퀘스트 색인과 같은 규칙 — 탭끼리 덮어쓰지 않게) */
+function favApply(add, del){
+  var set={}; favStored().forEach(function(k){ set[k]=1; });
+  (add||[]).forEach(function(k){ set[k]=1; }); (del||[]).forEach(function(k){ delete set[k]; });
+  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(set))); }catch(e){}
+}
+function favPush(){
   var C=window.TSA_CLOUD;
   if(C && C.signedIn && C.signedIn()){
     clearTimeout(favTimer);
@@ -385,10 +393,24 @@ function favLabel(){ var n=favCountI(), e=document.getElementById("favn"); if(e)
 /* 클라우드(로그인한 껍데기)가 받아 온 진행도 — 즐겨찾기만 합친다 */
 window.__TSA_ON_CLOUD_PROGRESS=function(p){
   if(!p || !p.fav || !p.fav.length) return;
-  var all={}; favStored().concat(p.fav).forEach(function(k){ all[k]=1; });
-  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(all))); }catch(e){}
+  favApply(p.fav, []);
   FAVI=favItemSet(); favLabel(); if(window.__codexRender) window.__codexRender();
 };
+/* 다른 탭(퀘스트 색인 · 다른 도감 탭)이 바꾸면 따라간다 */
+window.addEventListener("storage", function(e){
+  if(e.key!==FAVKEY) return;
+  FAVI=favItemSet(); favLabel();
+  Array.prototype.forEach.call(document.querySelectorAll("[data-ifav]"), function(s){
+    var on=!!FAVI[s.getAttribute("data-ifav")]; s.classList.toggle("on", on); s.setAttribute("aria-pressed", on?"true":"false"); });
+  if(state.favOnly && window.__codexRender) window.__codexRender();
+});
+/* 아이템에 ★ → 그 아이템이 나오는 퀘스트(금고 · 습득물)도 ★ — 빼기는 아이템만(퀘스트 ★ 는 손으로 단 것일 수 있다)
+   (2026-10-15 제작자 «아이템에 즐겨찾기하면 해당 아이템이 나오는 퀘스트도 즐겨찾기 같이») */
+function favToast(t){
+  var e=document.getElementById("favtoast");
+  if(!e){ e=document.createElement("div"); e.id="favtoast"; e.setAttribute("role","status"); document.body.appendChild(e); }
+  e.textContent=t; e.className="on"; clearTimeout(e.__t); e.__t=setTimeout(function(){ e.className=""; }, 2600);
+}
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || !isLockedRegion(p.r); }
 function visPlaces(){ return D.places.filter(okPlace); }
@@ -1195,9 +1217,12 @@ el("out").addEventListener("click",function(e){
   var fs=e.target.closest("[data-ifav]");
   if(fs){
     e.stopPropagation();
-    var id=fs.getAttribute("data-ifav");
-    if(FAVI[id]) delete FAVI[id]; else FAVI[id]=1;
-    saveFavItems();
+    var id=fs.getAttribute("data-ifav"), on=!FAVI[id], it=null;
+    for(var ii=0;ii<D.items.length;ii++){ if(D.items[ii].i===id){ it=D.items[ii]; break; } }
+    var qs=[]; if(on && it) qdOf(it).forEach(function(z){ if(z.qi && qs.indexOf(z.qi)<0) qs.push(z.qi); });
+    favApply(on ? ["item:"+id].concat(qs) : [], on ? [] : ["item:"+id]);
+    FAVI=favItemSet(); favPush();
+    if(on && qs.length) favToast("이 아이템이 나오는 퀘스트 "+qs.length+"개도 ★ 했습니다 — 퀘스트 색인 «★ 즐겨찾기만»");
     fs.classList.toggle("on", !!FAVI[id]); fs.setAttribute("aria-pressed", FAVI[id]?"true":"false");
     favLabel();
     if(state.favOnly) render();

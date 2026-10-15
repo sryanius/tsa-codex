@@ -568,16 +568,29 @@ var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{},
 var FAVKEY="tsa.fav.v1", FAV={};
 /* tsa.fav.v1 은 도감 아이템 즐겨찾기(«item:아이디»)와 같이 쓴다 — 여기서는 퀘스트 몫만 다루고 아이템 몫은 그대로 둔다 */
 function favStored(){ try{ return JSON.parse(localStorage.getItem(FAVKEY)||"[]")||[]; }catch(e){ return []; } }
-favStored().forEach(function(i){ if(String(i).indexOf("item:")!==0) FAV[i]=1; });
-function saveFav(){
-  var keep=favStored().filter(function(k){ return String(k).indexOf("item:")===0; });
-  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(FAV).concat(keep))); }catch(e){}
+/* ★ 저장은 «누른 것 하나만 더하고 빼기» — 예전엔 이 탭이 아는 목록 전체를 써서, 탭 여럿에서 누르면 마지막 탭 것만 남았다
+     (2026-10-15 제작자 «다른 탭에서 즐겨찾기 하면 마지막 탭 것만 저장»). 다른 탭이 바꾸면 storage 이벤트로 따라간다. */
+function favApply(add, del){
+  var set={}; favStored().forEach(function(k){ set[k]=1; });
+  (add||[]).forEach(function(k){ set[k]=1; }); (del||[]).forEach(function(k){ delete set[k]; });
+  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(set))); }catch(e){}
 }
+function favLoad(){ FAV={}; favStored().forEach(function(i){ if(String(i).indexOf("item:")!==0) FAV[i]=1; }); }
+favLoad();
 function favCount(){ return Object.keys(FAV).length; }
 function toggleFav(id){
-  if(FAV[id]) delete FAV[id]; else FAV[id]=1;
-  saveFav();
+  var on=!FAV[id];
+  favApply(on?[id]:[], on?[]:[id]);
+  favLoad();
 }
+window.addEventListener("storage", function(e){
+  if(e.key!==FAVKEY) return;
+  favLoad();
+  Array.prototype.forEach.call(document.querySelectorAll(".star[data-fav]"), function(s){
+    var on=!!FAV[s.getAttribute("data-fav")]; s.classList.toggle("on", on); s.setAttribute("aria-pressed", on?"true":"false"); });
+  if(window.__favLabel) window.__favLabel();
+  if(state.fav) render();
+});
 
 /* ── 세이브가 아는 퀘스트 상태 ────────────────────────────────────── */
 var QS=null;
@@ -1611,9 +1624,8 @@ function applyState(p){
   /* 즐겨찾기는 «합친다». 폰에서 담고 PC 에서 담으면 둘 다 남아야 한다 —
      덮어쓰면 나중에 연 쪽이 앞의 것을 지운다. */
   if(p.fav && p.fav.length){
-    var all={}; favStored().concat(p.fav).forEach(function(i){ all[i]=1; });
-    try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(all))); }catch(e){}
-    p.fav.forEach(function(i){ if(String(i).indexOf("item:")!==0) FAV[i]=1; });
+    favApply(p.fav, []);
+    favLoad();
     if(window.__favLabel) window.__favLabel();
   }
   render();
