@@ -238,6 +238,20 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
 .detail{padding:2px 14px 18px 52px;border-top:1px dashed var(--line-soft);background:var(--raised)}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px 22px;margin:14px 0 0}
+/* 상세 윗부분 표 — 등장 · 의뢰 · 보상 */
+.spec{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:12px 28px;margin:14px 0 0}
+@media (max-width:900px){ .spec{grid-template-columns:1fr} }
+.spec section{min-width:0}
+.spec h5{margin:0 0 4px;font-size:10.5px;font-weight:600;letter-spacing:.1em;color:var(--faint)}
+.spec table{width:100%;border-collapse:collapse;font-size:13px}
+.spec th{text-align:left;font-weight:400;color:var(--muted);font-size:12px;padding:6px 12px 6px 0;white-space:nowrap;vertical-align:top;width:1%}
+.spec td{padding:6px 0;color:var(--ink);vertical-align:top;font-variant-numeric:tabular-nums;overflow-wrap:break-word}
+.spec tr+tr th,.spec tr+tr td{border-top:1px solid var(--line-soft)}
+.spec td .sm{font-size:11px;color:var(--muted)}
+.spec td .warn{color:var(--f-heal);font-weight:600}
+.spec td .hi{color:var(--accent);font-weight:600}
+.spec td b{font-weight:700}
+.spec td .mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12px}
 .chain.again-box li b .sm{font-weight:400;color:var(--muted);font-size:11.5px}
 .dcell{display:flex;flex-direction:column;gap:2px}
 .dcell.id2{grid-column:span 2}
@@ -960,56 +974,11 @@ function qLine(x){
 }
 function detailHTML(x){
   var chain=qLine(x);
-  var ag=again(x);
-  var agBlock="";
-  if(ag){
-    var fname=(window.TSA_CHEST&&TSA_CHEST.FREQ[x.fr]) ? TSA_CHEST.FREQ[x.fr][1] : "";
-    agBlock='<div class="chain again-box"><h4>다시 뜨기까지 <span class="sm">(세이브 '+esc((QS&&QS.at)||"")+' 기준)</span></h4><ul>'
-      +(ag.last?'<li><b>마지막 클리어</b> '+esc(String(ag.last).slice(0,16).replace("T"," "))+'</li>':"")
-      +(ag.cnt==null
-        ? '<li><b'+(ag.ready?' class="okmark"':"")+'>'+esc(ag.txt)+'</b></li>'
-        : '<li><b>판정 통과 '+ag.need+'번 더 <span class="sm">· 남은 카운터 '+ag.cnt+'</span></b>'
-            +'이 마을 갱신에서 조건 · 빈도 판정을 '+ag.need+'번 통과하는 갱신에 뜹니다'+(ag.cnt<=1?' (카운터 0 · 1 은 둘 다 다음 통과에)':'')+'</li>'
-          +'<li><b>평균 갱신 '+fmtN(ag.exp)+'번 <span class="sm">· 빈도 «'+esc(fname)+'» 갱신마다 '+(ag.p*100).toFixed(1)+'%</span></b>'
-            +'로그인 보너스(하루 한 번 · 모든 마을)만이면 약 '+fmtN(ag.exp)+'일 · <strong>이 마을 게시판</strong>의 갱신 버튼은 누를 때마다 한 번</li>'
-          +'<li class="meta">조건(평판 · 선행 · 탐색지)이 안 맞는 동안은 멈춤 · <a href="notes.html#counter">원리 §9</a></li>')
-      +'</ul></div>';
-  }
-  var repCell = (x.rep<0)
-    ? '<div class="dcell"><dt>등장 조건</dt><dd class="mono warn">평판 '+x.rep+' <b>이하</b> <span class="sm">(마이너스일 때만)</span></dd></div>'
-    : '<div class="dcell"><dt>등장 조건</dt><dd class="mono'+(x.pk>x.rep?" hi":"")+'">평판 '+x.pk+' <b>이상</b>'
-      +(x.pk>x.rep?' <span class="sm">(자체는 '+x.rep+', 선행이 '+x.pk+'을 요구)</span>':'')+'</dd></div>';
-  if(x.dp!=null) repCell+='<div class="dcell"><dt>거쳐야 할 마이너스</dt><dd class="mono warn">평판 '
-      +x.dp+' 이하 <span class="sm">'+(x.rep<0?'(자기 자신)':'(선행 '+x.nc+'개)')+'</span></dd></div>';
   return '<div class="detail">'
-    + '<dl class="dgrid">'
-    + '<div class="dcell"><dt>장소</dt><dd>'+(esc(x.p)||"—")+'</dd></div>'
-    + repCell
-    /* 칸에는 숫자만 짧게 — 설명은 마우스를 올리면(title) · 지금 남은 것은 아래 «다시 뜨기까지» 상자(2026-10-15 제작자 «UI 가 요상하다»: 좁은 칸에서 3~4줄로 꺾였다) */
-    + '<div class="dcell" title="questSpawnInterval — 깨거나 기한이 지나 내려가면 이 값부터 다시 세고, 그 마을 갱신에서 판정을 통과할 때마다 1씩 줄어 0 이 되는 갱신에 뜹니다"><dt>다시 뜨는 카운터</dt><dd class="mono'+(x.si>=99?" warn":"")+'">'
-      + (x.si>=99 ? spawnText(x.si) : x.si)+'</dd></div>'
-    + '<div class="dcell" title="questFrequency — 그 마을이 갱신될 때 이 확률로 판정을 통과해야 카운터가 1 줄어듭니다"><dt>빈도</dt><dd class="mono">«'+esc(freqName(x.fr))+'»'
-      + (FREQ_P[x.fr]!=null ? ' <span class="sm">'+(FREQ_P[x.fr]*100).toFixed(0)+'%</span>' : '')+'</dd></div>'
-    + (function(){ var o=refreshes(x); if(!o) return "";
-        var t=o.exp<=1.5?"금방":(o.exp<=5?"보통":(o.exp<=15?"뜸한 편":"오래 걸림"));
-        return '<div class="dcell" title="카운터 '+o.n+' ÷ 통과율 '+(o.p*100).toFixed(0)+'% — 카운터가 가득 찬 상태에서 걸리는 평균"><dt>'+(x.si>=99?'처음 뜨기까지':'깬 뒤 다시 뜨기까지')+'</dt>'
-             + '<dd class="mono'+(o.exp>15?" warn":"")+'">갱신 '+(o.exp<10?o.exp.toFixed(1):Math.round(o.exp))+'번 <span class="sm">'+t+'</span></dd></div>'; })()
-    + '<div class="dcell"><dt>게시판 유효기간 <span class="fld">deadline</span></dt><dd class="mono">'+dlTxt(x.dl)
-      + (x.si===99 && x.dl && x.dl<=1440 ? ' <span class="meta" style="color:var(--f-heal)">짧다</span>' : '')+'</dd></div>'
-    + '<div class="dcell"><dt>선행 성공 횟수 <span class="fld">successCount</span></dt><dd class="mono">'+x.sc+'</dd></div>'
-    + (x.nc?'<div class="dcell"><dt>선행 중 음수 평판</dt><dd class="mono warn">'+x.nc+'개 (최저 '+x.nm+')</dd></div>':"")
-    + (x.sx?'<div class="dcell"><dt>파티 제한</dt><dd class="mono hi">'+esc(x.sx)+'</dd></div>':"")
-    + '<div class="dcell"><dt>권장 레벨</dt><dd class="mono">'+x.lv+(x.ml?' (+'+x.ml+'까지)':'')+'</dd></div>'
-    + '<div class="dcell"><dt>인원</dt><dd class="mono">'+members(x.mem)+'</dd></div>'
-    + '<div class="dcell"><dt>소요</dt><dd class="mono">'+esc(x.tm)+'</dd></div>'
-    + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp
-      + (x.fg ? '<br><span class="sm">+ 줍는 골드 '+fgSum(x).toLocaleString()+'G</span>' : '')
-      + '<br><span class="sm" title="반복 보정 +N 이면 골드 · 경험치 ×(1 + N÷3)">반복 +3 이면 2배</span></dd></div>'
-    + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell id2"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
-    + '</dl>'
+    + specHTML(x)
     + cellHelp(x)
     + rewardCell(x)
-    + agBlock + monHTML(x)
+    + monHTML(x)
     + chestHTML(x)
     + goldHTML(x)
     + chain
@@ -1017,16 +986,62 @@ function detailHTML(x){
   + '</div>';
 }
 function hhmm(min){ var h=Math.floor(min/60), m=min%60; return (h?h+"시간 ":"")+m+"분"; }
+/* 상세 윗부분 — «등장 · 의뢰 · 보상» 세 묶음의 이름|값 표(2026-10-15 제작자 «여전히 엉성해 보인다 · 표 비슷하게?»).
+   예전 dgrid(칸 13개를 흩어 둠)와 따로 떠 있던 «다시 뜨기까지» 상자를 합쳤다 — 카운터는 «남은 / 총»(제작자 «남은 카운트 / 총 카운트가 좋아 보인다»). */
+function specRow(k, v){ return '<tr><th>'+k+'</th><td>'+v+'</td></tr>'; }
+function specHTML(x){
+  var ag=again(x), o=refreshes(x), fp=FREQ_P[x.fr];
+  var lvl=function(e){ return e<=1.5?"금방":(e<=5?"보통":(e<=15?"뜸한 편":"오래 걸림")); };
+  var at=(QS&&QS.at) ? String(QS.at).slice(5) : "";
+  var rep = x.rep<0
+    ? '<span class="warn">평판 '+x.rep+' 이하</span> <span class="sm">마이너스일 때만</span>'
+    : '평판 '+x.pk+' 이상'+(x.pk>x.rep?' <span class="sm">자체 '+x.rep+' · 선행이 '+x.pk+' 요구</span>':'');
+  var cnt, until="";
+  if(x.si>=99){
+    cnt='<span class="warn">1회성</span> <span class="sm">한 번 깨면 끝</span>';
+    if(o && !isDone(x)) until='갱신 '+fmtN(o.exp)+'번 <span class="sm">'+lvl(o.exp)+'</span>';
+  } else if(ag && ag.cnt!=null){
+    cnt='<b>'+ag.cnt+'</b> / '+x.si+' <span class="sm">남음 · 판정 통과 '+ag.need+'번 더</span>';
+    until='갱신 <b>'+fmtN(ag.exp)+'</b>번 <span class="sm">'+(at?'세이브 '+esc(at)+' 부터':'지금부터')+(o?' · 가득 차면 '+fmtN(o.exp)+'번':'')+'</span>';
+  } else {
+    cnt=x.si+' <span class="sm">'+(ag&&ag.ready ? esc(ag.txt) : '깨면 '+x.si+'부터 다시')+'</span>';
+    if(o) until='갱신 '+fmtN(o.exp)+'번 <span class="sm">'+lvl(o.exp)+' · 카운터가 가득 찼을 때</span>';
+  }
+  var t1 = specRow('장소', esc(x.p)||'—')
+    + specRow('등장 조건', rep)
+    + (x.dp!=null ? specRow('거쳐야 할 마이너스', '<span class="warn">평판 '+x.dp+' 이하</span> <span class="sm">'+(x.rep<0?'자기 자신':'선행 '+x.nc+'개')+'</span>') : '')
+    + (x.nc ? specRow('선행 중 음수 평판', '<span class="warn">'+x.nc+'개</span> <span class="sm">최저 '+x.nm+'</span>') : '')
+    + specRow('카운터', cnt)
+    + specRow('빈도', '«'+esc(freqName(x.fr))+'»'+(fp!=null?' <span class="sm">갱신마다 '+(fp*100).toFixed(0)+'%</span>':''))
+    + (until ? specRow(x.si>=99?'처음 뜨기까지':'다시 뜨기까지', until) : '')
+    + (ag && ag.last ? specRow('마지막 클리어', esc(String(ag.last).slice(0,16).replace("T"," "))) : '')
+    + specRow('게시판 유효기간', dlTxt(x.dl)+(x.si===99 && x.dl && x.dl<=1440 ? ' <span class="warn">짧다</span>' : ''))
+    + specRow('선행 성공 횟수', String(x.sc));
+  var t2 = specRow('권장 레벨', x.lv+(x.ml?' <span class="sm">+'+x.ml+'까지</span>':''))
+    + specRow('인원', members(x.mem))
+    + specRow('소요', esc(x.tm))
+    + (x.sx ? specRow('파티 제한', '<span class="hi">'+esc(x.sx)+'</span>') : '');
+  var t3 = specRow('골드 · 경험치', x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp')
+    + (x.fg ? specRow('줍는 골드', fgSum(x).toLocaleString()+'G <span class="sm">'+x.fg.length+'건</span>') : '')
+    + specRow('평판', (x.rp>0?"+":"")+x.rp)
+    + specRow('반복 보정', '+3 이면 2배 <span class="sm">×(1 + N÷3)</span>')
+    + ((x.cc!=null) ? specRow('세이브 기록', ((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">status '+(x.st==null?'-':x.st)+'</span>') : '')
+    + specRow('내부 ID', '<span class="mono">'+esc(x.i)+'</span>');
+  return '<div class="spec">'
+    + '<section><h5>등장</h5><table>'+t1+'</table></section>'
+    + '<section><h5>의뢰</h5><table>'+t2+'</table></section>'
+    + '<section><h5>보상</h5><table>'+t3+'</table></section></div>';
+}
 /* 칸 설명 — 칸의 title(마우스 올리기)은 폰에서 못 본다(2026-10-15 제작자 «마우스 올리면 나오는 건 핸드폰에서는 어떻게?»).
    표 아래 «칸 설명» 을 누르면 펼쳐지는 줄(details)로 같은 내용을 둔다 — 접혀 있어 자리를 안 먹는다. */
 function cellHelp(x){
   var o=refreshes(x);
   return '<details class="cellhelp"><summary>칸 설명 <span class="hint">— 눌러서 펼치기</span></summary><ul>'
     + (x.si>=99
-      ? '<li><b>다시 뜨는 카운터</b> 1회성 — 한 번 깨면 다시 안 뜹니다</li>'
-      : '<li><b>다시 뜨는 카운터</b> 깨거나 기한이 지나 내려가면 이 값('+x.si+')부터 다시 셉니다. 그 마을이 갱신될 때 판정을 통과할 때마다 1씩 줄어 0 이 되는 갱신에 뜹니다</li>')
+      ? '<li><b>카운터</b> 1회성 — 한 번 깨면 다시 안 뜹니다</li>'
+      : '<li><b>카운터</b> «남은 / 총» — 깨거나 기한이 지나 내려가면 총('+x.si+')부터 다시 셉니다. 그 마을이 갱신될 때 판정을 통과할 때마다 1씩 줄고, 0 이 되는 갱신에 뜹니다(남은 0 · 1 은 둘 다 다음 통과에). 남은 값은 세이브를 넣었을 때만 나옵니다</li>')
     + '<li><b>빈도</b> 그 마을이 갱신될 때 이 확률로 판정을 통과합니다(통과해야 카운터가 줄어듦). 갱신 = 하루 한 번 로그인 보너스(모든 마을) + 그 마을 게시판의 갱신 버튼</li>'
-    + (o ? '<li><b>'+(x.si>=99?'처음 뜨기까지':'깬 뒤 다시 뜨기까지')+'</b> 카운터 '+o.n+' ÷ 통과율 '+(o.p*100).toFixed(0)+'% — 카운터가 가득 찬 상태에서 걸리는 평균 갱신 수. 지금 남은 것은 아래 «다시 뜨기까지»(세이브를 넣었을 때)</li>' : '')
+    + (o ? '<li><b>'+(x.si>=99?'처음 뜨기까지':'다시 뜨기까지')+'</b> 남은 카운터 ÷ 통과율 = 평균 갱신 수(가득 찼으면 '+o.n+' ÷ '+(o.p*100).toFixed(0)+'%). 로그인 보너스만이면 그 수만큼 날이 걸리고, <b>이 마을 게시판의 갱신 버튼</b>을 누르면 누를 때마다 한 번씩 더 굴러갑니다</li>' : '')
     + '<li><b>보상</b> 반복 보정 +N 이면 골드 · 경험치 ×(1 + N÷3) — +3 이면 2배. 경험치는 실패 · 후퇴면 절반, 살아 있는 인원으로 나눔</li>'
     + '<li><b>등장 조건</b> 선행 · 탐색지 · 평판 · 깬 수가 안 맞는 동안은 판정을 안 굴려 카운터가 멈춥니다(<a href="notes.html#counter">원리 §9</a>)</li>'
     + '</ul></details>';
