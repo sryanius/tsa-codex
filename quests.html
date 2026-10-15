@@ -242,7 +242,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .dcell.wide{grid-column:1/-1}
 .dcell.wide dd{line-height:1.6;overflow-wrap:anywhere}
 .dcell dt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.dcell dd{margin:0;font-size:13.5px;color:var(--ink)}
+.dcell dd{margin:0;font-size:13.5px;color:var(--ink);overflow-wrap:anywhere}
 .dcell dd.mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-variant-numeric:tabular-nums}
 .story{
   margin:14px 0 0;padding:12px 15px;border-left:2px solid var(--line);
@@ -941,7 +941,7 @@ function detailHTML(x){
             +' · 빈도 «'+esc(fname)+'» — 갱신 1번에 '+(ag.p*100).toFixed(1)+'% 통과</li>'
           +'<li><b>평균 갱신 '+fmtN(ag.exp)+'번</b> — 로그인 보너스(하루 한 번 · 모든 마을)만이면 약 '+fmtN(ag.exp)+'일 · '
             +'<strong>이 마을 게시판</strong>에서 갱신 버튼을 누르면 누를 때마다 한 번씩 굴러갑니다</li>'
-          +'<li class="meta">조건(평판 · 선행 · 탐색지)이 안 맞는 동안은 굴러가지 않습니다(카운터도 안 줆) · <a href="notes.html#counter">원리 §9</a></li>')
+          +'<li class="meta">조건(평판 · 선행 · 탐색지)이 안 맞는 동안은 굴러가지 않고 카운터도 그대로입니다 · <a href="notes.html#counter">원리 §9</a></li>')
       +'</ul></div>';
   }
   var repCell = (x.rep<0)
@@ -955,14 +955,14 @@ function detailHTML(x){
     + '<div class="dcell"><dt>장소</dt><dd>'+(esc(x.p)||"—")+'</dd></div>'
     + repCell
     + '<div class="dcell"><dt>다시 뜨는 카운터 <span class="fld">questSpawnInterval</span></dt><dd class="mono'+(x.si>=99?" warn":"")+'">'
-      + (x.si>=99 ? spawnText(x.si) : x.si+' <span class="sm">— 깨거나 기한이 지나 내려가면 '+x.si+'부터 다시 셈 · 갱신에서 판정을 통과할 때마다 1 줆</span>')+'</dd></div>'
+      + (x.si>=99 ? spawnText(x.si) : x.si+' <span class="sm">깨면 '+x.si+'부터 다시 · 갱신 판정을 통과할 때마다 1씩 줄어듦</span>')+'</dd></div>'
     + '<div class="dcell"><dt>빈도 <span class="fld">questFrequency</span></dt><dd class="mono">«'+esc(freqName(x.fr))+'»'
-      + (FREQ_P[x.fr]!=null ? ' <span class="sm">— 갱신 1번에 '+(FREQ_P[x.fr]*100).toFixed(0)+'% 통과(통과해야 카운터가 줆)</span>' : '')+'</dd></div>'
+      + (FREQ_P[x.fr]!=null ? ' <span class="sm">갱신 1번에 '+(FREQ_P[x.fr]*100).toFixed(0)+'% 통과</span>' : '')+'</dd></div>'
     + (function(){ var o=refreshes(x); if(!o) return "";
-        var t=o.exp<=1.5?"금방":(o.exp<=5?"보통":(o.exp<=15?"뜸함":"드묾"));
+        var t=o.exp<=1.5?"금방":(o.exp<=5?"보통":(o.exp<=15?"뜸한 편":"오래 걸림"));
         return '<div class="dcell"><dt>'+(x.si>=99?'처음 뜨기까지':'깬 뒤 다시 뜨기까지')+' <span class="fld">카운터 ÷ 통과율</span></dt>'
              + '<dd class="mono'+(o.exp>15?" warn":"")+'">평균 갱신 '+(o.exp<10?o.exp.toFixed(1):Math.round(o.exp))+'번 · '+t
-             + ' <span class="sm">('+o.n+' ÷ '+(o.p*100).toFixed(0)+'%'+(qstate(x)&&qstate(x).st===0&&x.si<99?' · 지금 남은 건 아래 «다시 뜨기까지»':'')+')</span></dd></div>'; })()
+             + ' <span class="sm">('+o.n+' ÷ '+(o.p*100).toFixed(0)+'%)'+(qstate(x)&&qstate(x).st===0&&x.si<99?' · 지금 남은 것은 아래 칸':'')+'</span></dd></div>'; })()
     + '<div class="dcell"><dt>게시판 유효기간 <span class="fld">deadline</span></dt><dd class="mono">'+dlTxt(x.dl)
       + (x.si===99 && x.dl && x.dl<=1440 ? ' <span class="meta" style="color:var(--f-heal)">짧다</span>' : '')+'</dd></div>'
     + '<div class="dcell"><dt>선행 성공 횟수 <span class="fld">successCount</span></dt><dd class="mono">'+x.sc+'</dd></div>'
