@@ -157,6 +157,7 @@ input[type="search"]{flex:1 1 240px}
   vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace}
 .again{color:var(--f-heal);border-color:currentColor}
 .chain.again-box h4{color:var(--f-vault)}
+.chain.again-box li strong{font-weight:600;color:var(--ink)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
@@ -1294,7 +1295,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      평판이 21 이 되는 순간 새로 뜨지만 처음 깰 때는 평판을 올려 주지 않습니다.</div>
   <p class="src">Town.CanAcceptQuest 0x275E070(평판 비교 0x275E57C) · Quest.Level 0x2727A44 · Quest.ShowLevel 0x27291E0(지형 kind ∈ {1,2} 비교 0x2729268) · 화면 레벨: Party.Create · Party.CreatebyGuild · AdventureHistory.FinishAdventure · Quest.Sort · QuestDialog/QuestCellView.Render · 진짜 레벨: Town.MaxReputation · Party.Difficulty · Character.SetRescuePrice · AdventureMain.IsAppearanceEvent · 표는 노르그레이 퀘스트 99개 전수(요구 평판만 반영)</p>
 
-  <h3>게시판에는 칸이 없습니다</h3>
+  <h3 id="counter">게시판에는 칸이 없습니다 &mdash; 퀘스트마다 카운터</h3>
   <p>퀘스트마다 <b>자기 카운터</b>를 하나씩 들고 있고, 그 카운터가 0 이 되면 뜹니다. 서로 자리를 뺏지 않으므로
      <b>게시판에 이미 잔뜩 걸려 있어도 새 퀘스트가 뜨는 데 지장이 없습니다</b>(화면 목록의 30개 상한은 아래에).
      갱신 때 도는 것은 <b>아직 안 떠 있는 퀘스트</b>뿐이고, 이미 게시된 것과 수주한 것은 건드리지 않습니다 &mdash;

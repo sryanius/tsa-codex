@@ -156,6 +156,7 @@ input[type="search"]{flex:1 1 240px}
   vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace}
 .again{color:var(--f-heal);border-color:currentColor}
 .chain.again-box h4{color:var(--f-vault)}
+.chain.again-box li strong{font-weight:600;color:var(--ink)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
@@ -583,27 +584,23 @@ function dayStr(d){
   return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
 }
 function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
-/* «언제 다시 할 수 있나». 돌려주는 것: {txt, ready, when} */
+/* «다시 뜨기까지» — 2026-10-15 고침(제작자 «남은 카운터도 색인에 보이게»).
+   세이브의 카운터(daysUntilAvailable)는 날짜가 아니다 — 그 마을이 갱신될 때 이 퀘스트가 조건 · 빈도 판정을 «통과하면» 1 줄고,
+   0 이하가 되는 그 갱신에 게시된다(통과 때 카운터가 이미 0 이면 바로). 깨거나 기한이 지나 내려가면 주기로 다시 채운다(Town.UpdateQuestStatus 7.3 0x275E01C).
+   그 마을 갱신 = 하루 한 번 로그인 보너스(모든 마을) + 그 마을 게시판의 갱신 버튼(누를 때마다 · 지금 마을만).
+   ★ 예전엔 «마지막 클리어 + 주기 일» · «세이브 시각 + 남은 일수» 로 날짜(D-N)를 냈다 — 카운터를 하루 1씩 주는 것으로 본 틀린 모형이었다.
+   돌려주는 것: {txt, ready, cnt(남은 카운터), need(통과 몇 번째에 뜨나), p(갱신 1번 통과율), exp(평균 갱신 수), last} */
+function fmtN(v){ return v<10 ? v.toFixed(1) : String(Math.round(v)); }
 function again(x){
-  var st=qstate(x);
-  if(x.si>=99) return {txt:"1회성 — 다시 안 뜹니다", ready:false};
-  var now=new Date();
-  var last=LASTCLEAR[x.i];
-  if(last){
-    var d=new Date(new Date(last).getTime()+x.si*86400000);
-    var left=daysBetween(now,d)+ (d>now?1:0);
-    return d<=now ? {txt:"지금 뜹니다", ready:true, when:d, last:last}
-                  : {txt:dayStr(d)+" 이후 ("+left+"일 남음)", ready:false, when:d, last:last};
-  }
+  var st=qstate(x), last=LASTCLEAR[x.i]||null;
+  if(x.si>=99) return isDone(x) ? {txt:"1회성 — 다시 안 뜹니다", ready:false, last:last} : null;
   if(!st) return null;
-  if(st.st===10) return {txt:"세이브 시점에 게시 중이었습니다", ready:true};
-  if(st.d>0 && QS && QS.at){
-    var base=new Date(QS.at.replace(" ","T")+":00");
-    var d2=new Date(base.getTime()+st.d*86400000);
-    return d2<=now ? {txt:"지금쯤 떴을 것입니다", ready:true, when:d2}
-                   : {txt:dayStr(d2)+" 무렵 (세이브 기준 "+st.d+"일)", ready:false, when:d2};
-  }
-  return null;
+  if(st.st===10) return {txt:"세이브 시점에 게시 중", ready:true, last:last};
+  if(st.st===11) return {txt:"세이브 시점에 진행 중", ready:true, last:last};
+  if(st.st!==0) return null;
+  var p=FREQ_P[x.fr]||1, cnt=st.d||0, need=Math.max(cnt,1), exp=need/p;
+  return {cnt:cnt, need:need, p:p, exp:exp, ready:false, last:last,
+          txt:"남은 카운터 "+cnt+" — 판정을 "+need+"번 통과하는 갱신에 뜸 · 평균 갱신 "+fmtN(exp)+"번"};
 }
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function el(id){ return document.getElementById(id); }
@@ -836,8 +833,8 @@ function rowHTML(x){
   /* ★ «지금 뜬다» 는 기본값이라 안 적는다. 1184줄 중 865줄이 그것이었다.
      아직 못 하는 것만 «D-N» 으로 보여 준다. */
   var ag=again(x);
-  var agTag = (ag && !ag.ready && ag.when)
-    ? '<em class="again" title="'+esc(ag.txt)+'">D-'+Math.max(1,daysBetween(new Date(),ag.when)+1)+'</em>'
+  var agTag = (ag && ag.cnt!=null)
+    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준)">남은 '+ag.cnt+'</em>'
     : '';
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
     +'<button type="button" class="star'+(FAV[x.i]?" on":"")+'" data-fav="'+esc(x.i)+'"'
@@ -930,12 +927,18 @@ function detailHTML(x){
   var ag=again(x);
   var agBlock="";
   if(ag){
-    agBlock='<div class="chain again-box"><h4>다시 할 수 있는 날</h4><ul>'
+    var fname=(window.TSA_CHEST&&TSA_CHEST.FREQ[x.fr]) ? TSA_CHEST.FREQ[x.fr][1] : "";
+    agBlock='<div class="chain again-box"><h4>다시 뜨기까지 <span class="sm">(세이브 '+esc((QS&&QS.at)||"")+' 기준)</span></h4><ul>'
       +(ag.last?'<li><b>마지막 클리어</b> '+esc(String(ag.last).slice(0,16).replace("T"," "))+'</li>':"")
-      +'<li><b>등장 주기</b> '+esc(spawnText(x.si))+'</li>'
-      +'<li><b'+(ag.ready?' class="okmark"':"")+'>'+esc(ag.txt)+'</b></li>'
-      +(ag.last?"":'<li class="meta">모험 기록(최근 '+((QS&&QS.hist)?QS.hist.length:0)+'건)에 없어 '
-        +'세이브의 «남은 일수» 로 어림한 값입니다</li>')
+      +(ag.cnt==null
+        ? '<li><b'+(ag.ready?' class="okmark"':"")+'>'+esc(ag.txt)+'</b></li>'
+        : '<li><b>남은 카운터 '+ag.cnt+'</b> <span class="sm">(깨거나 기한이 지나 내려가면 주기 '+x.si+' 로 다시 채워짐)</span></li>'
+          +'<li><b>뜨는 때</b> 이 마을 갱신에서 조건 · 빈도 판정을 <strong>'+ag.need+'번</strong> 통과한 갱신'
+            +(ag.cnt===0?' <span class="sm">(카운터 0 — 다음에 통과하면 바로)</span>':'')
+            +' · 빈도 «'+esc(fname)+'» — 갱신 1번에 '+(ag.p*100).toFixed(1)+'% 통과</li>'
+          +'<li><b>평균 갱신 '+fmtN(ag.exp)+'번</b> — 로그인 보너스(하루 한 번 · 모든 마을)만이면 약 '+fmtN(ag.exp)+'일 · '
+            +'<strong>이 마을 게시판</strong>에서 갱신 버튼을 누르면 누를 때마다 한 번씩 굴러갑니다</li>'
+          +'<li class="meta">조건(평판 · 선행 · 탐색지)이 안 맞는 동안은 굴러가지 않습니다(카운터도 안 줆) · <a href="notes.html#counter">원리 §9</a></li>')
       +'</ul></div>';
   }
   var repCell = (x.rep<0)
@@ -2096,8 +2099,9 @@ render();
 
   /* 마을 하나가 들고 있는 퀘스트 상태.
        status 0 NotListed · 10 게시 중 · 11 진행 중 · 12 완료 · 13 실패
-       d      며칠 뒤에 다시 게시되는가 (Quest::Finish 가 등장 주기로 채우고
-              Town::UpdateQuestStatus 가 하루에 하나씩 깎는다. 99 는 1회성) */
+       d      남은 카운터(daysUntilAvailable — 이름과 달리 날짜가 아니다). Quest::Finish 가 등장 주기로 채우고,
+              Town::UpdateQuestStatus 가 그 마을 갱신에서 조건 · 빈도 판정을 통과할 때마다 1 깎아 0 이하면 게시한다
+              (7.3 0x275E01C · 갱신 = 로그인 보너스 하루 한 번 + 그 마을 게시판의 갱신 버튼). 99 는 1회성 */
   function readTown(plain){
     var p = parseNrbf(plain), R = p.root;
     if (!R || R.__ !== "Town") return null;

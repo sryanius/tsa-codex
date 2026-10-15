@@ -157,6 +157,7 @@ input[type="search"]{flex:1 1 240px}
   vertical-align:1px;white-space:nowrap;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace}
 .again{color:var(--f-heal);border-color:currentColor}
 .chain.again-box h4{color:var(--f-vault)}
+.chain.again-box li strong{font-weight:600;color:var(--ink)}
 .qkey{margin-left:8px;white-space:nowrap;color:var(--faint)}
 .qkey b{font-weight:700}
 .qkey .ku{color:var(--f-lodge)} .qkey .kn{color:var(--accent)} .qkey .kd{color:var(--f-arch)}
@@ -861,8 +862,9 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
 
   /* 마을 하나가 들고 있는 퀘스트 상태.
        status 0 NotListed · 10 게시 중 · 11 진행 중 · 12 완료 · 13 실패
-       d      며칠 뒤에 다시 게시되는가 (Quest::Finish 가 등장 주기로 채우고
-              Town::UpdateQuestStatus 가 하루에 하나씩 깎는다. 99 는 1회성) */
+       d      남은 카운터(daysUntilAvailable — 이름과 달리 날짜가 아니다). Quest::Finish 가 등장 주기로 채우고,
+              Town::UpdateQuestStatus 가 그 마을 갱신에서 조건 · 빈도 판정을 통과할 때마다 1 깎아 0 이하면 게시한다
+              (7.3 0x275E01C · 갱신 = 로그인 보너스 하루 한 번 + 그 마을 게시판의 갱신 버튼). 99 는 1회성 */
   function readTown(plain){
     var p = parseNrbf(plain), R = p.root;
     if (!R || R.__ !== "Town") return null;
