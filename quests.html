@@ -241,6 +241,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain.again-box li b .sm{font-weight:400;color:var(--muted);font-size:11.5px}
 .dcell{display:flex;flex-direction:column;gap:2px}
 .dcell.id2{grid-column:span 2}
+.cellhelp{margin:10px 0 0;font-size:12.5px;color:var(--body)}
+.cellhelp summary{cursor:pointer;color:var(--muted);font-size:12px;display:inline-block;padding:9px 12px 9px 0;min-height:36px;box-sizing:border-box}
+.cellhelp summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.cellhelp ul{margin:4px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:4px;line-height:1.6}
+.cellhelp li b{font-weight:600;color:var(--ink);margin-right:4px}
 .rwline{margin:12px 0 0;font-size:13px;line-height:1.7;color:var(--ink)}
 .rwline .rwk{font-size:10.5px;letter-spacing:.08em;color:var(--faint);margin-right:2px}
 .rwline .sm{font-size:11px;color:var(--muted)}
@@ -992,6 +997,7 @@ function detailHTML(x){
       + '<br><span class="sm" title="반복 보정 +N 이면 골드 · 경험치 ×(1 + N÷3)">반복 +3 이면 2배</span></dd></div>'
     + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell id2"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
+    + cellHelp(x)
     + rewardCell(x)
     + agBlock + monHTML(x)
     + chestHTML(x)
@@ -1001,6 +1007,20 @@ function detailHTML(x){
   + '</div>';
 }
 function hhmm(min){ var h=Math.floor(min/60), m=min%60; return (h?h+"시간 ":"")+m+"분"; }
+/* 칸 설명 — 칸의 title(마우스 올리기)은 폰에서 못 본다(2026-10-15 제작자 «마우스 올리면 나오는 건 핸드폰에서는 어떻게?»).
+   표 아래 «칸 설명» 을 누르면 펼쳐지는 줄(details)로 같은 내용을 둔다 — 접혀 있어 자리를 안 먹는다. */
+function cellHelp(x){
+  var o=refreshes(x);
+  return '<details class="cellhelp"><summary>칸 설명</summary><ul>'
+    + (x.si>=99
+      ? '<li><b>다시 뜨는 카운터</b> 1회성 — 한 번 깨면 다시 안 뜹니다</li>'
+      : '<li><b>다시 뜨는 카운터</b> 깨거나 기한이 지나 내려가면 이 값('+x.si+')부터 다시 셉니다. 그 마을이 갱신될 때 판정을 통과할 때마다 1씩 줄어 0 이 되는 갱신에 뜹니다</li>')
+    + '<li><b>빈도</b> 그 마을이 갱신될 때 이 확률로 판정을 통과합니다(통과해야 카운터가 줄어듦). 갱신 = 하루 한 번 로그인 보너스(모든 마을) + 그 마을 게시판의 갱신 버튼</li>'
+    + (o ? '<li><b>'+(x.si>=99?'처음 뜨기까지':'깬 뒤 다시 뜨기까지')+'</b> 카운터 '+o.n+' ÷ 통과율 '+(o.p*100).toFixed(0)+'% — 카운터가 가득 찬 상태에서 걸리는 평균 갱신 수. 지금 남은 것은 아래 «다시 뜨기까지»(세이브를 넣었을 때)</li>' : '')
+    + '<li><b>보상</b> 반복 보정 +N 이면 골드 · 경험치 ×(1 + N÷3) — +3 이면 2배. 경험치는 실패 · 후퇴면 절반, 살아 있는 인원으로 나눔</li>'
+    + '<li><b>등장 조건</b> 선행 · 탐색지 · 평판 · 깬 수가 안 맞는 동안은 판정을 안 굴려 카운터가 멈춥니다(<a href="notes.html#counter">원리 §9</a>)</li>'
+    + '</ul></details>';
+}
 /* 게임 의뢰 창의 보상 문구 — «드물게 몫을 받을 수 있다» 처럼 뭘 주는지 흐릿한 것이 많아서(2026-10-13 제작자 «보상이 아리송하다 · 정리해 줘»)
    문구 옆에 실제로 받는 것을 한 줄로: 골드 · 경험치 · 시설 업그레이드 · 훈련소 · 금고/습득물 아이템(등장 조건은 아래 금고 칸).
    문구는 게임이 그대로 보여 주는 것이라 손대지 않는다(번역 안 된 «山分け» = 나눠 갖기 · «Vault» = 금고). */
