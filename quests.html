@@ -240,11 +240,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px 22px;margin:14px 0 0}
 /* 상세 윗부분 표 — 등장 · 의뢰 · 보상 */
 .spec{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:12px 28px;margin:14px 0 0}
-@media (max-width:900px){ .spec{grid-template-columns:1fr} }
+@media (max-width:900px){ .spec{grid-template-columns:1fr;gap:18px} }
 .spec section{min-width:0}
 .spec h5{margin:0 0 4px;font-size:10.5px;font-weight:600;letter-spacing:.1em;color:var(--faint)}
 .spec table{width:100%;border-collapse:collapse;font-size:13px}
 .spec th{text-align:left;font-weight:400;color:var(--muted);font-size:12px;padding:6px 12px 6px 0;white-space:nowrap;vertical-align:top;width:1%}
+/* 표가 위아래로 쌓이면(폰) 이름표 칸을 세 표 모두 같은 폭으로 — 예전엔 표마다 제 이름표 길이로 줄어서 값 시작이 127 · 95 · 112px 로 어긋났다
+   (2026-10-15 제작자 «모바일에서는 간격 정렬하는 게 좋지 않을까»). 가장 긴 «거쳐야 할 마이너스» 91px → 글자 96px · 넘치면 단어 단위로 꺾음.
+   나란히 설 때(PC)는 그대로 — 고정하면 좁은 표의 값 칸만 줄었다(920px: 146 → 113px) */
+@media (max-width:900px){
+  .spec table{table-layout:fixed}
+  .spec th{width:108px;box-sizing:border-box;white-space:normal;word-break:keep-all;overflow-wrap:break-word}
+}
 .spec td{padding:6px 0;color:var(--ink);vertical-align:top;font-variant-numeric:tabular-nums;overflow-wrap:break-word}
 .spec tr+tr th,.spec tr+tr td{border-top:1px solid var(--line-soft)}
 .spec td .sm{font-size:11px;color:var(--muted)}
