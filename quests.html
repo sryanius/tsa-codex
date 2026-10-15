@@ -857,10 +857,13 @@ function rowHTML(x){
 
 // questSpawnInterval == QUEST_SPAWN_INTERVAL_ONLY_ONCE(99) 이면 1회성,
 // 그 외에는 클리어 후 재등장까지의 대기 일수(daysUntilAvailable)로 쓰인다.
+/* questSpawnInterval — 날짜가 아니라 카운터다(갱신에서 판정을 통과할 때마다 1 · 원리 §9). 예전 «8일 주기» 는 틀린 말이었다. */
 function spawnText(si){
   if(si>=99) return "1회성 — 한 번 깨면 끝";
-  return si+"일 주기 (클리어 후 재등장 대기)";
+  return "카운터 "+si+" — 깨면 "+si+"부터 다시";
 }
+/* questFrequency 내부 번호(5 · 10~16) → 이름 · 갱신 1번 통과율. 예전엔 «11 / 14» 로 번호를 그대로 보여 «카운터 3 남음» 으로 읽혔다. */
+function freqName(fr){ var F=window.TSA_CHEST&&TSA_CHEST.FREQ[fr]; return F ? F[1] : String(fr); }
 /* ── 퀘스트 라인 ────────────────────────────────────────────────────
    선행을 거슬러 올라가고 이어지는 것을 따라 내려가, 한 줄기로 보여 준다.
    따로 두면 «내가 이 줄기 어디에 서 있는지» 가 안 보인다. */
@@ -951,13 +954,15 @@ function detailHTML(x){
     + '<dl class="dgrid">'
     + '<div class="dcell"><dt>장소</dt><dd>'+(esc(x.p)||"—")+'</dd></div>'
     + repCell
-    + '<div class="dcell"><dt>등장 주기 <span class="fld">questSpawnInterval</span></dt><dd class="mono'+(x.si>=99?" warn":"")+'">'+spawnText(x.si)+'</dd></div>'
-    + '<div class="dcell"><dt>등장 가중치 <span class="fld">questFrequency</span></dt><dd class="mono">'+x.fr+' / 14</dd></div>'
+    + '<div class="dcell"><dt>다시 뜨는 카운터 <span class="fld">questSpawnInterval</span></dt><dd class="mono'+(x.si>=99?" warn":"")+'">'
+      + (x.si>=99 ? spawnText(x.si) : x.si+' <span class="sm">— 깨거나 기한이 지나 내려가면 '+x.si+'부터 다시 셈 · 갱신에서 판정을 통과할 때마다 1 줆</span>')+'</dd></div>'
+    + '<div class="dcell"><dt>빈도 <span class="fld">questFrequency</span></dt><dd class="mono">«'+esc(freqName(x.fr))+'»'
+      + (FREQ_P[x.fr]!=null ? ' <span class="sm">— 갱신 1번에 '+(FREQ_P[x.fr]*100).toFixed(0)+'% 통과(통과해야 카운터가 줆)</span>' : '')+'</dd></div>'
     + (function(){ var o=refreshes(x); if(!o) return "";
         var t=o.exp<=1.5?"금방":(o.exp<=5?"보통":(o.exp<=15?"뜸함":"드묾"));
-        return '<div class="dcell"><dt>뜨는 데 걸리는 갱신 <span class="fld">주기 ÷ 통과율</span></dt>'
-             + '<dd class="mono'+(o.exp>15?" warn":"")+'">평균 '+(o.exp<10?o.exp.toFixed(1):Math.round(o.exp))+'번 · '+t
-             + ' <span class="sm">(갱신 1회 통과 '+(o.p*100).toFixed(0)+'%)</span></dd></div>'; })()
+        return '<div class="dcell"><dt>'+(x.si>=99?'처음 뜨기까지':'깬 뒤 다시 뜨기까지')+' <span class="fld">카운터 ÷ 통과율</span></dt>'
+             + '<dd class="mono'+(o.exp>15?" warn":"")+'">평균 갱신 '+(o.exp<10?o.exp.toFixed(1):Math.round(o.exp))+'번 · '+t
+             + ' <span class="sm">('+o.n+' ÷ '+(o.p*100).toFixed(0)+'%'+(qstate(x)&&qstate(x).st===0&&x.si<99?' · 지금 남은 건 아래 «다시 뜨기까지»':'')+')</span></dd></div>'; })()
     + '<div class="dcell"><dt>게시판 유효기간 <span class="fld">deadline</span></dt><dd class="mono">'+dlTxt(x.dl)
       + (x.si===99 && x.dl && x.dl<=1440 ? ' <span class="meta" style="color:var(--f-heal)">짧다</span>' : '')+'</dd></div>'
     + '<div class="dcell"><dt>선행 성공 횟수 <span class="fld">successCount</span></dt><dd class="mono">'+x.sc+'</dd></div>'
