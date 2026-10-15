@@ -1318,6 +1318,11 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
 
   <h3>카운터가 줄려면 빈도 판정을 통과해야 합니다</h3>
   <p>갱신 한 번에 카운터가 무조건 1 주는 게 아닙니다. <code>Town.CanAcceptQuest()</code> 를 통과해야 하고, 그 마지막 관문이 <b>빈도</b>입니다. <code>Always</code> 는 무조건 통과, 나머지는 <code>GetRandom()</code> 을 <b>두 번</b> 굴려 한 번이라도 자기 빈도와 같으면 통과합니다.</p>
+  <div class="note"><b>조건(선행 · 탐색지 · 평판 · 깬 수)이 안 맞는 동안 카운터는 멈춥니다</b> &mdash; 그 퀘스트는 빈도도 안 굴리고 건너뜁니다.
+     날짜가 지나도 줄지 않고, 처음으로 되돌아가지도 않습니다. 조건이 다시 맞으면 멈춘 값에서 이어서 줄어듭니다.
+     <b>이미 게시판에 뜬 퀘스트는 평판이 바뀌어도 안 사라집니다</b> &mdash; 조건 검사는 «아직 안 뜬» 퀘스트에만 하고, 뜬 퀘스트는 기한이 지나야 내려갑니다.
+     그래서 평판을 맞춰 원하는 퀘스트를 <b>띄워 놓고</b>, 평판을 반대로 돌려 다른 쪽을 파밍하다가 <b>게시판 유효기간 안에</b> 받으면 됩니다(퀘스트마다의 기한은 <a href="quests.html">퀘스트 색인</a>).
+     <span class="sm">Town.UpdateQuestStatus 7.3 0x275E01C(게시 중이면 바로 끝 · CanAcceptQuest 실패면 카운터를 안 건드리고 끝) · CanAcceptQuest 를 부르는 곳은 UpdateQuestStatus 하나뿐 — 목록 화면(GetCanAcceptedQuests)은 다시 검사하지 않음</span></div>
   <table class="t"><thead><tr><th>빈도</th><th class="num">한 번<br>굴림</th><th class="num">갱신 1회<br>통과</th><th class="num">퀘스트</th></tr></thead><tbody>
   <tr><td><b>항상</b><br><span class="sm">Always</span></td><td class="num">25%</td><td class="num"><b>100%</b><br><span class="sm">판정 안 함</span></td><td class="num">526</td></tr>
   <tr><td><b>자주</b><br><span class="sm">Usually</span></td><td class="num">37.5%</td><td class="num">60.9%</td><td class="num">536</td></tr>

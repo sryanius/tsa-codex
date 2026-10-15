@@ -562,9 +562,12 @@ var state={view:"fac",q:"",town:"",undone:false,neg:false,evil:false,facs:{},
 /* ── 즐겨찾기 ────────────────────────────────────────────────────────
    퀘스트가 1400건이 넘어 «내가 도는 것» 만 따로 보고 싶다. 브라우저에만 둔다. */
 var FAVKEY="tsa.fav.v1", FAV={};
-try{ (JSON.parse(localStorage.getItem(FAVKEY)||"[]")||[]).forEach(function(i){ FAV[i]=1; }); }catch(e){}
+/* tsa.fav.v1 은 도감 아이템 즐겨찾기(«item:아이디»)와 같이 쓴다 — 여기서는 퀘스트 몫만 다루고 아이템 몫은 그대로 둔다 */
+function favStored(){ try{ return JSON.parse(localStorage.getItem(FAVKEY)||"[]")||[]; }catch(e){ return []; } }
+favStored().forEach(function(i){ if(String(i).indexOf("item:")!==0) FAV[i]=1; });
 function saveFav(){
-  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(FAV))); }catch(e){}
+  var keep=favStored().filter(function(k){ return String(k).indexOf("item:")===0; });
+  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(FAV).concat(keep))); }catch(e){}
 }
 function favCount(){ return Object.keys(FAV).length; }
 function toggleFav(id){
@@ -668,7 +671,7 @@ FORD.concat([JOB]).forEach(function(f){
   var b=document.createElement("button");
   b.className="chip fav"; b.type="button"; b.id="chip-fav";
   b.setAttribute("aria-pressed","false");
-  b.title="★ 를 눌러 담아 둔 퀘스트만 봅니다";
+  b.title="★ 를 눌러 담아 둔 퀘스트만 봅니다 — 마을 · 검색 · 다른 조건은 무시합니다(잠긴 지역만 따름)";
   function label(){ b.innerHTML='<i class="dot"></i>즐겨찾기'+(favCount()?" "+favCount():""); }
   label(); window.__favLabel=label;
   b.onclick=function(){ state.fav=!state.fav; b.setAttribute("aria-pressed",state.fav?"true":"false"); render(); };
@@ -800,9 +803,9 @@ function partyMatch(x){
 }
 function match(x){
   if(!state.showLocked && LOCKED[x.t]) return false;
+  if(state.fav) return !!FAV[x.i];          // 즐겨찾기만 — 다른 조건은 무시(2026-10-15 제작자 «다른 조건과 상관없이 즐겨찾기 된 것만»)
   if(state.town && x.t!==state.town) return false;
   if(state.undone && isDone(x)) return false;
-  if(state.fav && !FAV[x.i]) return false;
   if(state.neg && x.rep>=0) return false;
   if(state.evil && (x.rp||0)>=0) return false;
   if(!partyMatch(x)) return false;
@@ -1590,7 +1593,7 @@ try{
 function readFac(){ try{ return JSON.parse(localStorage.getItem(FKEY)||"null"); }catch(e){ return null; } }
 function gatherState(){
   return { q:(SAVE&&SAVE.q)||{}, at:(SAVE&&SAVE.at)||"",
-           levels:lv, fac:readFac(), fav:Object.keys(FAV) };
+           levels:lv, fac:readFac(), fav:favStored() };   // 아이템 몫(item:)까지 같이 — 지금 저장된 그대로
 }
 function applyState(p){
   if(!p) return;
@@ -1603,8 +1606,9 @@ function applyState(p){
   /* 즐겨찾기는 «합친다». 폰에서 담고 PC 에서 담으면 둘 다 남아야 한다 —
      덮어쓰면 나중에 연 쪽이 앞의 것을 지운다. */
   if(p.fav && p.fav.length){
-    p.fav.forEach(function(i){ FAV[i]=1; });
-    saveFav();
+    var all={}; favStored().concat(p.fav).forEach(function(i){ all[i]=1; });
+    try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(all))); }catch(e){}
+    p.fav.forEach(function(i){ if(String(i).indexOf("item:")!==0) FAV[i]=1; });
     if(window.__favLabel) window.__favLabel();
   }
   render();

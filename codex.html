@@ -90,6 +90,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   padding:9px 14px;cursor:pointer;border-top:1px solid var(--line-soft)}
 .row:first-child{border-top:0}
 .row:hover,.row.open{background:var(--raised)}
+/* 즐겨찾기 별(아이템) */
+.istar{border:0;background:none;cursor:pointer;font:inherit;font-size:15px;line-height:1;padding:2px 6px 2px 0;
+  color:var(--line);vertical-align:-1px}
+.istar:hover,.istar.on{color:var(--warn)}
+.istar:focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:4px}
+@media (max-width:700px){ .istar{font-size:18px;padding:8px 8px 8px 0;margin:-8px 0} }
 .nm{min-width:0;display:flex;flex-direction:column;gap:1px}
 .nm b{font-weight:500;color:var(--ink);font-size:14px;line-height:1.35}
 .nm span{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -283,6 +289,7 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
     <label class="toggle" title="아직 못 가는 지역(발케인 지방)의 탐색지·몬스터·아이템까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
+    <label class="toggle" id="favwrap" title="★ 로 담아 둔 아이템만 봅니다 — 검색 · 종류 · 태그 · 특수능력 조건은 무시합니다(잠긴 지역만 따름)"><input type="checkbox" id="favonly"> ★ 즐겨찾기만<span id="favn"></span></label>
     <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
       <select id="psort" aria-label="탐색지 정렬">
         <option value="">레벨 순</option>
@@ -356,7 +363,32 @@ function isLockedRegion(r){ return !!LOCKED_SET[r]; }
 
 /* 큰 수는 3자리마다 끊어 적는다. toLocaleString 을 그때그때 부르면 자리가 흔들린다. */
 function fmt(v){ return (v||0).toLocaleString(); }
-var state={psort:"",view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false};
+var state={psort:"",view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false,favOnly:false};
+/* ── 즐겨찾기(아이템) — 2026-10-15 제작자 «퀘스트나 아이템에 즐겨찾기 · 다른 조건과 상관없이 즐겨찾기 된 것만 보기».
+   퀘스트 색인과 같은 저장소 tsa.fav.v1 에 «item:아이디» 로 담는다(퀘스트 몫은 건드리지 않음) · 로그인돼 있으면 클라우드 fav 칸으로 같이 오간다(합침). */
+var FAVKEY="tsa.fav.v1";
+function favStored(){ try{ return JSON.parse(localStorage.getItem(FAVKEY)||"[]")||[]; }catch(e){ return []; } }
+function favItemSet(){ var s={}; favStored().forEach(function(k){ k=String(k); if(k.indexOf("item:")===0) s[k.slice(5)]=1; }); return s; }
+var FAVI=favItemSet(), favTimer=null;
+function favCountI(){ return Object.keys(FAVI).length; }
+function saveFavItems(){
+  var keep=favStored().filter(function(k){ return String(k).indexOf("item:")!==0; });
+  Object.keys(FAVI).forEach(function(i){ keep.push("item:"+i); });
+  try{ localStorage.setItem(FAVKEY, JSON.stringify(keep)); }catch(e){}
+  var C=window.TSA_CLOUD;
+  if(C && C.signedIn && C.signedIn()){
+    clearTimeout(favTimer);
+    favTimer=setTimeout(function(){ C.putProgress({fav:favStored()}); }, 1200);
+  }
+}
+function favLabel(){ var n=favCountI(), e=document.getElementById("favn"); if(e) e.textContent=n?" "+n:""; }
+/* 클라우드(로그인한 껍데기)가 받아 온 진행도 — 즐겨찾기만 합친다 */
+window.__TSA_ON_CLOUD_PROGRESS=function(p){
+  if(!p || !p.fav || !p.fav.length) return;
+  var all={}; favStored().concat(p.fav).forEach(function(k){ all[k]=1; });
+  try{ localStorage.setItem(FAVKEY, JSON.stringify(Object.keys(all))); }catch(e){}
+  FAVI=favItemSet(); favLabel(); if(window.__codexRender) window.__codexRender();
+};
 try{ state.showLocked = localStorage.getItem(LKEY2)==="1"; }catch(e){}
 function okPlace(p){ return state.showLocked || !isLockedRegion(p.r); }
 function visPlaces(){ return D.places.filter(okPlace); }
@@ -899,7 +931,8 @@ function itemRow(x){
       +(x.sp.length>5?'<i class="spchip">+'+(x.sp.length-5)+'</i>':'')+'</span>'
     : "";
   return '<div class="row'+(x.sp.length?" sp":"")+'" data-k="i" data-i="'+esc(x.i)+'" tabindex="0" role="button">'
-    +'<span class="nm"><b>'+tags+esc(x.n||x.i)+'</b><span>'+esc(x.kind)+' · '+esc(s)
+    +'<span class="nm"><b><button type="button" class="istar'+(FAVI[x.i]?" on":"")+'" data-ifav="'+esc(x.i)+'"'
+      +' aria-pressed="'+(FAVI[x.i]?"true":"false")+'" title="즐겨찾기" aria-label="즐겨찾기">★</button>'+tags+esc(x.n||x.i)+'</b><span>'+esc(x.kind)+' · '+esc(s)
     +(shopOf(x).length?' · '+esc(shopOf(x)[0].t)+(shopOf(x).length>1?' 외 '+(shopOf(x).length-1)+'곳':'')+' 판매':'')+'</span>'+chips+'</span>'
     +'<span class="num">Lv'+(x.lv||0)+'</span>'
     +'<span class="num dim r3">'+esc(x.price||"-")+'G</span></div>';
@@ -1076,6 +1109,7 @@ function render(){
       var rows=D.items.filter(function(x){
         if(x.lock && !state.showLocked) return false;
         if(x.cat!==cat) return false;
+        if(state.favOnly) return !!FAVI[x.i];       // 즐겨찾기만 — 다른 조건은 무시
         if(KD.any() && !KD.match(x)) return false;
         if(state.only && !x.drop.length && !qdOf(x).length) return false;
         if(IT.any() && !IT.match(x)) return false;
@@ -1087,14 +1121,18 @@ function render(){
           +" "+qdOf(x).map(function(z){return z.q+" "+z.t}).join(" "));
       });
       n+=rows.length;
-      html+=block(cat, rows.length+"종", rows.map(itemRow), "var(--c-item)");
+      html+=block(cat, rows.length+"종"+(state.favOnly?" · 즐겨찾기":""), rows.map(itemRow), "var(--c-item)");
     });
   }
   headCounts();
   el("count").textContent=n+" 건";
-  el("out").innerHTML = html || '<p class="empty">조건에 맞는 항목이 없습니다.</p>';
+  el("out").innerHTML = html || (state.view==="item" && state.favOnly
+    ? '<p class="empty">즐겨찾기한 아이템이 없습니다 — 아이템 이름 앞의 ★ 를 눌러 담으세요.</p>'
+    : '<p class="empty">조건에 맞는 항목이 없습니다.</p>');
   // 아이템 전용 필터는 아이템 탭에서만 보인다
   el("callwrap").style.display = state.view==="place" ? "" : "none";
+  el("favwrap").style.display = state.view==="item" ? "" : "none";
+  favLabel();
   el("psort").style.display = state.view==="place" ? "" : "none";
   var isItem = state.view==="item";
   el("abils").hidden = !isItem;
@@ -1142,8 +1180,8 @@ function goTo(spec){
   var k=spec.slice(0,1), name=spec.slice(2);
   var o=findBy(k,name); if(!o) return;
   state.view = k==="p"?"place" : k==="m"?"mon" : "item";
-  state.q=o.i; state.reg=""; state.only=false;
-  el("q").value=o.n||o.i; el("reg").value=""; el("only").checked=false;
+  state.q=o.i; state.reg=""; state.only=false; state.favOnly=false;
+  el("q").value=o.n||o.i; el("reg").value=""; el("only").checked=false; el("favonly").checked=false;
   ["place","mon","item"].forEach(function(v){
     el("v-"+v).setAttribute("aria-pressed", state.view===v?"true":"false"); });
   render();
@@ -1151,6 +1189,17 @@ function goTo(spec){
   if(row){ openRow(row); row.scrollIntoView({block:"center"}); }
 }
 el("out").addEventListener("click",function(e){
+  var fs=e.target.closest("[data-ifav]");
+  if(fs){
+    e.stopPropagation();
+    var id=fs.getAttribute("data-ifav");
+    if(FAVI[id]) delete FAVI[id]; else FAVI[id]=1;
+    saveFavItems();
+    fs.classList.toggle("on", !!FAVI[id]); fs.setAttribute("aria-pressed", FAVI[id]?"true":"false");
+    favLabel();
+    if(state.favOnly) render();
+    return;
+  }
   var j=e.target.closest(".jump");
   if(j){ e.stopPropagation(); goTo(j.getAttribute("data-go")); return; }
   var row=e.target.closest(".row"); if(row) openRow(row);
@@ -1193,6 +1242,7 @@ el("out").addEventListener("click",function(e){
 })();
 el("out").addEventListener("keydown",function(e){
   if(e.key!=="Enter"&&e.key!==" ") return;
+  if(e.target.closest("[data-ifav]")) return;      // 별 단추는 단추대로(누르면 click)
   var row=e.target.closest(".row"); if(!row) return;
   e.preventDefault(); openRow(row);
 });
@@ -1203,6 +1253,8 @@ el("reg").addEventListener("change",function(e){ state.reg=e.target.value; rende
 el("psort").addEventListener("change",function(e){ state.psort=e.target.value; render(); });
 el("callonly").addEventListener("change",function(e){ state.callOnly=e.target.checked; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
+el("favonly").addEventListener("change",function(e){ state.favOnly=e.target.checked; render(); });
+window.__codexRender=function(){ render(); };
 var lk=el("showlocked");
 if(lk){ lk.checked=state.showLocked;
 lk.addEventListener("change",function(e){

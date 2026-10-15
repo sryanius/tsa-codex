@@ -333,9 +333,7 @@
     putProgress: async function (state) {
       var s = await ensureFresh();
       if (!s) return { ok: false, error: "로그인이 필요합니다" };
-      var q = (state && state.q) || {};
-      var cleared = 0, recorded = 0;
-      for (var k in q) { recorded++; if (q[k].clear > 0) cleared++; }
+      state = state || {};
       var now = new Date().toISOString();
       /* ★ 부르는 쪽마다 담아 오는 칸이 다르다 —
          퀘스트 화면은 {q,at,levels,fac,fav} 만 주고 crew·done 을 안 준다.
@@ -354,6 +352,10 @@
         return Object.prototype.hasOwnProperty.call(state, k)
           ? state[k] : (Object.prototype.hasOwnProperty.call(prev, k) ? prev[k] : dflt);
       }
+      /* 퀘스트 진행도(q)도 안 준 쪽은 기존 값을 지킨다 — 도감은 즐겨찾기(fav)만 올린다(2026-10-15) */
+      var q = pick("q", {}) || {};
+      var cleared = 0, recorded = 0;
+      for (var k in q) { recorded++; if (q[k] && q[k].clear > 0) cleared++; }
       var body = {
         user_id: s.userId,
         payload: JSON.stringify({
