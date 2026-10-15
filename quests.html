@@ -834,7 +834,7 @@ function rowHTML(x){
      아직 못 하는 것만 «D-N» 으로 보여 준다. */
   var ag=again(x);
   var agTag = (ag && ag.cnt!=null)
-    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준)">남은 '+ag.cnt+'</em>'
+    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준) — 카운터 0 · 1 은 둘 다 다음 통과에 뜸">'+ag.need+'번 더</em>'
     : '';
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
     +'<button type="button" class="star'+(FAV[x.i]?" on":"")+'" data-fav="'+esc(x.i)+'"'
@@ -935,7 +935,7 @@ function detailHTML(x){
       +(ag.last?'<li><b>마지막 클리어</b> '+esc(String(ag.last).slice(0,16).replace("T"," "))+'</li>':"")
       +(ag.cnt==null
         ? '<li><b'+(ag.ready?' class="okmark"':"")+'>'+esc(ag.txt)+'</b></li>'
-        : '<li><b>남은 카운터 '+ag.cnt+'</b> <span class="sm">(깨거나 기한이 지나 내려가면 주기 '+x.si+' 로 다시 채워짐)</span></li>'
+        : '<li><b>판정 통과 '+ag.need+'번 더 — 남은 카운터 '+ag.cnt+'</b> <span class="sm">(카운터 0 · 1 은 둘 다 다음 통과에 뜸 · 깨거나 기한이 지나 내려가면 '+x.si+' 로 다시 채워짐)</span></li>'
           +'<li><b>뜨는 때</b> 이 마을 갱신에서 조건 · 빈도 판정을 <strong>'+ag.need+'번</strong> 통과한 갱신'
             +(ag.cnt===0?' <span class="sm">(카운터 0 — 다음에 통과하면 바로)</span>':'')
             +' · 빈도 «'+esc(fname)+'» — 갱신 1번에 '+(ag.p*100).toFixed(1)+'% 통과</li>'
