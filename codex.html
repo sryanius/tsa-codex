@@ -289,7 +289,7 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
     <label class="toggle" title="아직 못 가는 지역(발케인 지방)의 탐색지·몬스터·아이템까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
-    <label class="toggle" id="favwrap" title="★ 로 담아 둔 아이템만 봅니다 — 검색 · 종류 · 태그 · 특수능력 조건은 무시합니다(잠긴 지역만 따름)"><input type="checkbox" id="favonly"> ★ 즐겨찾기만<span id="favn"></span></label>
+    <label class="toggle" id="favwrap" title="★ 로 담아 둔 아이템만 봅니다 — 검색 · 종류 · 태그 · 특수능력 조건은 무시합니다(잠긴 지역만 따름)"><input type="checkbox" id="favonly"> ★ 즐겨찾기만<span id="favn" style="display:inline"></span></label>
     <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
       <select id="psort" aria-label="탐색지 정렬">
         <option value="">레벨 순</option>
@@ -1155,11 +1155,14 @@ function revealDetail(row){
   var d=row.nextElementSibling;
   if(!d || !d.classList.contains("detail")) return;
   // rAF 는 탭이 안 보이면 안 돈다 — setTimeout 이 안전하다
+  /* ★ 위에 붙는 필터 막대(.bar · sticky)만큼 아래에 세운다 — 예전엔 줄을 화면 맨 위(8px)로 올려서
+     줄과 상세 윗부분이 막대 뒤로 숨었다(2026-10-15 제작자 «클릭하면 화면이 밀린다»). */
   setTimeout(function(){
+    var bar=document.querySelector(".bar"), top=bar ? bar.offsetHeight : 0;
     var r=row.getBoundingClientRect(), b=d.getBoundingClientRect();
-    if(r.top < 0 || b.bottom > innerHeight){
+    if(r.top < top || b.bottom > innerHeight){
       // behavior:"smooth" 가 안 먹는 브라우저가 있어 즉시 옮긴다
-      scrollTo(0, Math.max(0, r.top+scrollY-8));
+      scrollTo(0, Math.max(0, r.top+scrollY-top-8));
     }
   }, 0);
 }

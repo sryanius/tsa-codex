@@ -239,10 +239,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .detail{padding:2px 14px 18px 52px;border-top:1px dashed var(--line-soft);background:var(--raised)}
 .dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:12px 22px;margin:14px 0 0}
 .dcell{display:flex;flex-direction:column;gap:2px}
-.dcell.wide{grid-column:1/-1}
-.dcell.wide dd{line-height:1.6;overflow-wrap:anywhere}
+.dcell.id2{grid-column:span 2}
+.rwline{margin:12px 0 0;font-size:13px;line-height:1.7;color:var(--ink)}
+.rwline .rwk{font-size:10.5px;letter-spacing:.08em;color:var(--faint);margin-right:2px}
+.rwline .sm{font-size:11px;color:var(--muted)}
 .dcell dt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
-.dcell dd{margin:0;font-size:13.5px;color:var(--ink);overflow-wrap:anywhere}
+.dcell dd{margin:0;font-size:13.5px;color:var(--ink);overflow-wrap:break-word}
 .dcell dd.mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-variant-numeric:tabular-nums}
 .story{
   margin:14px 0 0;padding:12px 15px;border-left:2px solid var(--line);
@@ -413,6 +415,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <option value="rep">요구 평판 낮은 순</option>
       </select>
       <label class="toggle fold"><input type="checkbox" id="undone"> 안 깬 것만</label>
+      <label class="toggle" id="favwrap" title="★ 를 눌러 담아 둔 퀘스트만 봅니다 — 마을 · 검색 · 다른 조건은 무시합니다(잠긴 지역만 따름)"><input type="checkbox" id="favonly"> ★ 즐겨찾기만<span id="favn" style="display:inline"></span></label>
       <label class="toggle fold" title="아직 못 가는 지역(발케인 지방)의 마을 의뢰까지 같이 봅니다 — 도감 · 계산기 · 시뮬과 같은 설정입니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
       <span class="count" id="count"></span>
     </div>
@@ -596,7 +599,7 @@ function daysBetween(a,b){ return Math.floor((b-a)/86400000); }
 function fmtN(v){ return v<10 ? v.toFixed(1) : String(Math.round(v)); }
 function again(x){
   var st=qstate(x), last=LASTCLEAR[x.i]||null;
-  if(x.si>=99) return isDone(x) ? {txt:"1회성 — 다시 안 뜹니다", ready:false, last:last} : null;
+  if(x.si>=99) return null;      // 1회성은 «다시 뜨는 카운터» 칸에 이미 «한 번 깨면 끝» — 상자를 따로 안 띄운다
   if(!st) return null;
   if(st.st===10) return {txt:"세이브 시점에 게시 중", ready:true, last:last};
   if(st.st===11) return {txt:"세이브 시점에 진행 중", ready:true, last:last};
@@ -667,15 +670,13 @@ FORD.concat([JOB]).forEach(function(f){
   b.onclick=function(){ state.facs[f]=!state.facs[f]; b.setAttribute("aria-pressed",state.facs[f]?"true":"false"); render(); };
   chipBox.appendChild(b);
 });
+/* «★ 즐겨찾기만» — 예전엔 시설 칩들 사이의 «즐겨찾기» 칩이라 못 찾았다(2026-10-15 제작자 «즐겨찾기만 보는 거 어디에 있어?»).
+   «안 깬 것만» 옆 체크로 옮김 · 필터를 접어도 보인다 · 도감 아이템 탭과 같은 모양 */
 (function(){
-  var b=document.createElement("button");
-  b.className="chip fav"; b.type="button"; b.id="chip-fav";
-  b.setAttribute("aria-pressed","false");
-  b.title="★ 를 눌러 담아 둔 퀘스트만 봅니다 — 마을 · 검색 · 다른 조건은 무시합니다(잠긴 지역만 따름)";
-  function label(){ b.innerHTML='<i class="dot"></i>즐겨찾기'+(favCount()?" "+favCount():""); }
+  var cb=el("favonly"), n=el("favn");
+  function label(){ var c=favCount(); n.textContent=c?" "+c:""; }
   label(); window.__favLabel=label;
-  b.onclick=function(){ state.fav=!state.fav; b.setAttribute("aria-pressed",state.fav?"true":"false"); render(); };
-  chipBox.appendChild(b);
+  cb.addEventListener("change",function(){ state.fav=cb.checked; render(); });
 })();
 [["neg","평판− 전용","var(--f-vault)","요구 평판이 음수 — 도시 평판을 마이너스로 내려야만 게시판에 뜹니다"],
   ["evil","악행 (평판↓)","var(--f-arch)","깨면 도시 평판이 떨어지는 퀘스트"]].forEach(function(c){
@@ -975,11 +976,11 @@ function detailHTML(x){
     + '<div class="dcell"><dt>인원</dt><dd class="mono">'+members(x.mem)+'</dd></div>'
     + '<div class="dcell"><dt>소요</dt><dd class="mono">'+esc(x.tm)+'</dd></div>'
     + '<div class="dcell"><dt>보상</dt><dd class="mono">'+x.gd.toLocaleString()+'G · '+x.xp.toLocaleString()+'xp · 평판 '+(x.rp>0?"+":"")+x.rp
-      + (x.fg ? '<br><span class="sm">+ 줍는 골드 '+fgSum(x).toLocaleString()+'G(아래)</span>' : '')
-      + '<br><span class="sm">반복 +N 이면 골드 · 경험치 ×(1 + N÷3) — +3 이면 2배</span></dd></div>'
-    + rewardCell(x)
-    + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
+      + (x.fg ? '<br><span class="sm">+ 줍는 골드 '+fgSum(x).toLocaleString()+'G</span>' : '')
+      + '<br><span class="sm" title="반복 보정 +N 이면 골드 · 경험치 ×(1 + N÷3)">반복 +3 이면 2배</span></dd></div>'
+    + ((x.cc!=null)?'<div class="dcell"><dt>세이브 기록</dt><dd class="mono'+((x.cc||0)>0?' hi':'')+'">'+((x.cc||0)>0?'클리어 '+x.cc+'회':'미클리어')+' <span class="sm">(status '+(x.st==null?'-':x.st)+')</span></dd></div>':'')+ '<div class="dcell id2"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(x.i)+'</dd></div>'
     + '</dl>'
+    + rewardCell(x)
     + agBlock + monHTML(x)
     + chestHTML(x)
     + goldHTML(x)
@@ -1008,11 +1009,12 @@ function rewardCell(x){
       + '<span class="sm"> ('+esc(c.src)+' · '+(how.length ? esc(how.join(" · ")) : "늘 뜸")+')</span>';
   });
   if(its.length) real.push(its.join(" · "));
-  return '<div class="dcell wide"><dt>게임 보상 문구</dt><dd>«'+esc(x.rw)+'»'
+  /* 칸(grid) 밖 한 줄 — 칸 안에 두면 줄 하나를 통째로 먹고 «내부 ID» 가 혼자 다음 줄로 밀렸다 */
+  return '<p class="rwline"><span class="rwk">게임 보상 문구</span> «'+esc(x.rw)+'»'
     + (RW_FIX[x.rw] ? ' <span class="sm">('+esc(RW_FIX[x.rw])+')</span>' : '')
-    + '<br><span class="sm">실제로는 &rarr; </span>'+real.join(" · ")
-    + (its.length ? ' <span class="sm">— 금고 · 습득물이 뜨는 조건은 아래 «보물금고 · 습득물»</span>' : '')
-    + '</dd></div>';
+    + ' <span class="rwk">&rarr; 실제로는</span> '+real.join(" · ")
+    + (its.length ? ' <span class="sm">(금고 · 습득물이 뜨는 조건은 아래)</span>' : '')
+    + '</p>';
 }
 /* 퀘스트 전투에 나오는 몬스터.
    368종 가운데 80종은 탐색지에 안 나오고 여기에만 나온다 — 발키리가 그렇다.
@@ -1370,9 +1372,10 @@ function foldSummary(){
   if(state.party) a.push(optText("party"));
   if(state.sort)  a.push(optText("sort"));
   if(state.undone) a.push("안 깬 것만");
+  if(state.fav) a.push("★ 즐겨찾기만");
   if(state.showLocked) a.push("잠긴 지역도");
   var nf=Object.keys(state.facs||{}).filter(function(k){ return state.facs[k]; }).length
-       +(state.fav?1:0)+(state.neg?1:0)+(state.evil?1:0);
+       +(state.neg?1:0)+(state.evil?1:0);
   if(nf) a.push("칩 "+nf);
   return a;
 }
@@ -1471,11 +1474,14 @@ function revealDetail(row){
   var d=row.nextElementSibling;
   if(!d || !d.classList.contains("detail")) return;
   // rAF 는 탭이 안 보이면 안 돈다 — setTimeout 이 안전하다
+  /* ★ 위에 붙는 필터 막대(.bar · sticky)만큼 아래에 세운다 — 예전엔 줄을 화면 맨 위(8px)로 올려서
+     줄과 상세 윗부분이 막대 뒤로 숨었다(2026-10-15 제작자 «클릭하면 화면이 밀린다»). */
   setTimeout(function(){
+    var bar=document.querySelector(".bar"), top=bar ? bar.offsetHeight : 0;
     var r=row.getBoundingClientRect(), b=d.getBoundingClientRect();
-    if(r.top < 0 || b.bottom > innerHeight){
+    if(r.top < top || b.bottom > innerHeight){
       // behavior:"smooth" 가 안 먹는 브라우저가 있어 즉시 옮긴다
-      scrollTo(0, Math.max(0, r.top+scrollY-8));
+      scrollTo(0, Math.max(0, r.top+scrollY-top-8));
     }
   }, 0);
 }
@@ -1493,8 +1499,8 @@ function toggleRow(row){
 }
 
 function gotoQuest(id){
-  state.q=id; state.town=""; state.undone=false; state.facs={};
-  el("q").value=id; el("town").value=""; el("undone").checked=false;
+  state.q=id; state.town=""; state.undone=false; state.facs={}; state.fav=false;
+  el("q").value=id; el("town").value=""; el("undone").checked=false; el("favonly").checked=false;
   Array.prototype.forEach.call(document.querySelectorAll(".chip"),function(c){ c.setAttribute("aria-pressed","false"); });
   render();
   var r=el("out").querySelector('.row[data-id="'+id.replace(/"/g,'\\"')+'"]');
