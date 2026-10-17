@@ -153,6 +153,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .blk li::before{content:"·";position:absolute;left:-12px;color:var(--faint)}
 .blk .meta{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;color:var(--muted);
   font-variant-numeric:tabular-nums}
+.blk .dropnote{margin:8px 0 0;font-size:12px;line-height:1.6;color:var(--muted)}
+.blk .dropnote a{color:var(--accent)}
 .jump{font:inherit;font-size:13px;color:var(--accent);background:none;border:0;
   border-bottom:1px dashed currentColor;padding:0;cursor:pointer}
 .jump:hover{color:var(--ink);border-bottom-style:solid}
@@ -420,6 +422,9 @@ function visPlaces(){ return D.places.filter(okPlace); }
    그래서 같은 등급의 보상이 여럿이면 서로 확률을 나눠 갖는다. */
 var FREQN={5:"항상",10:"자주",11:"곧잘",12:"가끔",13:"이따금",14:"드물게",15:"희귀",16:"초희귀"};
 function freqName(f){ return FREQN[f] || ("등급 "+(f||0)); }
+/* 드랍 확률이 «무엇 기준» 인지 — 잡을 때마다 이 확률이 아니다(2026-10-18 제작자 «희귀면 드랍률이 어케돼?»).
+   OnBattleEnd: 이긴 전투에서 잡은 적마다, 모르는 적은 RandBool 로 절반만 굴리고, 장비는 전투 기록 한 칸뿐이라 하나 나오면 멈춘다 */
+var DROPNOTE='<p class="dropnote">확률은 <b>알아본 적</b>을 잡을 때 한 번 굴리는 값입니다 &mdash; 모르는 적이면 절반으로 줄고, 장비는 한 전투에 하나까지만 나옵니다 (<a href="notes.html#known">원리 &sect;7</a>).</p>';
 function pct(p){
   if(p==null) return "—";
   if(p>=1) return p.toFixed(1)+"%";
@@ -908,7 +913,7 @@ function monDetail(m){
         +'<span class="meta"> — '+esc(d.cat)+' · '+freqName(d.f)+' <b>'+pct(d.p)+'</b>'
         +(d.cl?' · 제작등급 '+d.cl:'')+'</span>'
         +itemGist(d.n)+'</li>';
-    }).join("")+'</ul></div>' : "";
+    }).join("")+'</ul>'+DROPNOTE+'</div>' : "";
   var mp=monPlaces(m);
   var pl=mp.length? '<div class="blk"><h4>출현지 ('+mp.length+')</h4><ul>'+mp.map(function(p){
       return '<li><button type="button" class="jump" data-go="p:'+esc(p.n)+'">'+esc(p.n)+'</button>'
@@ -964,7 +969,7 @@ function itemDetail(x){
       return '<li><button type="button" class="jump" data-go="m:'+esc(d.m)+'">'+esc(d.m)+'</button>'
         +'<span class="meta"> — '+freqName(d.f)+' <b>'+pct(d.p)+'</b>'
         +(d.cl?' · 제작등급 '+d.cl:'')+'</span></li>';
-    }).join("")+'</ul></div>' : "";
+    }).join("")+'</ul>'+DROPNOTE+'</div>' : "";
   // 어디를 돌면 되는지. 떨구는 몬스터를 거쳐 탐색지까지 이어 준다.
   var ipl=itemPlaces(x);
   var pw=ipl.length? '<div class="blk"><h4>여기서 나옵니다 ('+ipl.length+')</h4><ul>'+ipl
