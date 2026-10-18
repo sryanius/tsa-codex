@@ -260,6 +260,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   background:var(--surface);margin:0 0 18px}
 .drop h3{margin:0 0 6px;font-family:"Gowun Batang",Georgia,serif;font-size:18px;color:var(--ink)}
 .drop p{margin:0 0 14px;font-size:13px;color:var(--muted)}
+/* adb 경로가 띄어쓰기 없이 길어서 폰에서 페이지를 옆으로 밀었다(375px → 434px) — 슬래시 뒤 <wbr> 에서 꺾고, 남는 긴 조각도 꺾는다 */
+.drop code{overflow-wrap:anywhere}
 .drop .btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 .card{border:1px solid var(--line);border-radius:10px;background:var(--surface);
   padding:14px 16px;margin:0 0 12px;box-shadow:var(--shadow)}
@@ -311,7 +313,7 @@ ol.how .meta{display:block;margin-top:3px}
 
   <div class="drop" id="drop">
     <h3>세이브 폴더를 고르세요</h3>
-    <p><code>adb pull /sdcard/Android/data/com.TownSoft.soulsofadventure/files</code> 로 받은 <b><code>files</code> 폴더를 통째로</b> 고르시면 됩니다. <a href="#howcard">받는 방법</a></p>
+    <p><code>adb pull /sdcard/<wbr>Android/<wbr>data/<wbr>com.TownSoft.soulsofadventure/<wbr>files</code> 로 받은 <b><code>files</code> 폴더를 통째로</b> 고르시면 됩니다. <a href="#howcard">받는 방법</a></p>
     <div class="btns">
       <label class="filebtn">폴더 열기<input type="file" id="savein" webkitdirectory directory multiple hidden></label>
       <label class="filebtn alt">파일로 고르기<input type="file" id="savein2" multiple accept=".data" hidden></label>
