@@ -207,6 +207,17 @@
       return true;
     },
 
+    /** 퀘스트 상태(게시 중 · 남은 카운터 · 모험 기록) — 퀘스트 색인의 «N번 더» 칩 · 상세 «남은 / 총» · 마지막 클리어.
+     *  세이브를 넣은 기기에만 생기던 것을 클라우드로 옮긴다(2026-10-19). 내 지도처럼 «새것이면» 받고, 받기 버튼은 강제. */
+    adoptQstate: function (p, force) {
+      var qs = p && p.qs;
+      if (!qs || !qs.q) return false;
+      var cur = ls("tsa.qstate.v1");
+      if (!force && cur && cur.at && !(String(qs.at || "") > String(cur.at))) return false;
+      ls("tsa.qstate.v1", qs);
+      return true;
+    },
+
     /**
      * 로그아웃. 기본은 «이 기기의 개인 기록까지» 지운다 —
      * 남기면 다음에 로그인한 사람이 앞사람 것을 보고 자기 행에 올려 버린다.
@@ -366,7 +377,8 @@
           done: pick("done", {}),
           crew: pick("crew", null),
           fav: pick("fav", null),     /* 담기만 하고 저장된 적이 없던 칸 */
-          explore: pick("explore", null)   /* 도감 › 지도의 «내 지도» — 세이브 화면만 담아 온다 */
+          explore: pick("explore", null),   /* 도감 › 지도의 «내 지도» — 세이브 화면만 담아 온다 */
+          qs: pick("qs", null)              /* 퀘스트 상태 · 남은 카운터 · 모험 기록 — 세이브 화면만 담아 온다(2026-10-19) */
         }),
         saved_at: now, cleared: cleared, recorded: recorded, updated_at: now
       };

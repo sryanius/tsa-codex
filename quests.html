@@ -629,12 +629,16 @@ window.addEventListener("storage", function(e){
 });
 
 /* ── 세이브가 아는 퀘스트 상태 ────────────────────────────────────── */
-var QS=null;
-try{ QS=JSON.parse(localStorage.getItem("tsa.qstate.v1")||"null"); }catch(e){}
-var LASTCLEAR={};
-if(QS && QS.hist) QS.hist.forEach(function(h){
-  if(h.ok && h.q && !LASTCLEAR[h.q]) LASTCLEAR[h.q]=h.at;   // hist 는 최신순이다
-});
+var QS=null, LASTCLEAR={};
+/* 클라우드로 늦게 온 것도 다시 읽는다(__TSA_ON_QSTATE) — 세이브를 넣은 기기가 아니면 클라우드에서만 온다 */
+function loadQS(){
+  QS=null; LASTCLEAR={};
+  try{ QS=JSON.parse(localStorage.getItem("tsa.qstate.v1")||"null"); }catch(e){}
+  if(QS && QS.hist) QS.hist.forEach(function(h){
+    if(h.ok && h.q && !LASTCLEAR[h.q]) LASTCLEAR[h.q]=h.at;   // hist 는 최신순이다
+  });
+}
+loadQS();
 function qstate(x){ return (QS&&QS.q)?QS.q[x.i]:null; }
 function dayStr(d){
   return d.getFullYear()+"-"+("0"+(d.getMonth()+1)).slice(-2)+"-"+("0"+d.getDate()).slice(-2);
@@ -1686,6 +1690,7 @@ function applyState(p){
 // 화면에서 손댄 값(시설 레벨·수동 체크)은 조용히 클라우드에 올린다.
 function cloudStatus(extra){ /* 이 페이지에는 표시할 자리가 없다 */ }
 window.__TSA_STATE={gather:gatherState, apply:applyState};
+window.__TSA_ON_QSTATE=function(){ loadQS(); render(); };
 window.__TSA_ON_CLOUD_PROGRESS=function(p){
   applyState(p);
   var n=0; for(var k in (p.q||{})) n++;
@@ -2345,6 +2350,8 @@ window.__TSA_MAPIMG = function(id){
     C.getProgress().then(function(p){
       // 내 지도 — 다른 기기에서 넣은 세이브의 연 칸. 이 기기 것보다 새것일 때만 바꾸고, 바뀌면 지도를 다시 그린다.
       if(p && C.adoptExplore && C.adoptExplore(p, false) && window.__TSA_ON_EXPLORE) window.__TSA_ON_EXPLORE();
+      // 퀘스트 상태 · 남은 카운터 — 세이브를 다른 기기에서 넣었으면 여기로 온다(색인의 «N번 더» 칩)
+      if(p && C.adoptQstate && C.adoptQstate(p, false) && window.__TSA_ON_QSTATE) window.__TSA_ON_QSTATE();
       if(p && window.__TSA_ON_CLOUD_PROGRESS) window.__TSA_ON_CLOUD_PROGRESS(p);
       else if(window.__TSA_CLOUD_STATUS) window.__TSA_CLOUD_STATUS("클라우드에 저장된 것이 없습니다");
     }).catch(function(e){
