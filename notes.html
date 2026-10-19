@@ -336,23 +336,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">설치된 APK 에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서,
-      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다 &mdash; 7.2(versionCode 145)에서 이 문서가 근거로 쓴 함수 112개를 명령 하나하나 1:1 로 대조해 본문이 같음을 확인했습니다. 식과 수치는 그대로이고 주소만 함수마다 조금씩 밀렸습니다. 7.3(versionCode 146)에서는 이 사이트가 근거로 든 함수 256개를 다시 대조했고 253개는 본문이 같습니다. 달라진 것은 반격(<code>PhysicsAttack</code> &mdash; <a href="#wtrait">반격 뒤 추가 속성</a>)과 턴 끝 HP 회복(<code>Character.AutoHealHp</code> &mdash; 잠긴 직업 치유사 몫)이고, 나머지 하나는 데이터 판번호(7020 &rarr; 7030)입니다.</p>
+      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다 &mdash; 7.2(versionCode 145)에서 이 문서가 근거로 쓴 함수 112개를 명령 하나하나 1:1 로 대조해 본문이 같음을 확인했습니다. 식과 수치는 그대로이고 주소만 함수마다 조금씩 밀렸습니다. 7.4(versionCode 147)에서는 이 사이트가 근거로 든 함수 256개를 다시 대조했고 253개는 본문이 같습니다. 달라진 것은 반격(<code>PhysicsAttack</code> &mdash; <a href="#wtrait">반격 뒤 추가 속성</a>)과 턴 끝 HP 회복(<code>Character.AutoHealHp</code> &mdash; 잠긴 직업 치유사 몫)이고, 나머지 하나는 데이터 판번호(7020 &rarr; 7030)입니다.</p>
     <p class="lede" style="margin-top:10px"><b>여기는 «왜 그런가» 만 답합니다.</b>
       무엇을 입고 무엇을 켤지는 <a href="builds.html">빌드</a> 에 있습니다.
       식과 상수는 이 문서에 <b>한 벌만</b> 두고, 빌드는 결과값과 링크만 들고 갑니다.</p>
     <dl class="dim">
-      <div><dt>몬스터</dt><dd>371 <span>/ 399</span></dd></div>
-      <div><dt>탐색지</dt><dd>330 <span>/ 375</span></dd></div>
-      <div><dt>퀘스트</dt><dd>1,495</dd></div>
-      <div><dt>장비</dt><dd>820 <span>방 338 · 무 482</span></dd></div>
+      <div><dt>몬스터</dt><dd>371 <span>/ 408</span></dd></div>
+      <div><dt>탐색지</dt><dd>330 <span>/ 376</span></dd></div>
+      <div><dt>퀘스트</dt><dd>1,531</dd></div>
+      <div><dt>장비</dt><dd>822 <span>방 339 · 무 483</span></dd></div>
       <div><dt>직업</dt><dd>36 <span>/ 40</span></dd></div>
-      <div><dt>스킬</dt><dd>166 <span>배우는 것 37 / 43</span></dd></div>
+      <div><dt>스킬</dt><dd>168 <span>배우는 것 37 / 43</span></dd></div>
     </dl>
     <p class="lede" style="margin-top:0;font-size:13px;color:var(--muted)">
       앞의 수가 <b>지금 갈 수 있는 곳</b> 기준입니다 &mdash; 발케인 지방은 데이터만 실려 있고 아직 못 갑니다
       (<code>LastMapLevel</code> 이 7 입니다). <b>본문에서는 분모를 다시 적지 않습니다.</b></p>
-    <nav class="toc tabs" aria-label="절"><a href="#dice" data-sec="dice" data-upd="2026-10-06">굴림<i class="dot" aria-hidden="true"></i></a><a href="#stat" data-sec="stat" data-upd="2026-10-03">수치<i class="dot" aria-hidden="true"></i></a><a href="#job" data-sec="job" data-upd="2026-10-06">직업<i class="dot" aria-hidden="true"></i></a><a href="#pers" data-sec="pers" data-upd="2026-10-10">성격<i class="dot" aria-hidden="true"></i></a><a href="#hit" data-sec="hit" data-upd="2026-10-11">전투 ① 맞나<i class="dot" aria-hidden="true"></i></a><a href="#dmg" data-sec="dmg" data-upd="2026-10-06">전투 ② 아픈가<i class="dot" aria-hidden="true"></i></a><a href="#magic" data-sec="magic" data-upd="2026-10-09">전투 ③ 마법<i class="dot" aria-hidden="true"></i></a><a href="#check" data-sec="check" data-upd="2026-10-06">판정 한 틀<i class="dot" aria-hidden="true"></i></a><a href="#board" data-sec="board" data-upd="2026-10-15">평판과 게시판<i class="dot" aria-hidden="true"></i></a><a href="#event" data-sec="event" data-upd="2026-10-03">이벤트 추첨<i class="dot" aria-hidden="true"></i></a><a href="#craft" data-sec="craft" data-upd="2026-10-06">강화<i class="dot" aria-hidden="true"></i></a><a href="#fac" data-sec="fac" data-upd="2026-10-10">시설<i class="dot" aria-hidden="true"></i></a><a href="#farm" data-sec="farm" data-upd="2026-10-10">탐색지 쩔<i class="dot" aria-hidden="true"></i></a><a href="#cond" data-sec="cond" data-upd="2026-10-10">후유증<i class="dot" aria-hidden="true"></i></a><a href="#va" data-sec="va" data-upd="2026-10-06">부록 · 주소표<i class="dot" aria-hidden="true"></i></a><a href="#todo" data-sec="todo" data-upd="2026-10-03">부록아직 확인 못 한 것<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
-    <p class="docdate">마지막 갱신 <b>2026-10-15</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
+    <nav class="toc tabs" aria-label="절"><a href="#dice" data-sec="dice" data-upd="2026-10-06">굴림<i class="dot" aria-hidden="true"></i></a><a href="#stat" data-sec="stat" data-upd="2026-10-03">수치<i class="dot" aria-hidden="true"></i></a><a href="#job" data-sec="job" data-upd="2026-10-06">직업<i class="dot" aria-hidden="true"></i></a><a href="#pers" data-sec="pers" data-upd="2026-10-19">성격<i class="dot" aria-hidden="true"></i></a><a href="#hit" data-sec="hit" data-upd="2026-10-19">전투 ① 맞나<i class="dot" aria-hidden="true"></i></a><a href="#dmg" data-sec="dmg" data-upd="2026-10-19">전투 ② 아픈가<i class="dot" aria-hidden="true"></i></a><a href="#magic" data-sec="magic" data-upd="2026-10-19">전투 ③ 마법<i class="dot" aria-hidden="true"></i></a><a href="#check" data-sec="check" data-upd="2026-10-19">판정 한 틀<i class="dot" aria-hidden="true"></i></a><a href="#board" data-sec="board" data-upd="2026-10-19">평판과 게시판<i class="dot" aria-hidden="true"></i></a><a href="#event" data-sec="event" data-upd="2026-10-19">이벤트 추첨<i class="dot" aria-hidden="true"></i></a><a href="#craft" data-sec="craft" data-upd="2026-10-19">강화<i class="dot" aria-hidden="true"></i></a><a href="#fac" data-sec="fac" data-upd="2026-10-10">시설<i class="dot" aria-hidden="true"></i></a><a href="#farm" data-sec="farm" data-upd="2026-10-19">탐색지 쩔<i class="dot" aria-hidden="true"></i></a><a href="#cond" data-sec="cond" data-upd="2026-10-10">후유증<i class="dot" aria-hidden="true"></i></a><a href="#va" data-sec="va" data-upd="2026-10-06">부록 · 주소표<i class="dot" aria-hidden="true"></i></a><a href="#todo" data-sec="todo" data-upd="2026-10-03">부록아직 확인 못 한 것<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <p class="docdate">마지막 갱신 <b>2026-10-19</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
 
   <main class="doc">
@@ -526,9 +526,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <span class="sm">종족마다 못 고르는 직업도 데이터에 있습니다 &mdash; 풋워커는 마도병 · 암흑마법사 · 풍현사 · 성창사 · 마궁사 · 정령사 · 견습/숙련된 마법사 · 견습/숙련된 성직자, 엘프는 견습/숙련된 성직자 · 성창사를 못 고릅니다(<a href="meta.html?v=job">클래스 표</a>).</span></div>
   <p class="src">Job.MaxLevel · Character.MaxLevel · Job.NeedNextExp · Character.SumOtherJobLevels · Character.CanEquip · Character.CanEquipWeapons(풋워커 활) · Character.CanEquipArmors(엘프 부적)</p>
   </section>
-<section class="sec" id="sec-pers" data-sec="pers" data-upd="2026-10-10">
+<section class="sec" id="sec-pers" data-sec="pers" data-upd="2026-10-19">
   <h2 id="pers"><span class="n">4</span>성격 &mdash; 능력치에는 안 붙지만 <b>일곱 곳</b>에서 굴립니다</h2>
-  <p class="secdate">2026-10-10 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <p>성격은 공격력·방어력 어디에도 더해지지 않습니다. 대신 <b>일곱 군데</b>에서 판정에 들어갑니다. 파티가 살아 돌아오느냐를 가르는 것은 앞의 둘 &mdash; «언제 물러날지» 와 «언제 회복할지» 입니다.</p>
   <table class="t"><thead><tr><th>성격</th><th class="num">후퇴 기준점<br><span style="font-weight:400">4인 생존</span></th><th class="num">회복 마법<br><span style="font-weight:400">이 HP 이하에</span></th><th class="num">리더 보너스<br><span style="font-weight:400">발견·탐지·선제</span></th></tr></thead><tbody>
   <tr><td><b>무모한</b></td><td class="num"><b>없음</b></td><td class="num">50%</td><td class="num"><b>+3</b></td></tr>
@@ -655,7 +655,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h3>회복 마법을 언제 쓰는가</h3>
   <p>회복 주문의 설명문에 «시전자의 성격에 따라 사용 타이밍이 달라집니다» 라고 적혀 있는 그 부분입니다. <b>시전자</b>의 성격이 기준선을 올립니다.</p>
-  <p><b>게임 안의 모든 스킬이 같은 기본값(50%)에서 시작합니다</b> &mdash; 7.3 스킬 166건 전수가 <code>healTiming = 5</code> 입니다.
+  <p><b>게임 안의 모든 스킬이 같은 기본값(50%)에서 시작합니다</b> &mdash; 7.4 스킬 168건 전수가 <code>healTiming = 5</code> 입니다.
      그래서 실제로는 <b>시전자의 성격</b>만 남습니다: <b>신중한 70% · 합리적/신경질적 60% · 나머지 50%</b>.</p>
   <div class="eq">다친 사람으로 센다  &hArr;  HP &lt; 최대 HP 이고, 아래 중 하나
                  HP &le; 최대 HP &times; (위 50 · 60 · 70%)
@@ -727,9 +727,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      FlatterCompatibility 0x26DF4D0(TownScene.ShowLoingBonus 50 · GameData.LoginBonus 0x2770978 의 일 · 월 · 년 비교 / Party.Create 5) &middot; HalfCompatibility 0x26DDE44(Character.Revive) &middot;
      Party.UpdateCompatibilityFromEvent 0x26F9A28(나쁜 사건 = 사건 결과 2 · 살아 있는 인원 2 미만이면 건너뜀)</p>
   </section>
-<section class="sec" id="sec-hit" data-sec="hit" data-upd="2026-10-11">
+<section class="sec" id="sec-hit" data-sec="hit" data-upd="2026-10-19">
   <h2 id="hit"><span class="n">5</span>전투 ① &mdash; 맞나 안 맞나</h2>
-  <p class="secdate">2026-10-11 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <div class="note"><b>맞느냐 빗나가느냐는 값 비교입니다. 확률이 아닙니다.</b>
      <code>회피 &ge; 명중 + 2</code> 면 <b>무조건</b> 빗나갑니다.</div>
   <p>그리고 <b>몬스터 쪽에는 주사위가 없습니다.</b> 캐릭터만 2d6 을 굴립니다 &mdash;
@@ -771,7 +771,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 
   <h3 id="dodgeline">지역별 완봉선 &mdash; 회피값이 얼마면 되나</h3>
   <p><b>자유 탐색과 퀘스트는 필요치가 크게 다릅니다.</b>
-     자유 탐색은 몇 번을 가도 몬스터 레벨이 그대로지만, 퀘스트는 반복해 깰수록 올라갑니다(대개 +3 까지 &mdash; 의뢰 1,495개 중 1,377개).
+     자유 탐색은 몇 번을 가도 몬스터 레벨이 그대로지만, 퀘스트는 반복해 깰수록 올라갑니다(대개 +3 까지 &mdash; 의뢰 1,531개 중 1,413개).
      아래는 그 지역에서 가장 잘 맞히는 놈의 평타 명중입니다 &mdash; <b>완봉선이 이 수 이상</b>이면 평타를 한 대도 안 맞습니다.</p>
   <table class="t"><thead><tr><th>지역</th><th class="num">자유 탐색</th><th class="num">퀘스트 <span style="font-weight:400">(+3)</span></th></tr></thead><tbody>
   <tr><td>미스토리아 반도</td><td class="num">13</td><td class="num">21</td></tr>
@@ -840,9 +840,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      마법 피해도, 상태이상도 회피 판정을 거치지 않습니다.
      그리고 <b>민첩이 정하는 것은 회피와 «행동 순서» 둘뿐</b>입니다.</div>
   </section>
-<section class="sec" id="sec-dmg" data-sec="dmg" data-upd="2026-10-06">
+<section class="sec" id="sec-dmg" data-sec="dmg" data-upd="2026-10-19">
   <h2 id="dmg"><span class="n">6</span>전투 ② &mdash; 얼마나 아픈가</h2>
-  <p class="secdate">2026-10-06 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <div class="eq">평타 피해 = 공격력 &minus; <b>방어력 전액</b>      <i>0 이하면 <b>35% 로 1</b></i>
 치명타     = 공격력 &minus; &lfloor;방어력 &divide; 2&rfloor;   <i>바닥이 <b>1</b> · 확률에 2% 하한(&sect;1)</i></div>
   <p><b>«전액» 이 핵심입니다.</b> 비율이 아니라 뺄셈이라, 방어를 상대 공격력까지 올리면
@@ -892,7 +892,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <b>주직업이 모래 환상 사수이고 활을 들었으면</b>   → 예   <i>// 발케인에 있어 아직 잠김</i>
 그 외에는 <b>무기 마스터의 isMagic</b>
 무기 강화 상태이상(41)이 걸려 있으면            → 무조건 예</div>
-  <div class="note"><b>마법 무기는 482자루 중 71자루(15%)입니다.</b>
+  <div class="note"><b>마법 무기는 483자루 중 72자루(15%)입니다.</b>
      활이 14자루, 단검이 9자루. <b>강화로는 마법 속성을 못 붙입니다</b>(<a href="#craft">&sect;11</a>) &mdash;
      처음부터 마법인 무기를 구해야 합니다.
      물리 무효가 37종이나 되니 <b>파티에 마법 무기를 하나는 끼워 두는 편이 안전합니다.</b></div>
@@ -942,9 +942,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p class="src">BattlePhysicalAttackExecutor.PhysicsAttack &middot; BattleSkill.PhysicsDamageSkill / DamageSkill &middot; WeaponMaster.AdditionalElementPower &middot; BattleTargetSelector.Get &middot;
      Weapon.CriticalRate &middot; Character.HealHp / FullRecover / Revive &middot; BattleTurnProcessor.OnTurnEnd &middot; AdventureMain.ExecuteTrap &middot; HospitalScene.Heal</p>
   </section>
-<section class="sec" id="sec-magic" data-sec="magic" data-upd="2026-10-09">
+<section class="sec" id="sec-magic" data-sec="magic" data-upd="2026-10-19">
   <h2 id="magic"><span class="n">7</span>전투 ③ &mdash; 마법과 상태이상</h2>
-  <p class="secdate">2026-10-09 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <div class="note"><b>마법에는 명중/회피 비교가 없습니다. 쏘면 들어갑니다.</b>
      회피탱이 마법에 약한 이유가 이것이고, 마법사가 명중을 안 챙겨도 되는 이유도 이것입니다.</div>
   <div class="eq">피해 = Rand(스킬최소, 스킬최대) + 시전자 마력
@@ -1040,7 +1040,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 <b>if</b> 마법 방어구:  v += &lfloor;레벨 &divide; 3&rfloor; + 1
 <b>if</b> 부위 == 부적:  v += <b>레벨</b>        <span class="cmt">// ★ 부적은 레벨을 통째로 받는다</span></div>
   <p>그래서 <b>부적이 압도적</b>입니다 &mdash; 늪왕의 부적(Lv29)이 <b>39</b>, 고목의 부적(Lv34)이 46 입니다.
-     마법 방어가 붙는 방어구는 <b>338개 중 118개</b> 이고, 강화로도 붙습니다.</p>
+     마법 방어가 붙는 방어구는 <b>339개 중 119개</b> 이고, 강화로도 붙습니다.</p>
   <table class="t"><thead><tr><th>부위</th><th>Lv29 까지 최고</th><th class="num">마방</th></tr></thead><tbody>
     <tr class="hi"><td><b>부적</b></td><td>늪왕의 부적 <span class="sm">Lv29</span></td><td class="num"><b>+39</b></td></tr>
     <tr><td>방패</td><td>검은 봉인의 방패 <span class="sm">Lv26</span></td><td class="num">+11</td></tr>
@@ -1082,12 +1082,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 성공 &hArr; 공격 &minus; 방어 &ge; 1</div>
   <p><code>Dice2DWithCritical</code> 은 2d6 을 굴려 더하고 <b>10 이상이 나오면 또 굴려 더합니다</b>.
      대신 <b>첫 굴림이 2 면 &minus;100</b> 으로 그 자리에서 실패합니다.
-     <span class="sm">스킬마다 성공 보정 칸이 있지만 166개 전부 0 입니다.</span></p>
+     <span class="sm">스킬마다 성공 보정 칸이 있지만 168개 전부 0 입니다.</span></p>
   <div class="note warn"><b>몬스터가 실제로 쓰는 것으로 보면</b> &mdash;
      <b>수면(슬립 미스트)·매력</b>은 <b>마법 방어</b>로 막고,
      <b>둘러싸기 · 마비 공격 · 통째로 삼키기 · 바디 슬램(대부분)</b>은 <b>힘</b>으로 막습니다.
      회피도 마법 방어도 안 통하는 자리가 있습니다.</div>
-  <p>도감 몬스터 <b>399종 중 마력이 있는 것은 119종</b>(중앙 22 · 최대 43)이고 나머지는 0 입니다 <span class="sm">(레벨 보정을 받으면 그만큼 붙습니다)</span>.
+  <p>도감 몬스터 <b>408종 중 마력이 있는 것은 120종</b>(중앙 22 · 최대 44)이고 나머지는 0 입니다 <span class="sm">(레벨 보정을 받으면 그만큼 붙습니다)</span>.
      마력 0 짜리가 거는 상태이상은 저항값만 조금 있어도 거의 안 걸립니다.</p>
   <table class="t"><thead><tr><th>내 저항값<br><span class="sm">(힘 또는 마법 방어)</span></th><th>마력 0</th><th>마력 10</th><th>마력 20 <span class="sm">(중앙)</span></th><th>마력 30</th></tr></thead><tbody>
     <tr><td>0</td><td>46%</td><td>97%</td><td>97%</td><td>97%</td></tr>
@@ -1124,9 +1124,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <p class="src">BattleTurnProcessor.CheckKnown &middot; Character.IsKnown &middot; Character.ClearUnknownMonsters &middot;
      Building.IsExistMonsterLibraryEntry &middot; MonsterLibraryScrollView.RegisterMonster &middot; BattleTurnProcessor.OnBattleEnd</p>
   </section>
-<section class="sec" id="sec-check" data-sec="check" data-upd="2026-10-06">
+<section class="sec" id="sec-check" data-sec="check" data-upd="2026-10-19">
   <h2 id="check"><span class="n">8</span>판정 한 틀 &mdash; 금고 · 함정 · 선제공격</h2>
-  <p class="secdate">2026-10-06 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <p>여섯 판정 중 다섯이 <b>같은 틀</b>이고, 선제공격만 틀이 다릅니다(아래). 한 번만 적고, 차이는 표로 냅니다.</p>
   <div class="eq"><b>내 값</b>  = Dice2DWithCritical(10) + 담당 직업 레벨 + (리더 보너스) + &lfloor;흔들림(스탯) &divide; 6&rfloor;
           <i>// ★ 스탯은 6 으로 나눈 몫만 들어갑니다 — 재주 53 이면 8, 통찰 51 이면 7(52 부터 8).
@@ -1161,7 +1161,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
        <li>우리 선제에 실패하면 <b>한 번 더</b> 굴려, 그것이 «몬스터 값 + addLevel»(+8 · 2d6 없이)에도 못 미치면 <b>몬스터가 선제</b>합니다. 닿으면 아무도 선제하지 않습니다.</li>
      </ul></div>
   <div class="note warn"><b>★ 함정은 도적 전용이 아닙니다.</b>
-     함정마다 «누가 탐지하는지» 가 따로 정해져 있고(138종 &mdash; 레인저 66 · 도적 53 · 현자 19),
+     함정마다 «누가 탐지하는지» 가 따로 정해져 있고(140종 &mdash; 레인저 67 · 도적 54 · 현자 19),
      <b>레인저가 가장 많습니다.</b> 도적만 키우면 절반 넘게 못 봅니다.
      <b>해제</b>까지 해야 하는 함정은 17종(전부 도적 담당 · 물리 13 은 재주, 효과형 4 는 통찰)뿐이고, 나머지는 탐지만 하면 피합니다.</div>
   <div class="note"><b>리더 보너스는 «찾는» 쪽에만 붙습니다</b> &mdash; 금고 발견 · 함정 탐지에는 붙고, <b>금고 해제 · 함정 해제에는 안 붙습니다.</b>
@@ -1235,19 +1235,24 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      그리고 <b>발견값이 0 인 금고가 86%</b>(923개)라 발견 확정선은 사실상 <b>«퀘스트 레벨 + 9»</b> 이고,
      지역이 올라갈수록 어려워지는 것은 <b>발견값이 아니라 퀘스트 레벨 때문</b>입니다.</div>
   </section>
-<section class="sec" id="sec-board" data-sec="board" data-upd="2026-10-15">
+<section class="sec" id="sec-board" data-sec="board" data-upd="2026-10-19">
   <h2 id="board"><span class="n">9</span>평판과 게시판 &mdash; 원하는 퀘스트가 왜 안 뜨나</h2>
-  <p class="secdate">2026-10-15 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <p><b>요구 평판은 부호에 따라 방향이 반대입니다.</b> 양수는 «그 값 이상»이라야 뜨는 하한이고, 음수는 «그 값 이하»여야 뜨는 상한입니다. 그래서 선행 체인을 하나로 합칠 수 없어, 퀘스트 색인에서는 <b>▲ 한 번은 올려야 하는 평판</b>과 <b>▼ 한 번은 내려가야 하는 평판</b>을 따로 계산합니다.</p>
   <h3>평판이 오르다 멈추는 이유</h3>
   <div class="eq">퀘스트 레벨 = master.level + Min(addLevel, master.maxAddLevel)
 평판 상한   = 5 × (퀘스트 레벨 − TownMaster.maxReputationLevel + 1)   <i>// 최소 5</i>
 
-if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      <i>// 최대 99</i></div>
+if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      <i>// 최대 99</i>
+if (현재 평판 &lt; 0)            현재 평판 += 1                      <i>// ★ 7.4 부터 — 깼는데도 아직 음수면 1 더</i></div>
   <p>낮은 레벨 퀘스트를 아무리 반복해도 평판이 어느 선에서 멈추는 이유입니다. 천장이 <b>5 단위</b>로 올라갑니다.
      «상한 &ge; 현재» 일 때 더하므로 <b>상한에 닿은 채로 한 번은 더 오릅니다</b>(실질 최대 = 상한 + 보상).
      실패했을 때 평판이 어떻게 깎이는지는 <a href="regions.html#how">지역 &sect;0</a> 에 있습니다.</p>
-  <p class="src">Town.MaxReputation 0x275D3A0 · Town.ApplyReputationChange 0x275D1B4</p>
+  <div class="note"><b>7.4 부터 음수 평판에서 빠져나오기가 쉬워졌습니다.</b>
+     보상이 양수인 의뢰를 깼는데도 평판이 아직 0 아래면 <b>1 이 더</b> 붙습니다 &mdash; −15 에서 +1 짜리 의뢰를 깨면 −14 가 아니라 −13,
+     +2 짜리면 −12 입니다. 0 에 닿는 그 판에는 붙지 않습니다(−1 에서 +1 이면 0).
+     <span class="sm">게임 업데이트 내역의 «평판이 마이너스일 때 0 으로 돌아가기 쉽게 수정» 이 이것입니다. 음수 보상 의뢰(바닥 −15)와 실패 감점은 그대로입니다.</span></div>
+  <p class="src">Town.MaxReputation 0x275D3A0 · Town.ApplyReputationChange 0x275D1B4 · 7.4 의 «음수면 +1» 은 7.4 주소 0x275D4BC(tbnz) &rarr; 0x275D58C</p>
 
   <h3 id="showlevel">★ 화면의 퀘스트 레벨은 판정에 쓰는 레벨이 아닙니다</h3>
   <p><b>이것 하나로 «35레벨을 했는데 평판이 안 오른다» 가 전부 설명됩니다.</b>
@@ -1375,9 +1380,9 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      AdventureMain.RunQuest 0x27225A0~0x27226E4(GoldFound 60 · ×0x66666667 &gt;&gt;34 = &divide;10 · CreateRandomValue · Party.rewardGold +0x94) ·
      AdventureResultDialog.Finish 0x287A59C(rewardGold 를 먼저 소지금에 · Status 12 완료면 RewardGold · 경험치 완료 아니면 &divide;2 · AliveCharacters 로 나눔 · 최소 1)</p>
   </section>
-<section class="sec" id="sec-event" data-sec="event" data-upd="2026-10-03">
+<section class="sec" id="sec-event" data-sec="event" data-upd="2026-10-19">
   <h2 id="event"><span class="n">10</span>이벤트 추첨 &mdash; 금고가 «로그 한 줄 없이» 안 뜨는 이유</h2>
-  <p class="secdate">2026-10-03 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <p>«여기 뭔가 있는 것 같았는데... 제 상상이었나 봅니다.»(발견 실패)도, «보물 상자가 잠겨서 열 수 없습니다.»(해제 실패)도 없이
      그냥 넘어가는 경우가 있습니다. <b>금고의 발견·해제 판정에 진 것이 아니라 이벤트가 시작되지도 않은 것</b>입니다.
      이벤트는 이 순서로 골라집니다.</p>
@@ -1387,7 +1392,7 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
 <b>3</b> 후보 = 후보 중 <b>빈도가 «항상» 이거나 freq 와 «정확히 같은»</b> 것
 <b>4</b> 후보가 <b>하나도 없으면 &mdash; 아무것도 안 적고 끝냅니다</b>
 <b>5</b> 여럿이면 <b>하나만</b> 고릅니다   <i>// 요구 평판이 걸린 것 먼저, 아니면 목록 순서</i></div>
-  <div class="note warn"><b>★ 금고 1,183개 중 898개(76%)는 «리더 통찰 판정» 을 이겨야 후보가 됩니다.</b>
+  <div class="note warn"><b>★ 금고 1,188개 중 903개(76%)는 «리더 통찰 판정» 을 이겨야 후보가 됩니다.</b>
      그 틱에 한 번, <b>파티 리더 한 사람</b>이 굴립니다 &mdash;
      <b>현자 레벨 + &lfloor;흔든 통찰 &divide; 6&rfloor; + 2d6 &ge; 퀘스트 진짜 레벨 + 보정 + 2d6</b>
      (보정은 금고마다 &minus;2~+4, 대부분 0). 지면 <b>아무 문구 없이</b> 지나갑니다. 도둑 레벨 · 재주는 들어가지 않습니다.
@@ -1407,8 +1412,8 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
     <tr><td>드물게 <span class="sm">Infrequently</span></td><td class="num">1.76%</td><td class="num">1</td></tr>
   </tbody></table>
 
-  <div class="note"><b>금고 1,183개 중 162개(14%)가 «항상» 이 아닙니다.</b>
-     금고가 있는 퀘스트 <b>833개</b> 중 <b>76개</b>는 «항상» 금고가 하나도 없어서,
+  <div class="note"><b>금고 1,188개 중 167개(14%)가 «항상» 이 아닙니다.</b>
+     금고가 있는 퀘스트 <b>835개</b> 중 <b>78개</b>는 «항상» 금고가 하나도 없어서,
      운이 나쁘면 그 퀘스트에서 금고 이야기를 <b>한 줄도 못 봅니다</b>.</div>
   <h4 style="font-size:13px;margin:20px 0 8px">★ 추첨은 «이벤트마다 딱 한 번» 입니다</h4>
   <p>「매 순간 굴리니까 언젠가는 뜨겠지」 가 아닙니다. <b>이벤트마다 기회가 한 번뿐</b>입니다.</p>
@@ -1450,9 +1455,9 @@ if (평판 상한 &gt;= 현재 평판)  현재 평판 += master.reputation      
      QuestEventEntry.IsEventScheduled 0x2717904 &middot; FrequencyExtensions.GetRandom 0x275EB50 &middot;
      OpenTreasureBox 0x27252B8 &middot; 금고 수는 발케인 마을 의뢰를 뺀 퀘스트 전수(길드 의뢰 28개 포함) &middot; 문구는 세이브 모험 기록</p>
   </section>
-<section class="sec" id="sec-craft" data-sec="craft" data-upd="2026-10-06">
+<section class="sec" id="sec-craft" data-sec="craft" data-upd="2026-10-19">
   <h2 id="craft"><span class="n">11</span>강화 &mdash; 무엇이 붙고 몇 단계가 붙나</h2>
-  <p class="secdate">2026-10-06 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
   <div class="note"><b>강화는 장비 하나에 딱 한 번입니다.</b>
      대장간에서 다이아를 내고 하며, <b>대장간 레벨보다 높은 장비는 못 합니다.</b>
      한 번 하면 <code>isCrafted</code> 가 켜져 다시 못 합니다 &mdash; 되돌리는 길도 없습니다.</div>
@@ -1507,7 +1512,7 @@ RunCraft(craft)</div>
   <tr><td>최대 방어 +1~5 · 방어 +1~4 · <b>회피 +1</b> · 민첩 +2~4 <span class="meta">(넷이 함께 오름)</span></td><td class="num"><b>5%</b></td></tr>
   <tr><td><b>매 단계</b></td><td>민첩 <b>+1~2</b></td><td class="num">언제나</td></tr>
   <tr><td><b>i = 2</b> &mdash; 모든 방어구<br><span class="meta" style="font-size:11.5px;color:var(--faint)">옷은 i = 1 · 3 에서도</span></td><td><b>회피 +1~2</b></td><td class="num"><b>언제나</b></td></tr>
-  <tr><td><b>i = 3</b>, 또는 <b>마법 방어구</b>는 매 단계<br><span class="meta" style="font-size:11.5px;color:var(--faint)">338종 중 60종</span></td><td>생명점 +Rand(L/2)+1 · 마나 +Rand(L/3)+1 · 마법 방어 +Rand(L/3)+1 · 지능 +Rand(L/5)+1 <span class="meta">(L = 장비 레벨 · 넷이 따로 오름)</span></td><td class="num">언제나</td></tr>
+  <tr><td><b>i = 3</b>, 또는 <b>마법 방어구</b>는 매 단계<br><span class="meta" style="font-size:11.5px;color:var(--faint)">339종 중 61종</span></td><td>생명점 +Rand(L/2)+1 · 마나 +Rand(L/3)+1 · 마법 방어 +Rand(L/3)+1 · 지능 +Rand(L/5)+1 <span class="meta">(L = 장비 레벨 · 넷이 따로 오름)</span></td><td class="num">언제나</td></tr>
   <tr><td><b>i = 5</b> 이고 이미 자동회복이 붙어 있을 때<br><span class="meta" style="font-size:11.5px;color:var(--faint)">데이터상 19종</span></td><td>HP 자동회복 <b>+1</b></td><td class="num">10%</td></tr>
   <tr><td><b>방패</b> (매 단계)</td><td>방패 방어 +1 <span class="meta">(최소&lt;최대/2 일 때)</span> · <b>방패 회피 +1</b></td><td class="num">언제나</td></tr>
   </tbody></table>
@@ -1643,15 +1648,15 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
   <p>무기·방어구 상점은 레벨마다 재고가 통째로 갈립니다. 대체로 <b>레벨 1칸 = 아이템 레벨 1칸</b> 이고, 출발점은 도시마다 다릅니다 — 실바드 타운·브란샤르는 Lv0, 군벨 마을·밀레아 마을은 Lv9, 자르간트·노르그레이는 Lv30 부터 시작합니다. <a href="meta.html?v=town">도시 시설 표</a>에 레벨별로 무엇을 파는지 적혀 있습니다.</p>
   <p class="src">GameSettings.MaxGold · EquipmentsMaxCount · GameData.MaxCharacterCount · MaxRetireCharacterCount · Character.HealingCost · Character.CreateParam · InviteAdventureDialog.TapInviteButton(셋째 항 = 지원자 personality)</p>
   </section>
-<section class="sec" id="sec-farm" data-sec="farm" data-upd="2026-10-10">
+<section class="sec" id="sec-farm" data-sec="farm" data-upd="2026-10-19">
   <h2 id="farm"><span class="n">13</span>탐색지 쩔 &mdash; 전투는 «불려 나와서» 늘어납니다</h2>
-  <p class="secdate">2026-10-10 갱신</p>
+  <p class="secdate">2026-10-19 갱신</p>
 <p><b>몬스터가 «바로바로» 나오는 것은 탐색지가 아니라 몬스터의 «부름» 때문입니다.</b>
      <b>카샨</b>(Lv28 · 발두나)은 1~2턴 만에 같은 편을 불러내고,
      <b>롱넥 글레이저</b>(Lv33 · 칼레바스 라펠 계곡)는 빈사가 되기 전에는 안 부릅니다.
      두 탐색지가 전투를 거는 속도는 <b>소수점까지 같습니다</b>(①).</p>
 
-  <h3>① 탐색지가 전투를 거는 속도 &mdash; 375곳 중 332곳이 똑같습니다</h3>
+  <h3>① 탐색지가 전투를 거는 속도 &mdash; 376곳 중 333곳이 똑같습니다</h3>
   <div class="eq"><b>AdventureMain.GetWanderingMonsterGroup</b>
   monsterGroups 를 <b>frequency 로 GroupBy</b> &rarr; <b>간격 짧은 등급부터</b>(OrderBy) 등급마다 <code>RandSuccess(1, iv)</code> 를 <b>한 번씩</b>
   iv = 표[freq &minus; 5] &divide; AdventureInterval(<b>10</b>)
@@ -1664,7 +1669,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
     <tr><td>Usually(10)</td><td class="num">5.882%</td><td class="num">2.8분</td></tr>
     <tr><td>Often(11)</td><td class="num">4.000%</td><td class="num">4.2분</td></tr>
     <tr><td>Sometimes(12)</td><td class="num">1.961%</td><td class="num">8.5분</td></tr>
-    <tr class="hi"><td><b>Occasionally(13)</b> <span class="sm">&larr; 그룹 764개 중 719개</span></td><td class="num"><b>0.980%</b></td><td class="num"><b>17.0분</b></td></tr>
+    <tr class="hi"><td><b>Occasionally(13)</b> <span class="sm">&larr; 그룹 766개 중 721개</span></td><td class="num"><b>0.980%</b></td><td class="num"><b>17.0분</b></td></tr>
     <tr><td>Infrequently(14)</td><td class="num">0.488%</td><td class="num">34.2분</td></tr>
     <tr style="color:var(--faint)"><td>Rare(15) · SuperRare(16)</td><td class="num">0.162% · 0.041%</td><td class="num">1.7 · 6.9시간</td></tr>
   </tbody></table>
@@ -1674,8 +1679,8 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      같은 탐색지가 퀘스트를 물고 가면 2시간, 그냥 탐색만 보내면 <b>17분</b>입니다.
      쩔을 시킬 거면 <b>퀘스트를 안 물리는 것</b>이 가장 큰 레버입니다.</div>
   <div class="note"><b>그리고 탐색지로는 거의 못 고릅니다.</b>
-     탐색지 375곳 · 그룹 764개 중 <b>Always 그룹은 하나도 없고</b> 94.1%가 Occasionally 입니다.
-     <b>332곳이 0.980%/틱(17.0분)으로 동률</b>이고, 카샨의 세 곳도 라펠 계곡도 전부 여기 있습니다.
+     탐색지 376곳 · 그룹 766개 중 <b>Always 그룹은 하나도 없고</b> 94.1%가 Occasionally 입니다.
+     <b>333곳이 0.980%/틱(17.0분)으로 동률</b>이고, 카샨의 세 곳도 라펠 계곡도 전부 여기 있습니다.
      <span class="sm">같은 등급 그룹이 둘이어도 <code>GroupBy</code> 로 묶여 «한 번만» 굴립니다 &mdash;
      확률을 올리는 것은 «서로 다른 등급» 을 하나 더 갖는 것뿐입니다.</span></div>
   <div class="note"><b>가장 빠른 곳은 5.7분짜리 두 곳</b>입니다 &mdash;
@@ -2173,7 +2178,7 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 </script>
 
   <footer class="foot">
-    <p>이 문서는 <b>7.3</b>(versionCode 146) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
+    <p>이 문서는 <b>7.4</b>(versionCode 147) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
        <a href="save.html">내 세이브</a> 에 세이브를 넣으면 판번호가 달라졌는지 알려 줍니다.</p>
     <p style="margin-top:6px">회피식과 화면 수치는 <code>avoidcheck.py</code> · <code>statcheck.mjs</code> 가
        매 빌드마다 <b>게임 화면에서 읽은 값</b>과 맞춰 봅니다 &mdash; 어긋나면 배포가 섭니다.
