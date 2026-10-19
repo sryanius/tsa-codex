@@ -1813,7 +1813,7 @@ render();
 
      이다. kind 는 QuestMaster 의 upgradeableBuildingKind 와 같은 열거값이라
      퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
-  /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
+  /* 자료를 뽑은 시점의 클라이언트 버전 번호. 세이브에서 읽은 값과 다르면
      게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
   var DATA_VERSION = 7040;   /* 7.4 (versionCode 147) — Settings..cctor 0x27B7898 이 rodata 0xf40850 에서 읽는 첫 값. build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
 
@@ -1907,7 +1907,7 @@ render();
   function extractVersion(plain) {
     var b = plain instanceof Uint8Array ? plain : new Uint8Array(plain);
     // GameData 말고 다른 세이브에도 GUID 는 있다. 클래스 정의에 currentVersion 이
-    // 들어 있는 파일만 본다 — 안 그러면 엉뚱한 숫자를 판번호로 읽는다.
+    // 들어 있는 파일만 본다 — 안 그러면 엉뚱한 숫자를 버전 번호로 읽는다.
     if (!hasBytes(b, CV)) return 0;
     var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
     for (var i = 0; i + 60 < b.length; i++) {
@@ -2366,7 +2366,7 @@ window.__TSA_MAPIMG = function(id){
       bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
         +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
         +"gap:12px;align-items:center;justify-content:center";
-      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 버전입니다.</span>';
       var btn=document.createElement("button");
       btn.type="button"; btn.textContent="새로고침";
       btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"

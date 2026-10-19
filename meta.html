@@ -601,7 +601,7 @@ function raceDetail(r){
     +'<div class="blk"><h4>뽑히는 주점</h4><ul>'
     + (function(){ var tw2 = state.showLocked ? r.towns : (r.open||r.towns);
         return tw2.length? tw2.map(function(t){ return '<li>'+esc(t)+'</li>'; }).join("")
-             : '<li>'+(r.towns.length?"미출시 지역에만 있습니다":"이 판본에는 배치가 없습니다")+'</li>'; })()
+             : '<li>'+(r.towns.length?"미출시 지역에만 있습니다":"이 버전에는 배치가 없습니다")+'</li>'; })()
 
     + '</ul></div>'
     +'<div class="blk"><h4>가능한 성격</h4><span class="bonus">'
@@ -2172,7 +2172,7 @@ window.__TSA_MAPIMG = function(id){
       bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
         +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
         +"gap:12px;align-items:center;justify-content:center";
-      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 버전입니다.</span>';
       var btn=document.createElement("button");
       btn.type="button"; btn.textContent="새로고침";
       btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"

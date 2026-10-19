@@ -1007,7 +1007,7 @@ function itemDetail(x){
           +'<span class="meta"> — '+esc(z.r||"")+(isLockedRegion(z.r)?' · 미출시 지역':'')+'</span></li>'; }).join("")
     + '</ul></div>' : "";
   if(!x.drop.length && !xq.length && !xs.length)
-    qd='<div class="blk"><h4>획득처</h4><ul><li><b>얻는 곳 없음</b> — 몬스터 드랍 · 의뢰 금고/습득물 · 상점 어디에도 없어 지금 판에서는 손에 넣을 수 없습니다'
+    qd='<div class="blk"><h4>획득처</h4><ul><li><b>얻는 곳 없음</b> — 몬스터 드랍 · 의뢰 금고/습득물 · 상점 어디에도 없어 지금 버전에서는 손에 넣을 수 없습니다'
       +'<span class="meta"> (대장간은 가진 장비를 강화만 하고 새로 만들지 않습니다)</span></li></ul></div>';
   var perf = x.cat==="무기"
     ? '<div class="dcell"><dt>공격력</dt><dd class="mono">'+esc(x.dmg||"-")+'</dd></div>'
@@ -1378,7 +1378,7 @@ window.__TSA_MAPIMG = function(id){
       bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
         +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
         +"gap:12px;align-items:center;justify-content:center";
-      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 버전입니다.</span>';
       var btn=document.createElement("button");
       btn.type="button"; btn.textContent="새로고침";
       btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"

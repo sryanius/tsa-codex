@@ -336,7 +336,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="eyebrow">The Silent Archivist &middot; 뜯어본 것</p>
     <h1>게임이 안 알려주는 계산식</h1>
     <p class="lede">설치된 APK 에서 직접 확인한 것입니다. 마스터 데이터는 Addressables 번들에서,
-      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다 &mdash; 7.2(versionCode 145)에서 이 문서가 근거로 쓴 함수 112개를 명령 하나하나 1:1 로 대조해 본문이 같음을 확인했습니다. 식과 수치는 그대로이고 주소만 함수마다 조금씩 밀렸습니다. 7.4(versionCode 147)에서는 이 사이트가 근거로 든 함수 256개를 다시 대조했고 253개는 본문이 같습니다. 달라진 것은 반격(<code>PhysicsAttack</code> &mdash; <a href="#wtrait">반격 뒤 추가 속성</a>)과 턴 끝 HP 회복(<code>Character.AutoHealHp</code> &mdash; 잠긴 직업 치유사 몫)이고, 나머지 하나는 데이터 판번호(7020 &rarr; 7030)입니다.</p>
+      계산식은 <code>libil2cpp.so</code> 를 디스어셈블해서 읽었습니다. 주소는 <b>7.1</b> 기준입니다 &mdash; 7.2(versionCode 145)에서 이 문서가 근거로 쓴 함수 112개를 명령 하나하나 1:1 로 대조해 본문이 같음을 확인했습니다. 식과 수치는 그대로이고 주소만 함수마다 조금씩 밀렸습니다. 7.3(versionCode 146)에서는 이 사이트가 근거로 든 함수 256개를 다시 대조했고 253개는 본문이 같습니다. 달라진 것은 반격(<code>PhysicsAttack</code> &mdash; <a href="#wtrait">반격 뒤 추가 속성</a>)과 턴 끝 HP 회복(<code>Character.AutoHealHp</code> &mdash; 잠긴 직업 치유사 몫)이고, 나머지 하나는 데이터 버전 번호(7020 &rarr; 7030)입니다.
+      7.4(versionCode 147)에서 같은 256개를 다시 대조하니 254개가 같고(그중 5개는 주소 칸만 밀림), 달라진 것은 평판 변화(<code>Town.ApplyReputationChange</code> &mdash; <a href="#board">음수면 +1</a>)와 데이터 버전 번호(7030 &rarr; 7040)입니다.</p>
     <p class="lede" style="margin-top:10px"><b>여기는 «왜 그런가» 만 답합니다.</b>
       무엇을 입고 무엇을 켤지는 <a href="builds.html">빌드</a> 에 있습니다.
       식과 상수는 이 문서에 <b>한 벌만</b> 두고, 빌드는 결과값과 링크만 들고 갑니다.</p>
@@ -351,7 +352,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <p class="lede" style="margin-top:0;font-size:13px;color:var(--muted)">
       앞의 수가 <b>지금 갈 수 있는 곳</b> 기준입니다 &mdash; 발케인 지방은 데이터만 실려 있고 아직 못 갑니다
       (<code>LastMapLevel</code> 이 7 입니다). <b>본문에서는 분모를 다시 적지 않습니다.</b></p>
-    <nav class="toc tabs" aria-label="절"><a href="#dice" data-sec="dice" data-upd="2026-10-06">굴림<i class="dot" aria-hidden="true"></i></a><a href="#stat" data-sec="stat" data-upd="2026-10-03">수치<i class="dot" aria-hidden="true"></i></a><a href="#job" data-sec="job" data-upd="2026-10-06">직업<i class="dot" aria-hidden="true"></i></a><a href="#pers" data-sec="pers" data-upd="2026-10-19">성격<i class="dot" aria-hidden="true"></i></a><a href="#hit" data-sec="hit" data-upd="2026-10-19">전투 ① 맞나<i class="dot" aria-hidden="true"></i></a><a href="#dmg" data-sec="dmg" data-upd="2026-10-19">전투 ② 아픈가<i class="dot" aria-hidden="true"></i></a><a href="#magic" data-sec="magic" data-upd="2026-10-19">전투 ③ 마법<i class="dot" aria-hidden="true"></i></a><a href="#check" data-sec="check" data-upd="2026-10-19">판정 한 틀<i class="dot" aria-hidden="true"></i></a><a href="#board" data-sec="board" data-upd="2026-10-19">평판과 게시판<i class="dot" aria-hidden="true"></i></a><a href="#event" data-sec="event" data-upd="2026-10-19">이벤트 추첨<i class="dot" aria-hidden="true"></i></a><a href="#craft" data-sec="craft" data-upd="2026-10-19">강화<i class="dot" aria-hidden="true"></i></a><a href="#fac" data-sec="fac" data-upd="2026-10-10">시설<i class="dot" aria-hidden="true"></i></a><a href="#farm" data-sec="farm" data-upd="2026-10-19">탐색지 쩔<i class="dot" aria-hidden="true"></i></a><a href="#cond" data-sec="cond" data-upd="2026-10-10">후유증<i class="dot" aria-hidden="true"></i></a><a href="#va" data-sec="va" data-upd="2026-10-06">부록 · 주소표<i class="dot" aria-hidden="true"></i></a><a href="#todo" data-sec="todo" data-upd="2026-10-03">부록아직 확인 못 한 것<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <nav class="toc tabs" aria-label="절"><a href="#dice" data-sec="dice" data-upd="2026-10-06">굴림<i class="dot" aria-hidden="true"></i></a><a href="#stat" data-sec="stat" data-upd="2026-10-03">수치<i class="dot" aria-hidden="true"></i></a><a href="#job" data-sec="job" data-upd="2026-10-06">직업<i class="dot" aria-hidden="true"></i></a><a href="#pers" data-sec="pers" data-upd="2026-10-19">성격<i class="dot" aria-hidden="true"></i></a><a href="#hit" data-sec="hit" data-upd="2026-10-19">전투 ① 맞나<i class="dot" aria-hidden="true"></i></a><a href="#dmg" data-sec="dmg" data-upd="2026-10-19">전투 ② 아픈가<i class="dot" aria-hidden="true"></i></a><a href="#magic" data-sec="magic" data-upd="2026-10-19">전투 ③ 마법<i class="dot" aria-hidden="true"></i></a><a href="#check" data-sec="check" data-upd="2026-10-19">판정 한 틀<i class="dot" aria-hidden="true"></i></a><a href="#board" data-sec="board" data-upd="2026-10-19">평판과 게시판<i class="dot" aria-hidden="true"></i></a><a href="#event" data-sec="event" data-upd="2026-10-19">이벤트 추첨<i class="dot" aria-hidden="true"></i></a><a href="#craft" data-sec="craft" data-upd="2026-10-19">강화<i class="dot" aria-hidden="true"></i></a><a href="#fac" data-sec="fac" data-upd="2026-10-10">시설<i class="dot" aria-hidden="true"></i></a><a href="#farm" data-sec="farm" data-upd="2026-10-19">탐색지 쩔<i class="dot" aria-hidden="true"></i></a><a href="#cond" data-sec="cond" data-upd="2026-10-10">후유증<i class="dot" aria-hidden="true"></i></a><a href="#va" data-sec="va" data-upd="2026-10-19">부록 · 주소표<i class="dot" aria-hidden="true"></i></a><a href="#todo" data-sec="todo" data-upd="2026-10-03">부록아직 확인 못 한 것<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
     <p class="docdate">마지막 갱신 <b>2026-10-19</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
 
@@ -2051,10 +2052,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
      치료 HospitalScene.Heal 0x28DAED8 → Character.FullRecover(치료소 레벨) 0x26DDBE4 · GetConditions(레벨) 람다 0x26E4A58(후유증 level &le; 치료소 레벨) · HealingTime 0x26D8A40 · HealingCost 0x26D86D8 &middot;
      부활 Character.Revive 0x26DDE80(후유증 · 효과 비움 · HalfCompatibility)</p>
   </section>
-<section class="sec" id="sec-va" data-sec="va" data-upd="2026-10-06">
+<section class="sec" id="sec-va" data-sec="va" data-upd="2026-10-19">
   <h2 id="va"><span class="n">부록</span>함수 주소표 <span class="sm" style="font-weight:400">7.1 기준</span></h2>
-  <p class="secdate">2026-10-06 갱신</p>
-<p>주소는 <b>7.1</b> 기준입니다. 7.2 · 7.3 에서는 명령은 같고(7.3 의 <code>PhysicsAttack</code> 반격 갈래와 <code>Character.AutoHealHp</code> 는 예외 &mdash; 머리말) <b>주소만 함수마다 밀렸으니</b> 함수 이름으로 찾으세요. 본문에 적힌 주소도 7.1 입니다 &mdash; «7.3» · «7.2» 를 붙인 것(7.3 반격 · 무기 속성 · 효과 지속 등)만 그 판의 주소입니다.</p>
+  <p class="secdate">2026-10-19 갱신</p>
+<p>주소는 <b>7.1</b> 기준입니다. 7.2 · 7.3 에서는 명령은 같고(7.3 의 <code>PhysicsAttack</code> 반격 갈래와 <code>Character.AutoHealHp</code> 는 예외 &mdash; 머리말) <b>주소만 함수마다 밀렸으니</b> 함수 이름으로 찾으세요. 본문에 적힌 주소도 7.1 입니다 &mdash; «7.4» · «7.3» · «7.2» 를 붙인 것(7.4 평판 · 7.3 반격 · 무기 속성 · 효과 지속 등)만 그 버전의 주소입니다.</p>
   <table class="t"><thead><tr><th>함수</th><th class="num">VA <span style="font-weight:400">7.1</span></th></tr></thead><tbody>
   <tr><td colspan="2"><b>굴림</b> <a href="#dice">&sect;1</a></td></tr>
   <tr><td><code>Util.CreateRandomValue</code></td><td class="num">0x276C71C</td></tr>
@@ -2179,10 +2180,10 @@ if (RandSuccess100(10))  포인트 += <b>Rand(주점 레벨)</b>   <i>// 10% 로
 
   <footer class="foot">
     <p>이 문서는 <b>7.4</b>(versionCode 147) 에서 뽑았습니다. 게임이 업데이트되면 낡습니다 &mdash;
-       <a href="save.html">내 세이브</a> 에 세이브를 넣으면 판번호가 달라졌는지 알려 줍니다.</p>
+       <a href="save.html">내 세이브</a> 에 세이브를 넣으면 버전이 달라졌는지 알려 줍니다.</p>
     <p style="margin-top:6px">회피식과 화면 수치는 <code>avoidcheck.py</code> · <code>statcheck.mjs</code> 가
        매 빌드마다 <b>게임 화면에서 읽은 값</b>과 맞춰 봅니다 &mdash; 어긋나면 배포가 섭니다.
-       본문의 «몇 개 중 몇 개» 전수는 <code>countcheck.py</code> 가 매 빌드마다 데이터에서 다시 셉니다(판마다 나란히: <code>python tools/re/count73.py</code>).</p>
+       본문의 «몇 개 중 몇 개» 전수는 <code>countcheck.py</code> 가 매 빌드마다 데이터에서 다시 셉니다(버전마다 나란히: <code>python tools/re/count73.py</code>).</p>
   </footer>
 </div>
 

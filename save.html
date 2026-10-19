@@ -322,7 +322,7 @@ ol.how .meta{display:block;margin-top:3px}
     <p class="meta" id="savemsg" style="margin:12px 0 0"></p>
   </div>
 
-  <div class="card" id="vercard" hidden><h3>판번호</h3><p class="meta" id="vermsg"></p></div>
+  <div class="card" id="vercard" hidden><h3>버전</h3><p class="meta" id="vermsg"></p></div>
   <div class="card" id="cloudcard"><h3>클라우드</h3>
     <p class="meta" id="cloudmsg" style="margin:0 0 10px">확인 중…</p>
     <div class="btns" style="display:flex;gap:8px;flex-wrap:wrap">
@@ -342,7 +342,11 @@ ol.how .meta{display:block;margin-top:3px}
         <pre>winget install --id Google.PlatformTools -e</pre>
         <span class="meta">깔고 나서 <b>터미널을 새로 열어야</b> <code>adb</code> 가 잡힙니다.</span></li>
       <li><b>폰을 무선으로 잇는다</b> <span class="meta">(PC 와 같은 Wi-Fi)</span><br>
-        폰에서 <b>설정 → 개발자 옵션 → 무선 디버깅</b> 을 켜고
+        <b>설정에 «개발자 옵션» 이 없으면 먼저 켭니다</b>(한 번만):
+        <b>설정 → 휴대전화 정보 → 소프트웨어 정보 → 빌드번호</b> 를 <b>7번 연달아</b> 누릅니다.
+        잠금 화면 PIN 을 물으면 넣고, «개발자 모드를 켰습니다» 가 뜨면 설정 맨 아래에 <b>개발자 옵션</b> 이 생깁니다.
+        <span class="meta">갤럭시가 아니면 «휴대전화 정보» 안의 «빌드 번호» 를 누르면 됩니다(메뉴 이름만 조금 다릅니다).</span>
+        그다음 폰에서 <b>설정 → 개발자 옵션 → 무선 디버깅</b> 을 켜고
         <b>«페어링 코드로 기기 페어링»</b> 을 누르면 6자리 코드와 IP:포트가 뜹니다.
         <pre>adb pair 192.168.0.214:41234 683465
 adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</span></pre>
@@ -500,7 +504,7 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
 
      이다. kind 는 QuestMaster 의 upgradeableBuildingKind 와 같은 열거값이라
      퀘스트 쪽 분류(30~35)를 그대로 쓴다.  ※ 숙소는 화면에서 +1 (기본 정원) */
-  /* 자료를 뽑은 시점의 클라이언트 판번호. 세이브에서 읽은 값과 다르면
+  /* 자료를 뽑은 시점의 클라이언트 버전 번호. 세이브에서 읽은 값과 다르면
      게임이 업데이트된 것이라, 여기 실린 수치가 낡았을 수 있다. */
   var DATA_VERSION = 7040;   /* 7.4 (versionCode 147) — Settings..cctor 0x27B7898 이 rodata 0xf40850 에서 읽는 첫 값. build.py 의 _check_dataversion 이 세이브와 맞춰 본다 */
 
@@ -594,7 +598,7 @@ adb devices        <span class="c"># device 라고 뜨면 이대로 3번으로</
   function extractVersion(plain) {
     var b = plain instanceof Uint8Array ? plain : new Uint8Array(plain);
     // GameData 말고 다른 세이브에도 GUID 는 있다. 클래스 정의에 currentVersion 이
-    // 들어 있는 파일만 본다 — 안 그러면 엉뚱한 숫자를 판번호로 읽는다.
+    // 들어 있는 파일만 본다 — 안 그러면 엉뚱한 숫자를 버전 번호로 읽는다.
     if (!hasBytes(b, CV)) return 0;
     var dv = new DataView(b.buffer, b.byteOffset, b.byteLength);
     for (var i = 0; i + 60 < b.length; i++) {
@@ -1224,10 +1228,10 @@ function showVersion(v, dv){
   if(!v) return;
   var c=el("vercard"); c.hidden=false;
   if(v!==dv){ c.classList.add("warn"); c.classList.remove("ok");
-    el("vermsg").innerHTML="게임이 <b>업데이트</b>됐습니다 — 세이브 판번호 <b>"+v
+    el("vermsg").innerHTML="게임이 <b>업데이트</b>됐습니다 — 세이브 버전 <b>"+v
       +"</b>, 자료실은 <b>"+dv+"</b> 기준입니다. 퀘스트·아이템·확률이 바뀌었을 수 있습니다.";
   } else { c.classList.add("ok"); c.classList.remove("warn");
-    el("vermsg").textContent="판번호 "+v+" — 자료실과 같습니다."; }
+    el("vermsg").textContent="버전 "+v+" — 자료실과 같습니다."; }
 }
 
 
@@ -1611,7 +1615,7 @@ window.__TSA_MAPIMG = function(id){
       bar.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:300;padding:10px 16px;"
         +"background:var(--accent);color:var(--on-accent,#fff);font-size:13px;display:flex;"
         +"gap:12px;align-items:center;justify-content:center";
-      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 판입니다.</span>';
+      bar.innerHTML='<span>새 자료가 도착했습니다 — 지금 보고 계신 건 이전 버전입니다.</span>';
       var btn=document.createElement("button");
       btn.type="button"; btn.textContent="새로고침";
       btn.style.cssText="font:inherit;font-size:12.5px;padding:4px 14px;border-radius:99px;"
