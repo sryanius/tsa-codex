@@ -333,6 +333,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   .tabbed .toc.tabs a{flex:0 0 auto}
 }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+
+/* ── 읽기 쉽게 (docpages.py 가 넣는다 · 2026-10-20) ──────────────────
+   ① 출처 줄은 «코드 근거» 로 접는다 — 폰에서 `.doc p` 가 이겨 14px 고정폭이 되던 것도 여기서 막는다(0,2,2)
+   ② 폰 본문 15px · 줄 간격 넉넉히 · 표 13px  ③ 글 칸 표(.stack)는 폰에서 줄마다 카드 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+details.src{margin:8px 0 0}
+details.src>summary{display:inline-block;cursor:pointer;list-style:none;font-size:11.5px;color:var(--faint);
+  padding:2px 8px;border:1px solid var(--line-soft);border-radius:99px}
+details.src>summary::-webkit-details-marker{display:none}
+details.src>summary::before{content:"\25B8  ";font-size:10px}
+details.src[open]>summary::before{content:"\25BE  "}
+details.src>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.doc details.src p{margin:6px 0 0;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11px;line-height:1.6;
+  color:var(--faint);overflow-wrap:anywhere}
+@media (max-width:560px){
+  .doc p,.doc li{font-size:15px;line-height:1.75}
+  .doc .note,.doc .note p,.doc .note li{font-size:14px;line-height:1.7}
+  .doc table{font-size:13px}
+  .doc details.src p{font-size:11px;line-height:1.6}
+  .doc table.stack,.doc table.stack tbody,.doc table.stack tr,.doc table.stack td{display:block;width:auto}
+  .doc table.stack thead{display:none}
+  .doc table.stack tr{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  .doc table.stack td{border:0;padding:2px 0;position:static;background:none;box-shadow:none}
+  .doc table.stack td:first-child{font-size:14.5px;font-weight:600;color:var(--ink);padding-bottom:4px}
+  .doc table.stack td[data-label]::before{content:attr(data-label) "  ";font-size:11.5px;color:var(--faint)}
+}
 </style>
 </head>
 <body>
@@ -343,13 +369,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 다음 지역으로</p>
     <h1>지역 &mdash; 어떻게 열리고, 열리면 무엇이 생기나</h1>
-    <p class="lede">지역은 <b>해금 의뢰 하나</b>를 성공 보고하는 순간 열립니다. 그 의뢰가 게시판에 뜨려면
-      <b>평판 · 탐색지 발견 · 선행 의뢰</b> 세 조건을 맞춰야 하고, 어느 조건이 어디서 막히는지는 지역마다 다릅니다.
-      앞 절반은 그 일곱 번의 전환을, 뒤 절반은 «N 지역까지 열렸을 때» 훈련소 · 상점 · 금고가 어디까지 주는지를 적습니다.
-      역할별로 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
-    <div class="note" style="margin-top:14px"><b>근거.</b> 의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>7.4</b>(versionCode 147) 데이터에서 그대로 읽었고,
+    <p class="lede">지역은 <b>해금 의뢰 하나</b>를 성공하면 열립니다. 그 의뢰가 뜨려면 <b>평판 · 탐색지 발견 · 선행 의뢰</b>가 맞아야 합니다.
+      앞쪽은 일곱 번의 전환, 뒤쪽은 지역이 열릴 때마다 훈련소 · 상점 · 금고가 어디까지 주는지입니다. 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
+    <details class="src"><summary>코드 근거</summary><p>의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>7.4</b>(versionCode 147) 데이터에서 그대로 읽었고,
       «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 · 7.3 · 7.4 에서도 본문이 같습니다).
-      실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</div>
+      실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</p></details>
     <table class="t" style="margin-top:12px"><thead><tr><th>전환</th><th>해금 의뢰</th><th>어느 마을</th><th class="num">Lv</th><th class="num">평판</th><th>막히는 자리</th></tr></thead><tbody>
       <tr><td><a href="#r12">1 &rarr; 2</a></td><td>산길을 가로지르는 에스코트</td><td>브란샤르</td><td class="num">7</td><td class="num">25</td><td>선행 둘 · 탐색지 둘</td></tr>
       <tr><td><a href="#r23">2 &rarr; 3</a></td><td>미로 숲을 함께 건너기</td><td>루페리아 그로브</td><td class="num">9</td><td class="num">26</td><td>선행 없음 · 로스트우드 숲</td></tr>
@@ -390,7 +414,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <h3>탐색지를 찾는 값</h3>
   <div class="eq"><b>기본값</b> = max(3 × 지역번호 + 7, 10)   <i>1지역 10 · 2지역 13 · 3지역 16 · … · 7지역 28</i>
 <b>비용</b>   = 기본값 × 지형 배수   <i>평지 1 · 숲 4/3 · 흙·언덕 2 · 사막·늪·눈 3 · 바다·설림 4 · 산 5</i></div>
-  <p class="src">Map.SearchPrice 0x271226C · BaseSearchPrice 0x2712340. 단위는 금화로 읽힙니다(탐색 버튼이 GoldButton) &mdash; 추정.</p>
+  <details class="src"><summary>코드 근거</summary><p>Map.SearchPrice 0x271226C · BaseSearchPrice 0x2712340. 단위는 금화로 읽힙니다(탐색 버튼이 GoldButton) &mdash; 추정.</p></details>
   <h3>평판 상한 &mdash; 왜 어떤 전환은 «반복» 이 필요한가</h3>
   <div class="eq"><b>상한</b> = 5 × (의뢰 레벨 − 마을의 maxReputationLevel + 1)   <i>최소 5 · 보상 평판이 양수인 의뢰만</i>
 <b>의뢰 레벨</b> = 표 레벨 + 반복 보정(깰 때마다 +1 · 그 의뢰의 maxAddLevel 까지)   <i>대개 3 이지만 0 인 반복 의뢰도 58개 있다 — 그런 건 반복해도 상한이 안 오른다</i></div>
@@ -399,7 +423,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      실패하면 <b>양수 보상 의뢰만</b> 깎입니다 &mdash; 현재 평판이 1 이상일 때 보상 2 이상이면 절반(+4 의뢰 실패 → −2), 1 이면 50% 로 −1 이고, 0 아래로는 안 내려갑니다.
      <b>음수 보상 의뢰는 실패해도 그대로</b>입니다.
      나머지 게시판 이야기는 <a href="notes.html#board">원리 &sect;9</a> 에 있습니다.</p>
-  <p class="src">Town.MaxReputation 0x275D3A0 · ApplyReputationChange 0x275D1B4 · Quest.Level 0x2727A44. 평판 변동은 Party.Finish 가 Quest.Finish(반복 보정 +1) <b>보다 먼저</b> 부르므로, 상한 계산은 «이번 클리어 전» 레벨로 합니다.</p>
+  <details class="src"><summary>코드 근거</summary><p>Town.MaxReputation 0x275D3A0 · ApplyReputationChange 0x275D1B4 · Quest.Level 0x2727A44. 평판 변동은 Party.Finish 가 Quest.Finish(반복 보정 +1) <b>보다 먼저</b> 부르므로, 상한 계산은 «이번 클리어 전» 레벨로 합니다.</p></details>
   </section>
 <section class="sec" id="sec-r12" data-sec="r12" data-upd="2026-10-02">
   <h2 id="r12"><span class="n">1</span>미스토리아 반도 &rarr; 바르디아 평원</h2>
@@ -517,7 +541,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note">리스티아는 maxReputationLevel 20 이라 Lv24 첫 클리어 상한 25 · Lv25 는 30(반복형 14종)이고, 음수 바닥은 −15 입니다. 22 는 닿습니다.
      세라피오스(maxReputationLevel 12) 21 은 상한 20 이면 닿습니다 &mdash; Lv15 의뢰 첫 판, 또는 Lv12~14 의뢰에 반복 보정이 쌓인 뒤.
      <span class="sm">7.3 까지는 요구가 24 라 상한 25(Lv16 의뢰)가 필요했습니다.</span></div>
-  <p class="src">음수 평판 조건은 CanAcceptQuest 0x275e5c8(needRep&lt;0 이면 town.rep ≤ needRep) · 음수 보상은 ApplyReputationChange 0x275d2bc(상한 ≤ 현재일 때 더함 · −15 바닥).</p>
+  <details class="src"><summary>코드 근거</summary><p>음수 평판 조건은 CanAcceptQuest 0x275e5c8(needRep&lt;0 이면 town.rep ≤ needRep) · 음수 보상은 ApplyReputationChange 0x275d2bc(상한 ≤ 현재일 때 더함 · −15 바닥).</p></details>
   </section>
 <section class="sec" id="sec-r67" data-sec="r67" data-upd="2026-10-02">
   <h2 id="r67"><span class="n">6</span>발두나의 황야 &rarr; 칼레바스 고원</h2>
@@ -617,7 +641,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   </tbody></table>
 
   <h3>부위별 최고 장비</h3>
-  <p class="src"><i class="s">상</i> 상점 재고 · <i class="s">금</i> 의뢰 금고 · <i class="s">습</i> 의뢰 습득물 · <i class="s">드</i> 몬스터 드랍 · ★ 전투 직업 천장 초과(천장 + 1 이면 모험가로 낌). 작은 글씨는 2위이거나 성격이 다른 것(마법 · 회피 · 마방).</p>
+  <details class="src"><summary>코드 근거</summary><p><i class="s">상</i> 상점 재고 · <i class="s">금</i> 의뢰 금고 · <i class="s">습</i> 의뢰 습득물 · <i class="s">드</i> 몬스터 드랍 · ★ 전투 직업 천장 초과(천장 + 1 이면 모험가로 낌). 작은 글씨는 2위이거나 성격이 다른 것(마법 · 회피 · 마방).</p></details>
   <table class="t gear"><thead><tr><th>부위</th><th>1 미스토리아</th><th>2 바르디아</th><th>3 뤼미에르</th><th>4 아르디오스</th><th>5 바람의 경계</th><th>6 발두나</th><th>7 칼레바스</th></tr></thead><tbody>
     <tr><td><b>갑옷</b></td><td><b>중갑</b> Lv5<i class="s">습</i></td><td><b>맹렬한 지휘관의 갑옷</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 갑옷</b> Lv14<i class="s">상</i><span class="sub">룬 방어구 Lv13 마방 5</span></td><td><b>별을 부수는 갑옷</b> Lv20<i class="s">금</i><span class="sub">★잔광의 갑옷 Lv21</span></td><td><b>현무의 갑옷</b> Lv25<i class="s">금</i><span class="sub">힘 39</span></td><td><b>왕단의 갑옷</b> Lv30<i class="s">금</i><span class="sub">송곳니 왕 Lv29 상점</span></td><td><b>갈증의 갑옷</b> Lv35<i class="s">금</i><span class="sub">MP +6 · 마방 12</span></td></tr>
     <tr><td><b>투구</b></td><td><b>베테랑의 헬멧</b> Lv6<i class="s">상</i></td><td><b>맹렬한 사령관의 투구</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 헬멧</b> Lv14<i class="s">상</i></td><td><b>별을 부수는 투구</b> Lv20<i class="s">금</i></td><td><b>현무암 투구</b> Lv25<i class="s">금</i></td><td><b>짐승의 눈의 투구</b> Lv29<i class="s">금</i><span class="sub">회피 +5</span></td><td><b>피철 투구</b> Lv35<i class="s">금</i></td></tr>
@@ -783,7 +807,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     </dl>
   </div>
   </details>
-  <p class="src">출처 집계: 상점 = buildings.shopWeapons/shopArmors 재고 · 금고·습득물 = quests.questEvents.chest/foundItem · 드랍 = monsters.rewardWeapons/rewardArmors × 출현처(caves.monsterGroups · quests.questEvents.monsterGroups). 단계별 출처 있는 장비 112 · 214 · 321 · 454 · 566 · 658 · 756개. 근거 full/regions/caps.json.</p>
+  <details class="src"><summary>코드 근거</summary><p>출처 집계: 상점 = buildings.shopWeapons/shopArmors 재고 · 금고·습득물 = quests.questEvents.chest/foundItem · 드랍 = monsters.rewardWeapons/rewardArmors × 출현처(caves.monsterGroups · quests.questEvents.monsterGroups). 단계별 출처 있는 장비 112 · 214 · 321 · 454 · 566 · 658 · 756개. 근거 full/regions/caps.json.</p></details>
   </section>
 </main>
 <script>

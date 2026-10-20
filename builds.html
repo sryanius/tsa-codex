@@ -332,6 +332,32 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   .tabbed .toc.tabs a{flex:0 0 auto}
 }
 @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+
+/* ── 읽기 쉽게 (docpages.py 가 넣는다 · 2026-10-20) ──────────────────
+   ① 출처 줄은 «코드 근거» 로 접는다 — 폰에서 `.doc p` 가 이겨 14px 고정폭이 되던 것도 여기서 막는다(0,2,2)
+   ② 폰 본문 15px · 줄 간격 넉넉히 · 표 13px  ③ 글 칸 표(.stack)는 폰에서 줄마다 카드 */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+details.src{margin:8px 0 0}
+details.src>summary{display:inline-block;cursor:pointer;list-style:none;font-size:11.5px;color:var(--faint);
+  padding:2px 8px;border:1px solid var(--line-soft);border-radius:99px}
+details.src>summary::-webkit-details-marker{display:none}
+details.src>summary::before{content:"\25B8  ";font-size:10px}
+details.src[open]>summary::before{content:"\25BE  "}
+details.src>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.doc details.src p{margin:6px 0 0;font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11px;line-height:1.6;
+  color:var(--faint);overflow-wrap:anywhere}
+@media (max-width:560px){
+  .doc p,.doc li{font-size:15px;line-height:1.75}
+  .doc .note,.doc .note p,.doc .note li{font-size:14px;line-height:1.7}
+  .doc table{font-size:13px}
+  .doc details.src p{font-size:11px;line-height:1.6}
+  .doc table.stack,.doc table.stack tbody,.doc table.stack tr,.doc table.stack td{display:block;width:auto}
+  .doc table.stack thead{display:none}
+  .doc table.stack tr{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+  .doc table.stack td{border:0;padding:2px 0;position:static;background:none;box-shadow:none}
+  .doc table.stack td:first-child{font-size:14.5px;font-weight:600;color:var(--ink);padding-bottom:4px}
+  .doc table.stack td[data-label]::before{content:attr(data-label) "  ";font-size:11.5px;color:var(--faint)}
+}
 </style>
 </head>
 <body>
@@ -342,9 +368,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <header class="mast">
     <p class="eyebrow">The Silent Archivist &middot; 뽑고 입히기</p>
     <h1>역할별 빌드와 장비</h1>
-    <p class="lede">계산식은 <a href="notes.html">원리</a> 에 있습니다. 여기는
-      <b>무엇을 뽑고 무엇을 입힐 것인가</b> 만 답합니다 &mdash;
-      식은 한 줄도 다시 적지 않고 결과값만 둡니다.</p>
+    <p class="lede">무엇을 뽑고 무엇을 입힐지만 답합니다. 계산식은 <a href="notes.html">원리</a> 에 있습니다.</p>
     <div class="note warn" style="margin-top:14px;font-size:14px"><b>★ 참고용으로만 보세요.</b>
       빌드와 수치는 시뮬과 세이브 기록으로 계속 고치는 중이라 자주 바뀌고, 시뮬은 실제와 다를 수 있습니다
       (절마다 고친 날짜가 제목 아래에 있습니다). <b>게임 화면이 정답입니다.</b></div>
@@ -433,7 +457,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <dt>쩔</dt><dd>4 · 6단계 회피탱 혼자 + 저레벨 한 명 · 반격 단검(<a href="#dodge-solo">&sect;3</a>)</dd>
     </dl>
   </div>
-  <p class="src">combined/combined_sim.md(의뢰마다 100판) · tank/Rtank_sim.md(4단계 막 열 때 · 3단계 탱) · stage_123.md · refute_123/ · weapon/wsim.md · sym47.md · bow/bow_sim.md · HANDOFF 14절 · tank_verify/logtank2.py. 카드는 시뮬 시트 그대로(sheets_Rtank · R_bow_R3f · sheets.json · sheets_card 마궁사 10) · 경험치는 calc-tpl expPlan 누적.</p>
+  <details class="src"><summary>코드 근거</summary><p>combined/combined_sim.md(의뢰마다 100판) · tank/Rtank_sim.md(4단계 막 열 때 · 3단계 탱) · stage_123.md · refute_123/ · weapon/wsim.md · sym47.md · bow/bow_sim.md · HANDOFF 14절 · tank_verify/logtank2.py. 카드는 시뮬 시트 그대로(sheets_Rtank · R_bow_R3f · sheets.json · sheets_card 마궁사 10) · 경험치는 calc-tpl expPlan 누적.</p></details>
 
   <h3 id="stages-phys">법사 없이 &mdash; 물리 파티</h3>
   <p class="lede2"><b>법사 둘을 넣을 수 있으면 법사 둘입니다.</b> 4단계는 물리 파티도 대부분 비슷하지만(95.8~96.9 대 97.1), 5단계부터 처지고 7단계에서 크게 벌어집니다. 법사 둘이면 전투가 1.2~1.3 라운드, 물리는 2~4.4 라운드라 더 맞습니다.</p>
@@ -451,7 +475,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li><b>법사 하나만 탱-힐러로</b> &mdash; 4~6단계는 법사 둘과 같은 급, 7단계는 완료 &minus;5.7%p · 탱 사망 4.4 대 1.0%.</li>
     <li><b>법사를 못 넣으면</b> 회피탱 + 방어탱 + 활 둘(7단계 탱 사망 22.8%). 회피탱도 없으면 «방어탱 + 활 둘» 의 넷째는 둘째 방어탱보다 창 딜러입니다(따로 돌린 시험 · 전멸 &minus;1.5~7.1%p · <a href="#spear">&sect;8</a>).</li>
   </ul>
-  <p class="src">research/phys/phys_sim.md · healcost.mjs · HANDOFF 16절 · weapon_verify vsim.py(RBBS − RBBT).</p>
+  <details class="src"><summary>코드 근거</summary><p>research/phys/phys_sim.md · healcost.mjs · HANDOFF 16절 · weapon_verify vsim.py(RBBS − RBBT).</p></details>
 
   <h3 id="stages-sex">남자만 · 여자만 · 남녀 한 쌍 퀘스트</h3>
   <p class="lede2"><b>성별로 막히는 직업은 없습니다</b>(금지 직업은 종족 단위). 위 자리를 그 성별로 채웁니다 &mdash; 남자만이면 활 풋워커 남 · 법사 리스티아 휴먼 남, 여자만이면 드워프 여 탱 · 풋워커 여 활 · 리스티아 여 법사.</p>
@@ -488,7 +512,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td class="num">7</td><td>잃어버린 바람줄의 사격장<span class="sub">한 번만</span></td><td>엘프만</td><td class="num">99.95</td></tr>
   </tbody></table>
   <p class="sm">% = 그 단계 «다 갖춤» 장비로 가장 잘 나온 구성의 완료율(의뢰마다 1,000판). 99% 가 안 되는 10개도 한 단계 위 장비면 모두 99.7~100% 입니다. 엘프만 의뢰는 엘프 회피탱 둘 + 엘프 법사 여 둘.</p>
-  <p class="src">QuestDialog.Render 0x28A7964 · TapAcceptButton 0x28AC0C8 · BattleSkill.SkillAttack 0x26CA2C0 · BattleContext.GetEnemies 0x26C3E70(매혹 &rarr; 편 바꿈) · research/sex/sex_sim.py(의뢰 하나씩 판의 남자 법사는 실바드 남) · sex_verify/pair_ev_bow.py · elf_quest.py.</p>
+  <details class="src"><summary>코드 근거</summary><p>QuestDialog.Render 0x28A7964 · TapAcceptButton 0x28AC0C8 · BattleSkill.SkillAttack 0x26CA2C0 · BattleContext.GetEnemies 0x26C3E70(매혹 &rarr; 편 바꿈) · research/sex/sex_sim.py(의뢰 하나씩 판의 남자 법사는 실바드 남) · sex_verify/pair_ev_bow.py · elf_quest.py.</p></details>
   </section>
 <section class="sec" id="sec-why" data-sec="why" data-upd="2026-10-19">
   <h2 id="why"><span class="n">1</span>먼저 알아 둘 다섯</h2>
@@ -690,13 +714,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      <li>이 둘이 낀 칼레바스 의뢰 30판에서 탱이 2번 쓰러졌고(6.7%), 둘 다 만피 한 방이 아니라 한 라운드에 4~5마리가 25~37씩(한 번은 치명 79) 몰아친 것이었습니다 &mdash; 턴 끝 회복은 한 번이라 몰아치는 턴은 못 막습니다.</li>
      <li>표본이 작고 장비가 달라(강화 · 방패) 시뮬 값과 바로 견주지는 못합니다. 회피탱의 세이브 사망은 절반 넘게 단검 반사 마비였고, 그것을 빼면 시뮬과 가까웠습니다(<a href="#dodge">&sect;3</a>). 방어탱 쪽 차이는 아직 모릅니다.</li>
      </ul></div>
-  <p class="src">근거: tools/sim/research/tank &mdash; tank_sheets.mjs(시트 · 경험치 = calc-tpl expPlan · 주점 7 · 종족 굴림 평균) ·
+  <details class="src"><summary>코드 근거</summary><p>근거: tools/sim/research/tank &mdash; tank_sheets.mjs(시트 · 경험치 = calc-tpl expPlan · 주점 7 · 종족 굴림 평균) ·
      tank_sim.py(구성 R · 활 딜러가 리더 · 같은 씨앗 &rarr; Rtank_sim.md) · tank_cause.py(마지막 한 대의 종류 · 직전 HP &rarr; cause_5_full · cause_7_full) ·
      tank_sens.py(아군 피해 &times;0.75 · 보정 차 tools/sim/calib_report.md «남은 차이» 4번) · extra_cost.mjs(현자 · 낮은 직업 셋 · 목 베기).
      반박 검증 tools/sim/research/tank_verify &mdash; v_sim.py(다른 섞음 · 활 딜러 현자 파티 · 회피탱 + 방어탱 파티) · barlv.mjs(주점 레벨별 HP) · exp_check.py(경험치 독립 계산) · logtank2.py(세이브 logs.jsonl · crew.json).
      새 추천 파티 tools/sim/research/combined/combined_sim.md(NEW). 드워프 주점 rawmaster buildings 3_2_Bar · 6_5_Bar.
      턴 끝 회복 = Character.AutoHealHp 0x26D9208(장비 중 방어구 회복의 합 · 7.3 부터 치유사가 주직업이면 ⌊치유사 레벨/4⌋ 을 더합니다 &mdash; 치유사는 잠긴 발케인 직업 · 7.3 0x26D9460~0x26D9498). 영묘의 방패 마방 17 = 더하는 마방 5 + 장비 몫 12(build_meta _amdef).
-     갈증 · 피철 갑옷 수치 full/meta.json. 무기 · 민첩 13 은 칼레바스 퀘스트(보정 3) 방어판 + 법사 둘 4,000판 시험(<a href="#party">&sect;10</a>).</p>
+     갈증 · 피철 갑옷 수치 full/meta.json. 무기 · 민첩 13 은 칼레바스 퀘스트(보정 3) 방어판 + 법사 둘 4,000판 시험(<a href="#party">&sect;10</a>).</p></details>
   </section>
 <section class="sec" id="sec-dodge" data-sec="dodge" data-upd="2026-10-11">
   <h2 id="dodge"><span class="n">3</span>회피탱 &mdash; 판정 자체를 없앤다</h2>
@@ -764,8 +788,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <li>마검사로 전직하지 않고 숨은 칼날의 궁사 주직업에 마검사 21 을 부직업으로만 얹으면 7단계까지 55.7M 으로 약 7M 싸지만, 7단계 탱 사망이 5.6 &rarr; 6.6% 로 오릅니다.</li>
     </ul>
   </div>
-  <p class="src" style="margin-top:4px">해제 = 도둑 레벨 + ⌊흔들림 최솟값(재주) ÷ 6⌋ · 발견 = 도둑 레벨 + ⌊흔들림 최솟값(통찰) ÷ 6⌋(리더면 +보너스) &mdash;
-     확정선(해제 · 발견 중앙)은 아르디오스 27 · 26 · 바람 33 · 32 · 발두나 39 · 37 · 칼레바스 44 · 43(<a href="notes.html#check">원리 &sect;8</a>). 모자라도 한 사람이 굴려 4 모자라면 93%, 6 이면 83% 입니다.</p>
+  <details class="src"><summary>코드 근거</summary><p>해제 = 도둑 레벨 + ⌊흔들림 최솟값(재주) ÷ 6⌋ · 발견 = 도둑 레벨 + ⌊흔들림 최솟값(통찰) ÷ 6⌋(리더면 +보너스) &mdash;
+     확정선(해제 · 발견 중앙)은 아르디오스 27 · 26 · 바람 33 · 32 · 발두나 39 · 37 · 칼레바스 44 · 43(<a href="notes.html#check">원리 &sect;8</a>). 모자라도 한 사람이 굴려 4 모자라면 93%, 6 이면 83% 입니다.</p></details>
 
   <h3>두 갈래 공통 &mdash; 왜 이렇게 짰나</h3>
   <ul>
@@ -819,9 +843,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
         <span class="sm">7.3 의 속성 붙은 반격 단검이면 반격 피해가 0 이어도 몬스터가 살아 있는 한 반격 뒤 속성 피해는 들어갑니다(반격 갈래 끝 7.3 0x26C8800 이 속성 처리를 조건 없이 부르고, 그 함수는 대상 생존만 봅니다) &mdash; 그런 곳에서 얼마나 버는지는 재지 않았습니다.</span></li>
   </ul>
 
-  <p class="src">근거: tools/sim/evasion_path.mjs(이어 키우기 경로 · 증분 경험치 = calc-tpl expPlan 의 «가진 레벨» 출발값 · 능력치 = engine.mjs · 초빙 포인트는 4단계 배분 고정) ·
+  <details class="src"><summary>코드 근거</summary><p>근거: tools/sim/evasion_path.mjs(이어 키우기 경로 · 증분 경험치 = calc-tpl expPlan 의 «가진 레벨» 출발값 · 능력치 = engine.mjs · 초빙 포인트는 4단계 배분 고정) ·
      evasion_path_sim.py(파티 시뮬 · 같은 씨앗 · 결과 evasion_path_sim_V2.md · V2b.md &mdash; 경로 evasion_path_custom_elfTSA2a · fwTSA2 · 견줌 elfTS2a · fwTS2 · fwHK) · callfarm_final.farm(쩔 · 라그네스 48판) · logs.jsonl(모래시계 · 라그네스 세이브 기록) ·
-     evasion_weapon.mjs + evasion_path_sim_weapon.md(활 · 단검) · _bows.md(일반 · 마법 · 흡수 활) · 7.3 속성 반격 단검 <code>python tools/sim/research/ctr73/noise73.py</code>(쩔 탱 시트 sheets_soloPath.json 6단계 엘프에 속성을 심음 · 위력 5 · 12 · 19 는 고른 가정값 · 7.2 규칙(BUG no_ctr_elem)과 같은 씨앗 · 씨앗 7001 + 100b 의 48판 20묶음 · 결과 noise73_run.txt). 요구 레벨 Equipment.GetNeedLevel 0x27032A0(= level · _level 아님) · 엘프 부적 칸 Character.CanEquipArmors 0x26DA0FC · 함정 탐지 Trap.Detect 0x2726DBC(직업 = TrapMaster.jobKind).</p>
+     evasion_weapon.mjs + evasion_path_sim_weapon.md(활 · 단검) · _bows.md(일반 · 마법 · 흡수 활) · 7.3 속성 반격 단검 <code>python tools/sim/research/ctr73/noise73.py</code>(쩔 탱 시트 sheets_soloPath.json 6단계 엘프에 속성을 심음 · 위력 5 · 12 · 19 는 고른 가정값 · 7.2 규칙(BUG no_ctr_elem)과 같은 씨앗 · 씨앗 7001 + 100b 의 48판 20묶음 · 결과 noise73_run.txt). 요구 레벨 Equipment.GetNeedLevel 0x27032A0(= level · _level 아님) · 엘프 부적 칸 Character.CanEquipArmors 0x26DA0FC · 함정 탐지 Trap.Detect 0x2726DBC(직업 = TrapMaster.jobKind).</p></details>
   </section>
 <section class="sec" id="sec-which" data-sec="which" data-upd="2026-10-03">
   <h2 id="which"><span class="n">4</span>두 길 &mdash; 회피냐 방어냐</h2>
@@ -837,13 +861,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>몬스터 공격력 <span class="sm">중앙 / 최대 · 자유 탐색</span></td><td class="num">117 / 135</td><td class="num">137 / 157</td></tr>
     <tr><td>몬스터 공격력 <span class="sm">퀘스트 보정 3</span></td><td class="num">127 / 152</td><td class="num">150 / <b>182</b></td></tr>
   </tbody></table>
-  <table class="t"><thead><tr><th></th><th>방어탱 <span class="sm"><a href="#deftank">&sect;2</a></span></th><th>회피탱 <span class="sm"><a href="#dodge">&sect;3</a></span></th></tr></thead><tbody>
-  <tr><td>주직업</td><td>모험가 36</td><td>엘프: 도둑<span class="sub">풋워커: 숨은 칼날의 궁사 &rarr; 6단계에 마검사</span></td></tr>
-  <tr class="hi"><td><b>물리</b></td><td>맞되 <b>작게</b><span class="sub">7단계 방어 144~201 · HP 105 · 시뮬 탱 사망 0.55%</span></td><td><b>안 맞음</b><span class="sub">7단계 완봉 엘프 50 · 풋워커 48 &mdash; 칼레바스 자유(48)까지 · 퀘스트(55)는 5~7 모자람</span></td></tr>
-  <tr><td>마법 방어</td><td><b>50~60</b><span class="sub">7단계 &mdash; 회복판 50 · 방어판 56 · 혼합 + 현자 60</span></td><td><b>46~51</b><span class="sub">7단계 &mdash; 엘프 46 · 풋워커 51</span></td></tr>
-  <tr style="color:var(--f-vault)"><td><b>구멍</b></td><td>치명타<span class="sub">2% 하한 · 35% 로 1 이 새고 거기에 반사 · 상태이상이 딸려 옴</span></td><td>혼란 · 수면 · 마비 · 망각<span class="sub">앞의 셋은 회피 0 · 망각은 회피값이 통째로 빠짐</span></td></tr>
-  <tr><td>경험치</td><td><b>21.5M</b><span class="sub">6단계에 트레반 드워프를 새로 뽑아 7단계까지 · 현자 35 포함(빼면 19.9M)</span></td><td><b>17.5M</b> · <b>62.7M</b><span class="sub">엘프 · 풋워커 &mdash; 4단계부터 이어 키운 누적(도둑 · 현자 천장 · 모험가 포함)</span></td></tr>
-  <tr><td>파티에서</td><td>앞줄을 맡아 뒷줄을 가림</td><td>방어탱 옆 앞줄<span class="sub">파티에서는 활 · 반격 단검만 쥐면 쩔 탱</span></td></tr>
+  <table class="t stack"><thead><tr><th></th><th>방어탱 <span class="sm"><a href="#deftank">&sect;2</a></span></th><th>회피탱 <span class="sm"><a href="#dodge">&sect;3</a></span></th></tr></thead><tbody>
+  <tr><td>주직업</td><td data-label="방어탱 §2">모험가 36</td><td data-label="회피탱 §3">엘프: 도둑<span class="sub">풋워커: 숨은 칼날의 궁사 &rarr; 6단계에 마검사</span></td></tr>
+  <tr class="hi"><td><b>물리</b></td><td data-label="방어탱 §2">맞되 <b>작게</b><span class="sub">7단계 방어 144~201 · HP 105 · 시뮬 탱 사망 0.55%</span></td><td data-label="회피탱 §3"><b>안 맞음</b><span class="sub">7단계 완봉 엘프 50 · 풋워커 48 &mdash; 칼레바스 자유(48)까지 · 퀘스트(55)는 5~7 모자람</span></td></tr>
+  <tr><td>마법 방어</td><td data-label="방어탱 §2"><b>50~60</b><span class="sub">7단계 &mdash; 회복판 50 · 방어판 56 · 혼합 + 현자 60</span></td><td data-label="회피탱 §3"><b>46~51</b><span class="sub">7단계 &mdash; 엘프 46 · 풋워커 51</span></td></tr>
+  <tr style="color:var(--f-vault)"><td><b>구멍</b></td><td data-label="방어탱 §2">치명타<span class="sub">2% 하한 · 35% 로 1 이 새고 거기에 반사 · 상태이상이 딸려 옴</span></td><td data-label="회피탱 §3">혼란 · 수면 · 마비 · 망각<span class="sub">앞의 셋은 회피 0 · 망각은 회피값이 통째로 빠짐</span></td></tr>
+  <tr><td>경험치</td><td data-label="방어탱 §2"><b>21.5M</b><span class="sub">6단계에 트레반 드워프를 새로 뽑아 7단계까지 · 현자 35 포함(빼면 19.9M)</span></td><td data-label="회피탱 §3"><b>17.5M</b> · <b>62.7M</b><span class="sub">엘프 · 풋워커 &mdash; 4단계부터 이어 키운 누적(도둑 · 현자 천장 · 모험가 포함)</span></td></tr>
+  <tr><td>파티에서</td><td data-label="방어탱 §2">앞줄을 맡아 뒷줄을 가림</td><td data-label="회피탱 §3">방어탱 옆 앞줄<span class="sub">파티에서는 활 · 반격 단검만 쥐면 쩔 탱</span></td></tr>
   </tbody></table>
   <div class="note warn"><b>★ 두 길은 «같은 안전» 이 아닙니다.</b>
      회피는 <b>판정 자체가 안 일어나</b> 피해 · 반사 · 평타에 붙은 상태이상이 통째로 없고,
@@ -984,7 +1008,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li><b>사교적 리더는 확실히 처집니다</b>(리더 보너스 &minus;1 · 풋워커 여 시트로 7단계 막 열었을 때 80.5 · 6단계 72.7). 감정적(+1)은 그 사이입니다.</li>
     <li>정리: 합리적 풋워커 여를 뽑았으면 그대로 리더로 씁니다. 무모한 리더로 가려면 <b>휴먼 여</b>(또는 풋워커 남 1/7)이고, 금고 해제가 조금 낮아집니다(바로 아래).</li>
   </ul>
-  <p class="src">시뮬: tools/sim/research/elfwind/elf_sim.py · elf_sim.md &mdash; 방어탱(혼합) + 활 + 법사 둘 · 5~7단계 의뢰 전부 &times; add 0/최대 &times; 100판 · 같은 씨앗. 성격을 바꾸면 리더 보너스 · 회복 문턱 · 후퇴 식이 함께 바뀝니다(무모한의 초빙 포인트 +0~2 는 안 넣음). 사교적 · 감정적은 research/pers/pers_sim.md(풋워커 여 시트에 성격만 바꿈 · 50판). 시트 elfwind/sheets_bow_elf.json(R3hf · R3e). 뽑힐 확률은 종족 · 성별 · 마을의 성격 칸 수(meta races).</p>
+  <details class="src"><summary>코드 근거</summary><p>시뮬: tools/sim/research/elfwind/elf_sim.py · elf_sim.md &mdash; 방어탱(혼합) + 활 + 법사 둘 · 5~7단계 의뢰 전부 &times; add 0/최대 &times; 100판 · 같은 씨앗. 성격을 바꾸면 리더 보너스 · 회복 문턱 · 후퇴 식이 함께 바뀝니다(무모한의 초빙 포인트 +0~2 는 안 넣음). 사교적 · 감정적은 research/pers/pers_sim.md(풋워커 여 시트에 성격만 바꿈 · 50판). 시트 elfwind/sheets_bow_elf.json(R3hf · R3e). 뽑힐 확률은 종족 · 성별 · 마을의 성격 칸 수(meta races).</p></details>
 
   <h3 id="bow-vault">금고 &mdash; 직업 셋으로 충분한가</h3>
   <p><b>그 지역 중앙 상자는 충분하고, 가장 어려운 상자는 운입니다.</b> 해제는 «도둑 레벨 + &lfloor;재주 흔들림 &divide; 6&rfloor;» 로 굴리고 리더 보너스가 안 붙어, 성격과 상관없이 <b>재주</b>만 봅니다(<a href="notes.html#check">원리 &sect;8</a>).</p>
@@ -999,7 +1023,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li><b>재주 부직업은 휴먼 여에게만 값이 있습니다</b> &mdash; 숙련된 사냥꾼 10 이 해제 +1(7단계에 얹으면 +0.6M). 풋워커 여는 재주가 몫 계단 사이라 같은 걸 얹어도 6 · 7단계 +0 입니다(5단계만 +1).</li>
     <li><b>도둑이 둘이면 둘 다 굴립니다</b> &mdash; 같은 값 둘이면 한 사람 76% 짜리가 94%, 46% 짜리가 71% 가 됩니다. 회피탱 엘프 갈래는 도둑 주라 둘째 굴림이 됩니다(<a href="#dodge">&sect;3</a>). 도둑 레벨이 없는 사람은 맨주사위라 거의 못 엽니다.</li>
   </ul>
-  <p class="src">계산: tools/sim/research/elfwind/chest.py(시트 R3f · R3hf 의 도둑 레벨 + 재주 · 통찰 최소 몫 대 원리 &sect;8 «그래서 어디까지 닿나» 의 지역 확정선 · 모자란 만큼의 한 사람 성공률 표) · research/pers/dex_sub56.mjs(숙련된 사냥꾼 10). 둘째 굴림은 1 &minus; (1 &minus; p)<sup>2</sup>.</p>
+  <details class="src"><summary>코드 근거</summary><p>계산: tools/sim/research/elfwind/chest.py(시트 R3f · R3hf 의 도둑 레벨 + 재주 · 통찰 최소 몫 대 원리 &sect;8 «그래서 어디까지 닿나» 의 지역 확정선 · 모자란 만큼의 한 사람 성공률 표) · research/pers/dex_sub56.mjs(숙련된 사냥꾼 10). 둘째 굴림은 1 &minus; (1 &minus; p)<sup>2</sup>.</p></details>
 
   <div class="role">
     <h3>단계 카드 &mdash; 풋워커 여 · 레인저 주 + 도둑 · 현자 <span class="tag" style="color:var(--f-lodge)">추천</span></h3>
@@ -1055,8 +1079,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li>세이브 기록의 활 딜러는 넷(레인저 · 도둑 · 현자 · 모험가)에 마검사 · 숨은 칼날의 궁사 등을 더 가져 HP 가 54~72 이고 성격도 «무모한» 입니다. 시뮬은 직업 셋 · 넷(7단계 HP 38~43)만 넣었고 HP 를 더하는 직업은 견주지 않았습니다. 성격은 위 <a href="#bow-pers">«성격»</a> 에서 견줬습니다.</li>
     <li>1~3단계 활 딜러는 <a href="#stages">&sect;0</a> 의 단계별 세팅을 따릅니다 &mdash; 이 절의 비교는 4~7단계만입니다.</li>
   </ul>
-  <p class="src">근거(코드): 공격력 직업 몫 Character.MinAttackPoint 0x26DBAA4(람다 0x26E3868) · 도둑 + 활 반감 0x26DBC3C · 풋워커 면제 0x26DBBD8 · 부적 칸 CanEquipArmors 0x26DA0FC(덧붙임은 엘프만) · 선제 0x2727D0C(Max 0x2727DF0) · 함정 탐지 Trap.Detect 0x2726DBC · 해제 DisarmTrap 0x2727078(레인저 함정 64종은 모두 탐지만) · 함정 몬스터 전투는 몬스터 선제 0x27245D0 · 금고 · 습득물 0x27254E0 · 0x2724CA0(도둑) · 경험치 Character.GetExpToNextLevel 0x26D9984 · SumOtherJobLevels 0x26D9AC0(현자 · 모험가면 0) · Job.NeedNextExp 0x26D9CDC(&times;1.05<sup>다른 직업 합</sup>). 함정 종류 · 의뢰 비율 tools/sim/research/bow/trap_census.json.</p>
-  <p class="src">시뮬: tools/sim/research/bow/bow_sim.md · tools/sim/research/bow_verify/(R3f · S3Rf · 마방 맞바꿈 · T3mH_pR · 엘프 이기적) &mdash; 방어탱 + 활 + 법사 둘 · 4~7단계 의뢰 전부 &times; add 0/최대 &times; 150판 · 같은 씨앗. 시트 bow_verify/sheets_bow_v.json · bow_paths_v.json(R3f · S3Rf) · bow/sheets_bow*.json · bow_paths*.json. «레인저를 빼면» 은 SITE_noR, «현자 레벨만» 은 SITE_S(둘 다 사냥꾼 계열 시트 · 능력치 그대로). 2타 활은 research/weapon/wsim.md RMm(사냥꾼 계열 시트에 활만 바꿈) · 물리 무효 비율은 research/weapon/montraits.py. &times;1.05<sup>45</sup> &asymp; 9.0 은 위 NeedNextExp 의 1.05<sup>다른 직업 합</sup> 에 숨은 칼날의 궁사 20 + 스커미셔 15 + 숙련된 사냥꾼 10 을 넣은 계산입니다. 현자 35 약 1.6M 은 docs/HANDOFF.md 13번 항목.</p>
+  <details class="src"><summary>코드 근거</summary><p>근거(코드): 공격력 직업 몫 Character.MinAttackPoint 0x26DBAA4(람다 0x26E3868) · 도둑 + 활 반감 0x26DBC3C · 풋워커 면제 0x26DBBD8 · 부적 칸 CanEquipArmors 0x26DA0FC(덧붙임은 엘프만) · 선제 0x2727D0C(Max 0x2727DF0) · 함정 탐지 Trap.Detect 0x2726DBC · 해제 DisarmTrap 0x2727078(레인저 함정 64종은 모두 탐지만) · 함정 몬스터 전투는 몬스터 선제 0x27245D0 · 금고 · 습득물 0x27254E0 · 0x2724CA0(도둑) · 경험치 Character.GetExpToNextLevel 0x26D9984 · SumOtherJobLevels 0x26D9AC0(현자 · 모험가면 0) · Job.NeedNextExp 0x26D9CDC(&times;1.05<sup>다른 직업 합</sup>). 함정 종류 · 의뢰 비율 tools/sim/research/bow/trap_census.json.</p></details>
+  <details class="src"><summary>코드 근거</summary><p>시뮬: tools/sim/research/bow/bow_sim.md · tools/sim/research/bow_verify/(R3f · S3Rf · 마방 맞바꿈 · T3mH_pR · 엘프 이기적) &mdash; 방어탱 + 활 + 법사 둘 · 4~7단계 의뢰 전부 &times; add 0/최대 &times; 150판 · 같은 씨앗. 시트 bow_verify/sheets_bow_v.json · bow_paths_v.json(R3f · S3Rf) · bow/sheets_bow*.json · bow_paths*.json. «레인저를 빼면» 은 SITE_noR, «현자 레벨만» 은 SITE_S(둘 다 사냥꾼 계열 시트 · 능력치 그대로). 2타 활은 research/weapon/wsim.md RMm(사냥꾼 계열 시트에 활만 바꿈) · 물리 무효 비율은 research/weapon/montraits.py. &times;1.05<sup>45</sup> &asymp; 9.0 은 위 NeedNextExp 의 1.05<sup>다른 직업 합</sup> 에 숨은 칼날의 궁사 20 + 스커미셔 15 + 숙련된 사냥꾼 10 을 넣은 계산입니다. 현자 35 약 1.6M 은 docs/HANDOFF.md 13번 항목.</p></details>
   </section>
 <section class="sec" id="sec-mage" data-sec="mage" data-upd="2026-10-19">
   <h2 id="mage"><span class="n">6</span>마법사 &mdash; 리스티아 휴먼 여 · 지능이 딜의 3분의 2</h2>
@@ -1079,8 +1103,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td>리스티아 휴먼 남<span class="sub">5단계 · Heal</span></td><td class="num">1.6<span class="sub">0%</span></td><td class="num">57</td><td class="num">39</td></tr>
     <tr style="color:var(--faint)"><td>드워프 여<span class="sub">트레반 · 6단계 · 마법사 · 정령사 · 마궁사 못 함</span></td><td class="num">0</td><td class="num">41</td><td class="num">39</td></tr>
   </tbody></table>
-  <p class="src">아래 ③ 카드(마궁사 4 판 · 민첩 직업 9곳 · 정정의 지팡이 · 법복 · 부적)를 종족만 바꿔 올린 값입니다 &mdash; 기본 능력치는 뽑기 평균, 초빙 포인트는 마나.
-     엘프는 성직 셋(지능 몫 4)이 빠집니다. 원자료: tools/sim/research/mage/ladder.json · race_stats.json.</p>
+  <details class="src"><summary>코드 근거</summary><p>아래 ③ 카드(마궁사 4 판 · 민첩 직업 9곳 · 정정의 지팡이 · 법복 · 부적)를 종족만 바꿔 올린 값입니다 &mdash; 기본 능력치는 뽑기 평균, 초빙 포인트는 마나.
+     엘프는 성직 셋(지능 몫 4)이 빠집니다. 원자료: tools/sim/research/mage/ladder.json · race_stats.json.</p></details>
   <ul>
     <li>휴먼 남성은 기본 지능 0~5 안팎(드라이레이크 남성은 언제나 0)이고, 윈달리온 · 브란샤르 주점은 남녀 모두 언제나 0 입니다.</li>
     <li>풋워커는 암흑마법사 · 마도병 · 정령사 · 마법사 계열을 못 해 법사가 안 됩니다.</li>
@@ -1133,7 +1157,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li>드라이레이크 여 둘은 리스티아 여 둘과 0.4%p 안입니다.</li>
     <li>절대값보다 <b>같은 씨앗끼리의 차이</b>로 읽습니다 &mdash; 시뮬은 맞았을 때 피해를 기록보다 크게 봅니다(37 대 25).</li>
   </ul>
-  <p class="src">방어탱 + 활 + 법사 둘 · 그 단계 의뢰 전부 · 보정 0 과 최대 · 의뢰마다 150판 · 같은 씨앗(탱 · 활 시트는 고정). 원자료: tools/sim/research/mage/mage_sim.md · paired.txt.</p>
+  <details class="src"><summary>코드 근거</summary><p>방어탱 + 활 + 법사 둘 · 그 단계 의뢰 전부 · 보정 0 과 최대 · 의뢰마다 150판 · 같은 씨앗(탱 · 활 시트는 고정). 원자료: tools/sim/research/mage/mage_sim.md · paired.txt.</p></details>
 
   <div class="note"><b>④ 둘째 법사 &mdash; 리스티아 여 하나 더, 또는 엘프 여(6~7단계).</b> Heal 은 휴먼 하나가 켜면 됩니다.
     <ul>
@@ -1167,7 +1191,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <li>민첩과 생명점은 단계마다 앞서거니 뒤서거니 합니다 &mdash; 민첩은 4단계 · 막 열었을 때(5단계 +6.1%p), 생명점은 5 · 6단계 다 갖춤에서 앞섭니다. 생명점 쪽은 시뮬의 «맞았을 때 피해» 가 기록보다 커서(37 대 25) 크게 나왔을 수 있습니다.</li>
     <li><b>민첩에 넣었다면 민첩 직업 9곳은 «HP 용» 입니다</b> &mdash; 9곳의 HP +5 로 7단계 다 갖춤 완료 98.7 &rarr; 99.0 · 법사 1인 사망 1.5 &rarr; 0.9% 입니다(9곳 몫 +0.81M · 사다리 기준).</li>
   </ul>
-  <p class="src">시뮬: tools/sim/research/mageagi/mageagi_sim.py · .md &mdash; 방어탱(혼합) + 활(R3f) + 법사 둘(둘 다 같은 배분) · 4~7단계 의뢰 전부 &times; add 0/최대 &times; 200판 · 같은 씨앗. 4 · 5단계는 사이트 법사 시트(실바드 &rarr; 리스티아), 6 · 7단계는 ③ 카드(마궁사 10 판). 시트 research/mage_verify/agi_alloc.mjs · agi_alloc45.mjs.</p>
+  <details class="src"><summary>코드 근거</summary><p>시뮬: tools/sim/research/mageagi/mageagi_sim.py · .md &mdash; 방어탱(혼합) + 활(R3f) + 법사 둘(둘 다 같은 배분) · 4~7단계 의뢰 전부 &times; add 0/최대 &times; 200판 · 같은 씨앗. 4 · 5단계는 사이트 법사 시트(실바드 &rarr; 리스티아), 6 · 7단계는 ③ 카드(마궁사 10 판). 시트 research/mage_verify/agi_alloc.mjs · agi_alloc45.mjs.</p></details>
 
   <h3>단계별 카드 &mdash; ① 1~4단계 · ② 5단계 · ③ 6~7단계</h3>
   <div class="role">
@@ -1226,7 +1250,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 </div>
     <p class="lede2" style="margin:6px 0 0">칩은 7단계 카드 그대로입니다(리스티아 여 평균 굴림 · 초빙 포인트 마나 7). 6단계에 다 올렸을 때는 마력 59 · HP 27 · 최대 MP 129 · 민첩 12(초빙 포인트를 민첩에 넣었으면 19) 입니다.
       아래 사다리 표는 기본 지능 6 · 마궁사 4 로 셉니다. 현자 30 은 따로 +0.94M(어느 순서에 넣어도 같습니다) · 통찰 +15 · 마방 +3 입니다.</p>
-    <p class="src">카드 시트 · 시뮬: tools/sim/research/mage_verify/sheets_card.json(법사·카드마궁10) · parts/ · 위 마궁사 25 시트와 같은 씨앗 짝 비교(6단계 +0.18±0.09%p · 7단계 막 열었을 때 &minus;0.39±0.32%p · 마궁사 4 판 &minus;3.76±0.92%p). 경험치는 훈련소 단계(암흑마법사 6 · 마도병 · 순례 사제 7)를 지킨 순서로 셈.</p>
+    <details class="src"><summary>코드 근거</summary><p>카드 시트 · 시뮬: tools/sim/research/mage_verify/sheets_card.json(법사·카드마궁10) · parts/ · 위 마궁사 25 시트와 같은 씨앗 짝 비교(6단계 +0.18±0.09%p · 7단계 막 열었을 때 &minus;0.39±0.32%p · 마궁사 4 판 &minus;3.76±0.92%p). 경험치는 훈련소 단계(암흑마법사 6 · 마도병 · 순례 사제 7)를 지킨 순서로 셈.</p></details>
   </div>
 
   <div class="note warn"><b>★ 배운 마법은 전부 «사용» 이 켜진 채 들어옵니다.</b>
@@ -1295,7 +1319,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      한 번에 붙는 양은 지팡이 <b>+1~+3</b>(정정 Lv23 · 5% 로 +5), 암숨의 법복·현맥의 부적은 <b>+1~+5</b>(Lv25) 입니다.
      한 방 크기는 방어구가 크지만 강화 1회 기대값은 지팡이 ≈ 부적 &gt; 법복입니다(대장간 31 기준 4.8 · 4.5 · 3.1).
      <b>+9 는 어느 경로로도 안 나옵니다.</b></div>
-  <p class="src">코드: BattleSkill.CanUse(MP 가 모자란 마법 빼기) · Weapon.AddMagicPower(지팡이 지능 몫) · Weapon.AddMp(지팡이 MP 몫) · Equipment.AddEnhancement(강화 덧붙이기).</p>
+  <details class="src"><summary>코드 근거</summary><p>코드: BattleSkill.CanUse(MP 가 모자란 마법 빼기) · Weapon.AddMagicPower(지팡이 지능 몫) · Weapon.AddMp(지팡이 MP 몫) · Equipment.AddEnhancement(강화 덧붙이기).</p></details>
 
   <h3>지능이 곧 딜입니다</h3>
   <p>마법 피해는 <code>Rand(스킬 최소, 최대) + <b>시전자 마력(지능)</b></code> 인데
@@ -1316,7 +1340,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      모험 경험치를 받을 때 <b>가진 직업을 전부 돌면서</b>
      그 직업 레벨에서 배울 마법을 확인합니다 &mdash;
      마법 부직업 하나에 <b>지능 · 새 마법 · 마나 · 마법 방어</b>가 한꺼번에 옵니다.</div>
-  <p class="src">코드: Character.ApplyAdventureExp · JobMaster.CanLearnSkills(그 직업 레벨).</p>
+  <details class="src"><summary>코드 근거</summary><p>코드: Character.ApplyAdventureExp · JobMaster.CanLearnSkills(그 직업 레벨).</p></details>
 
   <h4>«얇게 깔기» &mdash; 한 레벨의 값은 (레벨+1)<sup>2.5</sup></h4>
   <p>경험치 식에 <b>최대 레벨은 없습니다.</b> 레벨 하나의 값이 <code>(레벨+1)^2.5</code> 라
@@ -1416,8 +1440,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
     <tr><td class="num">20</td><td class="num">93%</td><td class="num">96%</td></tr>
     <tr class="hi"><td class="num"><b>28 · 29</b></td><td class="num"><b>100%</b> <span class="sm">(29)</span></td><td class="num">100% <span class="sm">(28)</span></td></tr>
   </tbody></table>
-  <p class="src">열린 지역 몬스터 371종 기준(몬스터 민첩 = <code>BattleCreature.Agility</code> · 마스터 값 그대로). <b>순서에는 굴림이 없습니다</b> &mdash; 매 라운드 민첩 숫자를 그대로 비교하고, 같으면 대개 우리 쪽이 먼저 섭니다
-     (줄을 «우리 → 몬스터» 순으로 만든 뒤 정렬이 그 순서를 대개 지킵니다 · 혼자 보낸 용병이 2마리 무리를 만날 때만 예외가 있습니다).</p>
+  <details class="src"><summary>코드 근거</summary><p>열린 지역 몬스터 371종 기준(몬스터 민첩 = <code>BattleCreature.Agility</code> · 마스터 값 그대로). <b>순서에는 굴림이 없습니다</b> &mdash; 매 라운드 민첩 숫자를 그대로 비교하고, 같으면 대개 우리 쪽이 먼저 섭니다
+     (줄을 «우리 → 몬스터» 순으로 만든 뒤 정렬이 그 순서를 대개 지킵니다 · 혼자 보낸 용병이 2마리 무리를 만날 때만 예외가 있습니다).</p></details>
   <div class="note"><b>칼레바스가 열려도 28 이 천장인 이유가 셋입니다.</b>
      <ul>
        <li><b>몬스터 민첩은 마스터 고정값입니다</b> &mdash;
@@ -1437,7 +1461,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      거는 몬스터는 <b>둘뿐</b>입니다 &mdash;
      할로우세인트(바람의 거친 경계 · 발두나)와 프로스트 구울(바람의 거친 경계 · 아르디오스 왕국 · 칼레바스).
      민첩 36 이면 슬로우를 맞아도 18 이라 86% 는 앞섭니다. 그 둘 때문에 56 까지 올릴 값어치는 없습니다.</div>
-  <p class="src">효과 번호: 민첩 상승 AgilityUp(45) · 가속 Haste(49) · 슬로우 Slow(48) · 레벨 보정 addLevel.</p>
+  <details class="src"><summary>코드 근거</summary><p>효과 번호: 민첩 상승 AgilityUp(45) · 가속 Haste(49) · 슬로우 Slow(48) · 레벨 보정 addLevel.</p></details>
   </section>
 <section class="sec" id="sec-spells" data-sec="spells" data-upd="2026-10-19">
   <h2 id="spells"><span class="n">7</span>마법 켜기 &mdash; 다 켜면 «가장 약한 것» 이 나갑니다</h2>
@@ -1597,10 +1621,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note"><b>실제로 잃는 것은 «물리 방어 10» 뿐입니다</b>(왕단의 옷 55~61 &rarr; 암숨의 법복 45~51).
      마법 직업은 방어구가 <b>부적 · 의복 두 칸</b>뿐이라 MP 회복의 천장이 그 둘의 합인데, 둘 다 회복으로 채워도 <b>장비 마법 방어는 39 &rarr; 43 으로 오히려 오릅니다</b>.
      발수는 MP 36~38 · 최대 MP 115 · 16턴으로 센 값입니다.</div>
-  <p class="src">그 밖에 MP 자동회복이 붙는 것 &mdash; <b>고목의 부적 6</b>(요구 Lv34) · 흑도회마의 부적 4 ·
+  <details class="src"><summary>코드 근거</summary><p>그 밖에 MP 자동회복이 붙는 것 &mdash; <b>고목의 부적 6</b>(요구 Lv34) · 흑도회마의 부적 4 ·
      서리환 재생의 부적 4 · 마천의 부적 3 · 아오미네의 부적 3 · 현왕의 마나탈리스맨 2 ·
      혈액 순환의 옷 3 · 검은 시길 의상 1.
-     마나림 헬름(투구) · 푸른 오라 갑옷 · 갈증의 갑옷(MP 6)은 <b>마법 직업이 못 낍니다</b> &mdash; 7.2 기준 천장은 13/턴입니다.</p>
+     마나림 헬름(투구) · 푸른 오라 갑옷 · 갈증의 갑옷(MP 6)은 <b>마법 직업이 못 낍니다</b> &mdash; 7.2 기준 천장은 13/턴입니다.</p></details>
 
   <h3>단일은 다크페인 하나 &mdash; 끄면 뒷줄 법사는 «헛턴» 입니다</h3>
   <p>단일 갈래는 <b>전체가 하나도 못 나가는 턴에만</b> 돕니다. 전체가 빠지는 때는 둘입니다 &mdash;
@@ -1695,11 +1719,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   <div class="note warn"><b>보스전이 오히려 적이 더 많습니다.</b> 중앙 3마리에 셋 이상이 60% 를 넘어
      <b>«보스에서만» 스위치로는 적 수를 못 가릅니다</b> &mdash;
      «보스니까 단일로 몰아친다» 가 성립하지 않습니다. <b>전부 꺼 둡니다.</b></div>
-  <p class="src">BattleSkill.SkillAttack &middot; PhysicsDamageSkill &middot; SkillMaster.get_UseMp &middot;
+  <details class="src"><summary>코드 근거</summary><p>BattleSkill.SkillAttack &middot; PhysicsDamageSkill &middot; SkillMaster.get_UseMp &middot;
      BattleActionSelector.SelectActions &middot; SelectBestRangeSkillAction &middot; BattleSkill.CanUse &middot;
      BattleSkill.SkillHeal &middot; Armor.AutoHealMp &middot; BattleTurnProcessor.OnTurnEnd &middot; AdventureResultDialog.Finish(HealMp) &middot;
      Weapon.get_Target &middot; GetInitialTargets &middot; Battle.Action &middot;
-     퀘스트 1,467개 · 몬스터 371종 전수(7.2 · 퀘스트당 전투 수만 7.3 1,495개로 다시 셈 &mdash; 중앙 · 평균 · 최대 같음)</p>
+     퀘스트 1,467개 · 몬스터 371종 전수(7.2 · 퀘스트당 전투 수만 7.3 1,495개로 다시 셈 &mdash; 중앙 · 평균 · 최대 같음)</p></details>
   </section>
 <section class="sec" id="sec-spear" data-sec="spear" data-upd="2026-10-19">
   <h2 id="spear"><span class="n">8</span>기타 &mdash; 창과 나머지 무기</h2>
@@ -1796,12 +1820,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
       <li><b>HP 낮은 뒷줄이 전체 공격 무기로 평타</b> &mdash; 치는 몬스터마다 반격 · 반사를 받을 수 있습니다. 4단계 성직자(담쟁이 폭풍의 지팡이) 사망의 62% 가 자기 공격 중에 나왔습니다.</li>
       <li><b>도둑 주직업 + 활</b> &mdash; 무기 피해가 절반이 됩니다(풋워커는 면제 · <a href="#bow">&sect;5</a>).</li>
     </ul></div>
-  <p class="src">근거: tools/sim/research/weapon/wsim.md(의뢰 전부 · 첫 클리어와 반복 반반 · 같은 씨앗 150판) · weapon_verify/vsim_agg.txt(법사 없는 4인) · phys/phys_sim.md · sex/sex_sim.md · wsurvey.json · montraits.json · spearexp.mjs · stage_4.md · evasion_path_sim_weapon.md · sheets.json · full/meta.json · docs/HANDOFF.md 15 · 16절.</p>
-  <p class="src">기준 구성은 시뮬 시트(sheets.json)의 방어탱 + 활 + 법사 둘이라 <a href="#stages">&sect;0</a> 추천 값과 다르고, 활 딜러도 숨은 칼날의 궁사 · 마궁사 · 레인저 주 시트입니다(<a href="#bow">&sect;5</a> 의 레인저 · 도둑 · 현자 판으로는 다시 돌리지 않았습니다). 시트 창은 4단계 관통 · 5~7단계 마법 + 관통이고, 4단계 시트의 블리자드 스피어는 쓰이지 않았습니다.</p>
-  <p class="src">눈물 흘리는 창 · 2타 활 · 활 딜러가 창을 든 판은 무기만 바꾼 가상 시트입니다(능력치 · 레벨은 그대로 · 눈물 흘리는 창 판에 모험가 36 의 HP 몫은 안 넣음). 7단계 시뮬은 세이브보다 사망을 낮게 봅니다(회피탱 약 3분의 1) &mdash; 같은 씨앗 짝 비교로 읽으세요. 창 딜러 값은 세이브 실측과 대조하지 않았습니다.</p>
-  <p class="src">2타 무기 18자루는 7.2 데이터 기준이고, 직업 표에는 17종(검 6)으로 적혀 있습니다 &mdash; 검 한 자루 차이의 까닭은 미확인입니다. 2타 활은 5 · 6단계와 7단계 막 열었을 때 추격의 활, 7단계 다 갖춤 유사의 활입니다.</p>
-  <p class="src">코드: Weapon.get_Target 0x270AEB0 · IsFront 0x270A670 · Terrain.GetHitRateModifier 0x2729910 · Weapon.CriticalRate 0x270AB2C · CanCriticalOccur 0x26B8CF0 · SelectActions 0x26C28E4(풍현사 0x26C290C) · 반격 0x26C84AC~0x26C8614(물리 무효 0x26C85E8) · MinAttackPoint 0x26DBBD8 · 7.3 반격 인챈트 덧셈 0x26C87D0 · 반격 뒤 추가 속성 호출 0x26C8800 → ApplyAdditionalElementDamage 0x26C94D4(7.3 주소).</p>
-  <p class="src">7.3 반격 영향: tools/sim/research/ctr73/impact73.py(같은 씨앗으로 7.3 규칙과 7.2 규칙 no_ctr_elem 을 견줌 &mdash; 라그네스 · 카샨 쩔 후보 · 쩔 탱 시트 8장 · 단검 회피탱 파티 8벌 의뢰 전부 모두 같음 · 시트 무기 2,287칸 중 «반격 + 속성» 0(정답 묶음에 일부러 심은 것 빼고)) &rarr; impact73.json.</p>
+  <details class="src"><summary>코드 근거</summary><p>근거: tools/sim/research/weapon/wsim.md(의뢰 전부 · 첫 클리어와 반복 반반 · 같은 씨앗 150판) · weapon_verify/vsim_agg.txt(법사 없는 4인) · phys/phys_sim.md · sex/sex_sim.md · wsurvey.json · montraits.json · spearexp.mjs · stage_4.md · evasion_path_sim_weapon.md · sheets.json · full/meta.json · docs/HANDOFF.md 15 · 16절.</p></details>
+  <details class="src"><summary>코드 근거</summary><p>기준 구성은 시뮬 시트(sheets.json)의 방어탱 + 활 + 법사 둘이라 <a href="#stages">&sect;0</a> 추천 값과 다르고, 활 딜러도 숨은 칼날의 궁사 · 마궁사 · 레인저 주 시트입니다(<a href="#bow">&sect;5</a> 의 레인저 · 도둑 · 현자 판으로는 다시 돌리지 않았습니다). 시트 창은 4단계 관통 · 5~7단계 마법 + 관통이고, 4단계 시트의 블리자드 스피어는 쓰이지 않았습니다.</p></details>
+  <details class="src"><summary>코드 근거</summary><p>눈물 흘리는 창 · 2타 활 · 활 딜러가 창을 든 판은 무기만 바꾼 가상 시트입니다(능력치 · 레벨은 그대로 · 눈물 흘리는 창 판에 모험가 36 의 HP 몫은 안 넣음). 7단계 시뮬은 세이브보다 사망을 낮게 봅니다(회피탱 약 3분의 1) &mdash; 같은 씨앗 짝 비교로 읽으세요. 창 딜러 값은 세이브 실측과 대조하지 않았습니다.</p></details>
+  <details class="src"><summary>코드 근거</summary><p>2타 무기 18자루는 7.2 데이터 기준이고, 직업 표에는 17종(검 6)으로 적혀 있습니다 &mdash; 검 한 자루 차이의 까닭은 미확인입니다. 2타 활은 5 · 6단계와 7단계 막 열었을 때 추격의 활, 7단계 다 갖춤 유사의 활입니다.</p></details>
+  <details class="src"><summary>코드 근거</summary><p>코드: Weapon.get_Target 0x270AEB0 · IsFront 0x270A670 · Terrain.GetHitRateModifier 0x2729910 · Weapon.CriticalRate 0x270AB2C · CanCriticalOccur 0x26B8CF0 · SelectActions 0x26C28E4(풍현사 0x26C290C) · 반격 0x26C84AC~0x26C8614(물리 무효 0x26C85E8) · MinAttackPoint 0x26DBBD8 · 7.3 반격 인챈트 덧셈 0x26C87D0 · 반격 뒤 추가 속성 호출 0x26C8800 → ApplyAdditionalElementDamage 0x26C94D4(7.3 주소).</p></details>
+  <details class="src"><summary>코드 근거</summary><p>7.3 반격 영향: tools/sim/research/ctr73/impact73.py(같은 씨앗으로 7.3 규칙과 7.2 규칙 no_ctr_elem 을 견줌 &mdash; 라그네스 · 카샨 쩔 후보 · 쩔 탱 시트 8장 · 단검 회피탱 파티 8벌 의뢰 전부 모두 같음 · 시트 무기 2,287칸 중 «반격 + 속성» 0(정답 묶음에 일부러 심은 것 빼고)) &rarr; impact73.json.</p></details>
   </section>
 <section class="sec" id="sec-gear" data-sec="gear" data-upd="2026-10-19">
   <h2 id="gear"><span class="n">9</span>무기 · 방어구 총정리</h2>
@@ -1894,8 +1918,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
      지금은 배포 버전 코드가 7지역까지만 열리게 막혀 있어 못 갑니다 &mdash;
      해금 퀘스트는 자르간트의 「칼레도 가도의 산길을 뚫다」(Lv35)입니다(<a href="regions.html#r78">지역 7&rarr;8</a>).
      훈련소가 어느 마을 의뢰로 열리는지는 <a href="regions.html#caps">지역 &sect;9</a> 에 단계별로 있습니다.</div>
-  <p class="src">지금 내 훈련소가 몇 레벨인지는 <a href="save.html">내 세이브</a> 에서 봅니다 &mdash;
-     이 문서는 «데이터 천장» 만 말합니다.</p>
+  <details class="src"><summary>코드 근거</summary><p>지금 내 훈련소가 몇 레벨인지는 <a href="save.html">내 세이브</a> 에서 봅니다 &mdash;
+     이 문서는 «데이터 천장» 만 말합니다.</p></details>
   </section>
 </main>
 <script>
