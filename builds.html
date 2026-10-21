@@ -354,7 +354,9 @@ details.src>summary:focus-visible{outline:2px solid var(--accent);outline-offset
   .doc table.stack,.doc table.stack tbody,.doc table.stack tr,.doc table.stack td{display:block;width:auto}
   .doc table.stack thead{display:none}
   .doc table.stack tr{padding:10px 0;border-bottom:1px solid var(--line-soft)}
-  .doc table.stack td{border:0;padding:2px 0;position:static;background:none;box-shadow:none}
+  .doc table.stack td{border:0;padding:2px 0;position:static;background:none;box-shadow:none;text-align:left}
+  .doc table.stack tr.hi{background:var(--raised);box-shadow:inset 2px 0 0 var(--accent);padding:10px 8px 10px 10px}
+  .doc table.stack tr.hi td:first-child{box-shadow:none;padding-left:0;background:none}
   .doc table.stack td:first-child{font-size:14.5px;font-weight:600;color:var(--ink);padding-bottom:4px}
   .doc table.stack td[data-label]::before{content:attr(data-label) "  ";font-size:11.5px;color:var(--faint)}
 }
@@ -813,10 +815,10 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
 
   <h3>엘프냐 풋워커냐</h3>
   <table class="t stack"><thead><tr><th>단계</th><th>엘프 &mdash; 도둑 주</th><th>풋워커 &mdash; 궁사 &rarr; 6단계 도둑 주</th></tr></thead><tbody>
-    <tr><td class="num">4</td><td data-label="엘프 — 도둑 주">완봉 31 · HP 25 · 마방 44 · <b>1.22M</b><span class="sub">탱 사망 2.1 · 전멸 1.9</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 31 · HP 31 · 마방 39 · <b>1.48M</b><span class="sub">탱 사망 2.0 · 전멸 1.8</span></td></tr>
-    <tr><td class="num">5</td><td data-label="엘프 — 도둑 주">완봉 38 · HP 31 · 마방 40 · <b>3.93M</b><span class="sub">탱 사망 2.5 · 전멸 2.0</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 34 · HP 35 · 마방 40 · <b>5.52M</b><span class="sub">탱 사망 7.5 · 전멸 5.0</span></td></tr>
-    <tr><td class="num">6</td><td data-label="엘프 — 도둑 주">완봉 <b>48</b> · HP 34 · 마방 45 · <b>9.34M</b><span class="sub">탱 사망 0.6 · 전멸 0.32</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 <b>48</b> · HP 38 · 마방 <b>35</b> · <b>14.1M</b><span class="sub">탱 사망 0.7 · 전멸 0.27</span></td></tr>
-    <tr class="hi"><td class="num">7</td><td data-label="엘프 — 도둑 주">완봉 <b>55</b> · HP 37 · 마방 46 · <b>17.5M</b><span class="sub">탱 사망 0.9 · 전멸 0.39 · 금고 98.1</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 <b>55</b> · HP 41 · 마방 <b>35</b> · <b>30.6M</b><span class="sub">탱 사망 0.9 · 전멸 0.30 · 금고 99.0</span></td></tr>
+    <tr><td class="num" data-label="단계">4</td><td data-label="엘프 — 도둑 주">완봉 31 · HP 25 · 마방 44 · <b>1.22M</b><span class="sub">탱 사망 2.1 · 전멸 1.9</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 31 · HP 31 · 마방 39 · <b>1.48M</b><span class="sub">탱 사망 2.0 · 전멸 1.8</span></td></tr>
+    <tr><td class="num" data-label="단계">5</td><td data-label="엘프 — 도둑 주">완봉 38 · HP 31 · 마방 40 · <b>3.93M</b><span class="sub">탱 사망 2.5 · 전멸 2.0</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 34 · HP 35 · 마방 40 · <b>5.52M</b><span class="sub">탱 사망 7.5 · 전멸 5.0</span></td></tr>
+    <tr><td class="num" data-label="단계">6</td><td data-label="엘프 — 도둑 주">완봉 <b>48</b> · HP 34 · 마방 45 · <b>9.34M</b><span class="sub">탱 사망 0.6 · 전멸 0.32</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 <b>48</b> · HP 38 · 마방 <b>35</b> · <b>14.1M</b><span class="sub">탱 사망 0.7 · 전멸 0.27</span></td></tr>
+    <tr class="hi"><td class="num" data-label="단계">7</td><td data-label="엘프 — 도둑 주">완봉 <b>55</b> · HP 37 · 마방 46 · <b>17.5M</b><span class="sub">탱 사망 0.9 · 전멸 0.39 · 금고 98.1</span></td><td data-label="풋워커 — 궁사 → 6단계 도둑 주">완봉 <b>55</b> · HP 41 · 마방 <b>35</b> · <b>30.6M</b><span class="sub">탱 사망 0.9 · 전멸 0.30 · 금고 99.0</span></td></tr>
   </tbody></table>
   <p class="sm">굵은 완봉 · 마방은 강화를 넣은 값입니다(아래 <a href="#dodge-craft">«강화로 채울 것»</a>) &mdash; 카드 그대로면 6단계 46 · 45, 7단계 50 · 50, 풋워커 마방 9 · 10. 다 갖춤 · 보정 0 과 최대 · 의뢰마다 200판 · 같은 씨앗 · %.</p>
   <ul>

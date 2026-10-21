@@ -355,7 +355,9 @@ details.src>summary:focus-visible{outline:2px solid var(--accent);outline-offset
   .doc table.stack,.doc table.stack tbody,.doc table.stack tr,.doc table.stack td{display:block;width:auto}
   .doc table.stack thead{display:none}
   .doc table.stack tr{padding:10px 0;border-bottom:1px solid var(--line-soft)}
-  .doc table.stack td{border:0;padding:2px 0;position:static;background:none;box-shadow:none}
+  .doc table.stack td{border:0;padding:2px 0;position:static;background:none;box-shadow:none;text-align:left}
+  .doc table.stack tr.hi{background:var(--raised);box-shadow:inset 2px 0 0 var(--accent);padding:10px 8px 10px 10px}
+  .doc table.stack tr.hi td:first-child{box-shadow:none;padding-left:0;background:none}
   .doc table.stack td:first-child{font-size:14.5px;font-weight:600;color:var(--ink);padding-bottom:4px}
   .doc table.stack td[data-label]::before{content:attr(data-label) "  ";font-size:11.5px;color:var(--faint)}
 }
