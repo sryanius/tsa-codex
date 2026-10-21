@@ -441,7 +441,8 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   <p class="sm">7단계 다 갖춤 · 의뢰 전부 · 보정 0 과 최대 · 의뢰마다 300판 · 같은 씨앗 · 모두 %. 금고 열림 = 열린 금고 &divide; 나타난 금고. 금고가 있는 의뢰만 보면 판당 여는 금고가 1.008 &rarr; 1.078 개(+7%)이고 함정은 판당 0.06 &rarr; 0.03 번입니다.</p>
   <ul>
     <li><b>완봉 55 가 조건입니다</b> &mdash; &sect;3 카드는 회피 능력 44 · 민첩 44(완봉 50)라 전멸이 0.31 &rarr; 0.79% 로 늘어납니다.
-        방어구 강화로 회피 +1~2 가 붙으니(<a href="notes.html#craft">원리 &sect;11</a>) 부적 · 옷에서 +4~5, 강화 민첩으로 민첩 45 를 넘기면 55 입니다(화면 값은 <a href="notes.html#dodgeline">원리 &sect;5 지역별 완봉선</a>).</li>
+        방어구 강화로 회피 +1~2 가 붙으니(<a href="notes.html#craft">원리 &sect;11</a>) 부적 · 옷에서 +4~5, 강화 민첩으로 민첩 45 를 넘기면 55 입니다(화면 값은 <a href="notes.html#dodgeline">원리 &sect;5 지역별 완봉선</a>).
+        강화가 안 붙었으면 엘프는 부직업으로 메우고(+8.7M), 풋워커는 그동안 방어탱 파티로 갑니다(<a href="#dodge-nocraft">&sect;3 강화를 못 했을 때</a>).</li>
     <li><b>활 딜러는 빼지 않습니다</b> &mdash; 회피탱 + 방어탱 + 법사 둘(활 없음)은 도둑이 회피탱 하나라 금고 이득이 없습니다(아래 제작자 용병으로 92.5% · 방어탱 파티 94.9%).</li>
     <li>새 지역을 막 열었을 때와 몬스터 드랍(모르는 적이면 드랍 판정이 절반)은 재지 않았습니다.</li>
   </ul>
@@ -794,7 +795,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   <p class="secdate">2026-10-21 갱신</p>
   <div class="gist"><b class="gist-h">요점</b><ul>
     <li>엘프든 풋워커든 6·7단계는 <b>도둑 주직업</b>입니다. 엘프는 4단계부터 도둑 주 한 줄(7단계까지 <b>17.5M</b>), 풋워커는 4·5단계 숨은 칼날의 궁사 주로 키우다 6단계에 도둑 주로 바꿉니다(<b>30.6M</b>).</li>
-    <li>강화로 완봉을 6단계 48 · 7단계 <b>55</b> 까지 올립니다(옷 · 부적 · 방패의 강화 회피). 풋워커는 도둑 주가 되면 부적 칸이 없어 <b>마방 35</b> 를 따로 채웁니다(검은 봉인의 방패 + 강화).</li>
+    <li>강화로 완봉을 6단계 48 · 7단계 <b>55</b> 까지 올립니다(옷 · 부적 · 방패의 강화 회피). 풋워커는 도둑 주가 되면 부적 칸이 없어 <b>마방 35</b> 를 따로 채웁니다(검은 봉인의 방패 + 강화). 강화가 안 붙으면 엘프는 부직업으로(+8.7M) 메우고, 풋워커는 그동안 방어탱 파티로 의뢰를 돕니다(<a href="#dodge-nocraft">아래</a>).</li>
     <li>그러면 6·7단계 <b>회피탱 + 활 + 법사 둘</b>이 방어탱 파티와 같은 안전으로 금고를 더 엽니다(7단계 92 &rarr; 98~99%). 새 지역을 막 열었을 때와 5단계는 방어탱 파티가 낫습니다.</li>
     <li>무기는 <b>마법 활</b>입니다 &mdash; 단검으로 아이스 맨드레이크를 때리면 반사 마비에 걸립니다. 쩔에는 반격 단검만 바꿔 쥡니다.</li>
   </ul></div>
@@ -898,6 +899,28 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <li><b>4·5단계는 도둑 주로 가지 않습니다</b> &mdash; 검은 봉인의 방패가 6단계 물건이라 5단계에는 마방을 채울 길이 없고, 마방 5 면 5단계 회피탱 사망이 17% 입니다(궁사 주 시트의 마방만 바꿔 근사 · 마방 35 면 7.8%).</li>
   </ul>
   <details class="src"><summary>코드 근거</summary><p>tools/sim/research/farm/mdef_sim.py · mdef_report.txt &mdash; 도둑 주 시트 = sheets_path_fwFree(6·7단계) · 마검사 주 = fwTSA2 · 엘프 = elfTSA2a · 완봉은 회피값을 올려 맞춤 · 경험치는 evasion_path_custom_fwFree.json(누적 30.55M).</p></details>
+
+  <h4 id="dodge-nocraft">강화 · 장비를 못 구했을 때</h4>
+  <p>강화는 단계마다 후보 가운데 하나만 무작위로 붙어서(<a href="notes.html#craft">원리 &sect;11</a>) 원하는 회피 · 마방이 안 붙을 수 있고, 검은 봉인의 방패도 금고에서만 나옵니다.
+     4·5단계 카드는 강화 없이 맞춘 값이라 그대로 쓰고, 6·7단계는 아래처럼 갑니다.</p>
+  <table class="t"><thead><tr><th>7단계 <span class="sm">회피탱 + 활 + 법사 둘</span></th><th class="num">경험치</th><th class="num">탱<br>사망</th><th class="num">전멸</th></tr></thead><tbody>
+    <tr><td>엘프 · 강화 <span class="sub">완봉 55 &mdash; 위 카드</span></td><td class="num">17.5M</td><td class="num">0.9</td><td class="num">0.39</td></tr>
+    <tr><td>엘프 · 강화 없이 카드 그대로 <span class="sub">완봉 50</span></td><td class="num">17.5M</td><td class="num">1.5</td><td class="num">0.76</td></tr>
+    <tr class="hi"><td><b>엘프 · 부직업으로 완봉 55</b> <span class="sub">HP 45</span></td><td class="num">26.2M</td><td class="num"><b>0.35</b></td><td class="num"><b>0.17</b></td></tr>
+    <tr><td>풋워커 · 강화 <span class="sub">완봉 55 · 마방 35 &mdash; 위 카드</span></td><td class="num">30.6M</td><td class="num">0.9</td><td class="num">0.30</td></tr>
+    <tr style="color:var(--f-vault)"><td>풋워커 · 강화 없이 카드 그대로 <span class="sub">완봉 50 · 마방 10</span></td><td class="num">30.6M</td><td class="num">3.8</td><td class="num">1.56</td></tr>
+    <tr style="color:var(--f-vault)"><td>풋워커 · 방패만 검은 봉인의 방패 <span class="sub">완봉 50 · 마방 21</span></td><td class="num">30.6M</td><td class="num">3.2</td><td class="num">1.26</td></tr>
+    <tr><td>풋워커 · 부직업으로 완봉 55 + 방패 <span class="sub">마방 23 · HP 50</span></td><td class="num">68.7M</td><td class="num">0.96</td><td class="num">0.33</td></tr>
+    <tr style="color:var(--muted)"><td>방어탱 + 활 + 법사 둘 <span class="sub">&sect;0 기준</span></td><td class="num">&mdash;</td><td class="num">0.5</td><td class="num">0.32</td></tr>
+  </tbody></table>
+  <p class="sm">7단계 의뢰 전부 · 보정 0 과 최대 · 의뢰마다 200판 · 같은 씨앗 · %. 6단계(강화 없이)는 엘프 카드 0.7 · 0.37 / 엘프 부직업 0.4 · 0.25 / 풋워커 카드 2.2 · 0.90 / 방패만 1.9 · 0.72 / 방어탱 파티 0.2 · 0.12.</p>
+  <ul>
+    <li><b>엘프는 강화 없이도 됩니다</b> &mdash; 카드 그대로면 전멸이 두 배(0.76%)지만 금고 의뢰에는 쓸 만하고, 부직업을 숨은 칼날의 궁사 20 · 전술병 11 · 베테랑 파이터 10 · 숙련된 사냥꾼 10 까지 더 올리면(+8.7M) HP 가 45 로 올라 가장 안전합니다.</li>
+    <li><b>풋워커는 강화가 붙기 전까지 7단계 의뢰를 회피탱 파티로 돌지 않습니다</b> &mdash; 카드 그대로 전멸 1.56%, 방패만 바꿔도 1.26% 입니다. 부직업으로 메우면 68.7M 으로 마검사 주(62.7M)보다 비쌉니다.
+        그동안 의뢰는 방어탱 파티로 돌고, 회피탱은 자유 탐색 · 쩔에 씁니다(카드 완봉 50 이면 칼레바스 자유 탐색 48 을 넘습니다).</li>
+    <li><b>검은 봉인의 방패를 못 얻었으면</b> &mdash; 힘이 닿는 마방 방패는 에코 쉴드(Lv22 · 마방 8 · 힘 31 · 드라이레이크 헤이븐 금고)와 굴절 방패(Lv24 · 9 · 힘 33 · 국경을 넘는 숙소 금고 · 7단계 힘 34 부터)입니다. 둘 다 마법 방어구라 강화 마방이 붙지만 검은 봉인의 방패보다 2~3 낮습니다.</li>
+  </ul>
+  <details class="src"><summary>코드 근거</summary><p>tools/sim/research/farm/alt_sim.py · alt_report.json &mdash; 엘프 부직업 판 = evasion_path.mjs --custom elfNoCraft(목표 완봉 31 · 38 · 48 · 55 · 26.17M) · 풋워커 = fwNoCraft(4·5 궁사 주 · 6·7 도둑 주 · 68.69M)에 검은 봉인의 방패(마방 +11 · 방패 회피 −5) · 방패만 = fwFree 카드에 같은 방패.</p></details>
 
   <h3 id="dodge-party">파티에서 &mdash; 회피탱 + 활 + 법사 둘</h3>
   <table class="t"><thead><tr><th>7단계 다 갖춤 <span class="sm">강화 넣음</span></th><th class="num">전멸</th><th class="num">누군가<br>사망</th><th class="num">금고</th></tr></thead><tbody>
