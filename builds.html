@@ -796,6 +796,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <li>한 용병을 4단계부터 7단계까지 이어 키웁니다. <b>대개 엘프</b>입니다 &mdash; 7단계까지 경험치가 17.5M 으로 풋워커(62.7M)의 3분의 1 이 안 됩니다.</li>
     <li>무기는 <b>마법 활</b>입니다. 단검처럼 앞에서 휘두르면 반사 마비를 받습니다 &mdash; 세이브의 7단계 회피탱 사망 절반이 그것이었습니다.</li>
     <li>도둑 · 현자는 단계마다 천장까지, 모험가는 한 칸 위로 올립니다. 초빙 포인트는 전부 민첩입니다.</li>
+    <li>풋워커를 도둑 주로 키우면 경험치가 절반(30.6M)이지만 부적 칸이 없어 <b>마방을 35 이상</b> 채워야 합니다 &mdash; 방패 교체와 강화로 닿습니다(<a href="#dodge-fw-thief">아래</a>).</li>
     <li>방어구 강화로 회피 +4~5 를 얹어 <b>완봉 55</b> 면 칼레바스 퀘스트까지 안 맞고, 7단계 금고 의뢰는 회피탱 + 활 + 법사 둘이 방어탱 파티보다 금고를 더 엽니다(<a href="#stages-farm">&sect;0</a>).</li>
     <li>쩔에 쓸 때는 반격 단검(돌아온 칼날의 단검)만 바꿔 쥡니다.</li>
   </ul></div>
@@ -863,6 +864,26 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   </div>
   <details class="src"><summary>코드 근거</summary><p>해제 = 도둑 레벨 + ⌊흔들림 최솟값(재주) ÷ 6⌋ · 발견 = 도둑 레벨 + ⌊흔들림 최솟값(통찰) ÷ 6⌋(리더면 +보너스) &mdash;
      확정선(해제 · 발견 중앙)은 아르디오스 27 · 26 · 바람 33 · 32 · 발두나 39 · 37 · 칼레바스 44 · 43(<a href="notes.html#check">원리 &sect;8</a>). 모자라도 한 사람이 굴려 4 모자라면 93%, 6 이면 83% 입니다.</p></details>
+  <h3 id="dodge-fw-thief">풋워커를 도둑 주로 키운다면 &mdash; 마방 35 이상</h3>
+  <p>풋워커는 도둑 주직업이면 부적 칸이 없어 마법 방어가 10 안팎에 머뭅니다. 대신 경험치가 크게 줄어 키우기가 훨씬 수월합니다 &mdash;
+     4·5단계는 숨은 칼날의 궁사 주, 6단계에 도둑 주로 바꾸면 7단계까지 <b>30.6M</b>(마검사 주 62.7M). 남는 일은 마법 방어를 채우는 것입니다.</p>
+  <table class="t"><thead><tr><th>마방</th><th class="num">7단계<br>탱 사망</th><th class="num">7단계<br>전멸</th><th class="num">6단계<br>탱 사망</th></tr></thead><tbody>
+    <tr style="color:var(--f-vault)"><td>10 <span class="sub">옷 + 테라 버클러 그대로</span></td><td class="num">3.1</td><td class="num">1.17</td><td class="num">1.9</td></tr>
+    <tr><td>21 <span class="sub">방패를 검은 봉인의 방패로</span></td><td class="num">2.4</td><td class="num">0.84</td><td class="num">1.6</td></tr>
+    <tr><td>31 <span class="sub">+ 강화 마방 10</span></td><td class="num">1.4</td><td class="num">0.44</td><td class="num">0.9</td></tr>
+    <tr class="hi"><td><b>35</b> <span class="sub">+ 강화 마방 14 · 엘프 도둑 주와 같은 급</span></td><td class="num"><b>0.9</b></td><td class="num">0.30</td><td class="num">0.7</td></tr>
+    <tr><td>45</td><td class="num">0.5</td><td class="num">0.20</td><td class="num">0.3</td></tr>
+    <tr style="color:var(--muted)"><td>마검사 주 <span class="sub">마방 50~51 · HP 47</span></td><td class="num">0.17</td><td class="num">0.07</td><td class="num">0.16</td></tr>
+  </tbody></table>
+  <p class="sm">도둑 주 풋워커 회피탱(완봉 6단계 48 · 7단계 55) + 활 + 법사 둘 · 그 단계 의뢰 전부 · 보정 0 과 최대 · 의뢰마다 200판 · 같은 씨앗 · %. 도둑 주 시트(7단계 HP 41)에서 마방만 바꿨고, 방패를 바꾼 줄은 방패 회피를 5 뺐습니다(그래도 마방이 같은 줄과 결과가 같았습니다). 엘프 도둑 주(마방 46 · HP 37)는 7단계 0.9 · 0.39 입니다.</p>
+  <ul>
+    <li><b>마방 35 가 갈림선입니다</b> &mdash; 25 아래는 거의 그대로 위험하고(7단계 회피탱 사망 3.1 &rarr; 2.3%), 35 에서 0.9% 로 엘프 회피탱과 같아집니다. 마검사 주만큼 안전하려면 45~55 입니다.</li>
+    <li><b>채우는 길</b> &mdash; 방패를 <b>검은 봉인의 방패</b>(Lv26 · 마방 11 · 힘 30 · 용광로 마을 금고)로 바꾸면 21 입니다. 옷(통풍이 잘되는 옷)과 이 방패는 둘 다 마법 방어구라
+        강화의 매 단계에 마방이 후보로 오릅니다(<a href="notes.html#craft">원리 &sect;11</a>) &mdash; 제작자 회피탱의 같은 방패는 강화로 마방 +8 이 붙었습니다.
+        영묘 · 회색 · 하나모리 방패는 힘 36~39 가 필요해 이 시트(7단계 힘 34)로는 못 낍니다.</li>
+    <li><b>4·5단계는 도둑 주로 가지 않습니다</b> &mdash; 검은 봉인의 방패가 6단계 물건이라 5단계에는 마방을 채울 길이 없고, 마방 5 면 5단계 회피탱 사망이 17% 입니다(궁사 주 시트의 마방만 바꿔 근사 · 마방 35 면 7.8%).</li>
+  </ul>
+  <details class="src"><summary>코드 근거</summary><p>tools/sim/research/farm/mdef_sim.py · mdef_report.txt &mdash; 도둑 주 시트 = sheets_path_fwFree(6·7단계) · 마검사 주 = fwTSA2 · 엘프 = elfTSA2a · 완봉은 회피값을 올려 맞춤 · 경험치는 evasion_path_custom_fwFree.json(누적 30.55M).</p></details>
   <details class="more"><summary>두 갈래 공통 &mdash; 도둑 · 현자 · 모험가 · 마법 활을 고른 까닭</summary>
   <h3>두 갈래 공통 &mdash; 왜 이렇게 짰나</h3>
   <ul>
