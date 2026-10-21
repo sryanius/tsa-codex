@@ -946,12 +946,34 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <li><b>금고 의뢰에 씁니다</b> &mdash; 활 딜러와 회피탱이 둘 다 도둑이라 금고가 더 열립니다(<a href="#stages-farm">&sect;0 7단계 금고 의뢰</a>).</li>
     <li><b>새 지역을 막 열었을 때와 5단계는 방어탱 파티로</b> &mdash; 7단계를 6단계 카드로 열면 전멸이 방어탱 파티 9.6% · 회피탱 엘프 22.2% · 풋워커 28.4%, 5단계 다 갖춤도 0.62% 대 2.0 · 5.0% 입니다.</li>
   </ul>
+  <h4 id="dodge-ranger">레인저도 올릴까 &mdash; 혼자 보낼 회피탱만</h4>
+  <p>레인저로 찾는 함정(140종 중 67종)은 파티에서는 활 딜러(레인저 35)가 굴립니다. 회피탱까지 레인저를 올리면 굴릴 사람이 하나 더 생길 뿐이라 차이가 작고,
+     활 없이 <b>혼자</b> 가면 회피탱이 유일하게 굴리는 사람이라 차이가 큽니다.</p>
+  <table class="t"><thead><tr><th>7단계 의뢰</th><th class="num">경험치<br>7단계까지</th><th class="num">파티<br>전멸</th><th class="num">혼자<br>쓰러짐</th></tr></thead><tbody>
+    <tr><td>엘프 &mdash; 지금 카드</td><td class="num">17.5M</td><td class="num">0.39</td><td class="num">45</td></tr>
+    <tr><td>엘프 + 레인저 20 <span class="sub">다 키운 뒤 +12.5M</span></td><td class="num">30.0M</td><td class="num">0.27</td><td class="num">38</td></tr>
+    <tr><td>엘프 + 레인저 천장 <span class="sub">다 키운 뒤 +85.1M</span></td><td class="num">103M</td><td class="num">0.19</td><td class="num"><b>30</b></td></tr>
+    <tr><td>풋워커 &mdash; 지금 카드</td><td class="num">30.4M</td><td class="num">0.30</td><td class="num">33</td></tr>
+    <tr><td>풋워커 + 레인저 20 <span class="sub">처음부터</span></td><td class="num">58.2M</td><td class="num">0.28</td><td class="num">29</td></tr>
+    <tr><td>풋워커 + 레인저 천장 <span class="sub">처음부터 · 다 키운 뒤면 256M</span></td><td class="num">166M</td><td class="num">0.20</td><td class="num"><b>24</b></td></tr>
+  </tbody></table>
+  <p class="sm">강화로 완봉 55(풋워커 마방 35)를 똑같이 맞춰 레인저 몫만 남긴 값입니다. 7단계 의뢰 전부 &times; 보정 0 · 최대 &times; 200판 · 같은 씨앗 · %. 파티 = 회피탱 + 활 + 법사 둘.</p>
+  <ul>
+    <li><b>파티에서는 올릴 값이 없습니다</b> &mdash; 전멸 0.39 &rarr; 0.19%, 금고 98.1 &rarr; 98.7% 에 엘프 +85M 입니다.</li>
+    <li><b>혼자 보낼 회피탱이면 레인저가 가장 큰 차이입니다</b> &mdash; 함정 발동이 판당 0.5번에서 0.04~0.07번으로 줄어 쓰러짐이 엘프 45 &rarr; 30% · 풋워커 33 &rarr; 24% 가 됩니다.
+        레인저 20 은 7단계 함정에 레벨이 모자라 일부만 막습니다(6단계 혼자는 풋워커 18 &rarr; 9%).
+        다만 이 카드는 HP 37 · 41 이라 혼자 보내기엔 원래 약합니다 &mdash; 혼자 보낼 용병은 HP · 마방부터 봅니다(<a href="notes.html#solo">원리 &sect;4</a>).</li>
+    <li><b>실제 조운(레인저 32)도 이 덕을 봅니다</b> &mdash; 같은 시트에서 레인저만 빼고 돌리면 혼자 7단계 의뢰 쓰러짐이 1.3 &rarr; 4.8%, 함정 발동이 판당 0.07 &rarr; 0.55번입니다.</li>
+    <li><b>언제 올리나</b> &mdash; 엘프는 다 키운 뒤 얹는 쪽이 오히려 쌉니다(레인저 20: 나중 30.0M · 처음부터 41.5M). 풋워커 도둑 주는 처음부터가 쌉니다(천장: 처음부터 166M · 나중 256M).</li>
+  </ul>
+  <details class="src"><summary>코드 근거</summary><p>tools/sim/research/farm/ranger_sim.py · ranger_report.txt (결과 시트 = 처음부터 올린 경로 evasion_path.mjs --custom elfTSAR · elfTSAR20 · fwThiefR · fwThiefR20) · ranger_late.mjs(다 키운 뒤 얹는 값 · calc-tpl expPlan) · ranger_real.py(조운 · 직업 목록에서 레인저만 뺌) &middot; 함정 종수 = 7.4 TrapMaster 140 (jobKind 201 · 200 · 202).</p></details>
+
   <details class="more"><summary>두 갈래 공통 &mdash; 도둑 · 현자 · 모험가 · 마법 활을 고른 까닭</summary>
   <h3>두 갈래 공통 &mdash; 왜 이렇게 짰나</h3>
   <ul>
-    <li><b>도둑 · 현자는 단계마다 천장(20 · 25 · 30 · 35).</b> 회피탱이 금고 해제(도둑 + 재주) · 금고 발견(도둑 + 통찰)과 도둑 · 현자로 찾는 함정(52 + 18종)을 맡습니다.
+    <li><b>도둑 · 현자는 단계마다 천장(20 · 25 · 30 · 35).</b> 회피탱이 금고 해제(도둑 + 재주) · 금고 발견(도둑 + 통찰)과 도둑 · 현자로 찾는 함정(54 + 19종)을 맡습니다.
         현자는 언제 올려도 경험치 배율이 없어 35 까지 약 1.6M 입니다(<a href="notes.html#job">원리 &sect;3</a>).
-        <b>레인저로 찾는 함정(63종)은 활 딜러에게</b> 맡깁니다 &mdash; 레인저까지 천장이면 엘프 116M · 풋워커 404M 입니다(<a href="#stages">&sect;0</a> · 레인저는 모든 파티에 넣습니다).</li>
+        <b>레인저로 찾는 함정(67종)은 활 딜러에게</b> 맡깁니다(<a href="#stages">&sect;0</a> · 레인저는 모든 파티에 넣습니다) &mdash; 회피탱을 혼자 보낼 때만 레인저도 올립니다(<a href="#dodge-ranger">위</a>).</li>
     <li><b>모험가는 한 칸 위(21 · 26 · 31 · 36).</b> 자기 경험치에 배율이 없고 다른 직업 값도 안 올려서 36 까지 약 1.17M 이고, 모험가가 없을 때보다 HP 가 2~4 높습니다 &mdash;
         같은 씨앗으로 7단계 탱 사망이 엘프 9.2 &rarr; 8.1% · 풋워커 6.1 &rarr; 5.6% 로 줄었습니다.
         모험가는 요구 레벨도 한 칸 열지만(<a href="#why">&sect;1 ③</a>) 이 카드의 활은 모두 그 단계 천장 안이라(지문의 현궁 25 · 명천궁 30) 모험가 없이도 낍니다.</li>
@@ -990,7 +1012,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
         그래서 레인저가 한 명이면 36번에 한 번(하루 0.8번꼴) 놓치고, 놓치면 전원이 최대 25 를 맞고 아포피스(Lv24 · 공격 114)와 싸우며
         나쁜 사건으로 궁합이 떨어져 같은 파티를 다시 못 꾸릴 수 있습니다. 시뮬도 레인저 30 · 통찰 30 이상이 둘이면 48판 사망 0 이었습니다.</li>
     <li><b>그래서 모래시계는 레인저를 이미 가진 용병에게 새 직업을 올려 줄 때 맞는 자리입니다.</b> 막 뽑은 저레벨 한 명이면 함정 없는 라그네스로 가세요.</li>
-    <li><b>풋워커는 레인저를 일찍 올리세요.</b> 6단계 빌드에 레인저 30 을 나중에 얹으면 +154M 이라, 처음부터 올린 경로(6단계까지 약 135M)보다 50M 가까이 더 듭니다.
+    <li><b>풋워커는 레인저를 일찍 올리세요.</b> 6단계 카드(도둑 주)에 레인저 30 을 나중에 얹으면 +104M(누적 115M)이고, 처음부터 올리면 6단계까지 47M 입니다.
         엘프는 나중에 얹어도 +39M 으로 처음부터 올린 것과 비슷합니다(둘 다 약 49M).</li>
     <li><b>반격 단검은 약한 것이 낫습니다.</b> 천천히 잡을수록 부름이 쌓여 돌아온 칼날의 단검(Lv17)이 반조의 단검(Lv24)보다 약 20% 더 법니다.
         <b>7.3</b> 부터는 대장간에서 속성이 붙은 반격 단검이면 반격 뒤에도 속성 피해가 들어가 더 빨리 잡습니다. 위력이 낮으면 차이가 없고, 높으면 덜 법니다
@@ -2100,7 +2122,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   <div class="gist"><b class="gist-h">요점</b><ul>
     <li>넷이면 목적에 따라 둘입니다 &mdash; 의뢰는 <b>방어탱 + 활 + 법사 둘</b>, 6·7단계 금고 의뢰는 <b>회피탱 + 활 + 법사 둘</b>(회피탱이 완봉 55 일 때).</li>
     <li>활 딜러(레인저 · 도둑 · 현자)는 어느 파티에나 넣고 <b>리더</b>로 둡니다 &mdash; 함정 · 금고 · 선제를 맡습니다.</li>
-    <li>둘만 보내면 탱커 + 마법사, 혼자는 안 맞는 회피탱(성격은 거의 상관없음), 쩔은 회피탱 + 저레벨 한 명입니다.</li>
+    <li>둘만 보내면 탱커 + 마법사, 혼자는 안 맞고 레인저가 있는 회피탱(성격은 거의 상관없음), 쩔은 회피탱 + 저레벨 한 명입니다.</li>
   </ul></div>
   <h3>목적별 한눈에</h3>
   <table class="t"><thead><tr><th>목적</th><th>파티 <span class="sm">앞줄 / 뒷줄</span></th><th>자세히</th></tr></thead><tbody>
@@ -2108,7 +2130,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <tr class="hi"><td><b>6·7단계 금고 의뢰</b><span class="sub">다 갖춤 · 완봉 55</span></td><td>회피탱 / 활 · 법사 · 법사</td><td><a href="#stages-farm">&sect;0</a> · <a href="#dodge-party">&sect;3</a></td></tr>
     <tr><td>법사를 못 넣을 때<span class="sub">남자만 의뢰 등</span></td><td>회피탱 · 방어탱 / 활 · 활<span class="sub">회피탱도 없으면 방어탱 / 활 · 활 · 창</span></td><td><a href="#stages-phys">&sect;0</a> · <a href="#spear">&sect;8</a></td></tr>
     <tr><td>둘만</td><td>탱커 / 마법사</td><td>아래</td></tr>
-    <tr><td>혼자</td><td>회피탱 한 명<span class="sub">완봉 · 마방이 높게 &mdash; 성격은 거의 상관없음</span></td><td><a href="notes.html#solo">원리 &sect;4</a></td></tr>
+    <tr><td>혼자</td><td>회피탱 한 명<span class="sub">완봉 · 마방 · 레인저 &mdash; 성격은 거의 상관없음</span></td><td><a href="notes.html#solo">원리 &sect;4</a> · <a href="#dodge-ranger">&sect;3</a></td></tr>
     <tr><td>쩔</td><td>회피탱(반격 단검) / 저레벨 한 명</td><td><a href="#dodge-solo">&sect;3</a> · <a href="notes.html#farm">원리 &sect;13</a></td></tr>
   </tbody></table>
   <p>단계마다 자리별 직업 · 장비는 <a href="#stages">&sect;0</a>, 탱커를 방어로 갈지 회피로 갈지는 <a href="#which">&sect;4</a> 에 있습니다.</p>
@@ -2121,6 +2143,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
      어떤 상황에서도 일정하게 들어갑니다.<br>
      <b>혼자 보낸다면</b> 성격보다 <b>안 맞느냐</b>가 먼저입니다 &mdash; 혼자 쓰러지는 판은 대개 한 전투 안에서 끝나 후퇴가 끼어들 틈이 없습니다.
      조운(완봉 55 · 마방 72)은 7단계 의뢰를 혼자 91% 끝내고, 마방 20 인 장료는 38% 쓰러집니다.
+     함정도 혼자 굴려야 해서 레인저가 있으면 크게 줄어듭니다 &mdash; 조운도 레인저를 빼면 1.3 &rarr; 4.8% 입니다(<a href="#dodge-ranger">&sect;3</a>).
      이기적 · 감정적은 혼자일 때 무모한과 같고(점수가 기준까지 안 쌓임), 합리적만 방어탱에서 쓰러짐 일부를 후퇴로 바꿉니다(<a href="notes.html#solo">원리 &sect;4</a>).
      파티로 다니는 용병을 가끔 혼자 보낼 거라면 이기적을 따로 뽑을 까닭이 없습니다 &mdash; 파티 궁합만 나빠집니다(<a href="#bow-pers">&sect;5</a>).</div>
   <div class="note"><b>쩔을 돌린다면</b> 회피탱 하나에 저레벨 한 명입니다(<a href="#dodge-solo">&sect;3</a>) &mdash; 경험치는 살아 있는 인원수로 나누니 한 명일 때 가장 많이 받습니다.
