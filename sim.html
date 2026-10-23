@@ -4864,7 +4864,9 @@ function pageChecks(spec, sh){
   }
   var neg=[];
   if(sh.attack && sh.attack[0]<0) neg.push("공격 "+sh.attack[0]+"~"+sh.attack[1]);
-  ["힘","체력","민첩","재주","통찰","지능","마나"].forEach(function(k){ if(sh[k]<0) neg.push(k+" "+sh[k]); });
+  /* 능력치(힘 · 체력 · 민첩 · 재주 · 통찰 · 마력)는 음수도 게임에서 나온다 — 7.4 Character.Agility 0x26D5C28 등 여섯 함수가 «기본 + 직업 + 장비 · 강화» 를
+     더하기만 하고 0 에서 자르지 않는다(2026-10-23 마운록: 기본 민첩 0 + 방패 −1 + 갑옷 −2 = −3 이 이 검사에 막혀 실행이 안 됐다).
+     흔들기(CreateRandomValue)는 1 미만이면 주사위 없이 0 이라 엔진이 그대로 받는다. 음수 공격 · HP 0 이하는 그대로 막는다. */
   if(sh.maxHp!=null && sh.maxHp<1) neg.push("HP "+sh.maxHp);
   if(neg.length) err.push("게임에서 나올 수 없는 시트 값 — "+neg.join(" · ")+" (강화 · 기본 능력치를 확인하세요)");
   var far=[], out2=[];
