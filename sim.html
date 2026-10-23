@@ -4870,7 +4870,7 @@ function pageChecks(spec, sh){
   var far=[], out2=[];
   (spec.eq||[]).forEach(function(e){ if(e) (e.enh||[]).forEach(function(x){
     var t=((GEAR[e.i]||{}).n||e.i)+" "+enhName(x.k)+" "+(x.v>0?"+":"")+x.v;
-    if(x.v<ENH_MAX[0]||x.v>ENH_MAX[1]) out2.push(t); else if(x.v<ENH_SEEN[0]||x.v>ENH_SEEN[1]) far.push(t); }); });
+    if(x.v<ENH_MAX[0]||x.v>ENH_MAX[1]) out2.push(t); else if(!e.id && (x.v<ENH_SEEN[0]||x.v>ENH_SEEN[1])) far.push(t); }); });
   if(out2.length) err.push("강화 한 줄(한 단계)로는 붙을 수 없는 크기 — "+out2.join(" · ")+" · 한 줄은 −5~+20 안입니다(원리 §11)");
   if(far.length) warn.push("강화 한 줄 값이 세이브에서 본 범위(한 줄 −2~+12) 밖입니다 — "+far.join(" · ")+" · 강화는 단계마다 한 줄씩 붙습니다(원리 §11)");
   var many=[], manyS=[], sums=[];
@@ -4879,7 +4879,9 @@ function pageChecks(spec, sh){
     var gn=(GEAR[e.i]||{}).n||e.i, by={};
     if(e.enh.length>ENH_ROWS_MAX) (e.id ? manyS : many).push(gn+" "+e.enh.length+"줄");
     e.enh.forEach(function(x){ by[x.k]=(by[x.k]||0)+(+x.v||0); });
-    Object.keys(by).forEach(function(k){
+    /* 세이브에서 읽은 장비(id = 세이브 GUID)는 게임이 만든 것 — «세이브에서 본 범위» 는 예전 세이브의 관측일 뿐이라 경고하지 않는다
+       (2026-10-23 전위: 영묘의 방패 생명점 +13 · 반조의 투구 최소 방어 합 +5 가 경고로 떠 «시뮬이 다르게 읽나» 로 보였다). 손으로 넣은 값만 본다. */
+    if(!e.id) Object.keys(by).forEach(function(k){
       var r=ENH_SUM_SEEN[k]||ENH_SEEN, v=by[k];
       if(v<r[0]||v>r[1]) sums.push(gn+" "+enhName(+k)+" 합 "+(v>0?"+":"")+v+"(세이브 "+r[0]+"~"+r[1]+")");
     });
@@ -5093,8 +5095,10 @@ function slotHTML(i){
   h+='<div class="ctl"><select data-act="role" data-i="'+i+'" aria-label="역할">'+roleOptions(m.spec.role)+'</select>'+
      '<select data-act="pers" data-i="'+i+'" aria-label="성격">'+SS.personalities(CTX, m.spec.race).concat(m.spec.personality&&SS.personalities(CTX,m.spec.race).indexOf(m.spec.personality)<0?[m.spec.personality]:[])
        .map(function(p){ return '<option'+(p===sh.personality?' selected':'')+'>'+esc(p)+'</option>'; }).join("")+'</select></div>';
+  /* «방어» 는 게임 상세 화면의 방어력과 같은 값(장비 방어 + ⌊체력 ÷ 4⌋) — 2026-10-23 제작자 «시뮬에서 불러올 때 왜 다르지?»:
+     예전엔 «방어 굴림»(체력 몫을 뺀 장비 굴림 · 전투는 여기에 ⌊흔든 체력 ÷ 4⌋ 를 더한다)을 보여 전위가 143~188 대 128~173 으로 달라 보였다. */
   if(sh.maxHp!=null){
-    h+='<div class="kv">'+[["HP",sh.maxHp],["MP",sh.maxMp],["공격",sh.attack[0]+"~"+sh.attack[1]],["방어 굴림",sh.defense.roll.min+"~"+sh.defense.roll.max],
+    h+='<div class="kv">'+[["HP",sh.maxHp],["MP",sh.maxMp],["공격",sh.attack[0]+"~"+sh.attack[1]],["방어",sh.defense.display[0]+"~"+sh.defense.display[1]],
       ["회피값",sh.avoidValue],["명중",sh.hitValue],["마방",sh.magicDefense],["민첩",sh["민첩"]],["마력",sh["마력"]]]
       .map(function(x){ return '<div>'+x[0]+'<b>'+esc(x[1])+'</b></div>'; }).join("")+'</div>';
     h+='<p class="jobs">'+jobsText(sh)+(sh.weapon?' · <span class="dim">'+esc(sh.weapon.n)+'</span>':'')+'</p>';
@@ -5345,7 +5349,7 @@ function manualHTML(){
   h+='</div>';
   // 미리 보기 (화면 검사까지 — 자리에 넣은 뒤와 같은 오류 · 경고)
   var sh=checkedSheet(specFromE(E));
-  h+='<div data-sec="prev"><div class="slot" style="margin:6px 0 10px"><div class="kv">'+[["HP",sh.maxHp],["MP",sh.maxMp],["공격",sh.attack[0]+"~"+sh.attack[1]],["방어 굴림",sh.defense.roll.min+"~"+sh.defense.roll.max],
+  h+='<div data-sec="prev"><div class="slot" style="margin:6px 0 10px"><div class="kv">'+[["HP",sh.maxHp],["MP",sh.maxMp],["공격",sh.attack[0]+"~"+sh.attack[1]],["방어",sh.defense.display[0]+"~"+sh.defense.display[1]],
       ["회피값",sh.avoidValue],["명중",sh.hitValue],["마방",sh.magicDefense],["민첩",sh["민첩"]],["마력",sh["마력"]]]
       .map(function(x){ return '<div>'+x[0]+'<b>'+esc(x[1])+'</b></div>'; }).join("")+'</div><p class="jobs">'+jobsText(sh)+'</p>';
   (sh.errors||[]).forEach(function(e){ h+='<p class="msg err">'+esc(e)+'</p>'; });
