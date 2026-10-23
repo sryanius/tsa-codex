@@ -760,7 +760,7 @@ function placeRow(p){
    쩔이 위험한 곳(24시간 안에 전멸하거나 저레벨이 죽음)은 최대를 안 적고 «쩔 불가» 로 둔다. */
 function cfLine(p){
   var c=p.cf; if(!c) return "";
-  return '<span class="cfl" title="부름 포함 시뮬 — 상세에 자세히">부름 · '
+  return '<span class="cfl" title="'+(c.call===false?'쩔 시뮬':'부름 포함 시뮬')+' — 상세에 자세히">'+(c.call===false?'':'부름 · ')
     +(c.safe ? ('쩔 '+fmt(c.max)+' · 한 명 '+fmt(c.low)) : (c.tag ? esc(c.tag) : '쩔 불가'))+'</span>';
 }
 function cfBlock(p){
@@ -771,11 +771,13 @@ function cfBlock(p){
        +(c.maxg?(' · '+fmt(c.maxg)+' G/h'):'')+' · <b style="color:var(--good)">48판 동안 아무도 안 죽음</b>')
     : (c.draw>=50 ? '<b style="color:var(--f-vault)">쩔 불가</b> — 반격이 안 들어가는 몬스터(물리 무효)라 16라운드 무승부로 경험치가 0 입니다'
        : '<b style="color:var(--f-vault)">쩔 불가</b> — 가장 나은 탱도 24시간 판 중 '+c.wipe+'% 가 전멸하거나 저레벨이 판당 '+c.lowd+'명 죽습니다');
-  return '<div class="dcell wide"><dt>부름 포함 <span class="sm">시뮬</span></dt><dd>'
+  var call = c.call!==false;
+  return '<div class="dcell wide"><dt>'+(call?'부름 포함':'쩔 · 파티')+' <span class="sm">시뮬</span></dt><dd>'
     + '<span class="cfk">쩔</span> '+(c.tk==="방어탱" ? '방어탱 혼자 앞줄' : '회피탱 혼자 앞줄(반격 단검)')+' + 저레벨 한 명 뒷줄 무기 없이 &mdash; '+zz+'<br>'
-    + '<span class="cfk">파티</span> 4인 추천 파티로 빨리 잡으면 '+fmt(c.min)+' exp/h'+(c.ming?(' · '+fmt(c.ming)+' G/h'):'')+'<br>'
-    + '<span class="cfn">전투당 부름 '+c.calls+(c.draw?(' · 무승부 '+c.draw+'%'):'')+(c.tank?(' · 쩔 탱 '+esc(c.tank)):'')+'<br>'
-    + '위 «벌이» 는 처음 나온 몬스터만 센 값이라 부름 몫이 빠져 있습니다. 24시간 판 48번 평균이고 전멸하면 그 뒤는 0 으로 셉니다. '
+    + '<span class="cfk">파티</span> 4인 추천 파티'+(call?'로 빨리 잡으면 ':' ')+fmt(c.min)+' exp/h'+(c.ming?(' · '+fmt(c.ming)+' G/h'):'')+'<br>'
+    + '<span class="cfn">'+(call?('전투당 부름 '+c.calls+(c.draw?(' · 무승부 '+c.draw+'%'):'')):(c.draw?('무승부 '+c.draw+'%'):''))
+    + (c.tank?((call||c.draw?' · ':'')+'쩔 탱 '+esc(c.tank)):'')+'<br>'
+    + (call?'위 «벌이» 는 처음 나온 몬스터만 센 값이라 부름 몫이 빠져 있습니다. ':'')+'24시간 판 48번 평균이고 전멸하면 그 뒤는 0 으로 셉니다. '
     + '<a href="notes.html#farm">원리 &sect;13</a></span></dd></div>';
 }
 
