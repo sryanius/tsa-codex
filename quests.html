@@ -1337,7 +1337,10 @@ function guildView(rows){
     +'<span class="sub">'+g.length+'건 · 레벨 1~'+lvMax+' · 전부 반복 · 평판 늘 +1</span><span class="rule"></span></div>'
     +'<div class="gnote">'
     +'<p>도시 게시판 밖에서 뜨고, <b>길드원이 한 명씩 등록</b>해 한 명 이상 모이면 출발합니다. '
-    +'세이브에 기록이 남지 않아 진행도 집계에서는 빠집니다.</p>'
+    +'모험 기록은 기기 세이브가 아니라 길드 서버에 남아(GuildEvent) 진행도 집계에서는 빠집니다.</p>'
+    +'<p><b>출발시키는 사람이 모인 캐릭터 중 리더를 고릅니다</b>(Party.CreatebyGuild). 금고 · 습득물의 <b>등장 판정(통찰 사건)은 리더 혼자 굴리므로</b> '
+    +'현자 레벨이 높은 캐릭터를 리더로 고르세요 &mdash; 현자가 없는 리더면 통찰 금고는 아예 안 뜹니다. 발견 · 해제는 모인 사람 모두가 차례로 굴립니다. '
+    +'반복 보정은 없습니다(매번 새 의뢰).</p>'
     +'<table class="sct"><thead><tr><th>레벨대</th><th class="num">길드 시간당 XP</th>'
     +'<th class="num">개인 시간당 XP</th><th class="num">차이</th><th class="num">길드 건수</th></tr></thead><tbody>';
   var body="";
