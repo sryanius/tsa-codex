@@ -617,6 +617,7 @@ function visItems(){ return D.items.filter(function(x){ return !x.lock || state.
 /* 금고 · 습득물 출처(qd)도 잠긴 지역 의뢰는 «잠긴 것 보기» 일 때만 — z.r = 그 마을의 지역(build_codex).
    전에는 걸러지지 않아 잠기지 않은 장비(35_Bow 등)에 발케인 의뢰가 출처로 붙어 보였다(2026-10-06). */
 function qdOf(x){ return (x.qd||[]).filter(function(z){ return okPlace(z); }); }
+var QFREQ={10:"«자주» 37.5%",11:"«흔히» 18.8%",12:"«가끔» 9.4%",13:"«이따금» 7.0%",14:"«드물게» 1.8%",15:"«희귀» 0.56%",16:"«매우 희귀» 0.029%"};
 /* 판매처 — 상점 건물의 재고표(build_codex · {t 마을, r 지역, b 상점, s 몇 단계부터}). 잠긴 지역 상점은 qdOf 와 같은 규칙.
    ★ 2026-10-06 전에는 무기/방어구의 townMaster(런타임이 안 읽는 메모)를 판매처로 써서
      상점 물건 403개가 «제작 전용» 으로 나오고 46개는 엉뚱한 마을이 찍혔다. 판매처 칸을 직접 읽지 말고 이걸 거친다(lockcheck ⑤). */
@@ -994,12 +995,15 @@ function itemDetail(x){
   var qd=xq.length? '<div class="blk"><h4>퀘스트에서 획득 ('+xq.length+')</h4><ul>'
     + xq.map(function(z){
         var bits=[z.src, "시작 "+hhmm(z.at)+" 후"];
-        if(z.ins) bits.push("통찰력 판정");
+        /* 빈도 — «항상» 이 아니면 그 시각에 판마다 한 번 굴려 맞아야 뜬다(원리 §10 · 길드 의뢰 «암숨의 법복» 은 «자주» 37.5% — 2026-10-23) */
+        if(z.fq && z.fq!==5 && QFREQ[z.fq]) bits.push("빈도 "+QFREQ[z.fq]+"(판마다 한 번)");
+        if(z.alt) bits.push("다른 사건이 안 나왔을 때만 뜨는 대체 "+z.src);
+        if(z.ins) bits.push("리더 통찰 판정(현자 레벨 + 통찰)");
         if(z.ud)  bits.push("해제 난이도 "+z.ud);
         if(z.fv)  bits.push("발견 난이도 "+z.fv);
         if(z.trap) bits.push("함정");
         return '<li><a class="jump" href="quests.html?q='+encodeURIComponent(z.q)+'">'+esc(z.q)+'</a>'
-          +'<span class="meta"> — '+esc(z.t)+' · '+esc(bits.join(" · "))+'</span></li>'; }).join("")
+          +'<span class="meta"> — '+(z.t? esc(z.t) : '길드 의뢰')+' · '+esc(bits.join(" · "))+'</span></li>'; }).join("")
     + '</ul></div>' : "";
   // 상점 — 그 단계부터 계속 판다(상점 단계 = 그 마을 상점의 시설 레벨)
   var xs=shopOf(x);
