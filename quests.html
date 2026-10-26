@@ -1341,6 +1341,8 @@ function guildView(rows){
     +'<p><b>출발시키는 사람이 모인 캐릭터 중 리더를 고릅니다</b>(Party.CreatebyGuild). 금고 · 습득물의 <b>등장 판정(통찰 사건)은 리더 혼자 굴리므로</b> '
     +'현자 레벨이 높은 캐릭터를 리더로 고르세요 &mdash; 현자가 없는 리더면 통찰 금고는 아예 안 뜹니다. 발견 · 해제는 모인 사람 모두가 차례로 굴립니다. '
     +'반복 보정은 없습니다(매번 새 의뢰).</p>'
+    +'<p>길드 이벤트 화면의 캐릭터 아래 네 숫자는 위에서부터 <b>도둑 · 레인저 · 현자 레벨</b>과 <b>통찰</b>입니다(LeaderImageParts — GetJobLevel 200 · 201 · 202 · Insight). '
+    +'금고 발견 · 해제(도둑) · 함정 탐지(레인저 · 도둑 · 현자) · 등장 판정(리더의 현자 + 통찰)에 쓰이는 값입니다.</p>'
     +'<table class="sct"><thead><tr><th>레벨대</th><th class="num">길드 시간당 XP</th>'
     +'<th class="num">개인 시간당 XP</th><th class="num">차이</th><th class="num">길드 건수</th></tr></thead><tbody>';
   var body="";
