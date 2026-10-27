@@ -573,9 +573,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
   /* 빈도 추첨 — 그 틱에 등급 하나를 뽑아 «항상» 이거나 같은 등급일 때만 후보(원리 §9 · §10 · partysim FREQ_P) */
   var FREQ = { 5: [1, "항상"], 10: [0.375, "자주"], 11: [0.1875, "흔히"], 12: [0.09375, "가끔"], 13: [0.0703125, "이따금"],
                14: [0.017578125, "드물게"], 15: [0.005573, "희귀"], 16: [0.000293, "매우 희귀"] };
+  /* 뜨는 조건 식(full/questcond.py 가 만든 cx) — 금고 자기 몫(통찰 판정 · 빈도) 위에 곱해지는 몫.
+       ["a", ai] 리더 통찰 등장 판정(퀘스트 레벨 lv + ai) · ["f", fq] 빈도 · ["n", 식] 1 − 그 식 · ["c", v] 상수
+     같은 시각에 먼저 뽑히는 금고(RunQuest 의 needKey → noKey 우선 · 목록 순서)와 열쇠 조건(앞 사건이 떴을/안 떴을 때만)이 여기 든다.
+     리더 한 사람이 그 틱마다 따로 굴리므로 판정끼리는 독립이다. */
+  function condP(ts, lv, sage, ins) {
+    var v = 1;
+    for (var i = 0; ts && i < ts.length; i++) {
+      var t = ts[i];
+      if (t[0] === "a") v *= appear(lv + t[1], sage, ins);
+      else if (t[0] === "f") v *= (FREQ[t[1]] || FREQ[5])[0];
+      else if (t[0] === "n") v *= 1 - condP(t[1], lv, sage, ins);
+      else if (t[0] === "c") v *= t[1];
+    }
+    return v;
+  }
+  /* 식에 리더 판정이 끼나 — 끼면 리더 후보별 % 를 보여 준다 */
+  function condLeader(ts) {
+    for (var i = 0; ts && i < ts.length; i++) {
+      if (ts[i][0] === "a" || (ts[i][0] === "n" && condLeader(ts[i][1]))) return true;
+    }
+    return false;
+  }
   G.TSA_CHEST = { LEADER: LEADER, THIEF_CAP: THIEF_CAP, statFloor: statFloor, statForShare: statForShare,
                   shareDist: shareDist, fixedLow: fixedLow, p: p, party: party, _d2c: d2c,
-                  appear: appear, appearFixedLow: appearFixedLow, FREQ: FREQ };
+                  appear: appear, appearFixedLow: appearFixedLow, FREQ: FREQ, condP: condP, condLeader: condLeader };
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
 
@@ -1071,8 +1093,12 @@ function rewardCell(x){
   if(x.fg) real.push("줍는 골드 "+fgSum(x).toLocaleString()+"G");
   var its=(x.ch||[]).map(function(c){
     var fq=freqOf(c), how=[];
-    if(c.ins) how.push("리더 통찰 판정");
-    if(fq[0]<1) how.push("빈도 «"+fq[1]+"»");
+    if(isNever(c.cx)) how.push("이 시각엔 안 뜸");
+    else {
+      if(c.ins) how.push("리더 통찰 판정");
+      if(fq[0]<1) how.push("빈도 «"+fq[1]+"»");
+      if(c.cn && c.cn.length) how.push("조건 있음");
+    }
     return (c.item ? esc(c.item) : (c.gold ? c.gold.toLocaleString()+"G" : "내용 미지정"))
       + '<span class="sm"> ('+esc(c.src)+' · '+(how.length ? esc(how.join(" · ")) : "늘 뜸")+')</span>';
   });
@@ -1206,14 +1232,48 @@ function appearNeed(line){
   var s=CH.statForShare(q);
   return "리더 현자 "+sageSel()+" + 통찰 "+(s==null?"300 넘게":s+" 이상");
 }
-/* 내 용병을 리더로 세우면 — 통찰 판정 × 빈도(항상이 아니면) · 확정선까지 모자란 수 */
-function leaderCell(opp, f){
+/* 내 용병을 리더로 세우면 — 통찰 판정 × 빈도(항상이 아니면) × 조건 식(cx · 같은 시각 경쟁 금고 · 열쇠) · 확정선까지 모자란 수.
+   opp 가 null 이면 금고 자기는 통찰 판정이 없고 조건 쪽만 리더에 달린 것(열쇠 사건이 통찰 판정) — 확정선 표시 없음.
+   조건이 끼면 «확정선 이상» 이어도 확정이 아니다(같은 시각 다른 금고가 리더 판정으로 먼저 뽑힐 수 있다) — 그래서 색은 확률로만 */
+function leaderCell(opp, f, cx, lv){
   if(!LEADERS) return "";
-  var line=opp+10;
+  var line=opp==null? 0 : opp+10;
   return LEADERS.map(function(t){
-    var p=CH.appear(opp, t.sage, t.ins)*f, lack=line-CH.appearFixedLow(t.sage, t.ins);
-    return '<span class="'+(lack<=0?'thok':'thno')+'">'+esc(t.n)+' '+apct(p)+(lack>0?' <i>−'+lack+'</i>':'')+'</span>';
+    var p=(opp==null? 1 : CH.appear(opp, t.sage, t.ins))*f*(cx? CH.condP(cx, lv, t.sage, t.ins) : 1),
+        lack=(opp==null || (cx && CH.condLeader(cx)))? 0 : line-CH.appearFixedLow(t.sage, t.ins);   // 경쟁 금고가 리더 판정에 달리면 «확정선까지 −N» 은 거꾸로 읽힌다
+    var ok=cx && cx.length ? p>=f*0.995 : lack<=0;
+    return '<span class="'+(ok?'thok':'thno')+'">'+esc(t.n)+' '+apct(p)+(lack>0?' <i>−'+lack+'</i>':'')+'</span>';
   }).join(" · ");
+}
+/* 뜨는 조건(full/questcond.py) — cx = 곱해지는 식 · cn = 글. [["c",0]] 하나면 «이 시각엔 안 뜸»(같은 시각 다른 사건이 늘 먼저 뽑힘) */
+function isNever(cx){ return !!(cx && cx.length===1 && cx[0][0]==="c" && cx[0][1]===0); }
+/* 고정부(현자 레벨 + 통찰÷6)를 0~80 으로 훑어 가장 잘 뜨는 곳 — 같은 시각 다른 금고가 «리더가 그쪽 통찰 판정을 이기면» 먼저 뽑히면
+   리더가 강할수록 오히려 덜 뜬다(2026-10-27 제작자 «26렙 길드퀘 도끼는 나오는데 법복은 안 나온다»). 80 에서의 값이 최고의 90% 밑일 때만 알린다.
+   통찰은 흔들림(CreateRandomValue)이 있어 실제 리더는 이 «고정부» 와 조금 다르다 — 그래서 «근처» */
+function bestLeader(c, lv, f){
+  var best=-1, at=0, top=0;
+  for(var s=0; s<=80; s++){
+    var v=(c.ins? CH.appear(lv+(c.ai||0), s, 0) : 1)*f*CH.condP(c.cx, lv, s, 0);
+    if(v>best+1e-12){ best=v; at=s; }
+    if(s===80) top=v;
+  }
+  return top<best*0.9 ? {at:at, p:best} : null;
+}
+/* 금고 · 줍는 골드의 «등장» 줄(+ 조건 줄) — 원리 §10 */
+function appearChecks(c, lv){
+  var fq=freqOf(c), ftx=fq[0]<1 ? '빈도 «'+fq[1]+'» '+fpct(fq[0])+'(한 번 굴림)' : '', out=[], cx=c.cx||null;
+  if(isNever(cx)) out.push(chkLine('등장', '<b>이 시각엔 뜨지 않음</b>', ""));
+  else if(c.ins){ var al=appearLine(lv, c);
+    out.push(chkLine('등장 '+al, appearNeed(al)+(ftx?' · '+ftx:''), leaderCell(lv+(c.ai||0), fq[0], cx, lv))); }
+  else if(cx && CH.condLeader(cx)) out.push(chkLine('등장', (ftx? ftx+' · ' : '')+'아래 조건이 리더 통찰 판정에 달림', leaderCell(null, fq[0], cx, lv)));
+  else if(cx && cx.length) out.push(chkLine('등장', (ftx? ftx+' · ' : '')+'조건까지 '+pct(fq[0]*CH.condP(cx, lv, 0, 0))+' — 리더와 상관없음', ""));
+  else out.push(chkLine('등장', ftx ? ftx+' — 리더와 상관없음' : '정해진 시각에 반드시', ""));
+  if(c.cn && c.cn.length){
+    var b=(!isNever(cx) && cx && CH.condLeader(cx)) ? bestLeader(c, lv, fq[0]) : null;
+    out.push(chkLine('조건', c.cn.map(esc).join(" · ")
+      + (b? ' — <b>리더가 강할수록 덜 뜹니다</b>: 현자 레벨 + 통찰÷6 이 '+b.at+' 근처인 리더일 때 가장 잘 뜸(최대 '+pct(b.p)+')' : ''), ""));
+  }
+  return out;
 }
 /* 대실패(1+1)가 있어 100% 는 없다 — 99.95% 이상은 «99.9%↑» 로(반올림해 «100.0%» 가 찍히면 확정처럼 보인다).
    소수 한 자리로 — 빈도 «자주» 37.5% 와 리더 후보 «38%» 가 어긋나 보였다(2026-10-10 제작자 «37.5 랑 38 은 다르니 소수점까지»). 0.1% 밑은 유효숫자 둘. */
@@ -1267,10 +1327,8 @@ function chestHTML(x){
         bits.push(esc('시작 '+hhmm(c.at)+' 후'));
         /* 등장 — 금고가 «뜨는지» 부터(원리 §10). 통찰 이벤트면 리더 판정(확정선 = 레벨 + 보정 + 10 · 맨 2d6 끼리),
            빈도가 «항상» 이 아니면 그 틱의 등급 추첨(한 번뿐)을 곱한다. 리더 후보 %는 둘을 곱한 값. */
-        var fq=freqOf(c), ftx=fq[0]<1 ? '빈도 «'+fq[1]+'» '+fpct(fq[0])+'(한 번 굴림)' : '';
-        if(c.ins){ var al=appearLine(lv, c);
-          checks.push(chkLine('등장 '+al, appearNeed(al)+(ftx?' · '+ftx:''), leaderCell(lv+(c.ai||0), fq[0]))); }
-        else checks.push(chkLine('등장', ftx ? ftx+' — 리더와 상관없음' : '정해진 시각에 반드시', ""));
+        /* 같은 시각에 먼저 뽑히는 금고 · 열쇠 조건(앞 사건이 떴을/안 떴을 때만)은 «조건» 줄로 · 확률에도 곱한다(2026-10-27) */
+        checks=checks.concat(appearChecks(c, lv));
         /* 확정선 = 지금 의뢰 레벨(클리어 보너스 포함) + 난이도 + 9 — 원리 §8. «난이도» 는 이미 이 숫자 안에 있어 따로 안 적는다.
            습득물은 내 값에 +6 이 붙어 3 · 발견값 0 이면 굴리지 않고 줍는다. 해제는 난이도 0 이면 판정 자체가 없다.
            발견 · 해제는 한 줄씩 — 그 바로 아래에 내 도둑마다의 확률(2026-10-09 제작자: «발견 해제 부분 줄바꿈 필요») */
@@ -1308,9 +1366,7 @@ function goldHTML(x){
     + '<p class="cmeta chestnote">발견 · 해제 판정 없이 뜨면 바로 줍습니다 · 금액은 반복 +N 마다 +10% 에 조금 흔들림 · '
     + '<b>실패하거나 후퇴해도 주운 만큼은 들어옵니다</b>(보상 골드는 성공했을 때만 · <a href="notes.html#reward">원리 §9</a>)</p><ul>'
     + x.fg.map(function(g){
-        var fq=freqOf(g), ftx=fq[0]<1 ? '빈도 «'+fq[1]+'» '+fpct(fq[0])+'(한 번 굴림)' : '', chk;
-        if(g.ins){ var al=appearLine(lv, g); chk=chkLine('등장 '+al, appearNeed(al)+(ftx?' · '+ftx:''), leaderCell(lv+(g.ai||0), fq[0])); }
-        else chk=chkLine('등장', ftx ? ftx+' — 리더와 상관없음' : '정해진 시각에 반드시', "");
+        var chk=appearChecks(g, lv).join("");
         return '<li><b><em class="tag t-find">골드</em>'+g.g.toLocaleString()+'G</b><span class="cmeta">'+esc('시작 '+hhmm(g.at)+' 후')+'</span>'+chk+'</li>';
       }).join("")
     + '</ul></div>';
@@ -1339,8 +1395,14 @@ function guildView(rows){
     +'<p>도시 게시판 밖에서 뜨고, <b>길드원이 한 명씩 등록</b>해 한 명 이상 모이면 출발합니다. '
     +'모험 기록은 기기 세이브가 아니라 길드 서버에 남아(GuildEvent) 진행도 집계에서는 빠집니다.</p>'
     +'<p><b>출발시키는 사람이 모인 캐릭터 중 리더를 고릅니다</b>(Party.CreatebyGuild). 금고 · 습득물의 <b>등장 판정(통찰 사건)은 리더 혼자 굴리므로</b> '
-    +'현자 레벨이 높은 캐릭터를 리더로 고르세요 &mdash; 현자가 없는 리더면 통찰 금고는 아예 안 뜹니다. 발견 · 해제는 모인 사람 모두가 차례로 굴립니다. '
+    +'현자 레벨이 높은 캐릭터를 리더로 고르세요 &mdash; 현자가 없으면 통찰÷6 만 남아 레벨 높은 의뢰의 통찰 금고는 거의 안 뜹니다. 발견 · 해제는 모인 사람 모두가 차례로 굴립니다. '
     +'반복 보정은 없습니다(매번 새 의뢰).</p>'
+    /* 2026-10-27 제작자 «26렙 길드퀘 성인의 도끼는 자주 나오는데 암숨의 법복은 길드원도 못 먹어 봤다» — RunQuest 를 다시 읽고 고침(full/questcond.py · 원리 §10) */
+    +'<p><b>예외 &mdash; 같은 시각에 금고 둘이 걸린 의뢰 다섯</b>(Lv10 · 15 · 21 · 22 · 26): 두 번째 금고가 «첫 금고가 안 나왔으면» 조건(noKey)을 달고 같은 시각에 있어서, '
+    +'게임은 조건 달린 쪽을 <b>빈도 굴림 전에 먼저</b> 뽑습니다. 리더가 그쪽 통찰 판정을 이기면 첫 금고는 굴려 보지도 못하므로 '
+    +'<b>리더가 강할수록 첫 금고는 덜 뜹니다</b>(Lv26 이면 암숨의 법복이 첫 금고 · 성인의 도끼가 먼저 뽑히는 쪽). '
+    +'첫 금고는 리더의 현자 레벨 + 통찰÷6 이 의뢰 레벨 근처일 때 가장 잘 뜨고, 그래도 판당 최대 6~12% 입니다. '
+    +'이 밖에 «앞 금고가 안 떴을 때만» 그 바로 뒤(10초~1분 40초)에 뜨는 금고가 18개 의뢰에 있습니다 &mdash; 의뢰마다 금고 칸의 <b>조건</b> 줄에 나옵니다.</p>'
     +'<p>길드 이벤트 화면의 캐릭터 아래 네 숫자는 위에서부터 <b>도둑 · 레인저 · 현자 레벨</b>과 <b>통찰</b>입니다(LeaderImageParts — GetJobLevel 200 · 201 · 202 · Insight). '
     +'금고 발견 · 해제(도둑) · 함정 탐지(레인저 · 도둑 · 현자) · 등장 판정(리더의 현자 + 통찰)에 쓰이는 값입니다.</p>'
     +'<table class="sct"><thead><tr><th>레벨대</th><th class="num">길드 시간당 XP</th>'

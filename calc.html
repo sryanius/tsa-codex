@@ -523,9 +523,31 @@ details.fine p{margin:6px 0 0;line-height:1.6}
   /* 빈도 추첨 — 그 틱에 등급 하나를 뽑아 «항상» 이거나 같은 등급일 때만 후보(원리 §9 · §10 · partysim FREQ_P) */
   var FREQ = { 5: [1, "항상"], 10: [0.375, "자주"], 11: [0.1875, "흔히"], 12: [0.09375, "가끔"], 13: [0.0703125, "이따금"],
                14: [0.017578125, "드물게"], 15: [0.005573, "희귀"], 16: [0.000293, "매우 희귀"] };
+  /* 뜨는 조건 식(full/questcond.py 가 만든 cx) — 금고 자기 몫(통찰 판정 · 빈도) 위에 곱해지는 몫.
+       ["a", ai] 리더 통찰 등장 판정(퀘스트 레벨 lv + ai) · ["f", fq] 빈도 · ["n", 식] 1 − 그 식 · ["c", v] 상수
+     같은 시각에 먼저 뽑히는 금고(RunQuest 의 needKey → noKey 우선 · 목록 순서)와 열쇠 조건(앞 사건이 떴을/안 떴을 때만)이 여기 든다.
+     리더 한 사람이 그 틱마다 따로 굴리므로 판정끼리는 독립이다. */
+  function condP(ts, lv, sage, ins) {
+    var v = 1;
+    for (var i = 0; ts && i < ts.length; i++) {
+      var t = ts[i];
+      if (t[0] === "a") v *= appear(lv + t[1], sage, ins);
+      else if (t[0] === "f") v *= (FREQ[t[1]] || FREQ[5])[0];
+      else if (t[0] === "n") v *= 1 - condP(t[1], lv, sage, ins);
+      else if (t[0] === "c") v *= t[1];
+    }
+    return v;
+  }
+  /* 식에 리더 판정이 끼나 — 끼면 리더 후보별 % 를 보여 준다 */
+  function condLeader(ts) {
+    for (var i = 0; ts && i < ts.length; i++) {
+      if (ts[i][0] === "a" || (ts[i][0] === "n" && condLeader(ts[i][1]))) return true;
+    }
+    return false;
+  }
   G.TSA_CHEST = { LEADER: LEADER, THIEF_CAP: THIEF_CAP, statFloor: statFloor, statForShare: statForShare,
                   shareDist: shareDist, fixedLow: fixedLow, p: p, party: party, _d2c: d2c,
-                  appear: appear, appearFixedLow: appearFixedLow, FREQ: FREQ };
+                  appear: appear, appearFixedLow: appearFixedLow, FREQ: FREQ, condP: condP, condLeader: condLeader };
 })(typeof window !== "undefined" ? window : globalThis);
 </script>
 
