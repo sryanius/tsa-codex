@@ -430,7 +430,7 @@ var JLOCK={}; D.jobs.forEach(function(j){ if(j.lock) JLOCK[j.n]=1; });
 function skillLocked(s){ return !s.jobs.some(function(j){ return !JLOCK[j.j]; }); }
 function visSkills(){ return D.skills.filter(function(s){ return state.showLocked || !skillLocked(s); }); }
 
-// 칼레바스 고원은 아직 출시 전이라 다른 페이지와 같은 규칙으로 감춘다.
+// 잠긴 지역(full/locklib.py)은 다른 페이지와 같은 규칙으로 감춘다.
 // 토글 값도 같은 열쇠를 쓴다 — 한 페이지에서 켜면 전부 켜진다.
 var LKEY2="tsa.showlocked.v1";
 var state={jst:"",view:"job",q:"",wk:"",showLocked:false};
@@ -912,7 +912,7 @@ function effDetail(e){
   var inv=e.inv.filter(function(g){ return state.showLocked || !g.lk; });
   if(inv.length) h+='<div class="blk"><h4>막는 장비 — 이 상태이상 무효</h4><ul>'+inv.map(function(g){
       return '<li>'+(g.lk?'<em class="tag t-lock">미출시</em>':"")+'<b><a href="codex.html?v=item&amp;q='+encodeURIComponent(g.n)+'">'+esc(g.n)+'</a></b><span class="meta"> — '+esc(g.k)+' · Lv'+g.lv+'</span></li>'; }).join("")+'</ul></div>';
-  if(!e.src.some(foeSrc)) h+='<p class="meta" style="margin:12px 0 0">7.3 자료에서 아군에게 이 상태이상을 거는 몬스터 · 함정은 없습니다.</p>';
+  if(!e.src.some(foeSrc)) h+='<p class="meta" style="margin:12px 0 0">지금 자료에서 아군에게 이 상태이상을 거는 몬스터 · 함정은 없습니다.</p>';
   return h+'</div>';
 }
 function condRow(c){

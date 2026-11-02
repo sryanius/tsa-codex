@@ -294,7 +294,7 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
     </div>
     <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
-    <label class="toggle" title="아직 못 가는 지역(발케인 지방)의 탐색지·몬스터·아이템까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
+    <label class="toggle" title="아직 못 가는 지역의 탐색지·몬스터·아이템까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
     <label class="toggle" id="favwrap" title="★ 로 담아 둔 아이템만 봅니다 — 검색 · 종류 · 태그 · 특수능력 조건은 무시합니다(잠긴 지역만 따름)"><input type="checkbox" id="favonly"> ★ 즐겨찾기만<span id="favn" style="display:inline"></span></label>
     <label class="toggle" id="callwrap" title="동료를 부르는 몬스터가 나오는 곳 — 잡을수록 적이 불어나 경험치 효율이 좋습니다"><input type="checkbox" id="callonly"> 부름 있는 곳만</label>
@@ -348,7 +348,7 @@ window.__TSA_BOOT=function(D){
 "use strict";
 
 var el=function(id){return document.getElementById(id)};
-// 칼레바스 고원은 아직 출시 전이라 기본으로 감춘다. 출시되면 토글만 켜면 된다.
+// 잠긴 지역(full/locklib.py · codex.json locked)은 기본으로 감춘다 — 열리면 자료가 저절로 바뀐다.
 var LKEY2="tsa.showlocked.v1";
 /* 아직 못 가는 지역 — 규칙은 lockrule.md 에 있다.
    ① 세이브에 열린 지역 목록이 있으면 그게 진실이다 (업데이트되면 저절로 풀린다)
