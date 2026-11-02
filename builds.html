@@ -791,13 +791,30 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <li>성별 · 종족 조건 의뢰, 단계마다 견준 다른 구성은 <a href="builds-detail.html#stages">빌드 근거 &sect;0</a>.</li>
   </ul>
   <details class="src"><summary>코드 근거</summary><p>그 단계 의뢰 전부 · 첫 클리어 / 반복 반반(8단계는 보정 0 과 최대) · 같은 씨앗 · 시뮬은 코드 규칙을 옮긴 것이라 실제와 다를 수 있습니다.</p></details>
+  <h3 id="party-size">몇 명이 가나 &mdash; 8단계 2 · 3 · 4인</h3>
+  <table class="t"><thead><tr><th>8단계 몇 명이 가나</th><th class="num">8단계 의뢰<br><span style="font-weight:400">완료 · 전멸 %</span></th><th class="num">활이 쓰러진 판</th></tr></thead><tbody>
+    <tr class="hi"><td><b>넷 &mdash; 회피탱 / 활 · 법사 · 법사</b></td><td class="num"><b>97.5 · 0.6</b></td><td class="num">5%</td></tr>
+    <tr><td>넷 &mdash; 활을 전체 활로<span class="sub">모래 환상 사수 40 주 · 모래무늬 흑도 활 · +103M</span></td><td class="num">98.5 · 0.6</td><td class="num">3%</td></tr>
+    <tr><td><b>셋 &mdash; 회피탱 / 활 · 법사</b></td><td class="num"><b>94.8 · 1.5</b></td><td class="num">9%</td></tr>
+    <tr><td>셋 &mdash; 회피탱 / 전체 활 · 법사</td><td class="num">95.0 · 1.7</td><td class="num">9%</td></tr>
+    <tr><td>셋 &mdash; 회피탱 / 전체 활 · 전체 활</td><td class="num">89.4 · 2.4</td><td class="num">18%</td></tr>
+    <tr><td>둘 &mdash; 회피탱 / 활</td><td class="num">82.3 · 3.4</td><td class="num">28%</td></tr>
+    <tr><td>둘 &mdash; 회피탱 / 전체 활</td><td class="num">82.2 · 3.8</td><td class="num">28%</td></tr>
+  </tbody></table>
+  <ul>
+    <li><b>«전체 활»</b> = 모래 환상 사수를 <b>주직업</b>으로 두고 전체 공격 활(최고가 <a class="it" href="codex.html?v=item&amp;q=%EB%AA%A8%EB%9E%98%EB%AC%B4%EB%8A%AC%20%ED%9D%91%EB%8F%84%20%ED%99%9C">모래무늬 흑도 활</a> Lv26)을 든 것 &mdash; 주직업이 모래 환상 사수면 활 공격이 전부 마법이 되어 물리 무효 몬스터도 칩니다.</li>
+    <li><b>둘은 딜이 아니라 활이 맞아 쓰러지는 게 문제</b>입니다 &mdash; 전체 활로 바꿔도 같습니다. 활을 쓰러뜨린 한 방은 몬스터 평타가 61%, 전체 마법이 38%(넷이면 마법 21%)로, 마법을 더 맞기도 하지만 사람이 적어 공격이 활에게 몰리는 몫이 더 큽니다.</li>
+    <li><b>셋(회피탱 + 활 + 법사)</b>은 넷보다 2~3%p 낮은 대신 한 명을 쉬게 합니다. 법사 대신 활을 하나 더 넣으면 처집니다.</li>
+    <li>전체 활은 넷에서만 +1%p 입니다 &mdash; 모래 환상 사수 40 을 주직업으로 새로 올려야 해 +103M 이고, 모래 20 주로 줄이면 둘이서 78.1 · 4.5 로 오히려 처집니다.</li>
+  </ul>
+  <details class="src"><summary>코드 근거</summary><p>8단계 의뢰 전부 · 보정 0 과 최대 · 구성마다 63,600판 · 같은 씨앗 · 회피탱은 하나모리 · 명수(아래 솔플 표와 같은 탱) · 활 사망 원인은 의뢰마다 최대 보정 20판으로 셈.</p></details>
   </section>
 <section class="sec" id="sec-solo" data-sec="solo" data-upd="2026-11-03">
   <h2 id="solo"><span class="n">6</span>솔플 &mdash; 혼자 · 둘이</h2>
   <p class="secdate">2026-11-03 갱신</p>
   <div class="gist"><b class="gist-h">요약</b><ul>
     <li>혼자는 <b>회피탱 한 명</b>입니다 &mdash; 평타는 완봉, 마법은 마방, 함정은 레인저, 깎인 HP 는 HP 회복 장비로.</li>
-    <li><b>7단계(칼레바스)는 둘이(회피탱 + 활)면 거의 안 죽고</b>, 레인저까지 가진 회피탱은 혼자서도 됩니다. <b>8단계는 넷</b>이 낫습니다.</li>
+    <li><b>7단계(칼레바스)는 둘이(회피탱 + 활)면 거의 안 죽고</b>, 레인저까지 가진 회피탱은 혼자서도 됩니다. <b>8단계는 넷</b>이 낫습니다(2 · 3 · 4인 비교는 <a href="#party-size">추천 파티 «몇 명이 가나»</a>).</li>
     <li>혼자 못 깨는 의뢰는 «화력이 모자라» 정리 전투를 라운드 안에 못 끝내는 것들입니다 &mdash; 아래 목록은 둘 · 넷으로.</li>
   </ul></div>
   <h3 id="dodge-ranger">혼자 보낼 회피탱 &mdash; 선봉병 40 주 + 도둑 · 레인저 · 현자 35</h3>
@@ -816,6 +833,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <tr class="hi"><td><b>혼자 · 레인저까지 · 하나모리 · 명수</b><span class="sub">7단계 활 · 8단계 조열의 검</span></td><td class="num"><b>90.0 · 0.2</b></td><td class="num"><b>88.9 · 1.0</b></td></tr>
     <tr><td>혼자 · 레인저 없음 · 하나모리 · 명수<span class="sub">회피탱 카드(&sect;1 8단계 «이어서») 그대로</span></td><td class="num">84.7 · 3.4</td><td class="num">70.7 · 17.6</td></tr>
     <tr class="hi"><td><b>둘이 · 하나모리 · 명수 + 활</b><span class="sub">활이 리더</span></td><td class="num"><b>94.9 · 0.1</b></td><td class="num">82.3 · 3.4</td></tr>
+    <tr><td>둘이 · 하나모리 · 명수 + 전체 활<span class="sub">모래 환상 사수 40 주 · 모래무늬 흑도 활(마법 전체 공격)</span></td><td class="num">&mdash;</td><td class="num">82.2 · 3.8</td></tr>
     <tr><td>둘이 · 하나모리 + 활</td><td class="num">94.7 · 0.4</td><td class="num">77.0 · 9.3</td></tr>
     <tr><td>둘이 · 하나모리 + 법사</td><td class="num">93.5 · 1.2</td><td class="num">71.5 · 13.2</td></tr>
   </tbody></table>
