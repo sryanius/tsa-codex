@@ -190,7 +190,8 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
 .row.rec .tadj b{color:var(--ink);font-weight:600}
 .recs-note{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.6}
 .recs-note b{color:var(--ink);font-weight:600}
-.t-magic{color:var(--f-arch);border-color:var(--f-arch);border-width:2px}
+.t-magic{color:var(--good);border-width:2px}
+/* 2026-11-03 제작자 «마법도 녹색으로» — 예전 var(--f-arch) 는 도감에 정의가 없어 검정으로 나왔다 */
 .t-lock{color:var(--f-train);border-color:var(--f-train);border-width:2px}
 /* 드랍 줄 — 그룹 아래에 한 단 들여서 붙인다 */
 .drops{margin:3px 0 0;font-size:12px;color:var(--muted);line-height:1.9}
@@ -891,7 +892,7 @@ function placeDetail(p){
         +(mo?'<span class="meta"> 명중'+(mo.hit||0)+'</span>':'')
         +(m.v?'':'<span class="meta"> (후위)</span>'); }).join(" + ")+'</b>'
       +'<span class="meta"> — 가중치 '+(g.f||0)+' (약 '+share+'%)'+(g.q?' · 퀘스트 전용':'')+'</span>'
-      +(sk.length?'<div class="drops"><b style="color:var(--f-arch)">마법</b> '+sk.join('<i class="sep">·</i>')+'</div>':'')
+      +(sk.length?'<div class="drops"><b style="color:var(--good)">마법</b> '+sk.join('<i class="sep">·</i>')+'</div>':'')
       +(dl.length?'<div class="drops">드랍 '+dl.join('<i class="sep">·</i>')+'</div>':'')
       +'</li>'; }).join("");
   var ch=(p.call&&p.call.length)? '<div class="blk"><h4>동료를 부르는 몬스터</h4><ul>'
