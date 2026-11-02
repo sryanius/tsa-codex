@@ -787,7 +787,8 @@ function cfBlock(p){
    2d6 이 최소(2)로 나와도 빗나간다 — 확실히 다 피한다. */
 /* CreateRandomValue(민첩) 의 «최솟값». 흔들림 폭 n 은 구간마다 다르고,
    31 에서 확 줄어든다 — 그래서 민첩 30 보다 31 이 눈에 띄게 낫다. */
-var AGIS=[10,15,20,25,30,31,35,40];
+// 열 = 필요 회피가 한 칸씩 내려가는 민첩(그 값 «이상» 이면 그 칸) — 10~40 만 있던 것을 회피탱 민첩(7단계 50 언저리)까지 늘림
+var AGIS=[10,16,25,31,32,38,45,52,58,65,72];
 /* 행동 패턴 한 줄. HP 구간이 전체(0~100)가 아니면 «HP n% 이하» 같은 조건이 붙는다. */
 var FREQN={5:"항상",10:"자주",11:"흔히",12:"가끔",13:"이따금",14:"드물게",15:"희귀",16:"매우 희귀"};
 function actText(a){
@@ -811,7 +812,7 @@ function avoidNote(p){
   var warn=[];
   if(p.nb) warn.push('<b>활이 안 통하는 몬스터 '+p.nb+'종</b>');
   if(p.np) warn.push('<b>물리가 안 통하는 몬스터 '+p.np+'종</b>');
-  var tbl='<div class="minwrap"><table class="mini"><thead><tr><th>민첩</th>'
+  var tbl='<div class="minwrap"><table class="mini"><thead><tr><th>민첩 이상</th>'
     + AGIS.map(function(a){ return '<th>'+a+'</th>'; }).join("")
     + '</tr></thead><tbody><tr><td>필요 회피값</td>'
     + AGIS.map(function(a){ return '<td>'+needAvoid(p.mh,a)+'</td>'; }).join("")
