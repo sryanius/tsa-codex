@@ -389,7 +389,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <p class="eyebrow">The Silent Archivist &middot; 다음 지역으로</p>
     <h1>지역 &mdash; 어떻게 열리고, 열리면 무엇이 생기나</h1>
     <p class="lede">지역은 <b>해금 의뢰 하나</b>를 성공하면 열립니다. 그 의뢰가 뜨려면 <b>평판 · 탐색지 발견 · 선행 의뢰</b>가 맞아야 합니다.
-      앞쪽은 여덟 번의 전환, 뒤쪽은 지역이 열릴 때마다 훈련소 · 상점 · 금고가 어디까지 주는지입니다. 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
+      앞쪽은 여덟 번의 전환, 뒤쪽은 지역이 열릴 때마다 훈련소 · 상점 · 금고가 어디까지 주는지입니다. 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;5</a> 에 있습니다.</p>
     <details class="src"><summary>코드 근거</summary><p>의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>8.0</b>(versionCode 149) 데이터에서 그대로 읽었고,
       «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 · 7.3 · 7.4 · 7.5 에서도 본문이 같습니다. 7.5 에서 지도 상한 함수는 개발판 값만 8 &rarr; 9 로 바뀌었고 배포 버전은 7 그대로였습니다. 8.0 에서 배포 버전이 8 이 되어 발케인으로 넘어갑니다).
       실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</p></details>
@@ -403,8 +403,8 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
       <tr><td><a href="#r78">7 &rarr; 8</a></td><td>칼레도 가도의 산길을 뚫다</td><td>자르간트 마을</td><td class="num">35</td><td class="num">35</td><td>8.0 에서 열림 <span class="sm">7.5 까지는 지도 전환이 막힘</span></td></tr>
       <tr style="color:var(--muted)"><td><a href="#r89">8 &rarr; 9</a></td><td>대소용돌이의 마물을 처치하고, 오르셀리아로 향하는 항로를 열어라</td><td>밀물과 썰물을 기다리는 항구 마을</td><td class="num">40</td><td class="num"><b>27</b></td><td>Lv40 의뢰를 <b>반복</b>해야 닿는 평판 · 배포 버전은 지도 전환이 막힘</td></tr>
     </tbody></table>
-    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-11-02">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-11-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-19">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-11-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-11-02">7→8<i class="dot" aria-hidden="true"></i></a><a href="#r89" data-sec="r89" data-upd="2026-11-02">8→9<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-11-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-11-02">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
-    <p class="docdate">마지막 갱신 <b>2026-11-02</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
+    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-11-02">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-11-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-19">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-11-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-11-03">7→8<i class="dot" aria-hidden="true"></i></a><a href="#r89" data-sec="r89" data-upd="2026-11-02">8→9<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-11-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-11-03">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <p class="docdate">마지막 갱신 <b>2026-11-03</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
   <main class="doc">
 
@@ -590,9 +590,9 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
      같은 Lv30 의뢰를 <b>두 번째로</b> 깨면 반복 보정 +1 로 Lv31 로 쳐서 상한 35 → 34 에 닿습니다(반복형 Lv30 의뢰 21종 · 세 번째는 Lv32 로 40).
      지금 넘어갈 수 있는 일곱 전환 가운데 <b>고레벨 의뢰 반복이 필수인 유일한 자리</b>입니다(아직 못 넘어가는 8→9 도 반복이 필요합니다 &mdash; &sect;8).</div>
   </section>
-<section class="sec" id="sec-r78" data-sec="r78" data-upd="2026-11-02">
+<section class="sec" id="sec-r78" data-sec="r78" data-upd="2026-11-03">
   <h2 id="r78"><span class="n">7</span>칼레바스 고원 &rarr; 발케인 지방 <span class="sm" style="font-weight:400">&mdash; 8.0 에서 열림</span></h2>
-  <p class="secdate">2026-11-02 갱신</p>
+  <p class="secdate">2026-11-03 갱신</p>
   <div class="role">
     <h3>「칼레도 가도의 산길을 뚫다」 <span class="tag" style="color:var(--c-quest)">자르간트 마을 · Lv35 · 토벌 · 한 번만</span></h3>
     <dl class="kv">
@@ -604,7 +604,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   </div>
   <div class="note"><b>8.0 부터 발케인으로 넘어갈 수 있습니다.</b> <code>Settings.LastMapLevel</code> 이 배포 버전(ProductionMode)에서 7 &rarr; <b>8</b> 로 바뀌었습니다(8.0 공식 내역 «새로운 맵이 해금되었습니다»).
      지도 화면의 전환 버튼은 지역 번호가 이 값보다 크면 경고창만 띄웁니다(<code>MapScene.&lt;TapChangeMapButton&gt;</code> 0x28EA65C) &mdash; 7.5 까지는 이 의뢰를 깨도 발케인으로 못 넘어갔습니다.
-     발케인에서 모래 환상 사수 · 선봉병 · 마도학자 · 치유사(40)를 올리면 모험가 천장이 41 이 되고 Lv37~40 장비가 같이 열립니다(<a href="builds.html#halls">빌드 &sect;1 ③</a>).</div>
+     발케인에서 모래 환상 사수 · 선봉병 · 마도학자 · 치유사(40)를 올리면 모험가 천장이 41 이 되고 Lv37~40 장비가 같이 열립니다(<a href="builds-detail.html#halls">빌드 근거 &sect;1 ③</a>).</div>
   <p>선행 사슬은 길지만 평판이 막는 곳은 하나입니다. <b>[A]</b> 「사라진 조사대와 돌 제단」(Lv35 · 30 · 「발드란 보관소 터」 Lv33) &larr; 「라펠 계곡의 제단 조사」(Lv35 · 29 · 「라펠 계곡」 Lv33 · «대개») &larr; 노르그레이 「노란 꽃의 침식을 막아라」(Lv33 · 소탕 · <b>28</b> · 「엘디아의 숲」 Lv32 · «대개») &larr; 「조상 묘지의 꽃다발 의혹」(Lv32 · 1 · 「부서진 돌이 있는 강변 묘지」 Lv31) &larr; 「모래에 파묻힌 제단의 꽃다발」(Lv32 · 14 · 「노르사딜 유적」 Lv31) + 「조상 묘지의 밤의 마물」(Lv33 · 11 · 「세라노브의 조상 묘지」 Lv28) &larr; 자르간트 「조상 묘지에 대한 장난」(Lv33 · 배달 · 18) &larr; 「‘탁함’과 ‘따스함’의 도망자 정찰」(Lv32 · 11 · 「탁하고 따뜻한 늪지」 Lv30) ·
      <b>[B]</b> 「밤에만 불이 켜지는 집 조사」 &larr; 「묘지에서 돌아오지 않는 사냥꾼들」(노르그레이 · Lv33 · 구조 · 22 · 「그레스티아 묘지」 Lv33 · «대개»).</p>
   <ol class="steps">
@@ -665,11 +665,11 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
      1지역 엘름리프 빌리지 · 헤이븐 포트 · 미르나 숲 마을 · 카리나의 안식처 / 2지역 브레이든 빌리지 · 알디아 오아시스 / 3지역 선메도우 빌리지 /
      4지역 레이자 마을 · 프로스트 드로우 빌리지 / 5지역 숲속의 숨은 마을 / 6지역 실레마을 · 라그네스 마을 · 세라노브 마을.</div>
   </section>
-<section class="sec" id="sec-caps" data-sec="caps" data-upd="2026-11-02">
+<section class="sec" id="sec-caps" data-sec="caps" data-upd="2026-11-03">
   <h2 id="caps"><span class="n">10</span>단계별 상한 &mdash; N 지역까지 열렸을 때</h2>
-  <p class="secdate">2026-11-02 갱신</p>
+  <p class="secdate">2026-11-03 갱신</p>
   <p>«N 단계» 는 <b>N 번 지역까지 열린 상태</b>이고, 적은 것은 그때까지 열린 지역을 <b>합친</b> 최고치입니다.
-     이 절은 <b>무엇이 있나</b>의 목록입니다 &mdash; 역할마다 <b>무엇을 고르나</b>는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.
+     이 절은 <b>무엇이 있나</b>의 목록입니다 &mdash; 역할마다 <b>무엇을 고르나</b>는 <a href="builds.html#stages">빌드 &sect;5</a> 에 있습니다.
      장비는 <code>요구 레벨 ≤ 내 직업 중 최고 레벨</code>이면 끼므로(<code>Character.CanEquip</code>) «전투 직업 천장» 이 곧 그 단계의 장비 천장이고,
      모험가는 훈련소가 없고 «최고 훈련소 레벨 + 1» 이라, ★(천장 초과) 가운데 <b>천장 + 1</b> 인 것은 모험가를 키우면 낍니다.</p>
 
@@ -848,7 +848,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
         도끼 모래 쪼개는 도끼 Lv35 69~112 <span class="meta">금고 · 노르그레이</span> · 활 피철의 활 Lv35 68~109 <span class="meta">금고 · 노르그레이</span> · 불타는 활 Lv34 <b>마법</b> ·
         창 피철의 창 Lv35 69~109 <span class="meta">금고 · 노르그레이 「모래 속에 잠긴 유적」</span> · 눈물 흘리는 창 Lv34 <b>마법</b> <span class="meta">금고 · 자르간트 「백골 순례를 멈춰라」</span> ·
         지팡이 피의 지팡이 Lv35 67~108 <span class="meta">금고 · 자르간트</span> · 단검 진악의 단검 Lv34 66~104 <span class="meta">상점 · 노르그레이</span></dd>
-      <dt>비고</dt><dd>회피 · 지능 장비는 6단계 이전 것이 그대로 최고입니다(회피: 통풍이 잘되는 옷 +6 · 짐승의 눈의 투구 +5 · 오멘워드 탈리스만 +5 / 지능: 정정의 지팡이 +5 · 베테랑의 부적 +3 · 불꽃 의상 +2). 7단계 신규는 방어 · 피해 · 마방만 오릅니다. 7단계의 답은 <a href="builds.html#stages">빌드 &sect;0</a> 7단계 줄과 <a href="builds.html#deftank">&sect;2 방어탱</a>입니다.</dd>
+      <dt>비고</dt><dd>회피 · 지능 장비는 6단계 이전 것이 그대로 최고입니다(회피: 통풍이 잘되는 옷 +6 · 짐승의 눈의 투구 +5 · 오멘워드 탈리스만 +5 / 지능: 정정의 지팡이 +5 · 베테랑의 부적 +3 · 불꽃 의상 +2). 7단계 신규는 방어 · 피해 · 마방만 오릅니다. 7단계의 답은 <a href="builds.html#stages">빌드 &sect;5</a> 7단계 줄과 <a href="builds.html#deftank">&sect;2 방어탱</a>입니다.</dd>
     </dl>
   </div>
   </details>
