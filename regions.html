@@ -389,7 +389,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <p class="eyebrow">The Silent Archivist &middot; 다음 지역으로</p>
     <h1>지역 &mdash; 어떻게 열리고, 열리면 무엇이 생기나</h1>
     <p class="lede">지역은 <b>해금 의뢰 하나</b>를 성공하면 열립니다. 그 의뢰가 뜨려면 <b>평판 · 탐색지 발견 · 선행 의뢰</b>가 맞아야 합니다.
-      앞쪽은 일곱 번의 전환, 뒤쪽은 지역이 열릴 때마다 훈련소 · 상점 · 금고가 어디까지 주는지입니다. 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
+      앞쪽은 여덟 번의 전환, 뒤쪽은 지역이 열릴 때마다 훈련소 · 상점 · 금고가 어디까지 주는지입니다. 그때 무엇을 입힐지는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.</p>
     <details class="src"><summary>코드 근거</summary><p>의뢰 조건 · 탐색지 좌표 · 평판 상한은 <b>8.0</b>(versionCode 149) 데이터에서 그대로 읽었고,
       «어느 함수가 언제 지역을 만드나» 는 <code>libil2cpp.so</code> 를 디스어셈블해 확인했습니다(주소는 7.1 기준 &mdash; 7.2 · 7.3 · 7.4 · 7.5 에서도 본문이 같습니다. 7.5 에서 지도 상한 함수는 개발판 값만 8 &rarr; 9 로 바뀌었고 배포 버전은 7 그대로입니다).
       실기기에서 확인하지 못한 것은 그 자리에 «추정» 이라고 적었습니다.</p></details>
@@ -400,9 +400,10 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
       <tr><td><a href="#r45">4 &rarr; 5</a></td><td>성왕청의 통행 호위</td><td>풋워커의 마을</td><td class="num">20</td><td class="num"><b>35</b></td><td>Lv18 의뢰로 딱 닿는 평판</td></tr>
       <tr><td><a href="#r56">5 &rarr; 6</a></td><td>통행권 대가</td><td><b>세라피오스</b> <span class="sm">4지역</span></td><td class="num">25</td><td class="num">21</td><td>리스티아 평판을 <b>음수</b>로 떨어뜨리는 사슬</td></tr>
       <tr><td><a href="#r67">6 &rarr; 7</a></td><td>고갯길 성문 성수탑의 몬스터 퇴치</td><td>트레반의 마을</td><td class="num">30</td><td class="num"><b>34</b></td><td>Lv30 의뢰를 <b>반복</b>해야 닿는 평판</td></tr>
-      <tr style="color:var(--muted)"><td><a href="#r78">7 &rarr; 8</a></td><td>칼레도 가도의 산길을 뚫다</td><td>자르간트 마을</td><td class="num">35</td><td class="num">35</td><td>배포 버전은 지도 전환이 막힘</td></tr>
+      <tr><td><a href="#r78">7 &rarr; 8</a></td><td>칼레도 가도의 산길을 뚫다</td><td>자르간트 마을</td><td class="num">35</td><td class="num">35</td><td>8.0 에서 열림 <span class="sm">7.5 까지는 지도 전환이 막힘</span></td></tr>
+      <tr style="color:var(--muted)"><td><a href="#r89">8 &rarr; 9</a></td><td>대소용돌이의 마물을 처치하고, 오르셀리아로 향하는 항로를 열어라</td><td>밀물과 썰물을 기다리는 항구 마을</td><td class="num">40</td><td class="num"><b>27</b></td><td>Lv40 의뢰를 <b>반복</b>해야 닿는 평판 · 배포 버전은 지도 전환이 막힘</td></tr>
     </tbody></table>
-    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-11-02">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-10-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-19">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-10-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-11-02">7→8<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-10-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-10-03">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <nav class="toc tabs" aria-label="절"><a href="#how" data-sec="how" data-upd="2026-11-02">열리는 자리<i class="dot" aria-hidden="true"></i></a><a href="#r12" data-sec="r12" data-upd="2026-10-02">1→2<i class="dot" aria-hidden="true"></i></a><a href="#r23" data-sec="r23" data-upd="2026-10-02">2→3<i class="dot" aria-hidden="true"></i></a><a href="#r34" data-sec="r34" data-upd="2026-10-02">3→4<i class="dot" aria-hidden="true"></i></a><a href="#r45" data-sec="r45" data-upd="2026-10-02">4→5<i class="dot" aria-hidden="true"></i></a><a href="#r56" data-sec="r56" data-upd="2026-10-19">5→6<i class="dot" aria-hidden="true"></i></a><a href="#r67" data-sec="r67" data-upd="2026-10-02">6→7<i class="dot" aria-hidden="true"></i></a><a href="#r78" data-sec="r78" data-upd="2026-11-02">7→8<i class="dot" aria-hidden="true"></i></a><a href="#r89" data-sec="r89" data-upd="2026-11-02">8→9<i class="dot" aria-hidden="true"></i></a><a href="#rep" data-sec="rep" data-upd="2026-11-02">평판 상한<i class="dot" aria-hidden="true"></i></a><a href="#caps" data-sec="caps" data-upd="2026-11-02">단계별 상한<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
     <p class="docdate">마지막 갱신 <b>2026-11-02</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
   <main class="doc">
@@ -410,7 +411,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   <section class="sec" id="sec-how" data-sec="how" data-upd="2026-11-02">
   <h2 id="how"><span class="n">0</span>열리는 자리 &mdash; 해금 의뢰 하나, 조건 넷</h2>
   <p class="secdate">2026-11-02 갱신</p>
-  <p>지도 8장 가운데 <b>해금 의뢰는 7개</b>이고, 전부 <b>한 번만</b> 뜨는 의뢰(<code>questSpawnInterval 99</code>)입니다.
+  <p>지도 9장 가운데 <b>해금 의뢰는 8개</b>이고, 전부 <b>한 번만</b> 뜨는 의뢰(<code>questSpawnInterval 99</code>)입니다.
      새 지역을 만드는 코드는 <b>모험 결과 창을 닫는 자리</b>(<code>AdventureResultDialog.Finish</code> 0x287A154) 한 곳뿐입니다 &mdash;
      의뢰가 «성공» 이면 보상 금화를 주고, 그 의뢰에 지도가 매여 있으면 <code>Map.Create &rarr; GameData.AddMap</code> 으로
      <b>그 자리에서 새 지도 · 마을 · 의뢰판을 만듭니다.</b> 돌아가서 뭘 더 할 필요가 없습니다.</p>
@@ -421,14 +422,14 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
         9번 지역(오르세리아)은 아직 지도로 못 넘어갑니다.</li>
   </ul>
   <h3>의뢰가 게시판에 뜨는 조건 &mdash; 검사 순서대로</h3>
-  <p><code>Town.CanAcceptQuest</code>(0x275E070)가 아래 순서로 봅니다. 해금 의뢰 7개는 전부 ③ ⑤ 를 쓰고, ④ 평판은 여섯(3→4 는 평판 조건 없음), ① 선행은 여섯(2→3 은 선행 없음)이 씁니다.</p>
+  <p><code>Town.CanAcceptQuest</code>(0x275E070)가 아래 순서로 봅니다. 해금 의뢰 8개는 전부 ⑤ 를 쓰고, ③ 탐색지는 일곱(8→9 는 탐색지 조건 없음), ④ 평판은 일곱(3→4 는 평판 조건 없음), ① 선행은 일곱(2→3 은 선행 없음)이 씁니다.</p>
   <ol class="steps">
     <li><b>선행 의뢰</b>(1~2개)를 어느 마을에서든 한 번은 깼어야 합니다. 「다른 마을」 의 의뢰여도 됩니다 &mdash; 3→4 · 5→6 이 그렇습니다.</li>
     <li><b>조건 마을</b>이 내 마을 목록에 있어야 합니다(윈달리온 의뢰 3개만 씁니다).</li>
     <li><b>탐색지 발견</b> &mdash; 지도에서 그 칸을 조사해 탐색지가 «내 지도» 에 있어야 합니다. 의뢰 보상으로 탐색지를 주는 칸은 데이터에 없습니다 &mdash; <b>발견 경로는 지도 탐색뿐</b>입니다.</li>
     <li><b>평판</b> &mdash; 요구가 양수면 그 이상, <b>음수면 그 이하</b>여야 합니다(5→6 에 음수 의뢰가 있습니다).</li>
     <li><b>그 마을에서 깬 의뢰 종류 수</b> &mdash; 1,573개 중 1,530개가 «1종 이상» 입니다(8.0 · 그중 발케인 마을 의뢰 154개 · 아직 잠긴 오르세리아 마을 의뢰 26개). 선행 의뢰만 깨도 채워집니다.</li>
-    <li><b>빈도</b> &mdash; «항상»(Always)이면 통과, 아니면 굴림 두 번 중 하나가 맞아야 뜹니다. 해금 의뢰 7개는 전부 «항상» 이지만 <b>선행 의뢰 중엔 «대개»(Usually) 가 섞여 있어</b> 안 뜨면 갱신해야 합니다.</li>
+    <li><b>빈도</b> &mdash; «항상»(Always)이면 통과, 아니면 굴림 두 번 중 하나가 맞아야 뜹니다. 해금 의뢰 8개는 전부 «항상» 이지만 <b>선행 의뢰 중엔 «대개»(Usually) 가 섞여 있어</b> 안 뜨면 갱신해야 합니다.</li>
   </ol>
   <h3>탐색지를 찾는 값</h3>
   <div class="eq"><b>기본값</b> = max(3 × 지역번호 + 7, 10)   <i>1지역 10 · 2지역 13 · 3지역 16 · … · 7지역 28</i>
@@ -590,7 +591,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
      7개 전환 가운데 <b>고레벨 의뢰 반복이 필수인 유일한 자리</b>입니다.</div>
   </section>
 <section class="sec" id="sec-r78" data-sec="r78" data-upd="2026-11-02">
-  <h2 id="r78"><span class="n">7</span>칼레바스 고원 &rarr; 발케인 지방 <span class="sm" style="font-weight:400">&mdash; 지금은 막혀 있습니다</span></h2>
+  <h2 id="r78"><span class="n">7</span>칼레바스 고원 &rarr; 발케인 지방 <span class="sm" style="font-weight:400">&mdash; 8.0 에서 열림</span></h2>
   <p class="secdate">2026-11-02 갱신</p>
   <div class="role">
     <h3>「칼레도 가도의 산길을 뚫다」 <span class="tag" style="color:var(--c-quest)">자르간트 마을 · Lv35 · 토벌 · 한 번만</span></h3>
@@ -615,9 +616,25 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   </ol>
   <div class="note">노르그레이는 maxReputationLevel 31 이라 Lv35 의뢰로는 25, Lv36 으로 30 입니다 &mdash; 「노란 꽃의 침식을 막아라」 의 <b>28</b> 은 Lv36 의뢰(반복형 9종)로 올리거나 Lv35 를 반복(두 번째가 Lv36)해야 닿습니다. 자르간트 35 는 Lv35 첫 클리어로 딱, Lv36 은 40.</div>
   </section>
-<section class="sec" id="sec-rep" data-sec="rep" data-upd="2026-10-02">
-  <h2 id="rep"><span class="n">8</span>평판 상한 &mdash; 지역이 안 열린 채 그 마을 의뢰만으로 어디까지</h2>
-  <p class="secdate">2026-10-02 갱신</p>
+<section class="sec" id="sec-r89" data-sec="r89" data-upd="2026-11-02">
+  <h2 id="r89"><span class="n">8</span>발케인 지방 &rarr; 오르세리아 지방 <span class="sm" style="font-weight:400">&mdash; 지금은 막혀 있습니다</span></h2>
+  <p class="secdate">2026-11-02 갱신</p>
+  <div class="role">
+    <h3>「대소용돌이의 마물을 처치하고, 오르셀리아로 향하는 항로를 열어라」 <span class="tag" style="color:var(--c-quest)">밀물과 썰물을 기다리는 항구 마을 · Lv40 · 토벌 · 한 번만</span></h3>
+    <dl class="kv">
+      <dt>평판</dt><dd>항구 마을 <b>27</b> 이상 &mdash; 이 마을 평판 의뢰는 Lv40 이 가장 높고 첫 클리어 상한이 25(maxReputationLevel 36)라, Lv40 의뢰를 한 번은 반복해 레벨을 올려야 닿습니다(Lv41 이면 30)</dd>
+      <dt>탐색지</dt><dd>조건 없음 &mdash; 해금 의뢰 가운데 처음입니다</dd>
+      <dt>선행</dt><dd><span class="q">「‘조수 씻김’ 유적지에서 바다 짐승으로부터 배를 지켜라」</span>(항구 마을 · Lv40 · 21 · 「조수 노출 유적」 Lv38 · 좌표 −34,−25) <b>+</b> <span class="q">「펠가나 습지의 다두 괴물을 처치하라」</span>(항구 마을 · Lv40 · 18 · 「페르가나 습지」 Lv40 · 좌표 −16,−14)</dd>
+      <dt>보상</dt><dd>금 6,000 · 경험치 35,193 · 평판 +1 · 3시간</dd>
+    </dl>
+  </div>
+  <div class="note warn"><b>배포 버전 지도 상한이 8 이라 지금은 오르세리아로 못 넘어갑니다.</b> 7.5 까지의 발케인과 같은 처지입니다 &mdash;
+     의뢰는 조건만 맞으면 뜨고 깰 수 있을 것으로 읽히지만, 지도 화면의 전환 버튼은 경고창만 띄웁니다(<b>코드 추론 · 실기기 미확인</b>).
+     오르세리아에는 «살미나의 항구 마을» 등 마을 2곳 · 탐색지 21곳이 실려 있고, 상점은 Lv40~42 를 팝니다.</div>
+  </section>
+<section class="sec" id="sec-rep" data-sec="rep" data-upd="2026-11-02">
+  <h2 id="rep"><span class="n">9</span>평판 상한 &mdash; 지역이 안 열린 채 그 마을 의뢰만으로 어디까지</h2>
+  <p class="secdate">2026-11-02 갱신</p>
   <p>«반복형(한 번짜리가 아니고 보상 평판이 양수인) 최고 레벨 의뢰» 를 기준으로 <b>첫 클리어 / 세 번 반복(+3)</b> 의 상한입니다. 실질은 여기에 +1 입니다.
      «세 번 반복» 은 그 의뢰의 maxAddLevel 이 3 일 때이고(Lv30 · Lv35 급은 전부 3), 0~2 인 의뢰로는 거기까지 못 갑니다.
      한 번짜리 의뢰가 더 높은 곳은 따로 적었습니다.</p>
@@ -644,9 +661,9 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
      1지역 엘름리프 빌리지 · 헤이븐 포트 · 미르나 숲 마을 · 카리나의 안식처 / 2지역 브레이든 빌리지 · 알디아 오아시스 / 3지역 선메도우 빌리지 /
      4지역 레이자 마을 · 프로스트 드로우 빌리지 / 5지역 숲속의 숨은 마을 / 6지역 실레마을 · 라그네스 마을 · 세라노브 마을.</div>
   </section>
-<section class="sec" id="sec-caps" data-sec="caps" data-upd="2026-10-03">
-  <h2 id="caps"><span class="n">9</span>단계별 상한 &mdash; N 지역까지 열렸을 때</h2>
-  <p class="secdate">2026-10-03 갱신</p>
+<section class="sec" id="sec-caps" data-sec="caps" data-upd="2026-11-02">
+  <h2 id="caps"><span class="n">10</span>단계별 상한 &mdash; N 지역까지 열렸을 때</h2>
+  <p class="secdate">2026-11-02 갱신</p>
   <p>«N 단계» 는 <b>N 번 지역까지 열린 상태</b>이고, 적은 것은 그때까지 열린 지역을 <b>합친</b> 최고치입니다.
      이 절은 <b>무엇이 있나</b>의 목록입니다 &mdash; 역할마다 <b>무엇을 고르나</b>는 <a href="builds.html#stages">빌드 &sect;0</a> 에 있습니다.
      장비는 <code>요구 레벨 ≤ 내 직업 중 최고 레벨</code>이면 끼므로(<code>Character.CanEquip</code>) «전투 직업 천장» 이 곧 그 단계의 장비 천장이고,
@@ -661,23 +678,24 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <tr><td><b>5</b> <span class="sub">바람의 거친 경계</span></td><td class="num">25</td><td>검투사 · 마궁사 · 성창사 · 중도사 <span class="sub">전부 25</span></td><td class="num">Lv22</td><td>휴먼 <span class="sub">리스티아 합 41</span></td><td><b>부적 +7 · 의복 +6</b></td><td>&mdash;</td></tr>
     <tr><td><b>6</b> <span class="sub">발두나의 황야</span></td><td class="num">30</td><td>마검사 · 무장병 · 암흑마법사 <span class="sub">전부 30</span></td><td class="num">Lv29</td><td>드워프 <span class="sub">트레반 합 43</span></td><td>&mdash;</td><td><b>투구 +5 · 부적 +5</b></td></tr>
     <tr><td><b>7</b> <span class="sub">칼레바스 고원</span></td><td class="num">35</td><td>마도병 · 목 베기 · 순례 사제 · 풍현사 <span class="sub">전부 35</span></td><td class="num">Lv34</td><td>&mdash;</td><td>갑옷 +6 · 부적 +6</td><td>&mdash;</td></tr>
+    <tr><td><b>8</b> <span class="sub">발케인 지방</span></td><td class="num">40</td><td>마도학자 · 모래 환상 사수 · 선봉병 · 치유사 <span class="sub">전부 40 · 도둑 · 레인저 · 현자는 35 그대로</span></td><td class="num">Lv39</td><td>엘프 <span class="sub">필네아 합 45</span></td><td>&mdash;</td><td>&mdash;</td></tr>
   </tbody></table>
 
   <h3>부위별 최고 장비</h3>
   <details class="src"><summary>코드 근거</summary><p><i class="s">상</i> 상점 재고 · <i class="s">금</i> 의뢰 금고 · <i class="s">습</i> 의뢰 습득물 · <i class="s">드</i> 몬스터 드랍 · ★ 전투 직업 천장 초과(천장 + 1 이면 모험가로 낌). 작은 글씨는 2위이거나 성격이 다른 것(마법 · 회피 · 마방).</p></details>
-  <table class="t gear"><thead><tr><th>부위</th><th>1 미스토리아</th><th>2 바르디아</th><th>3 뤼미에르</th><th>4 아르디오스</th><th>5 바람의 경계</th><th>6 발두나</th><th>7 칼레바스</th></tr></thead><tbody>
-    <tr><td><b>갑옷</b></td><td><b>중갑</b> Lv5<i class="s">습</i></td><td><b>맹렬한 지휘관의 갑옷</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 갑옷</b> Lv14<i class="s">상</i><span class="sub">룬 방어구 Lv13 마방 5</span></td><td><b>별을 부수는 갑옷</b> Lv20<i class="s">금</i><span class="sub">★잔광의 갑옷 Lv21</span></td><td><b>현무의 갑옷</b> Lv25<i class="s">금</i><span class="sub">힘 39</span></td><td><b>왕단의 갑옷</b> Lv30<i class="s">금</i><span class="sub">송곳니 왕 Lv29 상점</span></td><td><b>갈증의 갑옷</b> Lv35<i class="s">금</i><span class="sub">MP +6 · 마방 12</span></td></tr>
-    <tr><td><b>투구</b></td><td><b>베테랑의 헬멧</b> Lv6<i class="s">상</i></td><td><b>맹렬한 사령관의 투구</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 헬멧</b> Lv14<i class="s">상</i></td><td><b>별을 부수는 투구</b> Lv20<i class="s">금</i></td><td><b>현무암 투구</b> Lv25<i class="s">금</i></td><td><b>짐승의 눈의 투구</b> Lv29<i class="s">금</i><span class="sub">회피 +5</span></td><td><b>피철 투구</b> Lv35<i class="s">금</i></td></tr>
-    <tr><td><b>방패</b></td><td><b>베테랑의 방패</b> Lv6<i class="s">상</i></td><td><b>스펠록 방패</b> Lv8<i class="s">금</i><span class="sub">마방 3</span></td><td><b>마스터크래프트 방패</b> Lv14<i class="s">상</i></td><td><b>서리단 방패</b> Lv20<i class="s">금</i><span class="sub">★썩은 뼈의 방패 Lv23</span></td><td><b>현무암 방패</b> Lv25<i class="s">금</i><span class="sub">굴절 방패 Lv24 마방 9</span></td><td><b>송곳니왕의 방패</b> Lv29<i class="s">상</i><span class="sub">검은 봉인 Lv26 마방 11</span></td><td><b>영묘의 방패</b> Lv35<i class="s">금</i><span class="sub">마방 17</span></td></tr>
-    <tr><td><b>의복</b></td><td><b>정령 천 의상</b> Lv6<i class="s">금</i><span class="sub">마방 3</span></td><td><b>맹렬한 사령관의 옷</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 튜닉</b> Lv14<i class="s">상</i><span class="sub">통풍이 잘되는 옷 회피 +6</span></td><td><b>실바 그린 가브</b> Lv15<i class="s">금</i><span class="sub">회피 +5 · ★잔광의 옷 Lv21</span></td><td><b>암숨의 법복</b> Lv25<i class="s">금</i><span class="sub">MP +6</span></td><td><b>왕단의 옷</b> Lv30<i class="s">금</i></td><td><b>이와오리의 옷</b> Lv33<i class="s">금</i></td></tr>
-    <tr><td><b>부적</b></td><td class="dim">&mdash;</td><td><b>불의 후광 부적</b> Lv10<i class="s">금</i><span class="sub">마방 14 · 베테랑의 부적 지능 +3</span></td><td><b>마녀사냥꾼 부적</b> Lv13<i class="s">드</i><span class="sub">마방 18</span></td><td><b>단마의 부적</b> Lv19<i class="s">금</i><span class="sub">마방 32</span></td><td><b>현맥의 부적</b> Lv25<i class="s">습</i><span class="sub">MP +7 · 마방 34</span></td><td><b>늪왕의 부적</b> Lv29<i class="s">금</i><span class="sub">마방 39 · 오멘워드 회피 +5</span></td><td><b>고목의 부적</b> Lv34<i class="s">금</i><span class="sub">MP +6 · 마방 46</span></td></tr>
-    <tr><td><b>검</b></td><td><b>베테랑의 검</b> Lv6<i class="s">상</i></td><td><b>기사 검</b> Lv9<i class="s">금</i><span class="sub">마법 · 맹렬한 사령관의 검 Lv10</span></td><td><b>슈프림 소드</b> Lv15<i class="s">금</i><span class="sub">화염가이드 소드 마법</span></td><td><b>별을 부수는 검</b> Lv20<i class="s">습</i><span class="sub">허공의 검 마법 · ★석영의 검 Lv23</span></td><td><b>현무암의 검</b> Lv25<i class="s">금</i><span class="sub">글라즈의 검 마법</span></td><td><b>세포 소용돌이의 검</b> Lv30<i class="s">금</i><span class="sub">마법</span></td><td><b>피철의 검</b> Lv35<i class="s">금</i></td></tr>
-    <tr><td><b>대검</b></td><td><b>철제 대형 검</b> Lv5<i class="s">금</i></td><td><b>맹렬한 사령관의 대검</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 대검</b> Lv14<i class="s">상</i><span class="sub">뼈 분쇄기 Lv13 회피 −2</span></td><td><b>전식 대검</b> Lv19<i class="s">상</i></td><td><b>현무암 대검</b> Lv25<i class="s">금</i><span class="sub">모래날의 대검 마법</span></td><td><b>송곳니왕의 대검</b> Lv29<i class="s">상</i></td><td><b>피철의 대검</b> Lv35<i class="s">금</i><span class="sub">회염의 대검 Lv31 마법</span></td></tr>
-    <tr><td><b>도끼</b></td><td><b>도살 도끼</b> Lv6<i class="s">금</i></td><td><b>맹렬한 사령관의 도끼</b> Lv10<i class="s">금</i></td><td><b>단마의 도끼</b> Lv14<i class="s">금</i><span class="sub">마스터크래프트 액스 상점</span></td><td><b>전식 도끼</b> Lv19<i class="s">상</i><span class="sub">★잔광의 도끼 Lv21</span></td><td><b>현무암 도끼</b> Lv25<i class="s">금</i><span class="sub">현빙의 도끼 Lv25</span></td><td><b>송곳니왕의 도끼</b> Lv29<i class="s">상</i></td><td><b>모래 쪼개는 도끼</b> Lv35<i class="s">금</i></td></tr>
-    <tr><td><b>활</b></td><td><b>워샷 활</b> Lv5<i class="s">습</i></td><td><b>게일 발리 활</b> Lv10<i class="s">금</i></td><td><b>엘더 대지의 활</b> Lv14<i class="s">습</i><span class="sub">마스터크래프트 활 Lv14 상점</span></td><td><b>별을 부수는 활</b> Lv20<i class="s">금</i></td><td><b>현무암 활</b> Lv25<i class="s">금</i><span class="sub">지문의 현궁 Lv25 마법</span></td><td><b>명천궁</b> Lv30<i class="s">금</i><span class="sub">마법 · 관통 · 송곳니왕의 활 Lv29 상점</span></td><td><b>피철의 활</b> Lv35<i class="s">금</i><span class="sub">불타는 활 Lv34 마법</span></td></tr>
-    <tr><td><b>창</b></td><td><b>베테랑의 창</b> Lv6<i class="s">금</i></td><td><b>워로드 스피어</b> Lv9<i class="s">상</i><span class="sub">대지의 송곳니 창 Lv9</span></td><td><b>마스터크래프트 창</b> Lv14<i class="s">상</i><span class="sub">분쇄 피어스 창 회피 −2</span></td><td><b>별을 꿰뚫는 창</b> Lv20<i class="s">금</i><span class="sub">흡혈의 창 Lv19</span></td><td><b>흑암관통창</b> Lv25<i class="s">금</i><span class="sub">마법</span></td><td><b>하늘을 뚫는 창</b> Lv30<i class="s">드</i><span class="sub">마법</span></td><td><b>피철의 창</b> Lv35<i class="s">금</i><span class="sub">눈물 흘리는 창 Lv34 마법</span></td></tr>
-    <tr><td><b>지팡이</b></td><td><b>베테랑 지팡이</b> Lv6<i class="s">드</i></td><td><b>워로드 지팡이</b> Lv9<i class="s">상</i></td><td><b>마스터 크래프트 지팡이</b> Lv14<i class="s">상</i></td><td><b>담쟁이 폭풍의 지팡이</b> Lv19<i class="s">습</i><span class="sub">마법 · ★현무암 지팡이 Lv25</span></td><td><b>정정의 지팡이</b> Lv23<i class="s">금</i><span class="sub">지능 +5 · 현무암 지팡이 Lv25</span></td><td><b>송곳니왕의 전역 지팡이</b> Lv29<i class="s">금</i></td><td><b>피의 지팡이</b> Lv35<i class="s">금</i></td></tr>
-    <tr><td><b>단검</b></td><td><b>베테랑의 단검</b> Lv6<i class="s">금</i></td><td><b>사나운 사령관의 단검</b> Lv10<i class="s">금</i><span class="sub">시길 단검 Lv10 마법</span></td><td><b>마스터크래프트 단검</b> Lv14<i class="s">상</i><span class="sub">룬 스프레드 대거 마법</span></td><td><b>별을 부수는 단검</b> Lv20<i class="s">금</i></td><td><b>반조의 단검</b> Lv24<i class="s">금</i><span class="sub">용맥의 단검 Lv25 전체</span></td><td><b>왕단의 단검</b> Lv30<i class="s">금</i><span class="sub">무감각 칼 Lv30</span></td><td><b>진악의 단검</b> Lv34<i class="s">상</i></td></tr>
+  <table class="t gear"><thead><tr><th>부위</th><th>1 미스토리아</th><th>2 바르디아</th><th>3 뤼미에르</th><th>4 아르디오스</th><th>5 바람의 경계</th><th>6 발두나</th><th>7 칼레바스</th><th>8 발케인</th></tr></thead><tbody>
+    <tr><td><b>갑옷</b></td><td><b>중갑</b> Lv5<i class="s">습</i></td><td><b>맹렬한 지휘관의 갑옷</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 갑옷</b> Lv14<i class="s">상</i><span class="sub">룬 방어구 Lv13 마방 5</span></td><td><b>별을 부수는 갑옷</b> Lv20<i class="s">금</i><span class="sub">★잔광의 갑옷 Lv21</span></td><td><b>현무의 갑옷</b> Lv25<i class="s">금</i><span class="sub">힘 39</span></td><td><b>왕단의 갑옷</b> Lv30<i class="s">금</i><span class="sub">송곳니 왕 Lv29 상점</span></td><td><b>갈증의 갑옷</b> Lv35<i class="s">금</i><span class="sub">MP +6 · 마방 12</span></td><td><b>청철 갑옷</b> Lv40<i class="s">금</i><span class="sub">이즈미모리의 갑옷 Lv38 마방 13</span></td></tr>
+    <tr><td><b>투구</b></td><td><b>베테랑의 헬멧</b> Lv6<i class="s">상</i></td><td><b>맹렬한 사령관의 투구</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 헬멧</b> Lv14<i class="s">상</i></td><td><b>별을 부수는 투구</b> Lv20<i class="s">금</i></td><td><b>현무암 투구</b> Lv25<i class="s">금</i></td><td><b>짐승의 눈의 투구</b> Lv29<i class="s">금</i><span class="sub">회피 +5</span></td><td><b>피철 투구</b> Lv35<i class="s">금</i></td><td><b>청철 투구</b> Lv40<i class="s">금</i><span class="sub">명수의 투구 Lv38 마방 13</span></td></tr>
+    <tr><td><b>방패</b></td><td><b>베테랑의 방패</b> Lv6<i class="s">상</i></td><td><b>스펠록 방패</b> Lv8<i class="s">금</i><span class="sub">마방 3</span></td><td><b>마스터크래프트 방패</b> Lv14<i class="s">상</i></td><td><b>서리단 방패</b> Lv20<i class="s">금</i><span class="sub">★썩은 뼈의 방패 Lv23</span></td><td><b>현무암 방패</b> Lv25<i class="s">금</i><span class="sub">굴절 방패 Lv24 마방 9</span></td><td><b>송곳니왕의 방패</b> Lv29<i class="s">상</i><span class="sub">검은 봉인 Lv26 마방 11</span></td><td><b>영묘의 방패</b> Lv35<i class="s">금</i><span class="sub">마방 17</span></td><td><b>갈라진 갑옷 방패</b> Lv39<i class="s">상</i><span class="sub">마방은 영묘의 방패 17 그대로</span></td></tr>
+    <tr><td><b>의복</b></td><td><b>정령 천 의상</b> Lv6<i class="s">금</i><span class="sub">마방 3</span></td><td><b>맹렬한 사령관의 옷</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 튜닉</b> Lv14<i class="s">상</i><span class="sub">통풍이 잘되는 옷 회피 +6</span></td><td><b>실바 그린 가브</b> Lv15<i class="s">금</i><span class="sub">회피 +5 · ★잔광의 옷 Lv21</span></td><td><b>암숨의 법복</b> Lv25<i class="s">금</i><span class="sub">MP +6</span></td><td><b>왕단의 옷</b> Lv30<i class="s">금</i></td><td><b>이와오리의 옷</b> Lv33<i class="s">금</i></td><td><b>청철의 옷</b> Lv40<i class="s">금</i><span class="sub">스즈모리의 옷 Lv37 마방 13</span></td></tr>
+    <tr><td><b>부적</b></td><td class="dim">&mdash;</td><td><b>불의 후광 부적</b> Lv10<i class="s">금</i><span class="sub">마방 14 · 베테랑의 부적 지능 +3</span></td><td><b>마녀사냥꾼 부적</b> Lv13<i class="s">드</i><span class="sub">마방 18</span></td><td><b>단마의 부적</b> Lv19<i class="s">금</i><span class="sub">마방 32</span></td><td><b>현맥의 부적</b> Lv25<i class="s">습</i><span class="sub">MP +7 · 마방 34</span></td><td><b>늪왕의 부적</b> Lv29<i class="s">금</i><span class="sub">마방 39 · 오멘워드 회피 +5</span></td><td><b>고목의 부적</b> Lv34<i class="s">금</i><span class="sub">MP +6 · 마방 46</span></td><td><b>고목의 부적</b> Lv34<i class="s">금</i><span class="sub">새것은 열갑의 부적 Lv39 마방 39</span></td></tr>
+    <tr><td><b>검</b></td><td><b>베테랑의 검</b> Lv6<i class="s">상</i></td><td><b>기사 검</b> Lv9<i class="s">금</i><span class="sub">마법 · 맹렬한 사령관의 검 Lv10</span></td><td><b>슈프림 소드</b> Lv15<i class="s">금</i><span class="sub">화염가이드 소드 마법</span></td><td><b>별을 부수는 검</b> Lv20<i class="s">습</i><span class="sub">허공의 검 마법 · ★석영의 검 Lv23</span></td><td><b>현무암의 검</b> Lv25<i class="s">금</i><span class="sub">글라즈의 검 마법</span></td><td><b>세포 소용돌이의 검</b> Lv30<i class="s">금</i><span class="sub">마법</span></td><td><b>피철의 검</b> Lv35<i class="s">금</i></td><td><b>조열의 검</b> Lv40<i class="s">금</i><span class="sub">마법</span></td></tr>
+    <tr><td><b>대검</b></td><td><b>철제 대형 검</b> Lv5<i class="s">금</i></td><td><b>맹렬한 사령관의 대검</b> Lv10<i class="s">금</i></td><td><b>마스터크래프트 대검</b> Lv14<i class="s">상</i><span class="sub">뼈 분쇄기 Lv13 회피 −2</span></td><td><b>전식 대검</b> Lv19<i class="s">상</i></td><td><b>현무암 대검</b> Lv25<i class="s">금</i><span class="sub">모래날의 대검 마법</span></td><td><b>송곳니왕의 대검</b> Lv29<i class="s">상</i></td><td><b>피철의 대검</b> Lv35<i class="s">금</i><span class="sub">회염의 대검 Lv31 마법</span></td><td><b>청철의 대검</b> Lv40<i class="s">금</i></td></tr>
+    <tr><td><b>도끼</b></td><td><b>도살 도끼</b> Lv6<i class="s">금</i></td><td><b>맹렬한 사령관의 도끼</b> Lv10<i class="s">금</i></td><td><b>단마의 도끼</b> Lv14<i class="s">금</i><span class="sub">마스터크래프트 액스 상점</span></td><td><b>전식 도끼</b> Lv19<i class="s">상</i><span class="sub">★잔광의 도끼 Lv21</span></td><td><b>현무암 도끼</b> Lv25<i class="s">금</i><span class="sub">현빙의 도끼 Lv25</span></td><td><b>송곳니왕의 도끼</b> Lv29<i class="s">상</i></td><td><b>모래 쪼개는 도끼</b> Lv35<i class="s">금</i></td><td><b>갈라진 갑옷의 도끼</b> Lv39<i class="s">상</i></td></tr>
+    <tr><td><b>활</b></td><td><b>워샷 활</b> Lv5<i class="s">습</i></td><td><b>게일 발리 활</b> Lv10<i class="s">금</i></td><td><b>엘더 대지의 활</b> Lv14<i class="s">습</i><span class="sub">마스터크래프트 활 Lv14 상점</span></td><td><b>별을 부수는 활</b> Lv20<i class="s">금</i></td><td><b>현무암 활</b> Lv25<i class="s">금</i><span class="sub">지문의 현궁 Lv25 마법</span></td><td><b>명천궁</b> Lv30<i class="s">금</i><span class="sub">마법 · 관통 · 송곳니왕의 활 Lv29 상점</span></td><td><b>피철의 활</b> Lv35<i class="s">금</i><span class="sub">불타는 활 Lv34 마법</span></td><td><b>열갑의 활</b> Lv39<i class="s">상</i><span class="sub">명중 보장 활 Lv37 마법</span></td></tr>
+    <tr><td><b>창</b></td><td><b>베테랑의 창</b> Lv6<i class="s">금</i></td><td><b>워로드 스피어</b> Lv9<i class="s">상</i><span class="sub">대지의 송곳니 창 Lv9</span></td><td><b>마스터크래프트 창</b> Lv14<i class="s">상</i><span class="sub">분쇄 피어스 창 회피 −2</span></td><td><b>별을 꿰뚫는 창</b> Lv20<i class="s">금</i><span class="sub">흡혈의 창 Lv19</span></td><td><b>흑암관통창</b> Lv25<i class="s">금</i><span class="sub">마법</span></td><td><b>하늘을 뚫는 창</b> Lv30<i class="s">드</i><span class="sub">마법</span></td><td><b>피철의 창</b> Lv35<i class="s">금</i><span class="sub">눈물 흘리는 창 Lv34 마법</span></td><td><b>갈라진 갑옷의 창</b> Lv39<i class="s">상</i><span class="sub">침묵의 창 Lv38 마법</span></td></tr>
+    <tr><td><b>지팡이</b></td><td><b>베테랑 지팡이</b> Lv6<i class="s">드</i></td><td><b>워로드 지팡이</b> Lv9<i class="s">상</i></td><td><b>마스터 크래프트 지팡이</b> Lv14<i class="s">상</i></td><td><b>담쟁이 폭풍의 지팡이</b> Lv19<i class="s">습</i><span class="sub">마법 · ★현무암 지팡이 Lv25</span></td><td><b>정정의 지팡이</b> Lv23<i class="s">금</i><span class="sub">지능 +5 · 현무암 지팡이 Lv25</span></td><td><b>송곳니왕의 전역 지팡이</b> Lv29<i class="s">금</i></td><td><b>피의 지팡이</b> Lv35<i class="s">금</i></td><td><b>열갑의 지팡이</b> Lv39<i class="s">상</i><span class="sub">영무의 지팡이 Lv38</span></td></tr>
+    <tr><td><b>단검</b></td><td><b>베테랑의 단검</b> Lv6<i class="s">금</i></td><td><b>사나운 사령관의 단검</b> Lv10<i class="s">금</i><span class="sub">시길 단검 Lv10 마법</span></td><td><b>마스터크래프트 단검</b> Lv14<i class="s">상</i><span class="sub">룬 스프레드 대거 마법</span></td><td><b>별을 부수는 단검</b> Lv20<i class="s">금</i></td><td><b>반조의 단검</b> Lv24<i class="s">금</i><span class="sub">용맥의 단검 Lv25 전체</span></td><td><b>왕단의 단검</b> Lv30<i class="s">금</i><span class="sub">무감각 칼 Lv30</span></td><td><b>진악의 단검</b> Lv34<i class="s">상</i></td><td><b>전아의 단검</b> Lv38<i class="s">상</i><span class="sub">생명을 훔치는 단검 Lv34 마법</span></td></tr>
   </tbody></table>
 
   <h3>단계마다 자세히 &mdash; 어느 의뢰에서 나오나</h3>
@@ -830,7 +848,34 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     </dl>
   </div>
   </details>
-  <details class="src"><summary>코드 근거</summary><p>출처 집계: 상점 = buildings.shopWeapons/shopArmors 재고 · 금고·습득물 = quests.questEvents.chest/foundItem · 드랍 = monsters.rewardWeapons/rewardArmors × 출현처(caves.monsterGroups · quests.questEvents.monsterGroups). 단계별 출처 있는 장비 112 · 214 · 321 · 454 · 566 · 658 · 756개. 근거 full/regions/caps.json.</p></details>
+  <details><summary>8단계 · 발케인 지방 &mdash; 훈련소 의뢰 · 상점 단계 · 장비 출처</summary>
+  <div class="role">
+    <h3>8단계 · 발케인 지방 <span class="tag" style="color:var(--c-place)">전투 직업 천장 40 · 모험가 41 (8.0 에서 열림)</span></h3>
+    <dl class="kv">
+      <dt>마을</dt><dd>+ 베르간트 마을 · 라제할 마을 · 필네아 마을 · 밀물과 썰물을 기다리는 항구 마을 <span class="meta">&mdash; 누적 33곳</span></dd>
+      <dt>훈련소</dt><dd><b>선봉병 40</b> <span class="meta">베르간트 「격투 훈련장 터의 재건」 Lv37 · 11</span> · <b>모래 환상 사수 40</b> <span class="meta">라제할 「바람이 잘 통하던 사격장 터를 되찾자」 Lv38 · 21</span> ·
+        <b>치유사 40</b> <span class="meta">항구 마을 「‘기다림의 저택’에서 치유술 조사 수행하기」 Lv38 · 14 · 드워프·엘프·휴먼</span> · <b>마도학자 40</b> <span class="meta">항구 마을 「엘디온 유적에서 ‘사라진 멘토’를 찾으세요」 Lv39 · 14 · 드워프·엘프·휴먼</span>
+        <span class="meta">&mdash; 도둑 · 레인저 · 현자는 8.0 에서도 강화 표가 35 에서 끝나 그대로입니다(<a href="notes.html#job">원리 &sect;3</a>)</span></dd>
+      <dt>상점</dt><dd>라제할 마을 무기 · 방어구 5단계(<b>Lv35~39</b> · 단계마다 한 칸씩 · Lv39 갈라진 갑옷 · 열갑 시리즈 · 평판 20) &mdash; 발케인에서 상점이 있는 마을은 라제할 하나입니다</dd>
+      <dt>종족</dt><dd>+ 엘프 남 · 여 Lv5 합 45 <span class="meta">필네아 마을</span></dd>
+      <dt>MP 회복</dt><dd>새 장비 없음 &mdash; 고목의 부적 Lv34 +6 · 갈증의 갑옷 Lv35 +6 이 그대로 최고입니다</dd>
+      <dt>갑옷</dt><dd>청철 갑옷 Lv40 80~83 <span class="meta">금고 · 필네아 「바위물 늪의 악취 조사 호위」</span> · 갈라진 갑옷 Lv39 78~81 <span class="meta">상점</span> · 이즈미모리의 갑옷 Lv38 76~79 <b>마방 13</b> <span class="meta">금고 · 라제할 「수중 유적, 그 가장 깊은 곳으로」</span></dd>
+      <dt>투구·방패</dt><dd>청철 투구 Lv40 10~41 <span class="meta">금고 · 필네아 「구멍이 뚫린 황무지의 바위 먹는 마물 퇴치」</span> · 명수의 투구 Lv38 <b>마방 13</b> <span class="meta">금고 · 필네아 「일생에 한 번뿐인 피라미드 관람」</span> ·
+        갈라진 갑옷 방패 Lv39 10~41 · 전아의 방패 Lv38 <span class="meta">상점</span> &mdash; 방패 마방은 영묘의 방패 17 그대로</dd>
+      <dt>의복·부적</dt><dd>청철의 옷 Lv40 75~81 <span class="meta">금고 · 베르간트 「모래에 잠긴 사원의 탐험가 구조」</span> · 열갑옷 Lv39 <span class="meta">상점</span> · 스즈모리의 옷 Lv37 <b>마방 13</b> <span class="meta">금고 · 필네아 「엘반의 폐촌 굴뚝 조사」</span> ·
+        열갑의 부적 Lv39 마방 39 <span class="meta">상점</span>(부적 마방은 고목 46 그대로)</dd>
+      <dt>무기</dt><dd>검 조열의 검 Lv40 80~125 <b>마법</b> <span class="meta">금고 · 베르간트 「짐승이 숨어 있는 숲의 해마 조사」</span> · 열갑의 검 Lv39 <span class="meta">상점</span> ·
+        대검 청철의 대검 Lv40 81~127 <span class="meta">금고 · 항구 마을 「풀숲 동굴에서 풍겨오는 이상한 냄새를 조사해라」</span> · 도끼 갈라진 갑옷의 도끼 Lv39 77~124 <span class="meta">상점</span> ·
+        활 열갑의 활 Lv39 76~121 <span class="meta">상점</span> · 명중 보장 활 Lv37 <b>마법</b> <span class="meta">금고 · 라제할 「빛 속에 서 있는 것」</span> ·
+        창 갈라진 갑옷의 창 Lv39 77~121 <span class="meta">상점</span> · 침묵의 창 Lv38 <b>마법</b> <span class="meta">금고 · 라제할 「모래 속에서 나타난 입구」</span> ·
+        지팡이 열갑의 지팡이 Lv39 75~120 <span class="meta">상점</span> · 영무의 지팡이 Lv38 <span class="meta">금고 · 베르간트 「잊혀진 들판의 묘지로의 호위」</span> ·
+        단검 전아의 단검 Lv38 74~116 <span class="meta">상점</span> · 생명을 훔치는 단검 Lv34 <b>마법</b> <span class="meta">금고 · 라제할 「베르그 동굴의 도적 토벌」</span></dd>
+      <dt>비고</dt><dd>회피 · 지능 · MP 회복 장비는 이전 것이 그대로 최고입니다. 8단계 신규는 방어 · 피해 · 마방(13)만 오릅니다. 요구 Lv40 은 발케인 훈련소 하나를 40 으로 올리거나(그 직업이면) 모험가 41 이 되어야 낍니다.
+        Lv40 «청철» 여덟 점(단검 · 도끼 · 검 · 방패 · 부적 · 지팡이 · 활 · 창)은 아직 얻는 곳이 없거나 오르세리아 의뢰에서 나옵니다.</dd>
+    </dl>
+  </div>
+  </details>
+  <details class="src"><summary>코드 근거</summary><p>출처 집계: 상점 = buildings.shopWeapons/shopArmors 재고 · 금고·습득물 = quests.questEvents.chest/foundItem · 드랍 = monsters.rewardWeapons/rewardArmors × 출현처(caves.monsterGroups · quests.questEvents.monsterGroups). 단계별 출처 있는 장비 112 · 214 · 321 · 454 · 566 · 658 · 756 · 825개. 근거 full/regions/caps.json(8단계는 8.0 데이터로 같은 집계 &mdash; full/regions/work/regions_단계상한_80).</p></details>
   </section>
 </main>
 <script>
