@@ -3991,11 +3991,16 @@ return { setCrew: function (c) { CREW = c; }, getCrew: function () { return CREW
     var C = context(ctx), r = C.RACE[race]; if (!r) return [];
     return (r.no || []).map(function (n) { return C.JOBN[n]; }).filter(Boolean);
   }
-  /* 직업 레벨 천장 — meta jobs.max. 모험가는 «최고 훈련소 레벨 + 1»(원리 §3 · Job.MaxLevel 0x26E9B0C, 상한 36).
-     hallTop 을 안 주면 35(훈련소 다 지음) → 36. */
+  /* 직업 레벨 천장 — meta jobs.max. 모험가는 «최고 훈련소 레벨 + 1»(원리 §3 · Job.MaxLevel 0x26E9B0C).
+     hallTop 을 안 주면 «잠기지 않은 직업 중 가장 긴 훈련소 표»(훈련소 다 지음) + 1 — 7.5 까지 35 → 36 · 8.0 발케인 40 → 41. */
+  function hallTopOpen(C) {
+    var top = 0;
+    for (var id in C.JOB) if (id !== "Adventurer" && !C.JOB[id].lock && (C.JOB[id].max || 0) > top) top = C.JOB[id].max;
+    return top || 35;
+  }
   function jobCap(ctx, jobId, hallTop) {
     var C = context(ctx), j = C.JOB[jobId]; if (!j) return 0;
-    if (jobId === "Adventurer") return Math.min(j.max || 36, (hallTop != null ? hallTop : 35) + 1);
+    if (jobId === "Adventurer") return Math.min(j.max || 99, (hallTop != null ? hallTop : hallTopOpen(C)) + 1);
     return j.max || 0;
   }
   // 직업들로 배운 마법 — save-tpl.html spellsOf 와 같은 규칙(직업 sk 에서 레벨 ≤ 직업 레벨, 이름으로 중복 제거),
@@ -4740,7 +4745,7 @@ function renderTarget(){
   var h="";
   if(S.mode==="quest"){
     h+='<div class="crow"><span class="lvlabel">단계</span>';
-    for(var k=1;k<=7;k++) h+='<button type="button" class="chip" data-act="stage" data-v="'+k+'" aria-pressed="'+(S.stage===k)+'">'+k+'단계</button>';
+    for(var k=1;k<=D.core.stages.length;k++) h+='<button type="button" class="chip" data-act="stage" data-v="'+k+'" aria-pressed="'+(S.stage===k)+'">'+k+'단계</button>';   // 열린 단계 전부(8.0 발케인 = 8)
     h+='</div>';
     // 마을 — 그 단계의 의뢰를 내주는 마을(2~3곳 · 의뢰 50~112개). 단계를 바꾸면 «전체» 로 돌아간다(제작자 2026-10-06 «마을이라도 선택해서»)
     var tw={}, tws=[];
@@ -5165,7 +5170,7 @@ function editorHTML(){
 }
 function presetPick(){
   var h='<div class="crow"><button type="button" class="chip" data-act="pstage" data-v="0" aria-pressed="'+(S.pstage===0)+'">전체</button>';
-  for(var k=1;k<=7;k++) h+='<button type="button" class="chip" data-act="pstage" data-v="'+k+'" aria-pressed="'+(S.pstage===k)+'">'+k+'단계</button>';
+  for(var k=1;k<=D.core.stages.length;k++) h+='<button type="button" class="chip" data-act="pstage" data-v="'+k+'" aria-pressed="'+(S.pstage===k)+'">'+k+'단계</button>';
   h+='<select data-act="prole" aria-label="역할로 거르기"><option value="">모든 역할</option>'+ROLES.map(function(r){ return '<option'+(r===S.prole?' selected':'')+'>'+r+'</option>'; }).join("")+'</select></div>';
   var ps=D.presets.filter(function(p){ return (!S.pstage||p.stage===S.pstage) && (!S.prole||p.role===S.prole); });
   return h+listHTML(ps, function(p){
