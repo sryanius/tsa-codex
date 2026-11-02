@@ -936,7 +936,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
         기본 민첩은 31(뽑을 때 고른 값 · 초빙 포인트 포함)로 셌고, 카드 원래 값(20 안팎)이면 선봉병이 1 레벨 더(13) 필요합니다.</li>
     <li>8단계에서 남는 위험 의뢰는 회피탱 판이 무엇이든 같습니다 &mdash; 필네아 «바위물 늪에서 은맥초 채집»(샥 드링커 · 최대 보정 전멸 78%) · «원숭이들이 소란을 피우는 산에서 약초 채취 호위» · 베르간트 «부름의 숲에서 약초 채집 및 구조».</li>
   </ul>
-  <details class="src"><summary>코드 근거</summary><p>tools/sim/evasion_path.mjs --cont8 cont8_spec.json(7단계 상태에서 8단계 목표까지 가장 싼 증분 · 고정 강화) · research/farm/valkane80/hpclimb8.mjs(완봉 60 · 마방 40 을 지키며 HP 를 경험치 대비 가장 많이 늘리는 걸음) · dodge8_sim.py(파티 시뮬 · stage67 과 같은 씨앗) · deathcause8.py(사인).</p></details>
+  <details class="src"><summary>코드 근거</summary><p>tools/sim/evasion_path.mjs --cont cont_spec8.json(7단계 상태에서 8단계 목표까지 가장 싼 증분 · 고정 강화) · research/farm/stagek/hpclimb.mjs --stage 8(완봉 60 · 마방 40 을 지키며 HP 를 경험치 대비 가장 많이 늘리는 걸음) · dodge_sim.py --stage 8(파티 시뮬 · stage67 과 같은 씨앗) · deathcause.py --stage 8(사인). 단계 상수(완봉선 · 대장간 · 새 직업)는 full/regions/work/stagecap/stages.json.</p></details>
 
   <h3 id="dodge-craft">강화로 채울 것 &mdash; 완봉 55 · 풋워커 마방 35</h3>
   <p>카드 그대로면 7단계 완봉이 50 입니다(엘프 회피 44 · 민첩 44 / 풋워커 42 · 52). 칼레바스 퀘스트(55)까지 안 맞으려면 회피를 <b>+5</b> 더 얹습니다.
