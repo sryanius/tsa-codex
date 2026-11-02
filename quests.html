@@ -357,7 +357,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .chain .cdesc{display:block;font-size:12.5px;color:var(--body);margin-bottom:1px}
 .chain .cbadge{font-size:10.5px;font-weight:600;border:1px solid currentColor;
   border-radius:4px;padding:1px 5px;margin-left:6px;white-space:nowrap;vertical-align:1px}
-.goto{font:inherit;font-weight:500;font-size:13.5px;color:var(--accent);background:none;
+.goto{font:inherit;font-weight:500;font-size:13.5px;color:var(--accent);background:none;text-decoration:none;
   border:0;border-bottom:1px dashed currentColor;padding:0;cursor:pointer;text-align:left}
 .goto:hover{color:var(--ink);border-bottom-style:solid}
 .pre{margin:12px 0 0;font-size:13px;color:var(--body)}
@@ -914,7 +914,7 @@ function rowHTML(x){
      아직 못 하는 것만 «D-N» 으로 보여 준다. */
   var ag=again(x);
   var agTag = (ag && ag.cnt!=null)
-    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준) — 카운터 0 · 1 은 둘 다 다음 통과에 뜸">'+ag.need+'번 더</em>'
+    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준) — 카운터는 판정을 통과할 때만 1 줄고 0 이하가 되는 통과에 뜸 · 그래서 0 · 1 은 둘 다 다음 통과에 뜸">통과 '+ag.need+'번에 뜸</em>'
     : '';
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
     +'<button type="button" class="star'+(FAV[x.i]?" on":"")+'" data-fav="'+esc(x.i)+'"'
@@ -957,7 +957,7 @@ function qNode(p, cls, depth){
           : (p.u ? '<span class="cbadge" style="color:var(--f-train)">'+esc(p.u)+'</span>' : '');
   var name = cls==="now"
     ? '<b class="nowname">'+esc(p.n||p.i)+'</b>'
-    : '<button type="button" class="goto" data-goto="'+esc(p.i)+'" title="이 퀘스트로 이동">'+esc(p.n||p.i)+'</button>';
+    : '<a class="goto" href="?q='+encodeURIComponent(p.i)+'" target="_blank" rel="noopener" title="새 탭에서 이 퀘스트 열기">'+esc(p.n||p.i)+'</a>';   // 2026-11-02 제작자 «다른 퀘 누르면 이동되는데 뒤로 가기가 이전 페이지로 가서 힘듦 · 새 창으로» — 예전엔 같은 화면에서 검색어를 바꿔 이동했다
   return '<li class="'+cls+(isDone(p)?'':' undone')+'" style="--d:'+Math.min(depth,6)+'"><b>'+tags+name+eff+'</b>'
     + '<span class="cdesc">'+esc(p.o)+'</span>'
     + '<span class="cmeta">'+esc(p.t)+(p.p?" · "+esc(p.p):"")+' · Lv'+p.lv
@@ -1034,7 +1034,10 @@ function specHTML(x){
     cnt='<span class="warn">1회성</span> <span class="sm">한 번 깨면 끝</span>';
     if(o && !isDone(x)) until='갱신 '+fmtN(o.exp)+'번 <span class="sm">'+lvl(o.exp)+'</span>';
   } else if(ag && ag.cnt!=null){
-    cnt='<b>'+ag.cnt+'</b> / '+x.si+' <span class="sm">남음 · 판정 통과 '+ag.need+'번 더</span>';
+    /* 2026-11-02 제작자 «카운터가 0/2 인데 판정 통과는 왜 1번 더?» — «남음 · 1번 더» 가 겹쳐 읽혔다. 카운터는 판정을 통과할 때만 줄고
+       0 이하가 «되는» 통과에 뜨므로 0 이어도 통과 한 번은 필요하다 — 그 말을 그대로 적는다. */
+    cnt='<b>'+ag.cnt+'</b> / '+x.si+' <span class="sm">'+(ag.need===1 ? '다음 판정 통과 때 뜸' : '판정을 '+ag.need+'번 통과하면 뜸')
+      +' — 판정을 통과할 때만 1 줄고, 0 이하가 되는 통과에 뜹니다'+(ag.cnt===0 ? '(0 이어도 통과 한 번은 필요)' : '')+'</span>';
     until='갱신 <b>'+fmtN(ag.exp)+'</b>번 <span class="sm">'+(at?'세이브 '+esc(at)+' 부터':'지금부터')+(o?' · 가득 차면 '+fmtN(o.exp)+'번':'')+'</span>';
   } else {
     cnt=x.si+' <span class="sm">'+(ag&&ag.ready ? esc(ag.txt) : '깨면 '+x.si+'부터 다시')+'</span>';
@@ -1072,7 +1075,7 @@ function cellHelp(x){
   return '<details class="cellhelp"><summary>칸 설명 <span class="hint">— 눌러서 펼치기</span></summary><ul>'
     + (x.si>=99
       ? '<li><b>카운터</b> 1회성 — 한 번 깨면 다시 안 뜹니다</li>'
-      : '<li><b>카운터</b> «남은 / 총» — 깨거나 기한이 지나 내려가면 총('+x.si+')부터 다시 셉니다. 그 마을이 갱신될 때 판정을 통과할 때마다 1씩 줄고, 0 이 되는 갱신에 뜹니다(남은 0 · 1 은 둘 다 다음 통과에). 남은 값은 세이브를 넣었을 때만 나옵니다</li>')
+      : '<li><b>카운터</b> «남은 / 총» — 깨거나 기한이 지나 내려가면 총('+x.si+')부터 다시 셉니다. 그 마을이 갱신될 때 판정을 통과할 때마다 1씩 줄고, <b>0 이하가 되는 그 통과</b>에 뜹니다 &mdash; 그래서 남은 0 이어도 판정을 한 번은 통과해야 하고, 남은 0 · 1 은 둘 다 다음 통과에 뜹니다. 남은 값은 세이브를 넣었을 때만 나옵니다</li>')
     + '<li><b>빈도</b> 그 마을이 갱신될 때 이 확률로 판정을 통과합니다(통과해야 카운터가 줄어듦). 갱신 = 하루 한 번 로그인 보너스(모든 마을) + 그 마을 게시판의 갱신 버튼</li>'
     + (o ? '<li><b>'+(x.si>=99?'처음 뜨기까지':'다시 뜨기까지')+'</b> 남은 카운터 ÷ 통과율 = 평균 갱신 수(가득 찼으면 '+o.n+' ÷ '+(o.p*100).toFixed(0)+'%). 로그인 보너스만이면 그 수만큼 날이 걸리고, <b>이 마을 게시판의 갱신 버튼</b>을 누르면 누를 때마다 한 번씩 더 굴러갑니다</li>' : '')
     + '<li><b>보상</b> 반복 보정 +N 이면 골드 · 경험치 ×(1 + N÷3) — +3 이면 2배. 경험치는 실패 · 후퇴면 절반, 살아 있는 인원으로 나눔</li>'
@@ -1599,7 +1602,10 @@ var QP_OPEN=null;
 function openLinked(){
   if(!QP_OPEN || state.q!==QP_OPEN) return;
   var rs=el("out").querySelectorAll(".row[data-id]");
-  if(rs.length===1 && !rs[0].classList.contains("open")) toggleRow(rs[0]);
+  // 퀘스트 라인 링크는 ?q=퀘스트ID 로 온다 — ID 가 다른 ID 의 앞부분이면(1_1 · 1_1_102…) 여러 줄이 걸리므로 ID 가 같은 줄을 먼저 편다
+  var exact=null; Array.prototype.forEach.call(rs, function(r){ if(r.getAttribute("data-id")===QP_OPEN) exact=r; });
+  var r=exact || (rs.length===1 ? rs[0] : null);
+  if(r && !r.classList.contains("open")){ toggleRow(r); if(exact && rs.length>1) r.scrollIntoView({block:"start"}); }
 }
 
 
@@ -1633,14 +1639,6 @@ function toggleRow(row){
   row.classList.add("open"); row.setAttribute("aria-expanded","true");
 }
 
-function gotoQuest(id){
-  state.q=id; state.town=""; state.undone=false; state.facs={}; state.fav=false;
-  el("q").value=id; el("town").value=""; el("undone").checked=false; el("favonly").checked=false;
-  Array.prototype.forEach.call(document.querySelectorAll(".chip"),function(c){ c.setAttribute("aria-pressed","false"); });
-  render();
-  var r=el("out").querySelector('.row[data-id="'+id.replace(/"/g,'\\"')+'"]');
-  if(r){ toggleRow(r); r.scrollIntoView({block:"center"}); }
-}
 el("out").addEventListener("click",function(e){
   var st=e.target.closest(".star");
   if(st){
@@ -1654,8 +1652,7 @@ el("out").addEventListener("click",function(e){
     if(state.fav) render();
     return;
   }
-  var g=e.target.closest(".goto");
-  if(g){ e.stopPropagation(); gotoQuest(g.getAttribute("data-goto")); return; }
+  if(e.target.closest(".goto")){ e.stopPropagation(); return; }   // 퀘스트 라인 링크 — 새 탭으로(기본 동작) · 줄은 안 접는다
   var row=e.target.closest(".row");
   if(!row) return;
   toggleRow(row);
