@@ -326,6 +326,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .doc a.it:hover{color:var(--accent)}
 .doc a.it.mag{color:var(--f-arch);font-weight:600}
 .kv{grid-template-columns:64px 1fr}
+.bcard.ev .st{color:var(--muted)}
+.bcard .evlinks{font-size:12.5px;color:var(--muted);margin:8px 0 0;line-height:1.9}
 
 /* ── 절 탭 (docpages.py 가 넣는다) ─────────────────────────────── */
 .secdate{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:11.5px;color:var(--faint);margin:2px 0 14px}
@@ -407,7 +409,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <div class="note warn" style="margin-top:14px;font-size:14px"><b>★ 참고용으로만 보세요.</b>
       빌드와 수치는 시뮬과 세이브 기록으로 계속 고치는 중이라 자주 바뀌고, 시뮬은 실제와 다를 수 있습니다
       (절마다 고친 날짜가 제목 아래에 있습니다). <b>게임 화면이 정답입니다.</b></div>
-    <nav class="toc tabs" aria-label="절"><a href="#dodge" data-sec="dodge" data-upd="2026-11-03">회피탱<i class="dot" aria-hidden="true"></i></a><a href="#deftank" data-sec="deftank" data-upd="2026-11-03">방어탱<i class="dot" aria-hidden="true"></i></a><a href="#bow" data-sec="bow" data-upd="2026-11-03">리더 활<i class="dot" aria-hidden="true"></i></a><a href="#mage" data-sec="mage" data-upd="2026-11-03">법사<i class="dot" aria-hidden="true"></i></a><a href="#stages" data-sec="stages" data-upd="2026-11-03">추천 파티<i class="dot" aria-hidden="true"></i></a><a href="#solo" data-sec="solo" data-upd="2026-11-03">솔플<i class="dot" aria-hidden="true"></i></a><a href="#spear" data-sec="spear" data-upd="2026-11-03">기타 무기<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
+    <nav class="toc tabs" aria-label="절"><a href="#dodge" data-sec="dodge" data-upd="2026-11-03">회피탱<i class="dot" aria-hidden="true"></i></a><a href="#deftank" data-sec="deftank" data-upd="2026-11-03">방어탱<i class="dot" aria-hidden="true"></i></a><a href="#bow" data-sec="bow" data-upd="2026-11-03">리더 활<i class="dot" aria-hidden="true"></i></a><a href="#mage" data-sec="mage" data-upd="2026-11-03">법사<i class="dot" aria-hidden="true"></i></a><a href="#stages" data-sec="stages" data-upd="2026-11-03">추천 파티<i class="dot" aria-hidden="true"></i></a><a href="#solo" data-sec="solo" data-upd="2026-11-03">솔플<i class="dot" aria-hidden="true"></i></a><a href="#spear" data-sec="spear" data-upd="2026-11-03">기타 무기<i class="dot" aria-hidden="true"></i></a><a href="#evidence" data-sec="evidence" data-upd="2026-11-03">빌드 근거<i class="dot" aria-hidden="true"></i></a><a href="#all" data-all="1">전체</a></nav>
     <p class="docdate">마지막 갱신 <b>2026-11-03</b> &middot; 절마다 바뀐 날짜가 제목 아래 있습니다</p>
   </header>
   <main class="doc">
@@ -828,6 +830,112 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <li><b>전체 공격 근접 무기</b>(모래 쪼개는 도끼 · 진흙파도의 대검 등)는 적 앞줄만 칩니다. 적 누구든 다 치는 무기는 창 · 활 · 일부 지팡이뿐입니다.</li>
   </ul>
   <details class="src"><summary>코드 근거</summary><p>무기 종류별 표 · 창 딜러 카드 · 무기 · 방어구 총정리(얻는 곳)는 <a href="builds-detail.html#spear">빌드 근거 &sect;8 · &sect;9</a>.</p></details>
+  </section>
+<section class="sec" id="sec-evidence" data-sec="evidence" data-upd="2026-11-03">
+  <h2 id="evidence"><span class="n">8</span>빌드 근거 &mdash; 왜 이렇게 골랐나</h2>
+  <p class="secdate">2026-11-03 갱신</p>
+  <div class="gist"><b class="gist-h">요약</b><ul>
+    <li>위 카드들을 고른 <b>시뮬 · 비교 표 · 장비 출처</b>를 주제별로 모았습니다. 카드를 펼치면 요점, 아래 링크를 누르면 <a href="builds-detail.html">빌드 근거</a> 페이지의 그 자리로 갑니다.</li>
+    <li>근거 페이지는 개편 전 빌드 페이지 그대로라 절 번호(&sect;0~&sect;10)가 이 페이지와 다릅니다.</li>
+  </ul></div>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;0</span> 단계별 파티 <span class="sumsub">누구를 데려가나 · 금고 의뢰 · 법사 없는 파티 · 성별 의뢰</span></summary>
+    <div class="cbody"><ul>
+      <li>4단계부터 방어탱 하나 + 활 + 법사 둘. 1~3단계는 방어탱 + 활 + 성직자에 넷째(1단계 활 · 2단계 둘째 탱 · 3단계 창).</li>
+      <li>금고를 노리는 7단계 의뢰는 회피탱(완봉 55) + 활 + 법사 둘 &mdash; 도둑이 둘이라 금고 92 &rarr; 98%, 안전은 같음.</li>
+      <li>레인저가 빠지면 함정에 훨씬 자주 걸려 5~7단계 완료가 5~6%p 떨어집니다. 새 지역을 막 열었을 때가 가장 위험(전멸 6.5~67%) &mdash; 장비가 구성보다 큽니다.</li>
+      <li>7단계 회피탱은 반드시 활 &mdash; 단검으로 아이스 맨드레이크를 때리면 반사 마비.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#stages">단계별 파티</a> · <a href="builds-detail.html#stages-farm">금고 의뢰</a> · <a href="builds-detail.html#stages-phys">법사 없는 물리 파티</a> · <a href="builds-detail.html#stages-sex">남자만 · 여자만 · 한 쌍 의뢰</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;1</span> 먼저 알아 둘 다섯 <span class="sumsub">평타 · 방어구 칸 · 요구 레벨 · 마법 무기 · 풋워커 활</span></summary>
+    <div class="cbody"><ul>
+      <li>평타는 방어를 <b>전액</b> 뺍니다 &mdash; 그래서 «안 맞거나(회피) · 맞아도 안 아프거나(방어)» 둘 중 하나를 끝까지 밉니다.</li>
+      <li>방어구 칸은 주직업이 정합니다(조합 열 가지 &mdash; 모험가만 네 칸 전부 · 도둑은 부적이 없음).</li>
+      <li>요구 레벨은 «가진 직업 중 가장 높은 하나» 와 견줍니다 &mdash; 모험가 천장이 «최고 훈련소 + 1» 이라 모험가가 열쇠.</li>
+      <li>파티에 마법 무기를 든 사람이 하나는 있어야 합니다(물리 무효 몬스터). 풋워커는 주직업이 못 드는 무기여도 활을 낍니다.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#why-1">① 평타</a> · <a href="builds-detail.html#why-2">② 방어구 칸 표</a> · <a href="builds-detail.html#halls">③ 요구 레벨</a> · <a href="builds-detail.html#why-4">④ 마법 무기</a> · <a href="builds-detail.html#why-5">⑤ 풋워커 활</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;2</span> 방어탱 <span class="sumsub">드워프 · 모험가 주 · 방어판이냐 회복판이냐 · 갈아타기</span></summary>
+    <div class="cbody"><ul>
+      <li>드워프 남 · 모험가 주직업. 6단계에 트레반 드워프를 새로 뽑아 갈아탑니다(군벨에 무장병 30 을 얹는 것보다 23.5M 적음).</li>
+      <li>장비는 방어판에서 투구 한 칸만 회복 투구로 바꾼 «혼합» 이 5~7단계에서 가장 덜 죽었습니다.</li>
+      <li>초빙 포인트는 생명점(군벨은 현무의 갑옷 요구 힘 39 때문에 힘 3 먼저). 새 지역을 막 열었을 때 탱 사망 58~60%.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#deftank">방어탱 절</a> · <a href="builds-detail.html#deftank-mix">방어판 · 회복판 · 혼합</a> · <a href="builds-detail.html#deftank-swap">6단계 갈아타기</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;3</span> 회피탱 <span class="sumsub">엘프냐 풋워커냐 · 강화 · 8단계 선봉병 · HP 회복 장비 · 레인저</span></summary>
+    <div class="cbody"><ul>
+      <li>6·7단계는 도둑 주직업 &mdash; 엘프는 4단계부터 도둑 주 한 줄, 풋워커는 4·5단계 숨은 칼날의 궁사 주 &rarr; 6단계 도둑 주.</li>
+      <li>강화로 완봉 6단계 48 · 7단계 55. 풋워커 도둑 주는 부적 칸이 없어 마방 35 를 따로(검은 봉인의 방패 + 강화). 강화가 안 붙으면 엘프는 부직업(+8.7M)으로.</li>
+      <li>8단계는 선봉병 주 &mdash; 완봉만으로 안 돼(공격 마법 · 함정 · 반격) 낮은 레벨 직업으로 HP 를 싸게 올리고, 하나모리의 방패 · 명수의 투구로 HP 회복.</li>
+      <li>레인저는 혼자 보낼 회피탱에게만 &mdash; 파티에서는 활이 함정을 굴립니다.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#dodge-race">엘프냐 풋워커냐</a> · <a href="builds-detail.html#dodge-craft">강화로 채울 것</a> · <a href="builds-detail.html#dodge-fw-thief">풋워커 도둑 주 마방</a> · <a href="builds-detail.html#dodge-nocraft">강화를 못 구했을 때</a> · <a href="builds-detail.html#dodge-8">8단계 선봉병</a> · <a href="builds-detail.html#dodge-8-lean">직업이 적은 판</a> · <a href="builds-detail.html#dodge-8-regen">HP 회복 · 새로 · 혼자/둘이</a> · <a href="builds-detail.html#dodge-party">파티에서</a> · <a href="builds-detail.html#dodge-ranger">레인저도 올릴까</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;4</span> 두 길 &mdash; 회피냐 방어냐 <span class="sumsub">완봉선 · 무너지는 까닭 · 여유 · 경험치</span></summary>
+    <div class="cbody"><ul>
+      <li>갈 곳이 회피 완봉선 안이면 회피탱, 넘으면 방어탱. 칼레바스는 자유 탐색 48 · 퀘스트 55 &mdash; 7단계 회피탱 카드 50 에 강화 회피 +5 로 55.</li>
+      <li>회피는 판정 자체가 안 일어나고, 방어는 늘 맞되 작게 맞습니다. 회피탱은 혼란 · 수면 · 마비 · 망각에, 방어탱은 치명타에 무너집니다.</li>
+      <li>완봉선에 딱 맞추지 말고 5 쯤 여유(넘어짐 하나에 회피 −2).</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#which">두 길</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;5</span> 리더 활 <span class="sumsub">셋이 하는 일 · 레인저 빼면 · 주직업 · 종족 · 성격 · 금고 · 8단계</span></summary>
+    <div class="cbody"><ul>
+      <li>값어치는 공격력이 아니라 <b>리더 · 함정 · 금고 · 안 쓰러짐</b> &mdash; 레인저를 빼면 5단계 완료 94.7 &rarr; 88.3%.</li>
+      <li>주직업은 레인저 &gt; 도둑 &gt; 현자, 종족은 풋워커(여 · 남 거의 같음), 리더 성격은 무모한 · 합리적(리더 보너스 +3).</li>
+      <li>8단계는 셋을 35 로 둔 채 모래 환상 사수 20 부(+9.5M) · 여유가 크면 선봉병 40 주(+92M). 초빙 포인트 통찰 대 생명점 표도 여기.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#bow">활 절 · 단계 카드 · 8단계 표 · 초빙 포인트</a> · <a href="builds-detail.html#bow-roles">셋이 하는 일 · 레인저 빼면 · 주직업 · 종족</a> · <a href="builds-detail.html#bow-pers">성격</a> · <a href="builds-detail.html#bow-vault">금고</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;6</span> 법사 <span class="sumsub">종족과 갈아타기 · 지팡이 · 지능 · 법사 둘 · 민첩 · 8단계</span></summary>
+    <div class="cbody"><ul>
+      <li>6단계에 리스티아 휴먼 여로 갈아탑니다 &mdash; 5단계에 기본 지능 9 이상을 뽑아 두고 6단계에 암흑마법사 30 부터(순서가 값을 정함).</li>
+      <li>지팡이는 평타가 아니라 ⌊요구레벨 &divide; 6⌋ + 지능 칸으로 고릅니다 &mdash; 정정의 지팡이(지능 8 · 최대 MP +33).</li>
+      <li>지능이 딜의 3분의 2 &mdash; «얇게 깔기»(한 레벨 값 (레벨+1)<sup>2.5</sup>)로 지능을 싸게. 민첩은 20 까지만.</li>
+      <li>8단계 마도학자를 얹는 값 · 새로 뽑는 법사 · 필네아 엘프 법사 표.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#mage">법사 절 · 8단계 표</a> · <a href="builds-detail.html#mage-race">종족과 갈아타기</a> · <a href="builds-detail.html#mage-wand">지팡이</a> · <a href="builds-detail.html#mage-int">지능 · 얇게 깔기</a> · <a href="builds-detail.html#mage-two">법사 둘</a> · <a href="builds-detail.html#mage-agi">민첩 20</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;7</span> 마법 켜기 <span class="sumsub">정리율 · 그래블 · MP 회복 장비 · 단일 · 회복 · 정렬 순서</span></summary>
+    <div class="cbody"><ul>
+      <li>다 켜 두면 점수가 같을 때 레벨 낮은(약한) 마법이 이깁니다 &mdash; 셋만 켜는 까닭.</li>
+      <li>블리자드냐 뇌우냐는 «그 라운드에 적을 치우나(정리율)» 가 정합니다. 그래블 버스트는 물리 마법이라 방어를 전액 맞습니다.</li>
+      <li>MP 회복 장비가 한 판에 전체 마법 8발과 3발을 가릅니다. 전체 마법 정렬 순서 · 약점/무효 수 표.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#spells">마법 켜기 절 · 정렬 순서 표</a> · <a href="builds-detail.html#spells-clear">블리자드냐 뇌우냐</a> · <a href="builds-detail.html#spells-gravel">그래블 버스트</a> · <a href="builds-detail.html#spells-mp">MP 회복 장비</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;8</span> 기타 무기 <span class="sumsub">창 딜러 비교 · 무기 종류 표 · 반격 단검 · 풍현사</span></summary>
+    <div class="cbody"><ul>
+      <li>법사 하나를 창으로 바꾸면 전멸이 같거나 늘고, 활 딜러를 창으로 바꾸면 레인저 · 도둑 · 리더가 함께 빠져 크게 나빠집니다.</li>
+      <li>무기 종류마다 어디를 치나 · 반사 · 지형 감점 · 마법 무기 수 표.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#spear-mage">창 자리 비교</a> · <a href="builds-detail.html#spear-kinds">무기 종류 표</a> · <a href="builds-detail.html#spear">창 딜러 카드 · 반격 단검</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;9</span> 무기 · 방어구 총정리 <span class="sumsub">상시로 낄 후보 · 얻는 곳(금고 · 습득물 · 상점)</span></summary>
+    <div class="cbody"><ul>
+      <li>단계마다 낄 무기 · 방어구 후보와 얻는 의뢰 · 상점 단계를 한 표로. 요구 Lv32~35 · 발케인 Lv35~40 장비가 열리는 때.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#gear">무기 · 방어구 표</a></p>
+    </div>
+  </details>
+  <details class="bcard ev"><summary><span class="st">근거 &sect;10</span> 파티 조합과 솔플 <span class="sumsub">목적별 한눈에 · 둘만 · 혼자 · 쩔 · 방어탱 파티에서 탱을 살리는 셋</span></summary>
+    <div class="cbody"><ul>
+      <li>목적별 파티(의뢰 · 금고 의뢰 · 법사 없을 때 · 둘만 · 혼자 · 쩔)와, 둘만 · 혼자 보낼 때 성격 · 레인저의 영향.</li>
+    </ul>
+    <p class="evlinks">근거 보기 &rarr; <a href="builds-detail.html#party">파티 조합과 솔플</a> · <a href="builds-detail.html#party-goal">목적별 한눈에</a></p>
+    </div>
+  </details>
   </section>
 </main>
 <script>
