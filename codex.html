@@ -294,6 +294,7 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
     </div>
     <input type="search" id="q" placeholder="이름 · 설명 검색" aria-label="검색">
     <select id="reg" aria-label="지역"><option value="">모든 지역</option></select>
+    <select id="town" aria-label="마을" title="그 마을의 상점에서 팔거나 그 마을 의뢰의 금고 · 습득물로 나오는 아이템 — 몬스터 드랍은 지역 단위라 안 걸립니다"><option value="">모든 마을</option></select>
     <label class="toggle" title="아직 못 가는 지역의 탐색지·몬스터·아이템까지 같이 봅니다"><input type="checkbox" id="showlocked"> 잠긴 지역도 보기</label>
     <label class="toggle"><input type="checkbox" id="only"> 획득처 있는 것만</label>
     <label class="toggle" id="favwrap" title="★ 로 담아 둔 아이템만 봅니다 — 검색 · 종류 · 태그 · 특수능력 조건은 무시합니다(잠긴 지역만 따름)"><input type="checkbox" id="favonly"> ★ 즐겨찾기만<span id="favn" style="display:inline"></span></label>
@@ -370,7 +371,7 @@ function isLockedRegion(r){ return !!LOCKED_SET[r]; }
 
 /* 큰 수는 3자리마다 끊어 적는다. toLocaleString 을 그때그때 부르면 자리가 흔들린다. */
 function fmt(v){ return (v||0).toLocaleString(); }
-var state={psort:"",view:"place",q:"",reg:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false,favOnly:false};
+var state={psort:"",view:"place",q:"",reg:"",town:"",kind:"",only:false,callOnly:false,aband:false,abils:{},showLocked:false,favOnly:false};
 /* ── 즐겨찾기(아이템) — 2026-10-15 제작자 «퀘스트나 아이템에 즐겨찾기 · 다른 조건과 상관없이 즐겨찾기 된 것만 보기».
    퀘스트 색인과 같은 저장소 tsa.fav.v1 에 «item:아이디» 로 담는다(퀘스트 몫은 건드리지 않음) · 로그인돼 있으면 클라우드 fav 칸으로 같이 오간다(합침). */
 var FAVKEY="tsa.fav.v1";
@@ -623,6 +624,36 @@ var QFREQ={10:"«자주» 37.5%",11:"«흔히» 18.8%",12:"«가끔» 9.4%",13:"
      상점 물건 403개가 «제작 전용» 으로 나오고 46개는 엉뚱한 마을이 찍혔다. 판매처 칸을 직접 읽지 말고 이걸 거친다(lockcheck ⑤). */
 function shopOf(x){ return (x.shop||[]).filter(function(z){ return okPlace(z); }); }
 function shopTxt(z){ return z.t+" «"+z.b+"» "+z.s+"단계부터"; }
+/* 마을 필터(2026-11-02 제작자 «도감 아이템 쪽에 마을 필터링도») — 그 마을 상점 재고 · 그 마을 의뢰의 금고 · 습득물.
+   길드 의뢰(마을 없음)는 «길드 의뢰» 하나로 묶는다. 몬스터 드랍은 지역 단위라 마을로는 안 거른다. 잠긴 지역 마을은 shopOf · qdOf 가 이미 거른다. */
+var GUILD_TOWN="__guild";
+function itemTowns(x){
+  var t={};
+  shopOf(x).forEach(function(z){ if(z.t) t[z.t]=1; });
+  qdOf(x).forEach(function(z){ t[z.t||GUILD_TOWN]=1; });
+  return t;
+}
+function fillTowns(){
+  var sel=el("town"); if(!sel) return;
+  var regOf={}, cnt={};
+  D.items.forEach(function(x){
+    if(x.lock && !state.showLocked) return;
+    shopOf(x).forEach(function(z){ if(z.t){ regOf[z.t]=z.r; } });
+    qdOf(x).forEach(function(z){ if(z.t) regOf[z.t]=z.r; });
+    var t=itemTowns(x); for(var k in t) cnt[k]=(cnt[k]||0)+1;
+  });
+  var order=[]; D.places.forEach(function(p){ if(p.r && order.indexOf(p.r)<0) order.push(p.r); });   // 지역은 난이도 순(fillRegs 와 같은 순서)
+  var byReg={}; Object.keys(regOf).forEach(function(t){ (byReg[regOf[t]]=byReg[regOf[t]]||[]).push(t); });
+  var h='<option value="">모든 마을</option>';
+  order.concat(Object.keys(byReg).filter(function(r){ return order.indexOf(r)<0; })).forEach(function(r){
+    if(!byReg[r]) return;
+    h+='<optgroup label="'+esc(r)+'">'+byReg[r].sort().map(function(t){ return '<option value="'+esc(t)+'">'+esc(t)+' ('+cnt[t]+')</option>'; }).join("")+'</optgroup>';
+  });
+  if(cnt[GUILD_TOWN]) h+='<option value="'+GUILD_TOWN+'">길드 의뢰 ('+cnt[GUILD_TOWN]+')</option>';
+  sel.innerHTML=h;
+  if(state.town && !cnt[state.town]) state.town="";   // 잠긴 지역을 다시 숨겨 그 마을이 없어지면 풀어 준다
+  sel.value=state.town;
+}
 var MT=makeTagBox("mtbox","mtand","mtclear",MTAG,
                   visMons, state.mtags, {on:false});
 
@@ -1147,6 +1178,7 @@ function render(){
         if(x.lock && !state.showLocked) return false;
         if(x.cat!==cat) return false;
         if(state.favOnly) return !!FAVI[x.i];       // 즐겨찾기만 — 다른 조건은 무시
+        if(state.town && !itemTowns(x)[state.town]) return false;
         if(KD.any() && !KD.match(x)) return false;
         if(state.only && !x.drop.length && !qdOf(x).length) return false;
         if(IT.any() && !IT.match(x)) return false;
@@ -1179,6 +1211,7 @@ function render(){
   if(isItem){ KD.refresh(); IT.refresh(); abRefresh(); }
   else if(state.view==="mon") MT.refresh();
   el("reg").style.display = isItem ? "none" : "";
+  el("town").style.display = isItem ? "" : "none";
 }
 
 function findBy(kind,name){
@@ -1220,8 +1253,8 @@ function goTo(spec){
   var k=spec.slice(0,1), name=spec.slice(2);
   var o=findBy(k,name); if(!o) return;
   state.view = k==="p"?"place" : k==="m"?"mon" : "item";
-  state.q=o.i; state.reg=""; state.only=false; state.favOnly=false;
-  el("q").value=o.n||o.i; el("reg").value=""; el("only").checked=false; el("favonly").checked=false;
+  state.q=o.i; state.reg=""; state.town=""; state.only=false; state.favOnly=false;
+  el("q").value=o.n||o.i; el("reg").value=""; el("town").value=""; el("only").checked=false; el("favonly").checked=false;
   ["place","mon","item"].forEach(function(v){
     el("v-"+v).setAttribute("aria-pressed", state.view===v?"true":"false"); });
   render();
@@ -1293,6 +1326,8 @@ var t;
 el("q").addEventListener("input",function(e){
   clearTimeout(t); var v=e.target.value; t=setTimeout(function(){ state.q=v.trim(); render(); },160); });
 el("reg").addEventListener("change",function(e){ state.reg=e.target.value; render(); });
+fillTowns();
+el("town").addEventListener("change",function(e){ state.town=e.target.value; render(); });
 el("psort").addEventListener("change",function(e){ state.psort=e.target.value; render(); });
 el("callonly").addEventListener("change",function(e){ state.callOnly=e.target.checked; render(); });
 el("only").addEventListener("change",function(e){ state.only=e.target.checked; render(); });
@@ -1304,7 +1339,7 @@ lk.addEventListener("change",function(e){
   state.showLocked=e.target.checked;
   try{ localStorage.setItem(LKEY2, state.showLocked?"1":"0"); }catch(err){}
   if(!state.showLocked && isLockedRegion(state.reg)) state.reg="";
-  fillRegs(); render();
+  fillRegs(); fillTowns(); render();
 }); }
 var TABNOTE={
   place:"지역별 탐색지와 거기 나오는 몬스터 그룹, 그리고 그 그룹이 떨구는 것.",
