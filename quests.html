@@ -914,7 +914,7 @@ function rowHTML(x){
      아직 못 하는 것만 «D-N» 으로 보여 준다. */
   var ag=again(x);
   var agTag = (ag && ag.cnt!=null)
-    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준) — 카운터는 판정을 통과할 때만 1 줄고 0 이하가 되는 통과에 뜸 · 그래서 0 · 1 은 둘 다 다음 통과에 뜸">통과 '+ag.need+'번에 뜸</em>'
+    ? '<em class="again" title="'+esc(ag.txt)+' (세이브 시각 기준) — 카운터는 판정을 통과할 때만 1 줄고 0 이하가 되는 통과에 뜸 · 그래서 0 · 1 은 둘 다 다음 통과에 뜸">'+ag.need+'번 더</em>'   // 2026-11-02 «통과 N번에 뜸» 은 어색하다(제작자) — 원래 «N번 더» 로
     : '';
   return '<div class="row'+(isDone(x)?" done":"")+(LOCKED[x.t]?" locked":"")+'" data-id="'+esc(x.i)+'" tabindex="0" role="button" aria-expanded="false">'
     +'<button type="button" class="star'+(FAV[x.i]?" on":"")+'" data-fav="'+esc(x.i)+'"'
