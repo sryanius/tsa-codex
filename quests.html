@@ -382,8 +382,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 @media (max-width:760px){
   .row{grid-template-columns:minmax(0,1fr) 70px;gap:10px}
   .row .badge,.row .num.tm,.row .num.lv,.row .num.rep{display:none}
-  /* 길드 의뢰는 요구 평판이 없다(늘 0) — 모바일 한 칸에 요구 대신 레벨(2026-11-03 제작자) */
-  .row.gq .num.gate{display:none}
+  /* 길드 의뢰는 요구 평판이 없다(늘 0) — 모바일 한 칸에 요구 대신 레벨(2026-11-03 제작자)
+     ★ 클래스 이름을 gate 로 하면 안 된다 — 클라우드 껍데기의 .gate 가 로그인 가림막(화면 전체 고정)이라 줄마다 화면을 덮는다 */
+  .row.gq .num.qreq{display:none}
   .row.gq .num.lv{display:block}
   .detail{padding-left:16px}
 }
@@ -925,7 +926,7 @@ function rowHTML(x){
     +'<span class="qn"><b>'+agTag+lockTag+esc(x.n||x.i)
     +(clearsOf(x)>0?'<i class="cc" title="세이브 기준 클리어 횟수">×'+clearsOf(x)+'</i>':'')+'</b><span>'+esc([x.t||(x.gq?"길드 의뢰":""),x.p,x.o].filter(Boolean).join(" · "))+'</span></span>'   // 길드 의뢰는 마을이 없어 «· 목표» 로 시작하던 것
     +badge
-    +'<span class="num gate'+(x.rep<0?" neg":(x.pk>0?"":" dim"))+'" title="'
+    +'<span class="num qreq'+(x.rep<0?" neg":(x.pk>0?"":" dim"))+'" title="'
       +(x.rep<0?"평판이 이 값 «이하» 여야 등장합니다":"평판이 이 값 «이상» 이어야 등장합니다 (선행 체인 반영)")+'">'+gateText(x)
       +(x.rep>=0&&x.pk>x.rep?'<i class="up" title="이 퀘스트 자체는 '+x.rep+', 선행이 '+x.pk+'을 요구">▲</i>':'')
       +(x.rep>=0&&x.dp!=null?'<i class="dn" title="선행에 «평판 '+x.dp+' 이하» 관문이 있습니다">▼</i>':'')+'</span>'
