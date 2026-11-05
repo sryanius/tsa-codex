@@ -572,21 +572,33 @@ function raceRow(r){
 function barBlock(r){
   var tw = state.showLocked ? r.towns : (r.open||r.towns);
   if(!tw.length) return "";
+  // 실제 최대 = Rand(3) 의 2 + 레벨 + 성격 몫 최대 + 10% 몫 최대(레벨−1). 성격 몫 최대는 «이 종족에 나오는 성격» 으로 —
+  //   무모한이 나오면 2 · 이기적까지면 1 · 둘 다 없으면 0 → 레벨×2 + 3 / 2 / 1.
+  //   예전엔 늘 ×2+3(무모한 기준)이라 엘프처럼 무모한이 없는 종족은 나올 수 없는 수를 보였다(2026-11-05 제작자).
+  var pm = r.pers.indexOf("무모한")>=0 ? 2 : (r.pers.indexOf("이기적")>=0 ? 1 : 0);
+  var top = function(lv){ return lv*2 + 1 + pm; };
   var rows=tw.map(function(tn){
     var t=null; D.towns.forEach(function(x){ if(x.n===tn) t=x; });
     var my = t ? myTownLv(t.i, "주점") : null;
+    var bar = null; if(t) t.b.forEach(function(b){ if(b.kind==="주점") bar=b; });
+    var x = my!=null ? top(my) : 0, shown = my!=null ? my+3 : 0;
     return '<li><b>'+esc(tn)+'</b>'
       + (my!=null ? '<span class="meta"> — 주점 '+my+'레벨 · 포인트 <b>+'+my+'</b>'
-          + ' · 10% 로 최대 +'+Math.max(0,my-1)+' 더 · <b>실제 최대 '+(my*2+3)+'</b>'
+          + ' · 10% 로 최대 +'+Math.max(0,my-1)+' 더 · <b>실제 최대 '+x+'</b>'
           + '</span><span class="meta" style="display:block;opacity:.75">'
-          + '게임 화면은 최대치를 '+(my+3)+' 로 그리지만, 실제로는 '+(my*2+3)+' 까지 나옵니다 '
-          + '&mdash; 표시용 상한이 <code>주점레벨 + 3</code> 으로 따로 박혀 있습니다.</span>'
-        : '<span class="meta"> — 세이브를 넣으면 내 주점 레벨로 계산합니다</span>')
+          + (x>shown ? '게임 화면의 최대치 표시는 '+shown+' 이지만, 실제로는 '+x+' 까지 나옵니다 '
+                       + '&mdash; 표시용 상한이 <code>주점레벨 + 3</code> 으로 따로 박혀 있습니다.'
+             : x===shown ? '게임 화면의 최대치 표시도 '+shown+' 이고, 실제 최대와 같습니다.'
+             : '게임 화면의 최대치 표시는 '+shown+' 이지만, 이 종족은 '+x+' 까지만 나옵니다 (무모한·이기적이 안 나와서).')
+          + '</span>'
+        : '<span class="meta"> — 세이브를 넣으면 내 주점 레벨로 계산합니다'
+          + (bar ? ' · 최고 '+bar.max+'레벨이면 실제 최대 <b>'+top(bar.max)+'</b>' : '')+'</span>')
       + '</li>';
   }).join("");
   return '<div class="blk"><h4>초빙 포인트 — 주점 레벨이 정한다</h4><ul>'+rows+'</ul>'
     + '<span class="meta">포인트 = Rand(3) + 주점레벨 + 성격보정, 그리고 10% 로 + Rand(주점레벨). '
     + '성격보정은 무모한 Rand(3) · 이기적 Rand(2) · 나머지는 없습니다. '
+    + (pm<2 ? '이 종족은 무모한이 안 나와'+(pm ? '' : ' 이기적도 없어')+' 실제 최대가 <b>주점레벨 × 2 + '+(1+pm)+'</b> 입니다. ' : '')
     + '이건 뽑은 뒤 <b>내가 직접 능력치에 나눠 넣는</b> 몫이라, 위 능력치 숫자에는 안 들어 있습니다.</span></div>';
 }
 function raceDetail(r){
