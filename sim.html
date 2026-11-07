@@ -643,7 +643,18 @@ details.rpb[open]>summary::before{content:"▾ "}
   var ELEM_ID = new Map([[10, "화염"], [11, "물"], [12, "번개"], [13, "바람"], [14, "대지"], [15, "냉기"], [16, "빛"], [17, "어둠"], [30, "신성"], [31, "독"]]);
   var ELEMS = Array.from(ELEM_ID.values());
   var BLOCK = new Set([4, 5, 7, 12, 14, 15, 16, 17, 19, 46, 50, 51]);
-  var AVOID_PEN = new Map([[5, 2], [23, 4], [21, 4], [2, 4], [4, 4], [12, 2], [18, 2], [8, 2], [14, 2], [9, 2], [6, 1], [20, 2], [22, 4], [55, 4]]);
+  var AVOID_PEN = new Map([[5, 2], [23, 4], [21, 4], [2, 4], [4, 4], [12, 2], [18, 2], [8, 2], [14, 2], [9, 2], [6, 1], [20, 2], [22, 4], [55, 4], [48, 2], [49, -2]]);
+  // 효과 보정 표 넷 — EffectOnCreature..cctor 8.0 0x26FE1AC (partysim.py HIT_MOD · DEF_MOD · CDEF_MOD · 회피는 AVOID_PEN 에 «빼는 값» · 48/49 는 따로 세는 둘)
+  var HIT_MOD = new Map([[2, -4], [21, -4], [20, -2], [55, -4], [18, -2], [22, -4], [12, -4], [8, -2], [6, -1], [23, -4], [9, 2], [47, 2]]);
+  var DEF_MOD = new Map([[4, -2], [5, -2], [6, -1], [14, -1]]);
+  var CDEF_MOD = new Map([[18, -2], [22, -4], [8, -2], [4, -3], [5, -2], [12, -2], [6, -1], [14, -2]]);
+  var SURPRISE = 14;
+  function eff_sum(eff, table) {                     // BattleCreature.SumModifiers 0x26B93C8
+    if (eff === null || !eff.size) return 0;
+    var v = 0;
+    eff.forEach(function (_v, k) { if (table.has(k)) v += table.get(k); });
+    return v;
+  }
   var FIXED_EFF = [2, 20, 21];
   var TERR_AVOID = new Map([[0, 0], [1, -2], [2, -4], [3, 1]]);
   // 효과 기본 지속 — EffectOnCreature..ctor(kind, 0) 7.3 0x26FBA40 (partysim.py EFF_DEF_*). 후유증 전투 효과가 이 값으로 걸린다.
@@ -1404,9 +1415,52 @@ details.rpb[open]>summary::before{content:"▾ "}
     }
   };
 
+  // ---------------- 효과 보정(2026-11-07 · partysim.py 와 같은 이름) ----------------
+  // 첫 라운드에 선제당한 쪽 — 게임은 BeSurprised(14)를 건다. 시뮬은 0라운드 «건너뜀» 으로만 두므로 보정은 이것으로 같이 센다
+  B.surprised = function (x) { return this.rnd === 0 && this.first === (x.is_ally ? 2 : 1) && !SW.BUG.has("surprise_nomod"); };
+  B.emods = function (x, table) {
+    var v = eff_sum(x.eff, table);
+    if (this.surprised(x) && !(x.eff !== null && x.eff.has(SURPRISE)) && table.has(SURPRISE)) v += table.get(SURPRISE);
+    return v;
+  };
+  B.avo_pen = function (x) {                         // 회피에서 빼는 값 — 표 + 슬로우 −2 · 헤이스트 +2 + 놀람
+    var v = 0;
+    if (x.eff !== null) x.eff.forEach(function (_v, k) {
+      if ((k === 48 || k === 49) && SW.BUG.has("effmod_noslow")) return;
+      if (AVOID_PEN.has(k)) v += AVOID_PEN.get(k);
+    });
+    if (this.surprised(x) && !(x.eff !== null && x.eff.has(SURPRISE))) v += AVOID_PEN.get(SURPRISE);
+    return v;
+  };
+  B.hit_mod = function (x) { return (SW.BUG.has("effmod_nohit") || (!x.is_ally && SW.BUG.has("mon_noeffmod"))) ? 0 : this.emods(x, HIT_MOD); };
+  B.mon_avo = function (m) {                         // AvoidRate 몬스터 갈래 — 혼란 · 수면 · 마비면 0 · 아니면 마스터 + 레벨 보정 + 효과 보정
+    if (SW.BUG.has("mon_noeffmod")) return m.avo;
+    if (m.eff !== null && (m.eff.has(7) || m.eff.has(16) || m.eff.has(17))) return 0;
+    return m.avo - this.avo_pen(m);
+  };
+  B.mon_df = function (m) {                          // DefensePoint 몬스터 갈래 — max(0, 마스터 + 레벨 보정 + 효과 보정)
+    if (SW.BUG.has("mon_noeffmod") || SW.BUG.has("effmod_nodef")) return m.df;
+    var md = this.emods(m, DEF_MOD);
+    if (!md) return m.df;
+    var v = m.s.df + m.a + md;
+    return v > 0 ? v : 0;
+  };
+  B.mon_cdef = function (m) {                        // CriticalDefense — 혼란이면 0 · 몬스터는 마스터 값(보정 없음)
+    if (!SW.BUG.has("effmod_nocdef") && m.eff !== null && m.eff.has(7)) return 0;
+    return m.s.cdef;
+  };
+  B.ally_cdef = function (t) {                       // CriticalDefense — 혼란이면 0 · 아군은 max(0, 치명 방어 + 보정)
+    if (SW.BUG.has("effmod_nocdef")) return t.s.cdef;
+    if (t.eff !== null && t.eff.has(7)) return 0;
+    var v = t.s.cdef + this.emods(t, CDEF_MOD);
+    return v > 0 ? v : 0;
+  };
+  // DefensePoint 0x26BA9C0 — Rand(최소, 최대) + 효과 보정 + ⌊CRV(체력)/4⌋ 을 0 에서 자른다(굴림 순서 그대로)
   B.ally_def = function (t) {
     var s = t.s;
-    var v = this.R.rand(s.d0, s.d1) + Math.floor(this.R.crv(t.con()) / 4);
+    var v = this.R.rand(s.d0, s.d1);
+    if (!SW.BUG.has("effmod_nodef")) v += this.emods(t, DEF_MOD);
+    v += Math.floor(this.R.crv(t.con()) / 4);
     return v > 0 ? v : 0;
   };
 
@@ -1483,7 +1537,8 @@ details.rpb[open]>summary::before{content:"▾ "}
         for (i = 0; i < sing.length; i++) {
           sp = sing[i];
           if (T(sp.elem) && M.some(function (mm) { return x_weak(mm, sp.elem); })) { this.cast_spell(a, sp); return; }
-          if (M.some(function (mm) { return x_nophys(mm); })) { this.cast_spell(a, sp); return; }
+          // 물리 무효 갈래도 속성 칸이 있을 때만(SelectActions 0x26C4864 — elementKind 0 이면 건너뜀 · 2026-11-07)
+          if ((T(sp.elem) || SW.BUG.has("single_nophys_any")) && M.some(function (mm) { return x_nophys(mm); })) { this.cast_spell(a, sp); return; }
           cand.push(sp);
         }
         R.boolean();                    // RandBool — 결과를 버린다(아군 대상 단일 버프가 없으니 어느 쪽이든 평타 갈래)
@@ -1568,7 +1623,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     while (R.d2() > 9) v += Math.floor(R.rand(sp.d0, sp.d1) / 2);
     if (v < 1) v = 1;
     if (sp.phys) {
-      v -= m.df;
+      v -= this.mon_df(m);
       if (v <= 0) v = R.succ(25) ? 1 : 0;
     } else {
       v -= s.mdf;
@@ -1608,11 +1663,12 @@ details.rpb[open]>summary::before{content:"▾ "}
     var terr = this.terr, th = 0;
     if (terr === 1 || terr === 2) th = s.bow ? 0 : (terr === 1 ? -2 : -4);
     else if (terr === 3) th = s.bow ? -1 : 0;
-    var hit_roll = function () { return R.d2() + Math.floor(R.crv(a.dex()) / 6) + (forget ? 0 : s.hitV - a.chit) + th; };
+    var hm = this.hit_mod(a);
+    var hit_roll = function () { return R.d2() + Math.floor(R.crv(a.dex()) / 6) + (forget ? 0 : s.hitV - a.chit) + th + hm; };
     var eff = t.eff, av = null;
     if (!(eff !== null && (eff.has(7) || eff.has(16) || eff.has(17)))) {
       av = R.d2() + Math.floor(R.crv(t.agi()) / 6) + ((eff !== null && eff.has(11)) ? 0 : ts.avoidV - t.cavo) + this.tav;
-      if (eff !== null) eff.forEach(function (_v, k) { av -= AVOID_PEN.has(k) ? AVOID_PEN.get(k) : 0; });
+      av -= this.avo_pen(t);
     }
     var H = hit_roll();
     if (av !== null && av >= H + 2) {
@@ -1636,7 +1692,7 @@ details.rpb[open]>summary::before{content:"▾ "}
     var df = this.ally_def(t);
     if (blocked) df += R.rand(ts.sh0, ts.sh1);
     var crit = 0;
-    if (!blocked && df >= 2 && R.succ100(s.crit - ts.cdef)) {
+    if (!blocked && df >= 2 && R.succ100(s.crit - this.ally_cdef(t))) {
       crit = 1;
       d = A - Math.floor(df / 2);
       if (d < 1) d = 1;
@@ -1686,8 +1742,8 @@ details.rpb[open]>summary::before{content:"▾ "}
     var terr = this.terr, th = 0;
     if (terr === 1 || terr === 2) th = s.bow ? 0 : (terr === 1 ? -2 : -4);
     else if (terr === 3) th = s.bow ? -1 : 0;
-    var H = R.d2() + Math.floor(R.crv(a.dex()) / 6) + (forget ? 0 : s.hitV - a.chit) + th + ((s.bow && ms.fly) ? 2 : 0);
-    var avo = m.avo + ((s.bow && ms.nobow) ? 999 : 0);
+    var H = R.d2() + Math.floor(R.crv(a.dex()) / 6) + (forget ? 0 : s.hitV - a.chit) + th + ((s.bow && ms.fly) ? 2 : 0) + this.hit_mod(a);
+    var avo = this.mon_avo(m) + ((s.bow && ms.nobow) ? 999 : 0);
     var ev = this.ev, d, lg = this.lg, le = null;
     if (avo >= H + 2) {                                                   // 빗나감
       if (ev !== null) ev.push(["a", a, m, 0, 0, 0]);
@@ -1704,14 +1760,16 @@ details.rpb[open]>summary::before{content:"▾ "}
     if (ms.nophys && !s.wmagic) {
       if (ev !== null) ev.push(["a", a, m, 2, 0, 0]);
       if (lg !== null) lg.push({ k: "hit", by: ["a", a.i], to: this.rf(m), res: 2, H: H, avo: avo });
+      // 물리 무효라 피해가 0 이어도 추가 속성은 온다 — Run «피해 1 미만» 갈래 0x26CB0D0 → 방패 아님 → ApplyAdditionalElementDamage 0x26CB6D0
+      if (m.hp > 0 && T(s.welem) && !SW.BUG.has("nophys_noelem")) this.ally_elem(a, m, 0);
       return;
     }
     var A = R.rand(s.a0, s.a1) + R.crv(a.strdiv());
     if (forget) A = Math.trunc(A / 2);
-    var df = m.df;
+    var df = this.mon_df(m);
     var can = df >= 2 && ms.cres !== 1 && (!s.blade || ms.cres === 0);
     var crit = 0;
-    if (can && R.succ100(s.crit - ms.cdef)) {
+    if (can && R.succ100(s.crit - this.mon_cdef(m))) {
       crit = 1;
       d = A - Math.floor(df / 2);
       if (d < 1) d = 1;
@@ -1889,20 +1947,21 @@ details.rpb[open]>summary::before{content:"▾ "}
   B.mon_strike = function (mo, t, p) {
     var R = this.R, s = mo.s, ts = t.s, d, A;
     if (this.trace !== null && this.trace !== undefined) this.trace.push(["m_atk", mo, t]);
-    var hit = mo.hit + p.hitadd;
+    var mh = mo.hit + this.hit_mod(mo);            // HitRate 몬스터 갈래 — 마스터 + 레벨 보정 + 효과 보정
+    var hit = mh + p.hitadd;
     var eff = t.eff;
     var lg = this.lg, le = null, av = null;
     if (!(eff !== null && (eff.has(7) || eff.has(16) || eff.has(17)))) {
       av = R.d2() + Math.floor(R.crv(t.agi()) / 6) + ((eff !== null && eff.has(11)) ? 0 : ts.avoidV - t.cavo) + this.tav;
       if (ts.bow && s.fly) av += 3;
-      if (eff !== null) eff.forEach(function (_v, k) { av -= AVOID_PEN.has(k) ? AVOID_PEN.get(k) : 0; });
+      av -= this.avo_pen(t);
       if (av >= hit + 2) {
         if (this.ev !== null) this.ev.push(["m", mo, t, 0, 0, 0, 0]);
         if (lg !== null) lg.push({ k: "hit", by: this.rf(mo), to: ["a", t.i], res: 0, av: av, need: hit + 2, zero: [] });
         if (ts.counter && !SW.BUG.has("no_ally_counter")) {             // ⑦ 아군 반격
           A = R.rand(ts.a0, ts.a1) + R.crv(t.strdiv());
           if (eff !== null && eff.has(11)) A = Math.trunc(A / 2);
-          d = A - Math.floor(mo.df / 2);
+          d = A - Math.floor(this.mon_df(mo) / 2);
           if (d < 1) d = 1;
           if (s.nophys) d = 0;
           if (this.ev !== null) this.ev.push(["ac", t, mo, d]);
@@ -1917,13 +1976,13 @@ details.rpb[open]>summary::before{content:"▾ "}
     }
     var blocked = false;
     if (ts.hasShield) {
-      if (R.d2() + ts.shA + Math.trunc(this.tav / 2) >= mo.hit + 1) blocked = true;
+      if (R.d2() + ts.shA + Math.trunc(this.tav / 2) >= mh + 1) blocked = true;
     }
     var dp = mo.atk + p.add;
     var df = this.ally_def(t);
     if (blocked) df += R.rand(ts.sh0, ts.sh1);
     var crit = 0;
-    if (!blocked && df >= 2 && R.succ100(s.crit - ts.cdef)) {
+    if (!blocked && df >= 2 && R.succ100(s.crit - this.ally_cdef(t))) {
       crit = 1;
       d = dp - Math.floor(df / 2);
       if (d < 1) d = 1;
@@ -2096,8 +2155,20 @@ details.rpb[open]>summary::before{content:"▾ "}
     var lvl = SW.BUG.has("cond_skill_cond_lv") ? sk.cond.lv : sk.level;
     var v = (mo.s.lv + mo.a) - t.s.maxJob + lvl + d1 + d2 - Math.floor(cv / 6);
     var added = v >= 1 && cond_add(t, sk.cond);
-    if (this.lg !== null) this.lg.push({ k: "acond", by: this.rf(mo), to: this.rf(t), sk: sk.name, c: sk.cond.n, v: v, ok: v >= 1, add: !!added, lv: sk.cond.st });
-    if (added) this.cond_dead_check(t, sk.cond);
+    var le = null;
+    if (this.lg !== null) { le = { k: "acond", by: this.rf(mo), to: this.rf(t), sk: sk.name, c: sk.cond.n, v: v, ok: v >= 1, add: !!added, lv: sk.cond.st }; this.lg.push(le); }
+    if (added) {
+      this.cond_dead_check(t, sk.cond);
+      // 평타로 걸리면 전투 효과를 그 자리에서 99라운드로(Run 8.0 0x26C556C AddEffect(kind, 0x63) — 같은 효과가 이미 있으면 그대로)
+      var e = sk.cond.bae;
+      if (e && t.hp > 0 && !SW.BUG.has("cond_atk_noeff")) {
+        if (t.eff === null) t.eff = new Map();
+        if (!t.eff.has(e)) {
+          t.eff.set(e, [99, null, 0, true]);
+          if (le !== null) le.be = e;
+        }
+      }
+    }
   };
 
   // 후유증 반사(kind 80) — ReflectAfterPhysicsAttack 7.3 0x26C9738: 때린 아군이 살아 있으면
@@ -2458,7 +2529,9 @@ details.rpb[open]>summary::before{content:"▾ "}
         v = tr.level - Math.trunc(s.maxLevel / 2) + tr.addDamage + this.diff - Math.floor(R.crv(stat) / 6);
         return v > 1 ? v : 1;
       }
-      return tr.addDamage - s.maxLevel + this.diff + R.d2() + R.d2() - Math.floor(R.crv(a.con()) / 6);
+      // 후유증(20) · 효과(21) — Trap.ActionPoint 8.0 0x2729A1C~: 함정 level − 천장 + 난이도 + 2d6 + 2d6 − ⌊CRV(체력)/6⌋ (addDamage 아님 · 2026-11-07)
+      var lv = SW.BUG.has("trap_cond_adddmg") ? tr.addDamage : tr.level;
+      return lv - s.maxLevel + this.diff + R.d2() + R.d2() - Math.floor(R.crv(a.con()) / 6);
     }
 
     trap(tr) {
@@ -5805,7 +5878,7 @@ function rpLine(ctx, e, mons, b){
       break;
     case "acond": case "rcond":
       t="↳ "+WN(e.by)+" "+(e.k==="rcond" ? "후유증 반사" : "평타 후유증")+" «"+esc(e.c)+"» → "+WN(e.to)+": "+
-        (e.add ? "걸림 (레벨 "+e.lv+")" : (e.ok ? "안 더해짐(이미 있음 · 면역)" : "안 걸림"))+" (판정 "+(e.v>0?"+":"")+e.v+")";
+        (e.add ? "걸림 (레벨 "+e.lv+")"+(e.be ? " · 바로 "+esc(effName(e.be)) : "") : (e.ok ? "안 더해짐(이미 있음 · 면역)" : "안 걸림"))+" (판정 "+(e.v>0?"+":"")+e.v+")";
       cls+=e.add?" bad":"";
       break;
     case "drain": t="↳ "+A(e.a)+" HP 흡수 +"+e.h+" · "+hpTo(e); break;
