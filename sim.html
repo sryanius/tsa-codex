@@ -5075,6 +5075,7 @@ function renderRecSel(){
 function loadParty(key){
   var p=D.parties.filter(function(x){ return x.key===key; })[0]; if(!p) return;
   S.members=p.members.map(function(m){ return memberFromPreset(m.preset, m.front, m.leader); });
+  while(S.members.length<4) S.members.push(null);   // 혼자 · 둘이 프리셋(2026-11-09) — 나머지 자리는 비운다
   S.edit=null; S.E=null; persist(); renderParty();
 }
 function renderParty(){
