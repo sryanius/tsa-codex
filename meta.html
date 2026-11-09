@@ -506,7 +506,7 @@ function soldTxt(r){ return r.min===r.max ? ("Lv"+r.max) : ("Lv"+r.min+"–"+r.m
 /* ---------- 클래스 ---------- */
 function jobRow(j, hl){
   var mh=myHallLv(j.i);
-  var lockTag = j.lock ? '<em class="tag t-lock" title="이 직업의 훈련소를 여는 퀘스트가 아직 못 가는 지역에 있습니다">미출시</em>' : "";
+  var lockTag = j.lock ? '<em class="tag t-lock" title="아직 못 배우는 직업입니다 — 훈련소를 여는 퀘스트가 못 가는 지역에 있거나, 훈련소가 아직 없습니다">미출시</em>' : "";
   return '<div class="row" data-k="j" data-i="'+esc(j.i)+'" tabindex="0" role="button" '
     +'style="grid-template-columns:minmax(0,1fr) 150px 68px 60px">'
     +'<span class="nm"><b>'+lockTag+(j.sk.length?'<em class="tag t-m">마법</em>':"")

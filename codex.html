@@ -189,6 +189,10 @@ table.mini td:first-child,table.mini th:first-child{white-space:nowrap;font-fami
 .row .cfl{display:block;font-size:10.5px;color:var(--c-place);white-space:normal;line-height:1.3}
 .row.rec .tadj b{color:var(--ink);font-weight:600}
 .recs-note{font-size:12.5px;color:var(--muted);margin:0 0 10px;line-height:1.6}
+.recs details.more{margin:-4px 0 10px} .recs details.more>summary{cursor:pointer;font-size:12px;color:var(--c-place);font-weight:600;list-style:none}
+.recs details.more>summary::before{content:"▸ "} .recs details[open].more>summary::before{content:"▾ "}
+.recs details.more .recs-note{margin:6px 0 0}
+.detail .recwhy{font-size:12.5px;line-height:1.6;color:var(--ink);margin:4px 0 0} .detail .recwhy .loot{color:var(--c-item)}
 .recs-note b{color:var(--ink);font-weight:600}
 .t-magic{color:var(--good);border-width:2px}
 /* 2026-11-03 제작자 «마법도 녹색으로» — 예전 var(--f-arch) 는 도감에 정의가 없어 검정으로 나왔다 */
@@ -916,6 +920,8 @@ function placeDetail(p){
     +'<div class="dcell"><dt>가장 높은 명중 <span class="fld">고정값</span></dt><dd class="mono" style="color:var(--accent)">'+(p.mh||0)+'</dd></div>'
     +'<div class="dcell"><dt>내부 ID</dt><dd class="mono" style="font-size:12px">'+esc(p.i)+'</dd></div>'
     +'</dl>'
+    + (RECBY[p.i] ? '<div class="blk"><h4>추천 이유 <span class="sm">'+esc(RECBY[p.i].role||"")+' · 지역별 훈련 추천 장소</span></h4><p class="recwhy">'+esc(RECBY[p.i].why)
+        +(RECBY[p.i].loot?' <span class="loot">전리품 '+esc(RECBY[p.i].loot)+'</span>':'')+'</p></div>' : '')
     + avoidNote(p) + ch
     +(p.g.length?'<div class="blk"><h4>출현 몬스터 그룹</h4><ul>'+gh+'</ul></div>':"")
     +th
@@ -1095,6 +1101,23 @@ function roleTag(r){
   var c = r.indexOf("골드")>=0 ? " g" : (r.indexOf("부름")>=0 || r.indexOf("쩔")>=0) ? " c" : r.indexOf("함정")>=0 ? " t" : "";
   return '<span class="rrole'+c+'">'+esc(r)+'</span>';
 }
+/* 줄에 보일 요점 — 전문(rc.why)은 탐색지 상세의 «추천 이유» 에. 손으로 쓴 요점(rc.brief)이 있으면 그것,
+   없으면 «48판» 앞까지(쩔 줄은 «회피탱 혼자 + 저레벨 한 명 쩔 —» 머리를 뗀다 · 뒤에 «—» 로 붙는 주의 한 구절은 남김) · 그것도 없으면 첫 문장 */
+function briefOf(rc){
+  if(rc.brief) return rc.brief;
+  var w=rc.why||"";
+  var i=w.indexOf(" · 48판");
+  if(i>=0){
+    var b=w.slice(0,i).replace(/^회피탱 혼자 \+ 저레벨 한 명 쩔 — /,"").replace(/^회피탱 혼자 \+ 저레벨 한 명 — /,"")+" · 48판 무사";
+    var rest=w.slice(i); var k=rest.indexOf(" — ");
+    if(k>=0){ var c=rest.slice(k+3); var e=c.search(/[.。]/); b+=" — "+(e>=0? c.slice(0,e) : c); }
+    return b;
+  }
+  var m=w.match(/^(.*?[.。])(\s|$)/);
+  if(m && m[1].length<=120) return m[1];
+  return w.length>90 ? w.slice(0,88)+"…" : w;
+}
+var RECBY={};
 function recRow(rc){
   var p=PBY[rc.i]; if(!p) return "";
   var need=needAvoid(p.mh,30);
@@ -1102,8 +1125,8 @@ function recRow(rc){
   var av = '회피 '+need+'+'
     + (rc.here!==need ? '<span class="tadj">'+esc(rc.t)+' <b>'+rc.here+'</b></span>' : '');
   return '<div class="row rec pl" data-k="p" data-i="'+esc(p.i)+'" tabindex="0" role="button">'
-    +'<span class="nm">'+roleTag(rc.role)+'<b>'+esc(p.n||p.i)+'</b><span>'+esc(rc.why)
-    +(rc.loot?' <span class="loot">전리품 '+esc(rc.loot)+'</span>':'')+'</span></span>'
+    +'<span class="nm">'+roleTag(rc.role)+'<b>'+esc(p.n||p.i)+'</b><span>'+esc(briefOf(rc))
+    +(briefOf(rc)!==rc.why||rc.loot?' <span class="dim">· 누르면 자세히</span>':'')+'</span></span>'
     +'<span class="num">Lv'+(p.lv||0)+'</span>'
     +'<span class="num r3">'+av+'</span>'
     +'<span class="num'+(p.eh?'':' dim')+'">'+(p.eh? fmt(p.eh) : "–")+'<span class="dim sm"> exp/h</span>'+cfLine(p)+'</span>'
@@ -1113,7 +1136,7 @@ function recsBlock(){
   if(state.q || !D.recs) return "";
   var rows=[], last=null, n=0;
   D.recs.forEach(function(rc){
-    var p=PBY[rc.i]; if(!p || !okPlace(p)) return;
+    var p=PBY[rc.i]; RECBY[rc.i]=rc; if(!p || !okPlace(p)) return;
     if(state.reg && p.r!==state.reg) return;
     if(p.r!==last){ last=p.r; rows.push('<div class="rsub">'+esc(p.r)+'</div>'); }
     rows.push(recRow(rc)); n++;
@@ -1121,13 +1144,14 @@ function recsBlock(){
   if(!n) return "";
   return '<section class="group recs"><div class="ghead"><h2 style="color:var(--c-place)">지역별 훈련 추천 장소</h2>'
     +'<span class="sub">'+n+'곳 · 지역마다 쩔 1위 · 골드 1위</span><span class="rule"></span></div>'
-    +'<p class="recs-note"><b>쩔 기준</b>입니다 &mdash; 회피탱 혼자 앞줄(반격 단검) + 키울 저레벨 한 명 뒷줄로 지역마다 탐색지 전부를 24시간 판 48번 돌려, '
+    +'<p class="recs-note"><b>쩔 기준</b> &mdash; 회피탱 + 키울 저레벨 한 명으로 48판 아무도 안 죽은 곳 가운데 지역마다 <b>쩔 1위</b>(저레벨 경험치) · <b>골드 1위</b>. 줄을 누르면 그 탐색지와 추천 이유 전문이 열립니다.</p>'
+    +'<details class="more"><summary>기준 · «회피 N+» 읽는 법 · 숫자 뜻</summary><p class="recs-note">회피탱 혼자 앞줄(반격 단검) + 키울 저레벨 한 명 뒷줄로 지역마다 탐색지 전부를 24시간 판 48번 돌려, '
     +'<b>탱도 저레벨도 한 번도 안 죽은 곳</b> 중에서 골랐습니다. <b>쩔 1위</b> 는 저레벨이 받는 경험치가 가장 많은 곳, <b>골드 1위</b> 는 골드가 가장 많은 곳입니다(골드는 나누지 않습니다). '
     +'탱은 그 지역 단계의 쩔 탱입니다(<a href="builds.html#dodge-solo">빌드 &sect;6</a>). 1~3지역은 쩔이 안전한 곳이 없어 비웠습니다. '
     +'<b>회피 N+</b> 는 아래 목록의 것과 같은 값입니다 &mdash; 민첩 30 기준으로, 그곳에서 가장 잘 맞히는 놈의 평타를 2d6 이 최소로 나와도 피하는 회피값입니다. '
     +'지형이 평지가 아니면 그 자리에 박힌 보정(이동 곤란 +2 · 매우 곤란 +4 · 숲 &minus;1)을 더한 값을 옆에 굵게 적었습니다. '
     +'마법 · 상태이상처럼 회피로 못 막는 것도 시뮬이 세었습니다. 줄의 exp/h 는 도감 값(처음 나온 몬스터만)이고, 그 아래 «쩔 · 한 명» 이 쩔 시뮬 값입니다. 줄을 누르면 그 탐색지가 열립니다. '
-    +'지역이 열리는 조건은 <a href="regions.html">지역</a> 에 있습니다.</p>'
+    +'지역이 열리는 조건은 <a href="regions.html">지역</a> 에 있습니다.</p></details>'
     +'<div class="list">'+rows.join("")+'</div></section>';
 }
 
