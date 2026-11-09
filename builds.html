@@ -430,11 +430,13 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <tr><td>7 · 칼레바스 고원</td><td class="num"><b>41 · 48</b></td><td class="num" style="padding-left:14px">48 · 55</td><td class="num" style="padding-left:14px"><b>35</b></td></tr>
     <tr class="hi"><td>8 · 발케인</td><td class="num"><b>50 · 53</b></td><td class="num" style="padding-left:14px">57 · 60</td><td class="num" style="padding-left:14px"><b>55~70</b></td></tr>
   </tbody></table></div>
+  <details class="more"><summary>숫자 읽는 법 &mdash; 회피 능력 · 완봉선 · 마방</summary>
   <p class="sm"><b>회피 능력</b>은 상세 화면에 보이는 값입니다(민첩 45 기준 · 민첩 52 이상이면 1 빼고, 38~44 면 1 더하고, 32~37 이면 2 더함). 이 값 이상이면 그곳 평타를 한 대도 안 맞습니다.
      <b>완봉선</b>은 거기에 민첩 몫(민첩 32 &rarr; 5 · 38 &rarr; 6 · 45 &rarr; 7 · 52 &rarr; 8 · 58 &rarr; 9 · 65 &rarr; 10)을 더한 값으로, 카드의 «완봉» 이 이것입니다(<a href="notes.html#dodgeline">원리 &sect;5</a> · 퀘스트는 반복 보정 +3 까지 오른 값). 강화로 붙는 «회피 +N» 은 둘 다 그만큼 올립니다.
      <b>마방</b>은 회피탱 + 활 + 법사 둘로 그 단계 의뢰를 돌려 마방만 바꿨을 때 탱 사망이 더 안 줄어드는 지점입니다 &mdash; 그 아래면 마법에 쓰러집니다(7단계 마방 10 이면 3.1% · 35 면 0.9%).
      <b>8단계는 그런 지점 없이 높을수록 덜 쓰러집니다</b> &mdash; 회피탱 사망 마방 40 &rarr; 2.7% · 50 &rarr; 1.3 · 57(카드) &rarr; 0.7 · 70 &rarr; 0.2%.</p>
   <details class="src"><summary>코드 근거</summary><p>마방 &mdash; tools/sim/research/farm/mdef_sim4.py(4단계) · mdef_sim.py(5~7단계 · 풋워커 시트의 마방만 바꿈) · research/farm/stagek role_sim MD8_*(8단계 · 새로 키운 카드의 마방만 바꿈 · 활 셋 40 + 법사 둘) · 의뢰마다 200판 · 같은 씨앗.</p></details>
+  </details>
   <details class="bcard rec" id="dodge-8"><summary><span class="st">8단계</span> 처음부터 키울 때 <span class="badge">추천</span> <span class="sumsub">풋워커 여 · 선봉병 40 주 + 도둑 · 현자 40 · 29.9M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 민첩 20 까지, 나머지 생명점.</dd>
@@ -461,12 +463,12 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <p class="why">7단계 의뢰는 방어탱 파티가 기본이고, 회피탱은 <b>금고 의뢰</b>에 씁니다(도둑이 둘이라 금고가 더 열림).</p>
     </div>
   </details>
-  <details class="bcard"><summary><span class="st">7단계</span> 처음부터 키울 때 · 풋워커 도둑 주 <span class="sumsub">풋워커 여 · 도둑 35 주 · 9.0M</span></summary>
+  <details class="bcard"><summary><span class="st">7단계</span> 처음부터 키울 때 · 풋워커 도둑 주 <span class="sumsub">풋워커 여 · 도둑 35 주 · 장비 강화 마방 +14 필요 · 9.0M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 전부 민첩.</dd>
       <dt>직업</dt><dd><b>도둑 35</b>(주) · 모험가 36 · 현자 35 · 숨은 칼날의 궁사 20 · 검술사 15 · 베테랑 파이터 10 · 마검사 6 · 숙련된 사냥꾼 1</dd>
       <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EB%B6%88%ED%83%80%EB%8A%94%20%ED%99%9C">불타는 활</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EA%B2%80%EC%9D%80%20%EB%B4%89%EC%9D%B8%EC%9D%98%20%EB%B0%A9%ED%8C%A8">검은 봉인의 방패</a> &mdash; 도둑 주는 부적 칸이 없어 마방을 방패 · 강화로 채웁니다</dd>
-      <dt>수치</dt><dd>완봉 50 &rarr; 강화 회피 +5 로 <b>55</b> · HP 41 · 마방 21 &rarr; 강화 마방 +14 로 <b>35</b></dd>
+      <dt>수치</dt><dd>완봉 50 &rarr; 강화 회피 +5 로 <b>55</b> · HP 41 · 마방 21(검은 봉인의 방패까지) &rarr; <b>장비 강화 마방 +14</b> 로 <b>35</b></dd>
       <dt>경험치</dt><dd><b>9.0M</b>(4단계부터 이어 올리면 30.6M)</dd>
       <dt>결과</dt><dd>7단계 의뢰 회피탱 + 활 + 법사 둘 &mdash; 탱 사망 0.9 · 전멸 0.30 · <b>금고 99%</b></dd>
     </dl>
@@ -495,12 +497,12 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     </dl>
     </div>
   </details>
-  <details class="bcard"><summary><span class="st">6단계</span> 처음부터 키울 때 · 풋워커 도둑 주 <span class="sumsub">풋워커 여 · 도둑 30 주 · 6.0M</span></summary>
+  <details class="bcard"><summary><span class="st">6단계</span> 처음부터 키울 때 · 풋워커 도둑 주 <span class="sumsub">풋워커 여 · 도둑 30 주 · 장비 강화 마방 +15 필요 · 6.0M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 전부 민첩.</dd>
       <dt>직업</dt><dd><b>도둑 30</b>(주) · 모험가 31 · 현자 30 · 숨은 칼날의 궁사 20 · 검술사 15 · 베테랑 파이터 10 · 마검사 6 · 숙련된 사냥꾼 1</dd>
       <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EB%AA%85%EC%B2%9C%EA%B6%81">명천궁</a>(관통) · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EA%B2%80%EC%9D%80%20%EB%B4%89%EC%9D%B8%EC%9D%98%20%EB%B0%A9%ED%8C%A8">검은 봉인의 방패</a></dd>
-      <dt>수치</dt><dd>완봉 45 &rarr; 강화로 48 · HP 38 · 마방 20 &rarr; 강화로 35</dd>
+      <dt>수치</dt><dd>완봉 45 &rarr; 강화 회피 +3 으로 48 · HP 38 · 마방 20(검은 봉인의 방패까지) &rarr; <b>장비 강화 마방 +15</b> 로 <b>35</b></dd>
       <dt>경험치</dt><dd><b>6.0M</b></dd>
       <dt>결과</dt><dd>6단계 의뢰 탱 사망 0.7 · 전멸 0.27</dd>
     </dl>
