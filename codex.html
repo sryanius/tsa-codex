@@ -696,6 +696,8 @@ var ITAG=[
   {k:"place", l:"탐색지",      t:function(x){ return itemPlaces(x).length>0; }},
   {k:"quest", l:"퀘스트",      t:function(x){ return qdOf(x).length>0; }},
   {k:"sp",    l:"특수능력",    t:function(x){ return x.sp.length>0; }},
+  // 마법 공격으로 취급되는 무기 — 물리 무효 몬스터에게 통하는 유일한 무기(행의 «마법» 배지와 같은 뜻 · 2026-11-09 제작자 «필터에 마법무기도 넣어줘»)
+  {k:"magic", l:"마법 무기",    t:function(x){ return x.cat==="무기" && !!x.mag; }},
   // 제작등급 5 이상으로 떨어지는 것. Weapon.Craft 의 «5단계» 블록이 도는 유일한
   // 현실적 경로라서, 추가공격·전체공격이 붙을 수 있는 후보다.
   {k:"cl5",   l:"+5강 이상 드랍", t:function(x){ return maxCl(x)>=5; }},
