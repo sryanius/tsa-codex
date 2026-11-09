@@ -418,11 +418,22 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
   <p class="secdate">2026-11-09 갱신</p>
   <div class="gist"><b class="gist-h">요약</b><ul>
     <li>회피가 그 지역 «완봉선» 이상이면 평타를 <b>한 대도 안 맞습니다</b>(<a href="notes.html#hit">원리 &sect;5</a>). 약점은 회피로 못 막는 <b>마법 · 함정 · 반격</b>이라 마법 방어와 HP 를 같이 챙깁니다.</li>
-    <li><b>4~7단계는 엘프 여 · 도둑 주</b>(엘프는 도둑이어도 부적 칸이 열림 · 마법 활). <b>8단계부터는 풋워커 여 · 선봉병 주</b> &mdash; 투구 · 부적 · 방패 칸으로 마법 방어까지 갖추고, 풋워커라 선봉병이어도 활을 듭니다.</li>
+    <li><b>4~7단계는 엘프 여 · 도둑 주</b>(엘프는 도둑이어도 부적 칸이 열림 · 마법 활) &mdash; <b>풋워커 여</b>도 6 · 7단계는 같은 급입니다(마방은 방패 · 강화로 · 8단계까지 이어 쓰기 좋음). <b>8단계부터는 풋워커 여 · 선봉병 주</b> &mdash; 투구 · 부적 · 방패 칸으로 마법 방어까지 갖추고, 풋워커라 선봉병이어도 활을 듭니다.</li>
     <li>8단계는 방패를 <b><a class="it" href="codex.html?v=item&amp;q=%ED%95%98%EB%82%98%EB%AA%A8%EB%A6%AC%EC%9D%98%20%EB%B0%A9%ED%8C%A8">하나모리의 방패</a></b>(HP +6/턴)로 &mdash; 파티 전멸 0.9 &rarr; 0.4%(리더 활이 셋 40 일 때).</li>
     <li>쓰는 곳: 6·7단계 금고 의뢰 · <b>8단계 의뢰의 앞줄</b> · 혼자 / 둘이(<a href="#solo">솔플</a>) · 쩔.</li>
     <li>완봉선 표 · 강화 · 엘프냐 풋워커냐 · 마방 갈림선 같은 근거는 <a href="#ev-dodge">빌드 근거 &sect;3</a>.</li>
   </ul></div>
+  <div style="overflow-x:auto"><table class="t" id="dodge-need"><thead><tr><th>단계 · 지역</th><th class="num">필요 회피(완봉)<br><span style="font-weight:400">자유 탐색 · 퀘스트</span></th><th class="num">마방<br><span style="font-weight:400">대략</span></th><th class="num" style="padding-left:18px">카드 완봉 · 마방<br><span style="font-weight:400">엘프 / 풋워커</span></th></tr></thead><tbody>
+    <tr><td>4 · 아르디오스 왕국</td><td class="num">23 · 37</td><td class="num"><b>35</b></td><td class="num" style="padding-left:18px">31 · 44 / 31 · 39</td></tr>
+    <tr><td>5 · 바람의 거친 경계</td><td class="num">38 · 41</td><td class="num"><b>35</b></td><td class="num" style="padding-left:18px">38 · 40 / 34 · 40</td></tr>
+    <tr><td>6 · 발두나의 황야</td><td class="num">44 · 48</td><td class="num"><b>35</b></td><td class="num" style="padding-left:18px">48 · 45 / 48 · 35</td></tr>
+    <tr><td>7 · 칼레바스 고원</td><td class="num">48 · 55</td><td class="num"><b>35</b></td><td class="num" style="padding-left:18px">55 · 46 / 55 · 35</td></tr>
+    <tr class="hi"><td>8 · 발케인 지방</td><td class="num">57 · 60</td><td class="num"><b>55~70</b></td><td class="num" style="padding-left:18px">73 · 57 <span class="sub">풋워커 선봉병 주</span></td></tr>
+  </tbody></table></div>
+  <p class="sm"><b>완봉</b> = 상세 화면 «회피 능력» + 민첩 몫(민첩 45 &rarr; 7 · 52 &rarr; 8) &mdash; 이 값 이상이면 평타를 한 대도 안 맞습니다(<a href="notes.html#dodgeline">원리 &sect;5</a> · 퀘스트는 반복 보정 +3 까지 오른 값). 6 · 7단계 카드 값은 강화를 넣은 것입니다.
+     <b>마방</b>은 회피탱 + 활 + 법사 둘로 그 단계 의뢰를 돌려 마방만 바꿨을 때 탱 사망이 더 안 줄어드는 지점입니다 &mdash; 그 아래면 마법에 쓰러집니다(7단계 마방 10 이면 3.1% · 35 면 0.9%).
+     <b>8단계는 그런 지점 없이 높을수록 덜 쓰러집니다</b> &mdash; 회피탱 사망 마방 40 &rarr; 2.7% · 50 &rarr; 1.3 · 57(카드) &rarr; 0.7 · 70 &rarr; 0.2%.</p>
+  <details class="src"><summary>코드 근거</summary><p>마방 &mdash; tools/sim/research/farm/mdef_sim4.py(4단계) · mdef_sim.py(5~7단계 · 풋워커 시트의 마방만 바꿈) · research/farm/stagek role_sim MD8_*(8단계 · 새로 키운 카드의 마방만 바꿈 · 활 셋 40 + 법사 둘) · 의뢰마다 200판 · 같은 씨앗.</p></details>
   <details class="bcard rec" id="dodge-8"><summary><span class="st">8단계</span> 처음부터 키울 때 <span class="badge">추천</span> <span class="sumsub">풋워커 여 · 선봉병 40 주 + 도둑 · 현자 40 · 29.9M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 민첩 20 까지, 나머지 생명점.</dd>
@@ -437,7 +448,7 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
        도둑을 35 에 두면 23.6M 에 98.8 · 0.4 로 거의 같습니다(금고는 리더 활의 도둑 40 이 엽니다). 혼자 돌릴 거면 레인저도 40 까지(195M &mdash; <a href="#solo">솔플</a>).</p>
     </div>
   </details>
-  <details class="bcard"><summary><span class="st">7단계</span> 처음부터 키울 때 <span class="sumsub">엘프 여 · 도둑 35 주 · 7.3M</span></summary>
+  <details class="bcard"><summary><span class="st">7단계</span> 처음부터 키울 때 · 엘프 <span class="sumsub">엘프 여 · 도둑 35 주 · 7.3M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>종족</dt><dd><b>엘프 여</b>(루페리아 그로브) &mdash; 도둑이어도 부적 칸이 열립니다. 초빙 포인트는 전부 민첩.</dd>
       <dt>직업</dt><dd><b>도둑 35</b>(주) · 모험가 36 · 현자 35 · 숨은 칼날의 궁사 16 · 검술사 15 · 베테랑 파이터 5</dd>
@@ -449,7 +460,19 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     <p class="why">7단계 의뢰는 방어탱 파티가 기본이고, 회피탱은 <b>금고 의뢰</b>에 씁니다(도둑이 둘이라 금고가 더 열림).</p>
     </div>
   </details>
-  <details class="bcard"><summary><span class="st">6단계</span> 처음부터 키울 때 <span class="sumsub">엘프 여 · 도둑 30 주 · 4.6M</span></summary>
+  <details class="bcard"><summary><span class="st">7단계</span> 처음부터 키울 때 · 풋워커 <span class="sumsub">풋워커 여 · 도둑 35 주 · 9.0M</span></summary>
+    <div class="cbody"><dl class="kv">
+      <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 전부 민첩.</dd>
+      <dt>직업</dt><dd><b>도둑 35</b>(주) · 모험가 36 · 현자 35 · 숨은 칼날의 궁사 20 · 검술사 15 · 베테랑 파이터 10 · 마검사 6 · 숙련된 사냥꾼 1</dd>
+      <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EB%B6%88%ED%83%80%EB%8A%94%20%ED%99%9C">불타는 활</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EA%B2%80%EC%9D%80%20%EB%B4%89%EC%9D%B8%EC%9D%98%20%EB%B0%A9%ED%8C%A8">검은 봉인의 방패</a> &mdash; 도둑 주는 부적 칸이 없어 마방을 방패 · 강화로 채웁니다</dd>
+      <dt>수치</dt><dd>완봉 50 &rarr; 강화 회피 +5 로 <b>55</b> · HP 41 · 마방 21 &rarr; 강화 마방 +14 로 <b>35</b></dd>
+      <dt>경험치</dt><dd><b>9.0M</b>(4단계부터 이어 올리면 30.6M)</dd>
+      <dt>결과</dt><dd>7단계 의뢰 회피탱 + 활 + 법사 둘 &mdash; 탱 사망 0.9 · 전멸 0.30 · <b>금고 99%</b></dd>
+    </dl>
+    <p class="why">엘프와 같은 급입니다 &mdash; 재주 · 통찰이 높아 금고를 조금 더 열고(99.0 대 98.1%) HP 가 4 높습니다. 대신 마방 35 를 강화로 채워야 하고(못 채우면 탱 사망 3% 안팎 &mdash; <a href="#ev-dodge-fw-thief">근거 &sect;3</a>) 경험치가 1.7M 더 듭니다. <b>8단계까지 이어 쓸 거면 풋워커</b>입니다(엘프는 선봉병이면 활을 못 듦).</p>
+    </div>
+  </details>
+  <details class="bcard"><summary><span class="st">6단계</span> 처음부터 키울 때 · 엘프 <span class="sumsub">엘프 여 · 도둑 30 주 · 4.6M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>직업</dt><dd><b>도둑 30</b>(주) · 모험가 31 · 현자 30 · 숨은 칼날의 궁사 16 · 검술사 15 · 베테랑 파이터 5</dd>
       <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EB%AA%85%EC%B2%9C%EA%B6%81">명천궁</a>(관통) · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EC%84%B8%EB%9D%BC%EB%AF%B9%EC%8A%A4%ED%8B%B8%20%EC%98%A4%EB%A9%98%EC%9B%8C%EB%93%9C%20%ED%83%88%EB%A6%AC%EC%8A%A4%EB%A7%8C">세라믹스틸 오멘워드 탈리스만</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%85%8C%EB%9D%BC%20%EB%B2%84%ED%81%B4%EB%9F%AC">테라 버클러</a></dd>
@@ -459,7 +482,18 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     </dl>
     </div>
   </details>
-  <details class="bcard"><summary><span class="st">5단계</span> 처음부터 키울 때 <span class="sumsub">엘프 여 · 도둑 25 주 · 2.8M</span></summary>
+  <details class="bcard"><summary><span class="st">6단계</span> 처음부터 키울 때 · 풋워커 <span class="sumsub">풋워커 여 · 도둑 30 주 · 6.0M</span></summary>
+    <div class="cbody"><dl class="kv">
+      <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 전부 민첩.</dd>
+      <dt>직업</dt><dd><b>도둑 30</b>(주) · 모험가 31 · 현자 30 · 숨은 칼날의 궁사 20 · 검술사 15 · 베테랑 파이터 10 · 마검사 6 · 숙련된 사냥꾼 1</dd>
+      <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EB%AA%85%EC%B2%9C%EA%B6%81">명천궁</a>(관통) · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EA%B2%80%EC%9D%80%20%EB%B4%89%EC%9D%B8%EC%9D%98%20%EB%B0%A9%ED%8C%A8">검은 봉인의 방패</a></dd>
+      <dt>수치</dt><dd>완봉 45 &rarr; 강화로 48 · HP 38 · 마방 20 &rarr; 강화로 35</dd>
+      <dt>경험치</dt><dd><b>6.0M</b></dd>
+      <dt>결과</dt><dd>6단계 의뢰 탱 사망 0.7 · 전멸 0.27</dd>
+    </dl>
+    </div>
+  </details>
+  <details class="bcard"><summary><span class="st">5단계</span> 처음부터 키울 때 · 엘프 <span class="sumsub">엘프 여 · 도둑 25 주 · 2.8M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>직업</dt><dd><b>도둑 25</b>(주) · 모험가 26 · 현자 25 · 숨은 칼날의 궁사 16 · 검술사 15 · 베테랑 파이터 5</dd>
       <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EC%A7%80%EB%AC%B8%EC%9D%98%20%ED%98%84%EA%B6%81">지문의 현궁</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EB%8B%A8%EB%A7%88%EC%9D%98%20%EB%B6%80%EC%A0%81">단마의 부적</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%85%8C%EB%9D%BC%20%EB%B2%84%ED%81%B4%EB%9F%AC">테라 버클러</a></dd>
@@ -469,13 +503,36 @@ details.more[open]>summary{margin-left:-12px;padding-left:0}
     </dl>
     </div>
   </details>
-  <details class="bcard"><summary><span class="st">4단계</span> 처음부터 키울 때 <span class="sumsub">엘프 여 · 도둑 20 주 · 1.2M</span></summary>
+  <details class="bcard"><summary><span class="st">5단계</span> 처음부터 키울 때 · 풋워커 <span class="sumsub">풋워커 여 · 숨은 칼날의 궁사 19 주 · 3.2M</span></summary>
+    <div class="cbody"><dl class="kv">
+      <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 전부 민첩.</dd>
+      <dt>직업</dt><dd><b>숨은 칼날의 궁사 19</b>(주) · 모험가 26 · 도둑 25 · 현자 25 · 검술사 13 · 베테랑 파이터 10 · 숙련된 사냥꾼 1</dd>
+      <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%EC%A7%80%EB%AC%B8%EC%9D%98%20%ED%98%84%EA%B6%81">지문의 현궁</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EB%8B%A8%EB%A7%88%EC%9D%98%20%EB%B6%80%EC%A0%81">단마의 부적</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%85%8C%EB%9D%BC%20%EB%B2%84%ED%81%B4%EB%9F%AC">테라 버클러</a></dd>
+      <dt>수치</dt><dd>완봉 34 · HP 35 · 마방 40</dd>
+      <dt>경험치</dt><dd><b>3.2M</b></dd>
+      <dt>결과</dt><dd>5단계 의뢰 탱 사망 7.5 · 전멸 5.0 &mdash; 5단계 의뢰는 방어탱 파티로 갑니다</dd>
+    </dl>
+    <p class="why">4·5단계는 부적 칸이 열리는 숨은 칼날의 궁사 주직업입니다 &mdash; 도둑 주로 가면 마방을 채울 방패가 아직 없어(검은 봉인의 방패는 6단계 물건) 5단계 탱 사망이 12.6% 입니다. 완봉이 엘프보다 4 낮아 바람의 경계 퀘스트에서 맞습니다.</p>
+    </div>
+  </details>
+  <details class="bcard"><summary><span class="st">4단계</span> 처음부터 키울 때 · 엘프 <span class="sumsub">엘프 여 · 도둑 20 주 · 1.2M</span></summary>
     <div class="cbody"><dl class="kv">
       <dt>직업</dt><dd><b>도둑 20</b>(주) · 모험가 21 · 현자 20 · 검술사 15 · 숨은 칼날의 궁사 11</dd>
       <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%ED%94%84%EB%A6%AC%EC%A6%88%20%EC%95%84%EC%9D%B4">프리즈 아이</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EB%8B%A8%EB%A7%88%EC%9D%98%20%EB%B6%80%EC%A0%81">단마의 부적</a> · <a class="it" href="codex.html?v=item&amp;q=%EB%A3%AC%20%EC%8B%A4%EB%93%9C">룬 실드</a></dd>
       <dt>수치</dt><dd>완봉 31 · HP 25 · 마방 44</dd>
       <dt>경험치</dt><dd><b>1.2M</b></dd>
       <dt>결과</dt><dd>4단계 의뢰 탱 사망 2.1 · 전멸 1.9</dd>
+    </dl>
+    </div>
+  </details>
+  <details class="bcard"><summary><span class="st">4단계</span> 처음부터 키울 때 · 풋워커 <span class="sumsub">풋워커 여 · 숨은 칼날의 궁사 19 주 · 1.5M</span></summary>
+    <div class="cbody"><dl class="kv">
+      <dt>종족</dt><dd><b>풋워커 여</b>(풋워커의 마을) &mdash; 주직업이 무엇이든 활을 낍니다. 초빙 포인트는 전부 민첩.</dd>
+      <dt>직업</dt><dd><b>숨은 칼날의 궁사 19</b>(주) · 모험가 21 · 도둑 20 · 현자 20 · 베테랑 파이터 10 · 검술사 6 · 숙련된 사냥꾼 1</dd>
+      <dt>장비</dt><dd><a class="it mag" href="codex.html?v=item&amp;q=%ED%94%84%EB%A6%AC%EC%A6%88%20%EC%95%84%EC%9D%B4">프리즈 아이</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%86%B5%ED%92%8D%EC%9D%B4%20%EC%9E%98%EB%90%98%EB%8A%94%20%EC%98%B7">통풍이 잘되는 옷</a> · <a class="it" href="codex.html?v=item&amp;q=%EB%8B%A8%EB%A7%88%EC%9D%98%20%EB%B6%80%EC%A0%81">단마의 부적</a> · <a class="it" href="codex.html?v=item&amp;q=%ED%85%8C%EB%9D%BC%20%EB%B2%84%ED%81%B4%EB%9F%AC">테라 버클러</a></dd>
+      <dt>수치</dt><dd>완봉 31 · HP 31 · 마방 39</dd>
+      <dt>경험치</dt><dd><b>1.5M</b></dd>
+      <dt>결과</dt><dd>4단계 의뢰 탱 사망 2.0 · 전멸 1.8</dd>
     </dl>
     </div>
   </details>
