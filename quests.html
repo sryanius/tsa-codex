@@ -256,6 +256,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,.row:focus-visible
 .spec tr+tr th,.spec tr+tr td{border-top:1px solid var(--line-soft)}
 .spec td .sm{font-size:11px;color:var(--muted)}
 .spec td .warn{color:var(--f-heal);font-weight:600}
+/* 마을 묶음 머리 아래 «처음 뜰 수 있는 의뢰»(2026-11-11 — 길드원 «항구 마을 의뢰가 하나도 안 뜬다») — 다른 마을 선행 · 조건 마을이 걸리면 붉은 띠 */
+.firstq{font-size:12.5px;line-height:1.6;color:var(--muted);margin:-4px 0 10px;padding:6px 10px;border-left:2px solid var(--line);background:var(--surface);border-radius:0 6px 6px 0}
+.firstq a{color:var(--ink);font-weight:600}
+.firstq.hard{border-left-color:var(--f-heal)} .firstq.hard b.k{color:var(--f-heal)}
+.firstq .sm{font-size:12px}
 .spec td .hi{color:var(--accent);font-weight:600}
 .spec td b{font-weight:700}
 .spec td .mono{font-family:"IBM Plex Mono","IBM Plex Sans KR",monospace;font-size:12px}
@@ -927,7 +932,7 @@ function rowHTML(x){
     +(clearsOf(x)>0?'<i class="cc" title="세이브 기준 클리어 횟수">×'+clearsOf(x)+'</i>':'')+'</b><span>'+esc([x.t||(x.gq?"길드 의뢰":""),x.p,x.o].filter(Boolean).join(" · "))+'</span></span>'   // 길드 의뢰는 마을이 없어 «· 목표» 로 시작하던 것
     +badge
     +'<span class="num qreq'+(x.rep<0?" neg":(x.pk>0?"":" dim"))+'" title="'
-      +(x.rep<0?"평판이 이 값 «이하» 여야 등장합니다":"평판이 이 값 «이상» 이어야 등장합니다 (선행 체인 반영)")+'">'+gateText(x)
+      +(x.rep<0?"평판이 이 값 «이하» 여야 등장합니다":"이 마을 평판이 이 값 «이상» 이어야 등장합니다 (이 마을 선행 체인 반영 · 다른 마을 선행은 상세에)")+'">'+gateText(x)
       +(x.rep>=0&&x.pk>x.rep?'<i class="up" title="이 퀘스트 자체는 '+x.rep+', 선행이 '+x.pk+'을 요구">▲</i>':'')
       +(x.rep>=0&&x.dp!=null?'<i class="dn" title="선행에 «평판 '+x.dp+' 이하» 관문이 있습니다">▼</i>':'')+'</span>'
     +'<span class="num rep'+(x.rp<0?" minus":(x.rp>0?" plus":" dim"))+'" title="깼을 때 평판 변화">'
@@ -1056,7 +1061,10 @@ function specHTML(x){
     + (until ? specRow(x.si>=99?'처음 뜨기까지':'다시 뜨기까지', until) : '')
     + (ag && ag.last ? specRow('마지막 클리어', esc(String(ag.last).slice(0,16).replace("T"," "))) : '')
     + specRow('게시판 유효기간', dlTxt(x.dl)+(x.si===99 && x.dl && x.dl<=1440 ? ' <span class="warn">짧다</span>' : ''))
-    + specRow('선행 성공 횟수', String(x.sc));
+    + (x.px ? x.px.map(function(g,k){ return specRow(k?'':'다른 마을 선행', pxText(g,true)); }).join('') : '')
+    + (x.ct ? specRow('조건 마을', '«'+esc(x.ct)+'» <span class="sm">지도에서 찾아 둬야 뜹니다</span>') : '')
+    + specRow('이 마을 첫 의뢰', x.sc ? '아님 <span class="sm">이 마을 의뢰를 '+x.sc+'종 이상 깬 뒤에 뜹니다</span>'
+                                   : (x.t ? '<b>예</b> <span class="sm">이 마을 의뢰를 하나도 안 깼어도 뜹니다</span>' : '—'));
   var t2 = specRow('권장 레벨', x.lv+(x.ml?' <span class="sm">+'+x.ml+'까지</span>':''))
     + specRow('인원', members(x.mem))
     + specRow('소요', esc(x.tm))
@@ -1436,12 +1444,38 @@ function guildView(rows){
     mine.slice().sort(function(a,b){ return a.lv-b.lv; }), "var(--f-vault)");
 }
 
-function groupBlock(title,sub,rows,color,extra){
+function groupBlock(title,sub,rows,color,extra,pre){
   if(!rows.length) return "";
   return '<section class="group"><div class="ghead">'
     +'<h2'+(color?' style="color:'+color+'"':"")+'>'+esc(title)+'</h2>'
-    +'<span class="sub">'+esc(sub)+'</span>'+(extra||"")+'<span class="rule"></span></div>'
+    +'<span class="sub">'+esc(sub)+'</span>'+(extra||"")+'<span class="rule"></span></div>'+(pre||"")
     +'<div class="list">'+sorted(rows).map(rowHTML).join("")+'</div></section>';
+}
+/* 다른 마을 선행(자료 px · 2026-11-11). 요구 평판(pk)은 «이 마을» 선행만 센 값이고, 다른 마을 선행의 요구는 그 마을 평판이라 따로 적는다. */
+function pxText(g, link, after){
+  var ns=g.q.map(function(id){ var q=BYID[id], n=q?(q.n||id):id;
+    return link ? '<a class="goto" href="?q='+encodeURIComponent(id)+'" target="_blank" rel="noopener">'+esc(n)+'</a>' : '«'+esc(n)+'»'; });
+  return esc(g.t)+' '+ns.slice(0,2).join(' · ')+(ns.length>2?' 외 '+(ns.length-2)+'개':'')+(after||'')
+    +(g.pk>0?' <span class="sm">'+esc(g.t)+' 평판 '+g.pk+' 이상</span>':'')
+    +(g.dp!=null?' <span class="sm">· '+esc(g.t)+' 평판 '+g.dp+' 이하도 거침</span>':'');
+}
+/* 마을의 «첫 의뢰» — 게시 조건 ⑤(그 마을에서 깬 의뢰 종류 ≥ sc · 지역 §0)가 없는 의뢰. 이것부터 깨야 나머지가 뜬다.
+   세이브에 이 마을 클리어가 하나라도 있으면 이미 열린 마을이라 안 보인다. */
+function firstBox(town){
+  var all=BYTOWN[town]||[];
+  if(!all.length || all.some(isDone)) return "";
+  var ent=all.filter(function(x){ return !x.sc; }), gated=all.length-ent.length;
+  if(!gated || !ent.length) return "";
+  var hard=ent.every(function(x){ return (x.px&&x.px.length) || x.ct; });
+  var items=ent.map(function(x){
+    var c=[];
+    if(x.p) c.push('탐색지 «'+esc(x.p)+'»');
+    if(x.rep<0) c.push('평판 '+x.rep+' 이하'); else if(x.pk>0) c.push('평판 '+x.pk+' 이상');
+    (x.px||[]).forEach(function(g){ c.push('<b class="k">'+pxText(g,false,' 먼저 깸')+'</b>'); });
+    if(x.ct) c.push('«'+esc(x.ct)+'» 를 지도에서 찾아 둠');
+    return '<a href="?q='+encodeURIComponent(x.i)+'" target="_blank" rel="noopener">'+esc(x.n||x.i)+'</a>'+(c.length?' <span class="sm">('+c.join(' · ')+')</span>':'');
+  });
+  return '<p class="firstq'+(hard?' hard':'')+'">이 마을 의뢰 '+all.length+'개 중 '+gated+'개는 <b>이 마을 의뢰를 하나 깬 뒤</b>에 뜹니다. 처음 뜰 수 있는 것: '+items.join(' · ')+'</p>';
 }
 // 남은 의뢰 수는 세이브(clearCount)에서 그대로 나온다.
 // 예전엔 게임 갱신창의 숫자를 손으로 넣게 했는데, 세이브를 붙인 뒤로는
@@ -1592,7 +1626,7 @@ function render(){
       var rs=rows.filter(function(x){ return x.t===t.n; });
       var all=(BYTOWN[t.n]||[]), sd=all.filter(isDone).length;
       var sub=t.r+" · 지금 보이는 것 "+rs.length+"건"+(LOCKED[t.n]?" · 미출시 지역":"");
-      html+=groupBlock(t.n, sub, rs, null, remainBox(t.n));
+      html+=groupBlock(t.n, sub, rs, null, remainBox(t.n), firstBox(t.n));
     });
     var orphan=rows.filter(function(x){ return !x.t; });
     html+=groupBlock("길드 퀘스트", orphan.length+"건 · 도시 게시판에 안 뜨고 세이브에도 기록이 없어 진행도 집계에서 뺐습니다", orphan, null);
